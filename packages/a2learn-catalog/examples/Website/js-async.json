@@ -1,0 +1,104 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-js-async",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-js-async",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": ["header", "learning-path", "intro-text", "concept", "sandbox", "quiz", "resources"]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "JavaScript 异步编程与 Promise 核心原理"
+        },
+        {
+          "id": "learning-path",
+          "component": "LearningPath",
+          "title": "Promise 学习路径",
+          "activeStepId": "1",
+          "steps": [
+            { "id": "1", "title": "认识 Promise" },
+            { "id": "2", "title": "手写 delay" },
+            { "id": "3", "title": "解锁成就" }
+          ],
+          "onStepSelect": { "name": "learning_path_select", "context": {} }
+        },
+        {
+          "id": "intro-text",
+          "component": "Text",
+          "text": "在浏览器和 Node.js 等 JavaScript 运行环境中，异步编程是处理 I/O 密集型任务的核心。传统的异步依赖回调函数，导致了“回调地狱”。ES6 引入的 Promise 改变了这一困境。"
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "Promise",
+          "tags": ["JavaScript", "Async", "ES6"],
+          "definition": "<b>Promise</b> 对象代表了异步操作的最终完成（或失败）及其结果值。它有三种状态：<code>pending</code> (进行中)、<code>fulfilled</code> (已成功) 和 <code>rejected</code> (已失败)。状态一旦改变，就不会再变。",
+          "example": "<pre><code>const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    resolve('Success!');\n  }, 1000);\n});\n\npromise.then((value) => {\n  console.log(value); // \"Success!\"\n});</code></pre>",
+          "relatedConcepts": ["async / await", "Event Loop", "Microtask Queue"]
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "动手尝试 Promise.all",
+          "description": "你可以运行下面的代码，看看 <code>Promise.all</code> 是如何等待所有 Promise 并行完成的。",
+          "language": "javascript",
+          "code": "const p1 = Promise.resolve(3);\nconst p2 = 1337;\nconst p3 = new Promise((resolve, reject) => {\n  setTimeout(resolve, 100, 'foo');\n});\n\nPromise.all([p1, p2, p3]).then(values => {\n  console.log(values); \n});",
+          "status": "success",
+          "output": "[ 3, 1337, 'foo' ]",
+          "onRunCode": { "name": "run_sandbox_code", "context": {} },
+          "onStatusChange": { "name": "sandbox_status_change", "context": {} }
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "Promise 小测验",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Promise 一旦从 pending 变为 fulfilled/rejected 后会怎样？",
+              "options": [
+                "状态可以反复切换",
+                "状态不可再变化",
+                "只能变回 pending",
+                "必须由 setTimeout 重置"
+              ],
+              "correctIndex": 1,
+              "explanation": "Promise 的状态具有一次性，状态落定后不可逆。"
+            }
+          ]
+        },
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "官方文档与指南",
+          "resources": [
+            {
+              "title": "MDN: 使用 Promise",
+              "url": "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Using_promises",
+              "description": "Mozilla 开发者网络上权威的 Promise 使用指南。",
+              "type": "doc"
+            },
+            {
+              "title": "JavaScript Visualized: Promises & Async/Await",
+              "url": "https://dev.to/lydiahallie/javascript-visualized-promises-async-await-5gke",
+              "description": "通过动图直观讲解 JavaScript 的事件循环和异步机制。",
+              "type": "article"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

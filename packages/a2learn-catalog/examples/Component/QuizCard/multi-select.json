@@ -1,0 +1,60 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "QuizCard-multi-select",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "QuizCard-multi-select",
+      "components": [
+        {
+          "id": "root",
+          "component": "QuizCard",
+          "title": { "literalString": "期中考试：前端基础" },
+          "questions": [
+            {
+              "id": "q1",
+              "question": { "literalString": "下面哪些属于 JavaScript 的基础数据类型（Primitive Types）？（多选）" },
+              "options": [
+                { "literalString": "String" },
+                { "literalString": "Object" },
+                { "literalString": "Boolean" },
+                { "literalString": "Array" }
+              ],
+              "correctIndex": [0, 2],
+              "explanation": { "literalString": "Object 和 Array 是引用类型 (Reference Types)。" }
+            },
+            {
+              "id": "q2",
+              "question": { "literalString": "React 中能够触发组件重新渲染的操作有哪些？（多选）" },
+              "options": [
+                { "literalString": "调用 `setState`" },
+                { "literalString": "修改普通的 `let` 变量" },
+                { "literalString": "父组件重新渲染" },
+                { "literalString": "修改 `useRef` 的 `current` 值" }
+              ],
+              "correctIndex": [0, 2],
+              "explanation": { "literalString": "普通变量和 ref 值的改变不会触发组件重渲染。只有 state 改变或父组件渲染时才会。" }
+            },
+            {
+              "id": "q3",
+              "question": { "literalString": "下面哪一个**不是** HTML5 新增的语义化标签？" },
+              "options": [
+                { "literalString": "`<article>`" },
+                { "literalString": "`<section>`" },
+                { "literalString": "`<div>`" },
+                { "literalString": "`<nav>`" }
+              ],
+              "correctIndex": 2,
+              "explanation": { "literalString": "`<div>` 早就有了，它没有语义，是一个无意义的块级元素。" }
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

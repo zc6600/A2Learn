@@ -1,0 +1,57 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "SectionNavigator-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "SectionNavigator-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "SectionNavigator",
+          "title": {
+            "literalString": "Web3 训练营"
+          },
+          "activeSectionId": "s2",
+          "sections": [
+            {
+              "id": "s1",
+              "title": {
+                "literalString": "什么是区块链？"
+              },
+              "description": {
+                "literalString": "了解去中心化的核心原理"
+              },
+              "status": "completed"
+            },
+            {
+              "id": "s2",
+              "title": {
+                "literalString": "智能合约基础"
+              },
+              "description": {
+                "literalString": "用 Solidity 编写第一行代码"
+              },
+              "status": "current"
+            },
+            {
+              "id": "s3",
+              "title": {
+                "literalString": "DeFi 应用"
+              },
+              "description": {
+                "literalString": "深入理解去中心化金融"
+              },
+              "status": "locked"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

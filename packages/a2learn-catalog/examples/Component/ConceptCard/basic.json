@@ -1,0 +1,34 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "concept-card-demo",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "concept-card-demo",
+      "components": [
+        {
+          "id": "root",
+          "component": "ConceptCard",
+          "title": { "literalString": "A2UI (Agent-to-User Interface)" },
+          "tags": [
+            { "literalString": "AI Native" },
+            { "literalString": "Frontend Architecture" },
+            { "literalString": "Protocol" }
+          ],
+          "definition": { "literalString": "<b>A2UI</b> 是一种专为 AI Agent 设计的声明式 UI 协议。传统 Web 应用是由服务器下发 HTML/CSS 或者由客户端发起 API 请求获取数据再渲染。而在 A2UI 架构下，AI Agent 直接向客户端发送描述 UI 结构和数据的 <b>JSON 消息</b>，客户端（如浏览器）根据预定义的组件库 (Catalog) 将其动态渲染成原生界面。" },
+          "example": { "literalString": "<pre><code>// Agent 发送的典型消息\n{\n  \"updateComponents\": {\n    \"surfaceId\": \"main\",\n    \"components\": [\n      { \"id\": \"root\", \"component\": \"Card\" }\n    ]\n  }\n}</code></pre>" },
+          "relatedConcepts": [
+            { "literalString": "Generative UI" },
+            { "literalString": "Catalog" },
+            { "literalString": "Surface" }
+          ]
+        }
+      ]
+    }
+  }
+]

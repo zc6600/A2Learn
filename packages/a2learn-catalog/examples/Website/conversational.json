@@ -1,0 +1,85 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-conversational",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-conversational",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": ["header", "main-content"]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "💬 导师一对一：深入理解闭包 (Closures)"
+        },
+        {
+          "id": "main-content",
+          "component": "Row",
+          "weight": 1,
+          "children": ["dialog-area", "content-area"]
+        },
+        {
+          "id": "dialog-area",
+          "component": "Column",
+          "weight": 2,
+          "children": ["mentor-dialog"]
+        },
+        {
+          "id": "content-area",
+          "component": "Column",
+          "weight": 3,
+          "children": ["concept", "sandbox"]
+        },
+        {
+          "id": "mentor-dialog",
+          "component": "ScenarioDialogue",
+          "topic": "闭包学习对话",
+          "characters": {
+            "mentor": {
+              "name": "A2Learn Tutor",
+              "avatar": "🧑‍🏫",
+              "alignment": "left"
+            },
+            "student": {
+              "name": "学习者",
+              "avatar": "🧑‍🎓",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            { "characterId": "mentor", "content": "你好！今天我们来学习 JavaScript 中最让新手头疼的概念：<b>闭包 (Closures)</b>。", "delayMs": 300 },
+            { "characterId": "student", "content": "我经常分不清闭包和普通函数作用域的区别。", "delayMs": 500 },
+            { "characterId": "mentor", "content": "没问题，你先看右侧定义和代码示例，我们再一起拆解执行过程。", "delayMs": 500 }
+          ]
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "闭包 (Closures)",
+          "tags": ["JavaScript", "Scope", "Functions"],
+          "definition": "闭包是指那些能够访问<b>自由变量</b>的函数。换句话说，闭包可以让你从内部函数访问外部函数作用域。",
+          "example": "<pre><code>function makeFunc() {\n  var name = 'Mozilla';\n  function displayName() {\n    alert(name);\n  }\n  return displayName;\n}\n\nvar myFunc = makeFunc();\nmyFunc();</code></pre>"
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "闭包陷阱：经典面试题",
+          "description": "运行这段代码，看看输出是什么？",
+          "language": "javascript",
+          "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(function() {\n    console.log(i);\n  }, 1000);\n}",
+          "runLocally": true
+        }
+      ]
+    }
+  }
+]

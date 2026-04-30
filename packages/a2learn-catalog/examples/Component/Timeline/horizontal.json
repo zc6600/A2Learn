@@ -1,0 +1,60 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "Timeline-horizontal",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "Timeline-horizontal",
+      "components": [
+        {
+          "id": "root",
+          "component": "Timeline",
+          "orientation": "horizontal",
+          "events": [
+            {
+              "id": "e1",
+              "time": {
+                "literalString": "需求评审"
+              },
+              "title": {
+                "literalString": "PM 主导"
+              },
+              "description": {
+                "literalString": "确定功能边界"
+              }
+            },
+            {
+              "id": "e2",
+              "time": {
+                "literalString": "技术设计"
+              },
+              "title": {
+                "literalString": "开发主导"
+              },
+              "description": {
+                "literalString": "编写系分文档"
+              }
+            },
+            {
+              "id": "e3",
+              "time": {
+                "literalString": "研发测试"
+              },
+              "title": {
+                "literalString": "全员参与"
+              },
+              "description": {
+                "literalString": "开发与QA联动"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

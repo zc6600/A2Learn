@@ -1,0 +1,23 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "flashcard-demo",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "flashcard-demo",
+      "components": [
+        {
+          "id": "root",
+          "component": "Flashcard",
+          "front": { "literalString": "什么是 A2UI？" },
+          "back": { "literalString": "A2UI (Agent-to-User Interface) 是一个开放标准，允许 AI Agent 以声明式 JSON 格式发送富 UI 界面。" }
+        }
+      ]
+    }
+  }
+]

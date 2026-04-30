@@ -1,0 +1,12 @@
+{
+  "name": "@a2learn/viewer-kit",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./page-shell.ts",
+  "types": "./page-shell.ts",
+  "dependencies": {
+    "@a2learn/a2learn-catalog": "file:../a2learn-catalog"
+  }
+}
+

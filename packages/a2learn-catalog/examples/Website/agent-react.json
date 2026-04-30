@@ -1,0 +1,104 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-agent-react",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-agent-react",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": ["header", "knowledge-tree", "concept", "learning-path", "quiz", "resources"]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "AI Agent 核心架构：ReAct 范式深度解析"
+        },
+        {
+          "id": "knowledge-tree",
+          "component": "KnowledgeTree",
+          "title": "当前位置：Agent 架构体系",
+          "path": [
+            { "id": "agent", "label": "AI Agent 架构" }
+          ],
+          "currentNode": {
+            "id": "react",
+            "label": "ReAct (Reasoning and Acting)",
+            "description": "当前聚焦在 ReAct 推理与执行闭环。"
+          },
+          "childrenNodes": [
+            { "id": "plan-and-solve", "label": "Plan-and-Solve", "hasChildren": false },
+            { "id": "reflexion", "label": "Reflexion", "hasChildren": false }
+          ]
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "什么是 ReAct？",
+          "tags": ["Architecture", "Prompting", "LLM"],
+          "definition": "<b>ReAct (Reasoning and Acting)</b> 是由普林斯顿大学和 Google 提出的一种大语言模型提示范式。它要求模型在解决复杂问题时，交替生成<b>思考轨迹 (Reasoning Trace)</b> 和 <b>具体动作 (Action)</b>。这种方法让模型不仅能做决策，还能观察动作的结果（Observation），从而动态调整后续的思考和计划。",
+          "example": "<pre><code>Question: What is the elevation range for the area that the eastern sector of the Colorado plateau goes up into?\n\nThought 1: I need to search Colorado plateau, find its eastern sector, then find the elevation range of the area it goes up into.\nAction 1: Search[Colorado plateau]\nObservation 1: The Colorado Plateau... is centered on the Four Corners region... \nThought 2: It does not mention the eastern sector. Let me look up the eastern sector...</code></pre>",
+          "relatedConcepts": ["Chain-of-Thought (CoT)", "Tool Use"]
+        },
+        {
+          "id": "learning-path",
+          "component": "LearningPath",
+          "title": "Agent 学习路径",
+          "activeStepId": "3",
+          "steps": [
+            { "id": "1", "title": "理解 CoT" },
+            { "id": "2", "title": "学习 Tool Use" },
+            { "id": "3", "title": "ReAct 核心循环" },
+            { "id": "4", "title": "实战开发 Agent" }
+          ]
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "ReAct 核心理解测试",
+          "questions": [
+            {
+              "id": "react-loop",
+              "question": "在 ReAct 的标准执行循环中，紧跟在 Action（动作）之后的步骤是什么？",
+              "options": [
+                "直接输出最终答案 (Final Answer)",
+                "观察环境返回的结果 (Observation)",
+                "生成下一个动作 (Next Action)",
+                "反思刚才的动作是否正确 (Reflexion)"
+              ],
+              "correctIndex": 1,
+              "explanation": "<b>解析：</b><br>ReAct 的标准循环是 <code>Thought -> Action -> Observation</code>。执行动作后，模型必须等待并<b>观察</b>环境返回的结果，然后再基于该结果进行下一轮的 Thought。"
+            }
+          ]
+        },
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "推荐资源",
+          "resources": [
+            {
+              "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+              "url": "https://arxiv.org/abs/2210.03629",
+              "description": "ReAct 范式的原始官方论文，强烈推荐阅读。",
+              "type": "article"
+            },
+            {
+              "title": "LangChain ReAct Agent",
+              "url": "https://python.langchain.com/docs/modules/agents/agent_types/react",
+              "description": "如何在 LangChain 中使用和实现 ReAct Agent。",
+              "type": "doc"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

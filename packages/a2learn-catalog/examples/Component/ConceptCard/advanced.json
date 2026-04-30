@@ -1,0 +1,52 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "ConceptCard-advanced",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "ConceptCard-advanced",
+      "components": [
+        {
+          "id": "root",
+          "component": "ConceptCard",
+          "title": {
+            "literalString": "Virtual DOM (虚拟 DOM)"
+          },
+          "definition": {
+            "literalString": "Virtual DOM 是用 JavaScript 对象来描述真实 DOM 树的结构。每次数据更新时，React 会先生成新的 Virtual DOM 树，然后通过 Diff 算法计算出两次树的差异，最后只将差异部分更新到真实 DOM 上。"
+          },
+          "example": {
+            "literalString": "就像你不会因为墙上掉了一块漆就把整栋房子推倒重盖，而是哪里破了补哪里。"
+          },
+          "tags": [
+            {
+              "literalString": "React"
+            },
+            {
+              "literalString": "性能优化"
+            }
+          ],
+          "relatedConcepts": [
+            {
+              "id": "c1",
+              "label": {
+                "literalString": "Diff 算法"
+              }
+            },
+            {
+              "id": "c2",
+              "label": {
+                "literalString": "Fiber 架构"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

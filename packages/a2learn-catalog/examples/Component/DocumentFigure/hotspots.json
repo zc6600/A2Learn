@@ -1,0 +1,51 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "DocumentFigure-hotspots",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "DocumentFigure-hotspots",
+      "components": [
+        {
+          "id": "root",
+          "component": "DocumentFigure",
+          "imageUrl": {
+            "literalString": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/The_Transformer_model_architecture.png/600px-The_Transformer_model_architecture.png"
+          },
+          "caption": {
+            "literalString": "Figure 1: The Transformer Architecture"
+          },
+          "hotspots": [
+            {
+              "id": "h1",
+              "x": 25,
+              "y": 40,
+              "label": {
+                "literalString": "Multi-Head Attention"
+              },
+              "description": {
+                "literalString": "多头注意力机制，允许模型在不同的表示子空间中联合关注来自不同位置的信息。"
+              }
+            },
+            {
+              "id": "h2",
+              "x": 75,
+              "y": 40,
+              "label": {
+                "literalString": "Masked Multi-Head Attention"
+              },
+              "description": {
+                "literalString": "防止解码器在预测当前词时“偷看”未来的词汇。"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

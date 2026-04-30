@@ -1,0 +1,28 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "CodeSnippet-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "CodeSnippet-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "CodeSnippet",
+          "language": "python",
+          "title": {
+            "literalString": "fibonacci.py"
+          },
+          "code": {
+            "literalString": "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\nprint(fibonacci(10))"
+          }
+        }
+      ]
+    }
+  }
+]

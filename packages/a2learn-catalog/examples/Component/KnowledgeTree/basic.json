@@ -1,0 +1,37 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "knowledge-tree-demo",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "knowledge-tree-demo",
+      "components": [
+        {
+          "id": "root",
+          "component": "KnowledgeTree",
+          "title": { "literalString": "A2UI 知识体系" },
+          "path": [
+            { "id": "a2ui", "label": { "literalString": "A2UI" } },
+            { "id": "renderers", "label": { "literalString": "渲染器" } }
+          ],
+          "currentNode": {
+            "id": "web",
+            "label": { "literalString": "Web 渲染层" },
+            "description": { "literalString": "探索不同前端渲染器的实现方式与适用场景。" }
+          },
+          "childrenNodes": [
+            { "id": "lit-renderer", "label": { "literalString": "Lit (Web Components)" }, "hasChildren": false },
+            { "id": "react-renderer", "label": { "literalString": "React Adapter" }, "hasChildren": false },
+            { "id": "angular-renderer", "label": { "literalString": "Angular Renderer" }, "hasChildren": false }
+          ],
+          "onNodeNavigate": { "name": "navigate_node", "context": {} }
+        }
+      ]
+    }
+  }
+]

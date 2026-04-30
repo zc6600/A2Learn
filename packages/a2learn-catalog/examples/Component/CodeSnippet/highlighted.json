@@ -1,0 +1,32 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "CodeSnippet-highlighted",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "CodeSnippet-highlighted",
+      "components": [
+        {
+          "id": "root",
+          "component": "CodeSnippet",
+          "language": "javascript",
+          "title": {
+            "literalString": "React Component"
+          },
+          "code": {
+            "literalString": "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <button onClick={() => setCount(count + 1)}>\n      Count: {count}\n    </button>\n  );\n}"
+          },
+          "highlightLines": [
+            4,
+            7
+          ]
+        }
+      ]
+    }
+  }
+]

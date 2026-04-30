@@ -1,0 +1,202 @@
+import { html, css, nothing } from "lit";
+import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
+import { ConceptCardApi } from "../api";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { sanitizeHtml } from "./sanitize";
+
+export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCardApi> {
+  static styles = css`
+    :host {
+      display: block;
+      margin: var(--a2ui-spacing-m) 0;
+    }
+    .concept-card {
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: var(--a2ui-border-radius);
+      background: var(--a2ui-color-surface);
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: box-shadow 0.2s ease;
+    }
+    .concept-card:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+    .header {
+      background: color-mix(in oklab, var(--a2ui-color-primary) 5%, var(--a2ui-color-surface));
+      padding: var(--a2ui-spacing-l);
+      border-bottom: 1px solid var(--a2ui-color-border);
+    }
+    .title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--a2ui-color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .title::before {
+      content: "💡";
+      font-size: 20px;
+    }
+    .tags {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      background: color-mix(in oklab, var(--a2ui-color-secondary) 15%, var(--a2ui-color-surface));
+      color: var(--a2ui-color-secondary);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .body {
+      padding: var(--a2ui-spacing-l);
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--app-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 12px 0;
+      display: flex;
+      align-items: center;
+    }
+    .definition {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--a2ui-color-on-surface);
+      margin-bottom: var(--a2ui-spacing-xl);
+    }
+    .example-box {
+      background: #f8f9fa;
+      border-left: 4px solid var(--a2ui-color-primary);
+      padding: var(--a2ui-spacing-m);
+      border-radius: 0 var(--a2ui-border-radius) var(--a2ui-border-radius) 0;
+      margin-bottom: var(--a2ui-spacing-xl);
+      font-size: 14px;
+      overflow-x: auto;
+    }
+    .related-box {
+      border-top: 1px dashed var(--a2ui-color-border);
+      padding-top: var(--a2ui-spacing-l);
+    }
+    .related-links {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .related-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--a2ui-color-primary);
+      background: transparent;
+      border: 1px solid var(--a2ui-color-primary);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .related-link:hover {
+      background: var(--a2ui-color-primary);
+      color: white;
+    }
+    .related-link::after {
+      content: "→";
+      font-size: 12px;
+    }
+  `;
+
+  protected createController() {
+    return new A2uiController(this, ConceptCardApi);
+  }
+
+  private resolveString(value: unknown): string {
+    if (typeof value === "string") return value;
+    if (
+      value &&
+      typeof value === "object" &&
+      "literalString" in (value as Record<string, unknown>)
+    ) {
+      const literal = (value as { literalString?: unknown }).literalString;
+      return typeof literal === "string" ? literal : "";
+    }
+    return "";
+  }
+
+  private handleRelatedClick(concept: string) {
+    const props = this.controller?.props;
+    if (props?.onConceptClick) {
+      this.context.dispatchAction({
+        ...(props.onConceptClick as Record<string, unknown>),
+        context: { concept },
+      });
+    }
+  }
+
+  render() {
+    const props = this.controller?.props;
+    if (!props) return nothing;
+
+    const title = this.resolveString(props.title);
+    const definition = this.resolveString(props.definition);
+    const example = props.example ? this.resolveString(props.example) : "";
+    const tags = props.tags ? (props.tags as unknown[]).map(t => this.resolveString(t)) : [];
+    const relatedConcepts = props.relatedConcepts ? (props.relatedConcepts as unknown[]).map(c => this.resolveString(c)) : [];
+
+    return html`
+      <div class="concept-card">
+        <div class="header">
+          <h2 class="title">${title}</h2>
+          ${tags.length > 0 ? html`
+            <div class="tags">
+              ${tags.map((tag: string) => html`<span class="tag">${tag}</span>`)}
+            </div>
+          ` : nothing}
+        </div>
+        
+        <div class="body">
+          <h3 class="section-title">核心定义</h3>
+          <div class="definition">${unsafeHTML(sanitizeHtml(definition))}</div>
+
+          ${example ? html`
+            <h3 class="section-title">代码与案例</h3>
+            <div class="example-box">
+              ${unsafeHTML(sanitizeHtml(example))}
+            </div>
+          ` : nothing}
+
+          ${relatedConcepts.length > 0 ? html`
+            <div class="related-box">
+              <h3 class="section-title">关联探索</h3>
+              <div class="related-links">
+                ${relatedConcepts.map((concept: string) => html`
+                  <button class="related-link" @click=${() => this.handleRelatedClick(concept)}>
+                    ${concept}
+                  </button>
+                `)}
+              </div>
+            </div>
+          ` : nothing}
+        </div>
+      </div>
+    `;
+  }
+}
+
+if (!customElements.get("a2learn-concept-card")) {
+  customElements.define("a2learn-concept-card", A2learnConceptCardElement);
+}
+
+export const A2learnConceptCard = {
+  ...ConceptCardApi,
+  tagName: "a2learn-concept-card",
+};

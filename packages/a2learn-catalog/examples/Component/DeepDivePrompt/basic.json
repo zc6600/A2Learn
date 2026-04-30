@@ -1,0 +1,50 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "DeepDivePrompt-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "DeepDivePrompt-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "DeepDivePrompt",
+          "prompts": [
+            {
+              "id": "p1",
+              "label": {
+                "literalString": "举个生活中的例子"
+              },
+              "icon": {
+                "literalString": "🤔"
+              }
+            },
+            {
+              "id": "p2",
+              "label": {
+                "literalString": "给我看一段代码"
+              },
+              "icon": {
+                "literalString": "💻"
+              }
+            },
+            {
+              "id": "p3",
+              "label": {
+                "literalString": "太简单了，讲深一点"
+              },
+              "icon": {
+                "literalString": "🚀"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

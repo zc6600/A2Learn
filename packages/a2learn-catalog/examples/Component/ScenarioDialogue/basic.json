@@ -1,0 +1,95 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "scenario-dialogue-demo",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "scenario-dialogue-demo",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "title",
+            "dialogue",
+            "deep-dive"
+          ]
+        },
+        {
+          "id": "title",
+          "component": "Text",
+          "variant": "h2",
+          "text": "🔥 情景模拟：跨时空辩论赛"
+        },
+        {
+          "id": "dialogue",
+          "component": "ScenarioDialogue",
+          "topic": { "literalString": "前端框架之争：React vs Vue" },
+          "characters": {
+            "react_fan": {
+              "name": { "literalString": "React 原教旨主义者" },
+              "avatar": { "literalString": "⚛️" },
+              "alignment": "left"
+            },
+            "vue_fan": {
+              "name": { "literalString": "Vue 务实派" },
+              "avatar": { "literalString": "🟩" },
+              "alignment": "right"
+            },
+            "system": {
+              "name": { "literalString": "面试官" },
+              "avatar": { "literalString": "👔" },
+              "alignment": "left"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "system",
+              "content": { "literalString": "两位候选人好。今天我们不考八股文，直接来一场辩论。**React 和 Vue，到底哪个更好？**" },
+              "delayMs": 500
+            },
+            {
+              "characterId": "react_fan",
+              "content": { "literalString": "这还用问吗？JSX 才是王道！All in JS 的灵活度是那些写死在模板里的指令比不了的。" },
+              "delayMs": 2000
+            },
+            {
+              "characterId": "vue_fan",
+              "content": { "literalString": "拉倒吧，你的 `useEffect` 依赖数组写对了吗？天天搁那儿闭包陷阱。Vue 的响应式系统根本不需要你操心这些心智负担。" },
+              "delayMs": 2500
+            },
+            {
+              "characterId": "react_fan",
+              "content": { "literalString": "那是你不会用 Hooks... 等等，我好像确实因为漏写依赖死循环过一次 😅" },
+              "delayMs": 2000
+            },
+            {
+              "characterId": "vue_fan",
+              "content": { "literalString": "看吧！而且 Vue 3 的 Composition API 一样灵活，还没那些奇怪的限制。" },
+              "delayMs": 2000
+            },
+            {
+              "characterId": "system",
+              "content": { "literalString": "（敲黑板）好了，两位都很有见地。其实**没有最好的框架，只有最适合业务的工具**。那么，如果是一个重交互的复杂低代码平台，你们觉得选谁？" },
+              "delayMs": 3000
+            }
+          ]
+        },
+        {
+          "id": "deep-dive",
+          "component": "DeepDivePrompt",
+          "prompts": [
+            { "id": "p1", "label": { "literalString": "我站 React，深入了解 Hooks" }, "icon": { "literalString": "⚛️" } },
+            { "id": "p2", "label": { "literalString": "我站 Vue，了解响应式原理" }, "icon": { "literalString": "🟩" } },
+            { "id": "p3", "label": { "literalString": "吃瓜群众：低代码平台到底用啥？" }, "icon": { "literalString": "🍉" } }
+          ]
+        }
+      ]
+    }
+  }
+]

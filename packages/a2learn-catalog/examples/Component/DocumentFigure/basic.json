@@ -1,0 +1,30 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "DocumentFigure-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "DocumentFigure-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "DocumentFigure",
+          "imageUrl": {
+            "literalString": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/The_Transformer_model_architecture.png/600px-The_Transformer_model_architecture.png"
+          },
+          "caption": {
+            "literalString": "Figure 1: The Transformer - model architecture."
+          },
+          "aiExplanation": {
+            "literalString": "这是一张经典的 Transformer 模型架构图。左侧为 Encoder 模块，右侧为 Decoder 模块。"
+          }
+        }
+      ]
+    }
+  }
+]

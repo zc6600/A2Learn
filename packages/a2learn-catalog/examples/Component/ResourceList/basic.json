@@ -1,0 +1,42 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "resource-list-demo",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "resource-list-demo",
+      "components": [
+        {
+          "id": "root",
+          "component": "ResourceList",
+          "title": { "literalString": "📚 延伸阅读与进阶资源" },
+          "resources": [
+            {
+              "title": { "literalString": "Generative UI: The Next UI Paradigm" },
+              "url": { "literalString": "https://example.com/generative-ui" },
+              "description": { "literalString": "一篇深度探讨生成式 UI 如何改变前后端交互方式的架构文章。" },
+              "type": "article"
+            },
+            {
+              "title": { "literalString": "Wikipedia: Spaced Repetition" },
+              "url": { "literalString": "https://en.wikipedia.org/wiki/Spaced_repetition" },
+              "description": { "literalString": "维基百科中关于间隔重复记忆法的科学原理与历史渊源。" },
+              "type": "wiki"
+            },
+            {
+              "title": { "literalString": "A2UI 官方文档" },
+              "url": { "literalString": "https://github.com/google/a2ui" },
+              "description": { "literalString": "Agent-to-User Interface 核心协议库、渲染器及开发者指南。" },
+              "type": "github"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

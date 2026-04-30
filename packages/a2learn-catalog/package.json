@@ -1,0 +1,9 @@
+{
+  "name": "@a2learn/a2learn-catalog",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts"
+}
+

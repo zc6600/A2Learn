@@ -1,0 +1,57 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "SectionNavigator-horizontal",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "SectionNavigator-horizontal",
+      "components": [
+        {
+          "id": "root",
+          "component": "SectionNavigator",
+          "title": {
+            "literalString": "选择学习路径"
+          },
+          "activeSectionId": "s1",
+          "sections": [
+            {
+              "id": "s1",
+              "title": {
+                "literalString": "前端开发"
+              },
+              "description": {
+                "literalString": "HTML, CSS, React"
+              },
+              "status": "current"
+            },
+            {
+              "id": "s2",
+              "title": {
+                "literalString": "后端开发"
+              },
+              "description": {
+                "literalString": "Node.js, 数据库"
+              },
+              "status": "pending"
+            },
+            {
+              "id": "s3",
+              "title": {
+                "literalString": "AI 赋能"
+              },
+              "description": {
+                "literalString": "大模型与Agent应用"
+              },
+              "status": "locked"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

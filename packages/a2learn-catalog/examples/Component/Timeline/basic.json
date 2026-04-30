@@ -1,0 +1,60 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "Timeline-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "Timeline-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "Timeline",
+          "orientation": "vertical",
+          "events": [
+            {
+              "id": "e1",
+              "time": {
+                "literalString": "2006"
+              },
+              "title": {
+                "literalString": "jQuery 发布"
+              },
+              "description": {
+                "literalString": "前端开发的黑暗时代终结者"
+              }
+            },
+            {
+              "id": "e2",
+              "time": {
+                "literalString": "2013"
+              },
+              "title": {
+                "literalString": "React 开源"
+              },
+              "description": {
+                "literalString": "组件化和数据驱动视图的新纪元"
+              }
+            },
+            {
+              "id": "e3",
+              "time": {
+                "literalString": "2014"
+              },
+              "title": {
+                "literalString": "Vue 发布"
+              },
+              "description": {
+                "literalString": "渐进式框架的崛起"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

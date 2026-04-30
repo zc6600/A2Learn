@@ -1,0 +1,41 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "learning-path-demo",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "learning-path-demo",
+      "components": [
+        {
+          "id": "root",
+          "component": "LearningPath",
+          "title": { "literalString": "AI 学习进阶路径" },
+          "activeStepId": "2",
+          "steps": [
+            {
+              "id": "1",
+              "title": { "literalString": "机器学习基础" }
+            },
+            {
+              "id": "2",
+              "title": { "literalString": "神经网络与深度学习" }
+            },
+            {
+              "id": "3",
+              "title": { "literalString": "大语言模型进阶" }
+            },
+            {
+              "id": "4",
+              "title": { "literalString": "Agent 架构设计" }
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,25 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "achievement-demo",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "achievement-demo",
+      "components": [
+        {
+          "id": "root",
+          "component": "Achievement",
+          "title": { "literalString": "A2UI 探索者" },
+          "description": { "literalString": "恭喜！您已完整浏览了 <b>A2UI 核心协议</b> 展区，成功解锁了知识徽章。继续探索更多前沿技术吧！" },
+          "icon": { "literalString": "🔭" },
+          "unlockedAt": { "literalString": "2026-04-27 16:30" }
+        }
+      ]
+    }
+  }
+]

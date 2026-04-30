@@ -1,0 +1,88 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "ScenarioDialogue-history",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "ScenarioDialogue-history",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "title",
+            "dialogue"
+          ]
+        },
+        {
+          "id": "title",
+          "component": "Text",
+          "variant": "h2",
+          "text": "跨时空对谈：绝对时空 vs 相对时空"
+        },
+        {
+          "id": "dialogue",
+          "component": "ScenarioDialogue",
+          "topic": {
+            "literalString": "跨时空对谈：绝对时空 vs 相对时空"
+          },
+          "characters": {
+            "newton": {
+              "name": {
+                "literalString": "牛顿"
+              },
+              "avatar": {
+                "literalString": "🍎"
+              },
+              "alignment": "left"
+            },
+            "einstein": {
+              "name": {
+                "literalString": "爱因斯坦"
+              },
+              "avatar": {
+                "literalString": "🌌"
+              },
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "newton",
+              "content": {
+                "literalString": "时间和空间就像一个大舞台，无论上面发生什么，舞台本身是不变的。时间永远均匀流逝。"
+              },
+              "delayMs": 1000
+            },
+            {
+              "characterId": "einstein",
+              "content": {
+                "literalString": "前辈，我得纠正一下。时间和空间不仅会变，还会被质量“压弯”。"
+              },
+              "delayMs": 2000
+            },
+            {
+              "characterId": "newton",
+              "content": {
+                "literalString": "荒谬！时间怎么可能变慢？"
+              },
+              "delayMs": 1500
+            },
+            {
+              "characterId": "einstein",
+              "content": {
+                "literalString": "如果你跑得足够快，接近光速，或者你站在一个引力极强的黑洞旁边，你的时间就会比地球上的人慢得多。这就是**相对论**。"
+              },
+              "delayMs": 3000
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "SmartAnnotationBoard-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "SmartAnnotationBoard-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "SmartAnnotationBoard",
+          "title": {
+            "literalString": "英语短文批改"
+          },
+          "prompt": {
+            "literalString": "请用英文描述你最喜欢的一部电影。"
+          }
+        }
+      ]
+    }
+  }
+]

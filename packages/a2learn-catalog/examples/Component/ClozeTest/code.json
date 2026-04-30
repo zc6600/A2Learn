@@ -1,0 +1,36 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "ClozeTest-code",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "ClozeTest-code",
+      "components": [
+        {
+          "id": "root",
+          "component": "ClozeTest",
+          "text": {
+            "literalString": "在 Python 中，定义一个函数使用 ___ 关键字，返回结果使用 ___ 关键字。"
+          },
+          "answers": [],
+          "correctAnswers": [
+            {
+              "literalString": "def"
+            },
+            {
+              "literalString": "return"
+            }
+          ],
+          "explanation": {
+            "literalString": "def my_func(): return 'hello'"
+          }
+        }
+      ]
+    }
+  }
+]

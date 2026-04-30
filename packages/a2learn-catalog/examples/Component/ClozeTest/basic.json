@@ -1,0 +1,36 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "ClozeTest-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "ClozeTest-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "ClozeTest",
+          "text": {
+            "literalString": "React 的核心优势是 ___ 和 ___。"
+          },
+          "answers": [],
+          "correctAnswers": [
+            {
+              "literalString": "组件化"
+            },
+            {
+              "literalString": "虚拟DOM"
+            }
+          ],
+          "explanation": {
+            "literalString": "组件化让代码复用更容易，虚拟DOM让渲染更高效。"
+          }
+        }
+      ]
+    }
+  }
+]

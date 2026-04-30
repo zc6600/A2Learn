@@ -1,0 +1,30 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "AnalogyCard-blockchain",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "AnalogyCard-blockchain",
+      "components": [
+        {
+          "id": "root",
+          "component": "AnalogyCard",
+          "title": {
+            "literalString": "什么是区块链？"
+          },
+          "analogy": {
+            "literalString": "想象一个全班同学共用的**公开账本**。\n\n每个人都有一个账本副本。如果小明借给小红10块钱，小明要在班里大喊一声，所有同学都在自己的账本上记下这笔交易。因为大家都有记录，所以没人能抵赖或者篡改记录。这就是去中心化账本（区块链）的本质。"
+          },
+          "icon": {
+            "literalString": "📖"
+          }
+        }
+      ]
+    }
+  }
+]

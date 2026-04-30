@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@a2ui/web_core/v0_9": ["./node_modules/@a2ui/web_core/src/v0_9/index.ts"],
+      "@a2ui/web_core/v0_9/basic_catalog": ["./node_modules/@a2ui/web_core/src/v0_9/basic_catalog/index.ts"],
+      "@a2ui/lit/v0_9": ["./node_modules/@a2ui/lit/dist/src/v0_9/index.d.ts"],
+      "@a2ui/markdown-it": ["./node_modules/@a2ui/markdown-it/dist/src/markdown.d.ts"],
+      "lit": ["./node_modules/lit"],
+      "lit/*": ["./node_modules/lit/*"],
+      "@lit/context": ["./node_modules/@lit/context"],
+      "zod": ["./node_modules/zod"]
+    },
+    "types": ["vite/client"],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false
+  },
+  "include": ["src", "../../packages/**/*.ts"]
+}

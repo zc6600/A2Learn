@@ -1,0 +1,28 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "Flashcard-flipped",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "Flashcard-flipped",
+      "components": [
+        {
+          "id": "root",
+          "component": "Flashcard",
+          "front": {
+            "literalString": "什么是 `Spaced Repetition` (间隔重复)？"
+          },
+          "back": {
+            "literalString": "间隔重复是一种记忆技巧，它通过在遗忘曲线的临界点复习知识，从而将短期记忆转化为长期记忆。"
+          },
+          "isFlipped": true
+        }
+      ]
+    }
+  }
+]
