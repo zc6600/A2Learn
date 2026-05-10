@@ -15,39 +15,39 @@
           "id": "root",
           "component": "CourseOutline",
           "courseTitle": {
-            "literalString": "正则表达式从入门到精通"
+            "literalString": "Mastering Regular Expressions from Beginner to Pro"
           },
           "description": {
-            "literalString": "一个用于演示 Course 分层分类的课程大纲示例。"
+            "literalString": "A course outline example demonstrating Course hierarchical categorization."
           },
           "modules": [
             {
               "id": "ch_1",
               "title": {
-                "literalString": "第一章：认识元字符"
+                "literalString": "Chapter 1: Understanding Metacharacters"
               },
               "description": {
-                "literalString": "理解 \\d、\\w、. 等基本符号"
+                "literalString": "Understand basic symbols like \\d, \\w, and ."
               },
               "status": "completed"
             },
             {
               "id": "ch_2",
               "title": {
-                "literalString": "第二章：量词与贪婪模式"
+                "literalString": "Chapter 2: Quantifiers and Greedy Mode"
               },
               "description": {
-                "literalString": "掌握 *、+、?、{n,m} 与匹配策略"
+                "literalString": "Master *, +, ?, {n,m}, and matching strategies"
               },
               "status": "current"
             },
             {
               "id": "ch_3",
               "title": {
-                "literalString": "第三章：实战闯关"
+                "literalString": "Chapter 3: Practical Challenges"
               },
               "description": {
-                "literalString": "通过真实文本提取任务进行综合练习"
+                "literalString": "Comprehensive exercises through real-world text extraction tasks"
               },
               "status": "locked"
             }

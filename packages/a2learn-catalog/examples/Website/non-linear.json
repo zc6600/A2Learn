@@ -20,19 +20,19 @@
           "id": "header",
           "component": "Text",
           "variant": "h1",
-          "text": "🎨 CSS Grid 布局系统指南"
+          "text": "🎨 CSS Grid Layout System Guide"
         },
         {
           "id": "navigator",
           "component": "SectionNavigator",
-          "title": "选择要学习的章节：",
+          "title": "Select a chapter to learn:",
           "activeSectionId": "intro",
           "onSectionClick": { "name": "navigate_section", "context": {} },
           "sections": [
-            { "id": "intro", "title": "Grid 基础概念", "description": "什么是网格容器、网格线和轨道", "icon": "📐", "status": "completed" },
-            { "id": "template", "title": "定义网格模板", "description": "学习使用 grid-template-columns 等属性", "icon": "📏", "status": "available" },
-            { "id": "placement", "title": "放置网格项", "description": "跨越行和列的高级布局技巧", "icon": "🧩", "status": "available" },
-            { "id": "challenge", "title": "终极实战挑战", "description": "使用 Grid 还原复杂仪表盘 UI", "icon": "⚔️", "status": "locked" }
+            { "id": "intro", "title": "Grid Basics", "description": "What are grid containers, lines, and tracks", "icon": "📐", "status": "completed" },
+            { "id": "template", "title": "Defining Grid Templates", "description": "Learn to use grid-template-columns and related properties", "icon": "📏", "status": "available" },
+            { "id": "placement", "title": "Placing Grid Items", "description": "Advanced layout techniques spanning rows and columns", "icon": "🧩", "status": "available" },
+            { "id": "challenge", "title": "Ultimate Practical Challenge", "description": "Using Grid to recreate complex dashboard UIs", "icon": "⚔️", "status": "locked" }
           ]
         },
         {
@@ -44,14 +44,14 @@
           "id": "content-title",
           "component": "Text",
           "variant": "h2",
-          "text": "第一章：Grid 基础概念"
+          "text": "Chapter 1: Grid Basic Concepts"
         },
         {
           "id": "concept",
           "component": "ConceptCard",
-          "title": "网格容器 (Grid Container)",
+          "title": "Grid Container",
           "tags": ["CSS", "Layout"],
-          "definition": "将元素的 <code>display</code> 属性设置为 <code>grid</code> 或 <code>inline-grid</code> 后，它就成了一个网格容器。它的所有直接子元素将成为网格项 (Grid Items)。",
+          "definition": "By setting an element's <code>display</code> property to <code>grid</code> or <code>inline-grid</code>, it becomes a grid container. All its direct children become grid items.",
           "example": "<pre><code>.container {\n  display: grid;\n}</code></pre>"
         }
       ]

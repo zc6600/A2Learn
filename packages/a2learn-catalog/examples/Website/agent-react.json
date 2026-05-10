@@ -20,19 +20,19 @@
           "id": "header",
           "component": "Text",
           "variant": "h1",
-          "text": "AI Agent 核心架构：ReAct 范式深度解析"
+          "text": "Core AI Agent Architecture: In-depth Analysis of the ReAct Paradigm"
         },
         {
           "id": "knowledge-tree",
           "component": "KnowledgeTree",
-          "title": "当前位置：Agent 架构体系",
+          "title": "Current Location: Agent Architecture System",
           "path": [
-            { "id": "agent", "label": "AI Agent 架构" }
+            { "id": "agent", "label": "AI Agent Architecture" }
           ],
           "currentNode": {
             "id": "react",
             "label": "ReAct (Reasoning and Acting)",
-            "description": "当前聚焦在 ReAct 推理与执行闭环。"
+            "description": "Currently focused on the ReAct reasoning and execution closed loop."
           },
           "childrenNodes": [
             { "id": "plan-and-solve", "label": "Plan-and-Solve", "hasChildren": false },
@@ -42,58 +42,58 @@
         {
           "id": "concept",
           "component": "ConceptCard",
-          "title": "什么是 ReAct？",
+          "title": "What is ReAct?",
           "tags": ["Architecture", "Prompting", "LLM"],
-          "definition": "<b>ReAct (Reasoning and Acting)</b> 是由普林斯顿大学和 Google 提出的一种大语言模型提示范式。它要求模型在解决复杂问题时，交替生成<b>思考轨迹 (Reasoning Trace)</b> 和 <b>具体动作 (Action)</b>。这种方法让模型不仅能做决策，还能观察动作的结果（Observation），从而动态调整后续的思考和计划。",
+          "definition": "<b>ReAct (Reasoning and Acting)</b> is a large language model prompting paradigm proposed by Princeton University and Google. It requires the model to alternate between generating <b>Reasoning Traces</b> and <b>Specific Actions</b> when solving complex problems. This approach allows the model not only to make decisions but also to observe the results of its actions (Observation), thereby dynamically adjusting subsequent thinking and planning.",
           "example": "<pre><code>Question: What is the elevation range for the area that the eastern sector of the Colorado plateau goes up into?\n\nThought 1: I need to search Colorado plateau, find its eastern sector, then find the elevation range of the area it goes up into.\nAction 1: Search[Colorado plateau]\nObservation 1: The Colorado Plateau... is centered on the Four Corners region... \nThought 2: It does not mention the eastern sector. Let me look up the eastern sector...</code></pre>",
           "relatedConcepts": ["Chain-of-Thought (CoT)", "Tool Use"]
         },
         {
           "id": "learning-path",
           "component": "LearningPath",
-          "title": "Agent 学习路径",
+          "title": "Agent Learning Path",
           "activeStepId": "3",
           "steps": [
-            { "id": "1", "title": "理解 CoT" },
-            { "id": "2", "title": "学习 Tool Use" },
-            { "id": "3", "title": "ReAct 核心循环" },
-            { "id": "4", "title": "实战开发 Agent" }
+            { "id": "1", "title": "Understanding CoT" },
+            { "id": "2", "title": "Learning Tool Use" },
+            { "id": "3", "title": "ReAct Core Loop" },
+            { "id": "4", "title": "Practical Agent Development" }
           ]
         },
         {
           "id": "quiz",
           "component": "QuizCard",
-          "title": "ReAct 核心理解测试",
+          "title": "ReAct Core Understanding Test",
           "questions": [
             {
               "id": "react-loop",
-              "question": "在 ReAct 的标准执行循环中，紧跟在 Action（动作）之后的步骤是什么？",
+              "question": "In the standard ReAct execution loop, what step immediately follows an Action?",
               "options": [
-                "直接输出最终答案 (Final Answer)",
-                "观察环境返回的结果 (Observation)",
-                "生成下一个动作 (Next Action)",
-                "反思刚才的动作是否正确 (Reflexion)"
+                "Directly output the Final Answer",
+                "Observe the results returned by the environment (Observation)",
+                "Generate the next action (Next Action)",
+                "Reflect on whether the previous action was correct (Reflexion)"
               ],
               "correctIndex": 1,
-              "explanation": "<b>解析：</b><br>ReAct 的标准循环是 <code>Thought -> Action -> Observation</code>。执行动作后，模型必须等待并<b>观察</b>环境返回的结果，然后再基于该结果进行下一轮的 Thought。"
+              "explanation": "<b>Analysis:</b><br>The standard ReAct loop is <code>Thought -> Action -> Observation</code>. After executing an action, the model must wait and <b>observe</b> the results returned by the environment before proceeding to the next round of Thought based on those results."
             }
           ]
         },
         {
           "id": "resources",
           "component": "ResourceList",
-          "title": "推荐资源",
+          "title": "Recommended Resources",
           "resources": [
             {
               "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
               "url": "https://arxiv.org/abs/2210.03629",
-              "description": "ReAct 范式的原始官方论文，强烈推荐阅读。",
+              "description": "The original official paper for the ReAct paradigm, highly recommended reading.",
               "type": "article"
             },
             {
               "title": "LangChain ReAct Agent",
               "url": "https://python.langchain.com/docs/modules/agents/agent_types/react",
-              "description": "如何在 LangChain 中使用和实现 ReAct Agent。",
+              "description": "How to use and implement ReAct Agents in LangChain.",
               "type": "doc"
             }
           ]

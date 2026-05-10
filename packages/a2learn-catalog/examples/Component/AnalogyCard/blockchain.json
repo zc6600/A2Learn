@@ -15,10 +15,10 @@
           "id": "root",
           "component": "AnalogyCard",
           "title": {
-            "literalString": "什么是区块链？"
+            "literalString": "What is Blockchain?"
           },
           "analogy": {
-            "literalString": "想象一个全班同学共用的**公开账本**。\n\n每个人都有一个账本副本。如果小明借给小红10块钱，小明要在班里大喊一声，所有同学都在自己的账本上记下这笔交易。因为大家都有记录，所以没人能抵赖或者篡改记录。这就是去中心化账本（区块链）的本质。"
+            "literalString": "Imagine a **public ledger** shared by all students in a class.\n\nEveryone has a copy of the ledger. If Xiao Ming lends 10 dollars to Xiao Hong, Xiao Ming shouts it out to the class, and all students record this transaction in their own ledgers. Because everyone has a record, no one can deny or tamper with the logs. This is the essence of a decentralized ledger (blockchain)."
           },
           "icon": {
             "literalString": "📖"

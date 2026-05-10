@@ -23,18 +23,18 @@
           "id": "title",
           "component": "Text",
           "variant": "h2",
-          "text": "跨时空对谈：绝对时空 vs 相对时空"
+          "text": "Cross-Time Dialogue: Absolute vs. Relative Spacetime"
         },
         {
           "id": "dialogue",
           "component": "ScenarioDialogue",
           "topic": {
-            "literalString": "跨时空对谈：绝对时空 vs 相对时空"
+            "literalString": "Dialogue: Absolute vs. Relative Spacetime"
           },
           "characters": {
             "newton": {
               "name": {
-                "literalString": "牛顿"
+                "literalString": "Newton"
               },
               "avatar": {
                 "literalString": "🍎"
@@ -43,7 +43,7 @@
             },
             "einstein": {
               "name": {
-                "literalString": "爱因斯坦"
+                "literalString": "Einstein"
               },
               "avatar": {
                 "literalString": "🌌"
@@ -55,28 +55,28 @@
             {
               "characterId": "newton",
               "content": {
-                "literalString": "时间和空间就像一个大舞台，无论上面发生什么，舞台本身是不变的。时间永远均匀流逝。"
+                "literalString": "Time and space are like a grand stage; no matter what happens on it, the stage itself remains unchanged. Time flows uniformly forever."
               },
               "delayMs": 1000
             },
             {
               "characterId": "einstein",
               "content": {
-                "literalString": "前辈，我得纠正一下。时间和空间不仅会变，还会被质量“压弯”。"
+                "literalString": "Forgive me, senior, but I must correct you. Time and space not only change, but they are also \"warped\" by mass."
               },
               "delayMs": 2000
             },
             {
               "characterId": "newton",
               "content": {
-                "literalString": "荒谬！时间怎么可能变慢？"
+                "literalString": "Absurd! How could time possibly slow down?"
               },
               "delayMs": 1500
             },
             {
               "characterId": "einstein",
               "content": {
-                "literalString": "如果你跑得足够快，接近光速，或者你站在一个引力极强的黑洞旁边，你的时间就会比地球上的人慢得多。这就是**相对论**。"
+                "literalString": "If you travel fast enough, approaching the speed of light, or if you stand near a black hole with immense gravity, your time will pass much slower than for someone on Earth. This is **Relativity**."
               },
               "delayMs": 3000
             }

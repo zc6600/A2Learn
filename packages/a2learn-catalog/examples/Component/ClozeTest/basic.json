@@ -15,19 +15,19 @@
           "id": "root",
           "component": "ClozeTest",
           "text": {
-            "literalString": "React 的核心优势是 ___ 和 ___。"
+            "literalString": "The core advantages of React are ___ and ___."
           },
           "answers": [],
           "correctAnswers": [
             {
-              "literalString": "组件化"
+              "literalString": "Componentization"
             },
             {
-              "literalString": "虚拟DOM"
+              "literalString": "Virtual DOM"
             }
           ],
           "explanation": {
-            "literalString": "组件化让代码复用更容易，虚拟DOM让渲染更高效。"
+            "literalString": "Componentization makes code reuse easier, and Virtual DOM makes rendering more efficient."
           }
         }
       ]

@@ -15,10 +15,10 @@
           "id": "root",
           "component": "SmartAnnotationBoard",
           "title": {
-            "literalString": "代码 Review"
+            "literalString": "Code Review"
           },
           "prompt": {
-            "literalString": "请写一段判断素数的代码"
+            "literalString": "Please write a function to determine if a number is prime."
           },
           "userText": {
             "literalString": "function isPrime(n) {\n  if (n < 2) return false;\n  for (let i = 2; i < n; i++) {\n    if (n % i === 0) return false;\n  }\n  return true;\n}"
@@ -27,7 +27,7 @@
           "feedback": {
             "score": 85,
             "overallComment": {
-              "literalString": "逻辑正确，但性能有优化空间。"
+              "literalString": "The logic is correct, but there is room for performance optimization."
             },
             "inlineAnnotations": [
               {
@@ -36,7 +36,7 @@
                 },
                 "type": "warning",
                 "comment": {
-                  "literalString": "这里可以优化为 `i <= Math.sqrt(n)`，极大提升判断效率。"
+                  "literalString": "This can be optimized to `i <= Math.sqrt(n)` to significantly improve efficiency."
                 }
               }
             ]

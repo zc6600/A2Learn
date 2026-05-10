@@ -15,33 +15,33 @@
           "id": "root",
           "component": "ConceptCard",
           "title": {
-            "literalString": "Virtual DOM (虚拟 DOM)"
+            "literalString": "Virtual DOM"
           },
           "definition": {
-            "literalString": "Virtual DOM 是用 JavaScript 对象来描述真实 DOM 树的结构。每次数据更新时，React 会先生成新的 Virtual DOM 树，然后通过 Diff 算法计算出两次树的差异，最后只将差异部分更新到真实 DOM 上。"
+            "literalString": "Virtual DOM is a structure that uses JavaScript objects to describe the real DOM tree. Whenever data updates, React first generates a new Virtual DOM tree, calculates the differences between the two trees using a Diff algorithm, and then updates only the changed parts to the real DOM."
           },
           "example": {
-            "literalString": "就像你不会因为墙上掉了一块漆就把整栋房子推倒重盖，而是哪里破了补哪里。"
+            "literalString": "It's like fixing a patch of peeling paint on a wall instead of tearing down the whole house and rebuilding it."
           },
           "tags": [
             {
               "literalString": "React"
             },
             {
-              "literalString": "性能优化"
+              "literalString": "Performance Optimization"
             }
           ],
           "relatedConcepts": [
             {
               "id": "c1",
               "label": {
-                "literalString": "Diff 算法"
+                "literalString": "Diff Algorithm"
               }
             },
             {
               "id": "c2",
               "label": {
-                "literalString": "Fiber 架构"
+                "literalString": "Fiber Architecture"
               }
             }
           ]

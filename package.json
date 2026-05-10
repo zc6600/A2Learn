@@ -1,0 +1,20 @@
+{
+  "name": "a2learn-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "viewer:dev": "npm run dev --workspace a2learn-viewer",
+    "viewer:gallery": "npm run gallery --workspace a2learn-viewer",
+    "viewer:build": "npm run build --workspace a2learn-viewer",
+    "embed:build": "npm run build --workspace @a2learn/embed",
+    "build": "npm run viewer:build && npm run embed:build"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3"
+  }
+}

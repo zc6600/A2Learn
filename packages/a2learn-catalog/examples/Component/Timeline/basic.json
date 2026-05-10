@@ -22,10 +22,10 @@
                 "literalString": "2006"
               },
               "title": {
-                "literalString": "jQuery 发布"
+                "literalString": "jQuery Released"
               },
               "description": {
-                "literalString": "前端开发的黑暗时代终结者"
+                "literalString": "The terminator of the dark ages of frontend development"
               }
             },
             {
@@ -34,10 +34,10 @@
                 "literalString": "2013"
               },
               "title": {
-                "literalString": "React 开源"
+                "literalString": "React Open Sourced"
               },
               "description": {
-                "literalString": "组件化和数据驱动视图的新纪元"
+                "literalString": "A new era of componentization and data-driven views"
               }
             },
             {
@@ -46,10 +46,10 @@
                 "literalString": "2014"
               },
               "title": {
-                "literalString": "Vue 发布"
+                "literalString": "Vue Released"
               },
               "description": {
-                "literalString": "渐进式框架的崛起"
+                "literalString": "The rise of progressive frameworks"
               }
             }
           ]

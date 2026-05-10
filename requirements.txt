@@ -1,3 +1,5 @@
 langgraph>=0.2.50
 langchain-openai>=0.2.2
 python-dotenv>=1.0.1
+fastapi>=0.116.0
+uvicorn>=0.35.0

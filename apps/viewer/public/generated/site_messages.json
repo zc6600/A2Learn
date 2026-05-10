@@ -12,242 +12,118 @@
       "surfaceId": "main",
       "components": [
         {
-          "id": "root",
-          "component": "Column",
-          "children": [
-            "hero-title",
-            "hero-subtitle",
-            "course-path",
-            "sec-1-heading",
-            "sec-1-concept",
-            "sec-1-quiz",
-            "sec-1-deep-dive",
-            "sec-2-heading",
-            "sec-2-concept",
-            "sec-2-quiz",
-            "sec-2-deep-dive",
-            "sec-3-heading",
-            "sec-3-concept",
-            "sec-3-quiz",
-            "sec-3-deep-dive"
-          ]
-        },
-        {
-          "id": "hero-title",
-          "component": "Text",
-          "text": "# AI 生成学习课程"
-        },
-        {
-          "id": "hero-subtitle",
-          "component": "Text",
-          "text": "从资源到互动网站的快速构建\n\n受众：入门学习者"
-        },
-        {
-          "id": "course-path",
+          "id": "learning-path-1",
           "component": "LearningPath",
-          "title": "课程学习路径",
-          "activeStepId": "step-1",
+          "title": "A2Learn 互动知识陈列馆导览",
           "steps": [
             {
-              "id": "step-1",
-              "title": "导入与背景",
-              "description": "A2Learn 项目致力于通过AI自动将教学资源转化为互动学习网站。它采用Fast Mode（一次性生成）和Deep Mode（自主迭代）两种模式，并基于A2U"
+              "id": "step1",
+              "title": "设计理念",
+              "description": "了解认知结构化、主动回忆与游戏化三大支柱",
+              "status": "current"
             },
             {
-              "id": "step-2",
-              "title": "核心知识",
-              "description": "A2Learn 产品设计基于三大理念：认知结构化（使用KnowledgeTree, LearningPath）、主动回忆与即时反馈（Flashcard, Qui"
+              "id": "step2",
+              "title": "核心组件",
+              "description": "认识知识树、概念卡、测验卡等展具",
+              "status": "locked"
             },
             {
-              "id": "step-3",
-              "title": "实践与测验",
-              "description": "通过一个完整的示例，我们可以将多种组件组合成一个互动教学网页。例如，讲解异步编程时，先使用ConceptCard抛出问题，然后InteractiveSandbo"
+              "id": "step3",
+              "title": "课程生成架构",
+              "description": "掌握统筹大纲与原位展开机制",
+              "status": "locked"
+            },
+            {
+              "id": "step4",
+              "title": "网站构图模式",
+              "description": "学习瀑布流、分栏实验室、情景剧场等布局",
+              "status": "locked"
             }
           ]
         },
         {
-          "id": "sec-1-heading",
-          "component": "Text",
-          "text": "## 导入与背景"
-        },
-        {
-          "id": "sec-1-concept",
+          "id": "concept-card-1",
           "component": "ConceptCard",
-          "title": "导入与背景",
+          "title": "A2Learn 产品设计理念",
+          "content": "A2Learn 定位为互动知识陈列馆，而非传统 LMS。其设计围绕三个维度：\n\n1. **认知结构化**：通过 LearningPath 和 KnowledgeTree 帮助用户建立全局观。\n2. **主动回忆与即时反馈**：利用 Flashcard、QuizCard 等组件强迫大脑提取信息，并立即获得解析。\n3. **游戏化与正向激励**：通过 Achievement 徽章等机制激发内在动力。",
           "tags": [
-            "A2Learn 从输入资源到输出可访问网址的全流程。",
-            "Fast Mode 通过 OpenRouter + LangGraph 实现一次性生成。",
-            "A2UI 提供组件库用于构建互动界面。"
-          ],
-          "definition": "A2Learn 项目致力于通过AI自动将教学资源转化为互动学习网站。它采用Fast Mode（一次性生成）和Deep Mode（自主迭代）两种模式，并基于A2UI框架渲染出丰富的交互组件。本课程将带你理解其核心理念和组件。",
-          "example": "### 练习任务\n简述 Fast Mode 的主要处理步骤（资源读取、课程规划、站点生成、消息转换、渲染发布）。",
-          "relatedConcepts": [
-            "A2Learn 从输入资源到输出可访问网址的全流程。",
-            "Fast Mode 通过 OpenRouter + LangGraph 实现一次性生成。",
-            "A2UI 提供组件库用于构建互动界面。"
+            "设计理念",
+            "认知科学",
+            "游戏化"
           ]
         },
         {
-          "id": "sec-1-quiz",
+          "id": "quiz-card-1",
           "component": "QuizCard",
-          "title": "导入与背景 - 随堂测验",
-          "questions": [
+          "question": "A2Learn 的核心定位是什么？",
+          "options": [
             {
-              "id": "sec-1-quiz-q1",
-              "question": "在 Fast Mode 中，LangGraph 的状态图包含以下哪一项？",
-              "options": [
-                "load_resource -> plan_curriculum -> build_site -> export_messages",
-                "plan_curriculum -> load_resource -> build_site -> export_messages",
-                "read_file -> generate_quiz -> render",
-                "parse_text -> create_components -> deploy"
-              ],
-              "correctIndex": 0,
-              "explanation": "完成后可继续点击下方深挖方向展开学习。"
-            }
-          ]
-        },
-        {
-          "id": "sec-1-deep-dive",
-          "component": "DeepDivePrompt",
-          "prompts": [
-            {
-              "id": "example",
-              "label": "给我一个生活化例子",
-              "icon": "💡"
+              "id": "A",
+              "text": "在线教育管理系统 (LMS)"
             },
             {
-              "id": "practice",
-              "label": "我想做一题练习",
-              "icon": "🧪"
+              "id": "B",
+              "text": "互动知识陈列馆（类似互动维基百科）"
             },
             {
-              "id": "advanced",
-              "label": "继续讲进阶内容",
-              "icon": "🚀"
+              "id": "C",
+              "text": "编程学习平台"
+            },
+            {
+              "id": "D",
+              "text": "视频课程网站"
             }
-          ]
-        },
-        {
-          "id": "sec-2-heading",
-          "component": "Text",
-          "text": "## 核心知识"
-        },
-        {
-          "id": "sec-2-concept",
-          "component": "ConceptCard",
-          "title": "核心知识",
-          "tags": [
-            "三大设计理念：认知结构化、主动回忆、游戏化。",
-            "四种构图模式：线性瀑布流、分栏实验室、情景剧场、非线性陈列。",
-            "核心组件：LearningPath, ConceptCard, QuizCard, InteractiveSandbox, Flashcard。"
           ],
-          "definition": "A2Learn 产品设计基于三大理念：认知结构化（使用KnowledgeTree, LearningPath）、主动回忆与即时反馈（Flashcard, QuizCard）、游戏化与正向激励（Achievement）。网站构图有四种经典模式：瀑布流互动叙事、左右分栏实验室、沉浸式情景剧场、非线性探索陈列馆。微观组件包括ConceptCard、InteractiveSandbox、ClozeTest、DragAndDropMatch等。",
-          "example": "### 练习任务\n请将以下设计理念与对应组件连线：1. 认知结构化 - A. QuizCard；2. 主动回忆与即时反馈 - B. Achievement；3. 游戏化与正向激励 - C. LearningPath。",
-          "relatedConcepts": [
-            "三大设计理念：认知结构化、主动回忆、游戏化。",
-            "四种构图模式：线性瀑布流、分栏实验室、情景剧场、非线性陈列。",
-            "核心组件：LearningPath, ConceptCard, QuizCard, InteractiveSandbox, Flashcard。"
-          ]
+          "correctAnswer": "B",
+          "explanation": "根据产品架构文档，A2Learn 的核心定位是互动式的知识陈列网站，AI Agent 扮演博物馆导览员，动态陈列知识卡片。"
         },
         {
-          "id": "sec-2-quiz",
-          "component": "QuizCard",
-          "title": "核心知识 - 随堂测验",
-          "questions": [
+          "id": "scenario-dialogue-1",
+          "component": "ScenarioDialogue",
+          "title": "导览员对话：认识组件库",
+          "messages": [
             {
-              "id": "sec-2-quiz-q1",
-              "question": "哪个组件利用了间隔重复（Spaced Repetition）原理来强化概念记忆？",
-              "options": [
-                "QuizCard",
-                "Flashcard",
-                "ConceptCard",
-                "LearningPath"
-              ],
-              "correctIndex": 1,
-              "explanation": "完成后可继续点击下方深挖方向展开学习。"
+              "role": "assistant",
+              "content": "欢迎来到 A2Learn 组件陈列馆！我是您的导览员。"
+            },
+            {
+              "role": "user",
+              "content": "这里有哪些有趣的展具？"
+            },
+            {
+              "role": "assistant",
+              "content": "我们有三类核心展具：宏观陈列的 KnowledgeTree 和 LearningPath；微观陈列的 ConceptCard 和 InteractiveSandbox；互动体验的 Flashcard、QuizCard 和 ClozeTest。"
+            },
+            {
+              "role": "user",
+              "content": "听起来很丰富！能举个例子吗？"
+            },
+            {
+              "role": "assistant",
+              "content": "比如 InteractiveSandbox 就像 W3Schools 的“Try it Yourself”，左侧展示代码，右侧可修改运行，非常适合动手实践。"
             }
           ]
         },
         {
-          "id": "sec-2-deep-dive",
-          "component": "DeepDivePrompt",
-          "prompts": [
+          "id": "resource-list-1",
+          "component": "ResourceList",
+          "title": "扩展阅读与参考",
+          "resources": [
             {
-              "id": "example",
-              "label": "给我一个生活化例子",
-              "icon": "💡"
+              "title": "A2Learn 组件设计文档",
+              "url": "#",
+              "description": "详细介绍了所有组件的属性与交互"
             },
             {
-              "id": "practice",
-              "label": "我想做一题练习",
-              "icon": "🧪"
+              "title": "课程生成架构文档",
+              "url": "#",
+              "description": "了解统筹大纲与原位展开的完整机制"
             },
             {
-              "id": "advanced",
-              "label": "继续讲进阶内容",
-              "icon": "🚀"
-            }
-          ]
-        },
-        {
-          "id": "sec-3-heading",
-          "component": "Text",
-          "text": "## 实践与测验"
-        },
-        {
-          "id": "sec-3-concept",
-          "component": "ConceptCard",
-          "title": "实践与测验",
-          "tags": [
-            "示例：瀑布流叙事用于异步编程科普。",
-            "组合原则：理论讲解后紧跟实践与测验。",
-            "使用 CourseOutline 实现大纲和按需展开。"
-          ],
-          "definition": "通过一个完整的示例，我们可以将多种组件组合成一个互动教学网页。例如，讲解异步编程时，先使用ConceptCard抛出问题，然后InteractiveSandbox让用户尝试代码，最后QuizCard检验理解。现在请你设计一个简单页面：针对“变量提升”概念，使用至少三个组件。",
-          "example": "### 练习任务\n针对“Promise的链式调用”知识点，设计一个包含ConceptCard、InteractiveSandbox、QuizCard的简短教学流程。写出每个组件的核心内容或其设置。",
-          "relatedConcepts": [
-            "示例：瀑布流叙事用于异步编程科普。",
-            "组合原则：理论讲解后紧跟实践与测验。",
-            "使用 CourseOutline 实现大纲和按需展开。"
-          ]
-        },
-        {
-          "id": "sec-3-quiz",
-          "component": "QuizCard",
-          "title": "实践与测验 - 随堂测验",
-          "questions": [
-            {
-              "id": "sec-3-quiz-q1",
-              "question": "哪种构图模式最适合非强顺序的百科式学习？",
-              "options": [
-                "瀑布流互动叙事",
-                "左右分栏实验室",
-                "沉浸式情景剧场",
-                "非线性探索陈列馆"
-              ],
-              "correctIndex": 3,
-              "explanation": "完成后可继续点击下方深挖方向展开学习。"
-            }
-          ]
-        },
-        {
-          "id": "sec-3-deep-dive",
-          "component": "DeepDivePrompt",
-          "prompts": [
-            {
-              "id": "example",
-              "label": "给我一个生活化例子",
-              "icon": "💡"
-            },
-            {
-              "id": "practice",
-              "label": "我想做一题练习",
-              "icon": "🧪"
-            },
-            {
-              "id": "advanced",
-              "label": "继续讲进阶内容",
-              "icon": "🚀"
+              "title": "网站构图与场景编排指南",
+              "url": "#",
+              "description": "学习四种经典构图模式"
             }
           ]
         }

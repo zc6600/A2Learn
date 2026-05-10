@@ -14,24 +14,24 @@
         {
           "id": "root",
           "component": "ResourceList",
-          "title": { "literalString": "📚 延伸阅读与进阶资源" },
+          "title": { "literalString": "📚 Further Reading and Advanced Resources" },
           "resources": [
             {
               "title": { "literalString": "Generative UI: The Next UI Paradigm" },
               "url": { "literalString": "https://example.com/generative-ui" },
-              "description": { "literalString": "一篇深度探讨生成式 UI 如何改变前后端交互方式的架构文章。" },
+              "description": { "literalString": "An in-depth architectural article exploring how generative UI is changing the way frontends and backends interact." },
               "type": "article"
             },
             {
               "title": { "literalString": "Wikipedia: Spaced Repetition" },
               "url": { "literalString": "https://en.wikipedia.org/wiki/Spaced_repetition" },
-              "description": { "literalString": "维基百科中关于间隔重复记忆法的科学原理与历史渊源。" },
+              "description": { "literalString": "The scientific principles and historical origins of the spaced repetition memory method on Wikipedia." },
               "type": "wiki"
             },
             {
-              "title": { "literalString": "A2UI 官方文档" },
+              "title": { "literalString": "A2UI Official Documentation" },
               "url": { "literalString": "https://github.com/google/a2ui" },
-              "description": { "literalString": "Agent-to-User Interface 核心协议库、渲染器及开发者指南。" },
+              "description": { "literalString": "Core protocol library, renderers, and developer guides for the Agent-to-User Interface." },
               "type": "github"
             }
           ]

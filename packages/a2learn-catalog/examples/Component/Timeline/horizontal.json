@@ -19,37 +19,37 @@
             {
               "id": "e1",
               "time": {
-                "literalString": "需求评审"
+                "literalString": "Requirement Review"
               },
               "title": {
-                "literalString": "PM 主导"
+                "literalString": "PM Led"
               },
               "description": {
-                "literalString": "确定功能边界"
+                "literalString": "Define functional boundaries"
               }
             },
             {
               "id": "e2",
               "time": {
-                "literalString": "技术设计"
+                "literalString": "Technical Design"
               },
               "title": {
-                "literalString": "开发主导"
+                "literalString": "Developer Led"
               },
               "description": {
-                "literalString": "编写系分文档"
+                "literalString": "Write system analysis documents"
               }
             },
             {
               "id": "e3",
               "time": {
-                "literalString": "研发测试"
+                "literalString": "Development & Testing"
               },
               "title": {
-                "literalString": "全员参与"
+                "literalString": "Full Participation"
               },
               "description": {
-                "literalString": "开发与QA联动"
+                "literalString": "Collaboration between Dev and QA"
               }
             }
           ]

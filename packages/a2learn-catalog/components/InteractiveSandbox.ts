@@ -163,6 +163,8 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
   @state() private localStatus: "idle" | "running" | "success" | "error" = "idle";
   @state() private localOutput: string = "";
 
+  private localObjectUrl: string | null = null;
+
   protected createController() {
     return new A2uiController(this, InteractiveSandboxApi);
   }
@@ -170,6 +172,17 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
   connectedCallback() {
     super.connectedCallback();
     this.syncProps();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.revokeLocalObjectUrl();
+  }
+
+  private revokeLocalObjectUrl() {
+    if (!this.localObjectUrl) return;
+    URL.revokeObjectURL(this.localObjectUrl);
+    this.localObjectUrl = null;
   }
 
   updated(changedProperties: Map<PropertyKey, unknown>) {
@@ -182,8 +195,12 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
   private syncProps() {
     const props = this.controller?.props;
     if (props) {
+      const nextOutput = this.resolveString(props.output || "");
+      if (this.localObjectUrl && nextOutput !== this.localObjectUrl) {
+        this.revokeLocalObjectUrl();
+      }
       this.localStatus = props.status || "idle";
-      this.localOutput = this.resolveString(props.output || "");
+      this.localOutput = nextOutput;
       (this as any).requestUpdate();
     }
   }
@@ -334,8 +351,10 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
         }
 
         // We use a data URI or Blob URL to render the iframe content
+        this.revokeLocalObjectUrl();
         const blob = new Blob([finalHtml], { type: 'text/html' });
         const blobUrl = URL.createObjectURL(blob);
+        this.localObjectUrl = blobUrl;
         
         this.localStatus = "success";
         this.localOutput = blobUrl;
@@ -397,7 +416,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
               ${status === "idle" && !output 
                 ? "点击运行按钮查看结果..." 
                 : status === "success" && output
-                  ? html`<iframe class="preview-frame" src="${output}"></iframe>`
+                  ? html`<iframe class="preview-frame" sandbox="allow-scripts" referrerpolicy="no-referrer" src="${output}"></iframe>`
                   : unsafeHTML(sanitizeHtml(output))}
             </div>
           </div>

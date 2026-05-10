@@ -1,4 +1,5 @@
 import json
+import os
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -51,22 +52,46 @@ def extract_text_from_path(resource_path: str) -> str:
     return "\n".join(chunks)
 
 
-def export_messages(a2ui_messages: list[dict[str, Any]]) -> dict[str, str]:
-    task_id = datetime.now().strftime("%Y%m%d-%H%M%S")
+def create_output_dir(task_id: str | None = None) -> Path:
+    if not task_id:
+        task_id = datetime.now().strftime("%Y%m%d-%H%M%S")
     output_dir = Path("outputs") / task_id
     output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
 
-    messages_path = output_dir / "site_messages.json"
+
+def write_json(output_dir: str | Path, filename: str, payload: Any) -> str:
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / filename
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return str(path.resolve())
+
+
+def export_messages(a2ui_messages: list[dict[str, Any]], output_dir: str | None = None) -> dict[str, str]:
+    out_dir = Path(output_dir) if output_dir else create_output_dir()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    messages_path = out_dir / "site_messages.json"
     messages_path.write_text(
         json.dumps(a2ui_messages, ensure_ascii=False, indent=2), encoding="utf-8"
     )
 
-    viewer_generated = Path("apps/viewer/public/generated")
-    viewer_generated.mkdir(parents=True, exist_ok=True)
-    viewer_messages_path = viewer_generated / "site_messages.json"
-    shutil.copyfile(messages_path, viewer_messages_path)
+    sync_viewer = os.getenv("A2LEARN_SYNC_VIEWER", "1") != "0"
+    viewer_target = os.getenv(
+        "A2LEARN_VIEWER_MESSAGES_PATH",
+        "apps/viewer/public/generated/site_messages.json",
+    )
+    viewer_messages_path = Path(viewer_target)
+    if sync_viewer:
+        viewer_messages_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(messages_path, viewer_messages_path)
 
     return {
-        "output_dir": str(output_dir.resolve()),
-        "generated_messages_path": str(viewer_messages_path.resolve()),
+        "output_dir": str(out_dir.resolve()),
+        "generated_messages_path": str(
+            viewer_messages_path.resolve() if sync_viewer else messages_path.resolve()
+        ),
+        "output_messages_path": str(messages_path.resolve()),
+        "viewer_messages_path": str(viewer_messages_path.resolve()) if sync_viewer else "",
     }

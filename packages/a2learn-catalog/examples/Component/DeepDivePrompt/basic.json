@@ -18,7 +18,7 @@
             {
               "id": "p1",
               "label": {
-                "literalString": "举个生活中的例子"
+                "literalString": "Give me a real-world example"
               },
               "icon": {
                 "literalString": "🤔"
@@ -27,7 +27,7 @@
             {
               "id": "p2",
               "label": {
-                "literalString": "给我看一段代码"
+                "literalString": "Show me some code"
               },
               "icon": {
                 "literalString": "💻"
@@ -36,7 +36,7 @@
             {
               "id": "p3",
               "label": {
-                "literalString": "太简单了，讲深一点"
+                "literalString": "Too simple, go deeper"
               },
               "icon": {
                 "literalString": "🚀"

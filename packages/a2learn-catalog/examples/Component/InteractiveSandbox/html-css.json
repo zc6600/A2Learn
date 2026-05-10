@@ -16,7 +16,7 @@
           "component": "InteractiveSandbox",
           "language": "html",
           "code": {
-            "literalString": "<style>\n  .card {\n    padding: 20px;\n    border-radius: 10px;\n    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n    color: white;\n    font-family: sans-serif;\n  }\n</style>\n\n<div class=\"card\">\n  <h2>互动沙盒测试</h2>\n  <p>你可以在左侧修改 CSS 背景渐变色，点击 Run 看看效果！</p>\n</div>"
+            "literalString": "<style>\n  .card {\n    padding: 20px;\n    border-radius: 10px;\n    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n    color: white;\n    font-family: sans-serif;\n  }\n</style>\n\n<div class=\"card\">\n  <h2>Interactive Sandbox Test</h2>\n  <p>You can modify the CSS background gradient on the left and click Run to see the results!</p>\n</div>"
           },
           "runLocally": true
         }

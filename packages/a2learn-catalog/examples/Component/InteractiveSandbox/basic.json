@@ -14,8 +14,8 @@
         {
           "id": "root",
           "component": "InteractiveSandbox",
-          "title": { "literalString": "A2UI 协议生成测试" },
-          "description": { "literalString": "尝试修改左侧的 JSON 结构，并点击 Run 观察效果。在真实的 Agent 环境中，代码运行操作将被发送给远端沙盒或由本地 WebAssembly 执行。" },
+          "title": { "literalString": "A2UI Protocol Generation Test" },
+          "description": { "literalString": "Try modifying the JSON structure on the left and click Run to observe the results. In a real Agent environment, code execution would be sent to a remote sandbox or performed locally via WebAssembly." },
           "language": "json",
           "code": { "literalString": "{\n  \"component\": \"Card\",\n  \"child\": {\n    \"component\": \"Text\",\n    \"text\": \"Hello A2UI!\"\n  }\n}" },
           "status": "success",

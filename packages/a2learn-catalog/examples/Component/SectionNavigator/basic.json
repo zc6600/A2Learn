@@ -15,37 +15,37 @@
           "id": "root",
           "component": "SectionNavigator",
           "title": {
-            "literalString": "Web3 训练营"
+            "literalString": "Web3 Bootcamp"
           },
           "activeSectionId": "s2",
           "sections": [
             {
               "id": "s1",
               "title": {
-                "literalString": "什么是区块链？"
+                "literalString": "What is Blockchain?"
               },
               "description": {
-                "literalString": "了解去中心化的核心原理"
+                "literalString": "Understand the core principles of decentralization"
               },
               "status": "completed"
             },
             {
               "id": "s2",
               "title": {
-                "literalString": "智能合约基础"
+                "literalString": "Smart Contract Basics"
               },
               "description": {
-                "literalString": "用 Solidity 编写第一行代码"
+                "literalString": "Write your first line of code with Solidity"
               },
               "status": "current"
             },
             {
               "id": "s3",
               "title": {
-                "literalString": "DeFi 应用"
+                "literalString": "DeFi Applications"
               },
               "description": {
-                "literalString": "深入理解去中心化金融"
+                "literalString": "Deep dive into Decentralized Finance"
               },
               "status": "locked"
             }

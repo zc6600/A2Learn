@@ -1,60 +1,60 @@
-# A2Learn 课程生成架构 (Course Generation via Inline Expansion)
+# A2Learn Course Generation Architecture (Course Generation via Inline Expansion)
 
-当用户输入“我想系统地学习正则表达式”时，如果我们只返回一个包含了 5 个组件的单页，这叫“回答问题”。
-但如果 Agent 能够自动生成一个包含了“10-20 个子课题”的完整教学大纲，并且允许用户**在当前页面无缝点开每一个子课题进行深入学习**，这就是一种极其轻量且高互动的“生成式课程 (AI-Generated Course)”。
+When a user inputs "I want to learn regular expressions systematically," if we only return a single page with 5 components, that's just "answering a question."
+However, if the Agent can automatically generate a complete syllabus containing "10-20 sub-topics" and allow the user to **seamlessly click and open each sub-topic for in-depth learning on the current page**, that becomes an extremely lightweight and highly interactive "Generative Course (AI-Generated Course)."
 
-本文档探讨在 A2UI 框架下，如何通过**“统筹大纲 + 原位展开 (Inline Expansion)”**来实现这种超越单点问答的体验。
-
----
-
-## 1. 核心交互机制：统筹大纲与原位展开
-
-为了避免传统多页网站（Multi-page App）复杂的路由跳转和状态管理的开销，我们采用了一种更符合“聊天流/瀑布流”直觉的设计：**手风琴式的嵌套展开**。
-
-### 1.1 专属组件：`CourseOutline` (课程大纲统筹器)
-这是我们专门为此场景设计的灵魂组件。
-- 当用户提出学习需求后，Agent 首先发挥“总编”的作用，只生成课程的骨架，不下发具体内容。
-- Agent 会下发一个 `CourseOutline` 组件。在 UI 上，它看起来像一个带有很多章节模块（Module）的列表。
-- 模块的状态分为：`locked` (未解锁), `current` (当前可学), `completed` (已完成), `expanded` (已展开)。
-
-### 1.2 按需原位生成 (Inline JIT Generation)
-这是最核心的魔法，也是控制大模型 Context 上下文不至于过载的关键：
-1. 用户看到大纲后，点击第一章（模块按钮）。
-2. 前端触发 `onModuleSelect`，将请求发给 Agent。
-3. **Agent 接收上下文**：此时 Agent 被唤醒，它能看到之前的统筹大纲 JSON，并且知道用户点了第一章。
-4. **原位展开**：Agent 此时扮演“专栏作家”，生成第一章的具体教学组件组合（比如 `ConceptCard` + `InteractiveSandbox`）。
-5. **UI 表现**：这组新生成的组件**不会跳出新网页**，而是直接在用户刚才点击的那个大纲按钮的**正下方（容器内）原位展开**。就像手风琴被拉开了一样。
+This document explores how to achieve this experience that transcends single-point Q&A through **"Overall Syllabus + Inline Expansion"** within the A2UI framework.
 
 ---
 
-## 2. 工程实现：嵌套容器与状态追踪
+## 1. Core Interaction Mechanism: Overall Syllabus and Inline Expansion
 
-在 A2UI 中，实现“原位展开”需要利用到组件的嵌套容器能力。
+To avoid the overhead of complex routing and state management in traditional multi-page apps, we adopt a design more aligned with "chat flow/waterfall flow" intuition: **Accordion-style nested expansion**.
 
-### 2.1 数据结构示例 (`CourseOutline`)
+### 1.1 Exclusive Component: `CourseOutline` (Course Syllabus Coordinator)
+This is the soul component designed specifically for this scenario.
+- After the user proposes a learning need, the Agent first acts as an "editor-in-chief," generating only the course skeleton without delivering specific content.
+- The Agent delivers a `CourseOutline` component. Visually, it looks like a list with many chapter modules (Modules).
+- Module statuses include: `locked`, `current` (learnable), `completed`, and `expanded`.
+
+### 1.2 Inline JIT (Just-In-Time) Generation
+This is the core magic and the key to preventing the Large Language Model's (Agent's) context from overloading:
+1. The user sees the outline and clicks the first chapter (Module button).
+2. The frontend triggers `onModuleSelect`, sending the request to the Agent.
+3. **Agent Receives Context**: The Agent is awakened, sees the previous syllabus JSON, and knows the user clicked the first chapter.
+4. **Inline Expansion**: The Agent now plays the role of a "columnist," generating the specific instructional component combination for the first chapter (e.g., `ConceptCard` + `InteractiveSandbox`).
+5. **UI Performance**: This new set of generated components **does not jump to a new page** but expands **directly below (within a container)** the syllabus button the user just clicked. It's like an accordion being pulled open.
+
+---
+
+## 2. Engineering Implementation: Nested Containers and State Tracking
+
+In A2UI, achieving "inline expansion" requires utilizing the nested container capability of components.
+
+### 2.1 Data Structure Example (`CourseOutline`)
 ```json
 {
   "component": "CourseOutline",
-  "courseTitle": "正则表达式从入门到精通",
+  "courseTitle": "Mastering Regular Expressions from Beginner to Pro",
   "modules": [
-    { "id": "ch_1", "title": "第一章：认识元字符", "status": "expanded" },
-    { "id": "ch_2", "title": "第二章：量词与贪婪模式", "status": "current" },
-    { "id": "ch_3", "title": "第三章：实战闯关", "status": "locked" }
+    { "id": "ch_1", "title": "Chapter 1: Understanding Meta-characters", "status": "expanded" },
+    { "id": "ch_2", "title": "Chapter 2: Quantifiers and Greedy Mode", "status": "current" },
+    { "id": "ch_3", "title": "Chapter 3: Practical Challenges", "status": "locked" }
   ]
 }
 ```
 
-### 2.2 嵌套渲染机制
-在 `CourseOutline` 的前端 Lit 代码中，每一个模块条目的下方，都隐藏着一个专属于该模块的 DOM 容器（例如 `<div class="expansion-area">`）。
-- 当 Agent 生成子课题的内容时，A2UI 的渲染引擎会将新生成的组件（如卡片、测验）直接挂载到这个预留的 `expansion-area` 容器中。
-- 当用户学完这一章并点击“收起”时，这个容器折叠，页面依然保持干净的大纲视图。
+### 2.2 Nested Rendering Mechanism
+In the frontend Lit code for `CourseOutline`, a dedicated DOM container (e.g., `<div class="expansion-area">`) is hidden beneath each module entry.
+- When the Agent generates content for a sub-topic, the A2UI rendering engine mounts the newly generated components (e.g., cards, quizzes) directly into this reserved `expansion-area` container.
+- When the user finishes the chapter and clicks "collapse," the container folds, and the page remains a clean syllabus view.
 
 ---
 
-## 3. 总结：一个极轻量课程的生命周期
+## 3. Summary: Lifecycle of an Ultra-lightweight Course
 
-1. **统筹 (Planning)**: 用户输入需求 -> Agent 生成大纲 -> 下发 `CourseOutline`。
-2. **点单 (Selecting)**: 用户点击 `ch_1` 的按钮。
-3. **上菜 (Inline Rendering)**: Agent 实时生成 `ch_1` 的专属内容 -> 在 `ch_1` 按钮下方原位铺开。
-4. **推进 (Progression)**: 用户学完 `ch_1`，大纲中 `ch_1` 变为 `completed`，`ch_2` 变为可点击的 `current` 状态。
-5. **体验优势**: 整个过程**没有一次页面跳转**。用户感觉自己始终在一张无限延伸的长轴画布上探索，既有全局的掌控感（随时可以收起看大纲），又能在需要时进行极深的微观互动。
+1. **Planning**: User inputs requirements -> Agent generates outline -> Delivers `CourseOutline`.
+2. **Selecting**: User clicks the button for `ch_1`.
+3. **Inline Rendering**: Agent generates specific content for `ch_1` in real-time -> Expands it inline below the `ch_1` button.
+4. **Progression**: User finishes `ch_1`, `ch_1` becomes `completed` in the outline, and `ch_2` becomes the clickable `current` state.
+5. **Experience Advantages**: The entire process involves **zero page jumps**. The user feels like they are exploring an infinitely extending long-scroll canvas, maintaining a sense of global control (collapsing to see the outline at any time) while engaging in deep micro-interactions when needed.

@@ -14,8 +14,8 @@
         {
           "id": "root",
           "component": "Achievement",
-          "title": { "literalString": "A2UI 探索者" },
-          "description": { "literalString": "恭喜！您已完整浏览了 <b>A2UI 核心协议</b> 展区，成功解锁了知识徽章。继续探索更多前沿技术吧！" },
+          "title": { "literalString": "A2UI Explorer" },
+          "description": { "literalString": "Congratulations! You have fully browsed the <b>A2UI Core Protocol</b> exhibit and successfully unlocked a knowledge badge. Keep exploring more cutting-edge technologies!" },
           "icon": { "literalString": "🔭" },
           "unlockedAt": { "literalString": "2026-04-27 16:30" }
         }

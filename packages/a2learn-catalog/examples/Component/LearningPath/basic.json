@@ -14,24 +14,24 @@
         {
           "id": "root",
           "component": "LearningPath",
-          "title": { "literalString": "AI 学习进阶路径" },
+          "title": { "literalString": "AI Learning Advancement Path" },
           "activeStepId": "2",
           "steps": [
             {
               "id": "1",
-              "title": { "literalString": "机器学习基础" }
+              "title": { "literalString": "Machine Learning Basics" }
             },
             {
               "id": "2",
-              "title": { "literalString": "神经网络与深度学习" }
+              "title": { "literalString": "Neural Networks & Deep Learning" }
             },
             {
               "id": "3",
-              "title": { "literalString": "大语言模型进阶" }
+              "title": { "literalString": "Advanced LLMs" }
             },
             {
               "id": "4",
-              "title": { "literalString": "Agent 架构设计" }
+              "title": { "literalString": "Agent Architecture Design" }
             }
           ]
         }

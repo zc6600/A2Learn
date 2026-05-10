@@ -5,6 +5,19 @@ export function injectBaseTheme(): void {
   const style = document.createElement("style");
   style.id = "a2learn-base-theme";
   style.textContent = `
+    html[data-a2learn-embed="1"] #app {
+      max-width: none;
+      padding: 0;
+    }
+    html[data-a2learn-embed="1"] .app-header {
+      display: none;
+    }
+    html[data-a2learn-embed="1"] .viewer-main {
+      padding: 0;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+    }
     :root {
       color-scheme: light;
       --app-bg: linear-gradient(180deg, #f5f8ff 0%, #eef3ff 100%);

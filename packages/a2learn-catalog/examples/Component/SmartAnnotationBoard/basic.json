@@ -15,10 +15,10 @@
           "id": "root",
           "component": "SmartAnnotationBoard",
           "title": {
-            "literalString": "英语短文批改"
+            "literalString": "English Essay Correction"
           },
           "prompt": {
-            "literalString": "请用英文描述你最喜欢的一部电影。"
+            "literalString": "Please describe your favorite movie in English."
           }
         }
       ]

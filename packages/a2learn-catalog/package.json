@@ -4,6 +4,12 @@
   "version": "0.1.0",
   "type": "module",
   "main": "./index.ts",
-  "types": "./index.ts"
+  "types": "./index.ts",
+  "dependencies": {
+    "@a2ui/lit": "file:../../third_party/A2UI/renderers/lit",
+    "@a2ui/web_core": "file:../../third_party/A2UI/renderers/web_core",
+    "dompurify": "^3.3.1",
+    "lit": "^3.3.1",
+    "zod": "^4.3.6"
+  }
 }
-

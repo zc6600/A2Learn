@@ -14,19 +14,19 @@
         {
           "id": "root",
           "component": "QuizCard",
-          "title": { "literalString": "历史常识小测验" },
+          "title": { "literalString": "History General Knowledge Quiz" },
           "questions": [
             {
               "id": "q1",
-              "question": { "literalString": "二战爆发是哪一年？" },
+              "question": { "literalString": "In what year did World War II break out?" },
               "options": [
-                { "literalString": "1937年" },
-                { "literalString": "1939年" },
-                { "literalString": "1941年" },
-                { "literalString": "1945年" }
+                { "literalString": "1937" },
+                { "literalString": "1939" },
+                { "literalString": "1941" },
+                { "literalString": "1945" }
               ],
               "correctIndex": 1,
-              "explanation": { "literalString": "1939年9月1日，德国突袭波兰，标志着第二次世界大战的全面爆发。" }
+              "explanation": { "literalString": "On September 1, 1939, Germany invaded Poland, marking the beginning of World War II." }
             }
           ]
         }

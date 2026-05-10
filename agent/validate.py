@@ -3,7 +3,11 @@ from typing import Any
 from .config import DEFAULT_CATALOG_ID
 
 
-def validate_a2ui_messages(messages: list[dict[str, Any]]) -> None:
+def validate_a2ui_messages(
+    messages: list[dict[str, Any]],
+    require_create_surface: bool = True,
+    require_update_components: bool = True,
+) -> None:
     if not isinstance(messages, list) or not messages:
         raise ValueError("a2ui_messages must be a non-empty list.")
 
@@ -46,8 +50,7 @@ def validate_a2ui_messages(messages: list[dict[str, Any]]) -> None:
                 if "id" not in c or "component" not in c:
                     raise ValueError("Each component must contain both 'id' and 'component'.")
 
-    if create_surface_count == 0:
+    if require_create_surface and create_surface_count == 0:
         raise ValueError("At least one createSurface message is required.")
-    if update_components_count == 0:
+    if require_update_components and update_components_count == 0:
         raise ValueError("At least one updateComponents message is required.")
-

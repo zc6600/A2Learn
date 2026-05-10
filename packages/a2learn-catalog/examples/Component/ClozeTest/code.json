@@ -15,7 +15,7 @@
           "id": "root",
           "component": "ClozeTest",
           "text": {
-            "literalString": "在 Python 中，定义一个函数使用 ___ 关键字，返回结果使用 ___ 关键字。"
+            "literalString": "In Python, use the ___ keyword to define a function, and the ___ keyword to return a result."
           },
           "answers": [],
           "correctAnswers": [
@@ -27,7 +27,7 @@
             }
           ],
           "explanation": {
-            "literalString": "def my_func(): return 'hello'"
+            "literalString": "Example: def my_func(): return 'hello'"
           }
         }
       ]

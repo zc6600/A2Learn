@@ -15,10 +15,10 @@
           "id": "root",
           "component": "Flashcard",
           "front": {
-            "literalString": "什么是 `Spaced Repetition` (间隔重复)？"
+            "literalString": "What is `Spaced Repetition`?"
           },
           "back": {
-            "literalString": "间隔重复是一种记忆技巧，它通过在遗忘曲线的临界点复习知识，从而将短期记忆转化为长期记忆。"
+            "literalString": "Spaced repetition is a memory technique that transforms short-term memory into long-term memory by reviewing information at critical intervals on the forgetting curve."
           },
           "isFlipped": true
         }

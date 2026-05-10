@@ -1,60 +1,60 @@
-# A2UI 集成知识记录
+# A2UI Integration Knowledge Records
 
-## 目标
+## Goal
 
-记录 A2Learn 在后续集成 A2UI 时需要用到的关键知识点、代码路径和落地建议。
+Document key knowledge points, code paths, and implementation suggestions for A2Learn's integration with A2UI.
 
-## 版本与渲染器选择
+## Version and Renderer Selection
 
-- 新项目建议优先 A2UI v0.9。
-- Web 端可选渲染器：
+- New projects are recommended to prioritize A2UI v0.9.
+- Available Web renderers:
   - `@a2ui/lit` + `@a2ui/web_core`
   - `@a2ui/react` + `@a2ui/web_core`
   - `@a2ui/angular` + `@a2ui/web_core`
 
-## 关键代码入口（A2UI 仓库）
+## Key Code Entry Points (A2UI Repository)
 
-- Lit 示例客户端：
+- Lit sample client:
   - `third_party/A2UI/samples/client/lit/shell/app.ts`
   - `third_party/A2UI/samples/client/lit/shell/client.ts`
-- v0.9 基础渲染器说明：
+- v0.9 Base renderer documentation:
   - `third_party/A2UI/renderers/lit/README.md`
   - `third_party/A2UI/renderers/react/README.md`
-- 客户端接入指南：
+- Client integration guide:
   - `third_party/A2UI/docs/guides/client-setup.md`
-- MCP 集成指南：
+- MCP integration guide:
   - `third_party/A2UI/docs/guides/a2ui_over_mcp.md`
 
-## 最小接入心智模型（v0.9）
+## Minimal Integration Mental Model (v0.9)
 
-1. 客户端创建 `MessageProcessor`，传入 catalog（如 `basicCatalog`）。
-2. Agent 返回 A2UI 消息流（如 `createSurface`, `updateComponents`, `updateDataModel`）。
-3. 客户端 `processMessages()`，然后用 `A2uiSurface` 渲染 surface。
-4. 用户触发组件动作后，客户端把 action 发送回 Agent。
+1. Client creates a `MessageProcessor`, passing in the catalog (e.g., `basicCatalog`).
+2. Agent returns an A2UI message stream (e.g., `createSurface`, `updateComponents`, `updateDataModel`).
+3. Client calls `processMessages()`, then renders the surface using `A2uiSurface`.
+4. After a user triggers a component action, the client sends the action back to the Agent.
 
-## Agent 与 A2UI 的关系
+## Relationship between Agent and A2UI
 
-- 当前实现采用 Agent 直接产出 A2UI 消息：
-  - LangGraph 读取资源并触发 LLM 生成消息数组。
-  - Python 对 A2UI v0.9 messages 做严格校验并导出。
-  - `apps/viewer` 使用 `@a2ui/lit` 渲染 messages。
+- Current implementation uses Agent to directly produce A2UI messages:
+  - LangGraph reads resources and triggers LLM to generate message arrays.
+  - Python performs strict validation on A2UI v0.9 messages and exports them.
+  - `apps/viewer` uses `@a2ui/lit` to render the messages.
 
-## A2Learn 当前实现代码点
+## A2Learn Current Implementation Points
 
-- 生成器（OpenRouter + LangGraph）：`agent/main.py`、`agent/engine.py`
-- 消息落盘：`outputs/<task_id>/site_messages.json`
-- A2UI 前端渲染器：`apps/viewer/src/main.ts`
+- Generator (OpenRouter + LangGraph): `agent/main.py`, `agent/engine.py`
+- Message storage: `outputs/<task_id>/site_messages.json`
+- A2UI frontend renderer: `apps/viewer/src/main.ts`
 
-## MCP 方向（后续）
+## MCP Direction (Future)
 
-如果走 MCP：
+If following the MCP path:
 
-- 服务端通过 `tools/call` 返回 `application/json+a2ui` 的 Embedded Resource。
-- 客户端检测 MIME 后交给 A2UI 渲染器。
-- action/error 通过 MCP tool 回调服务端。
+- Server returns `application/json+a2ui` Embedded Resource via `tools/call`.
+- Client detects MIME and hands it over to the A2UI renderer.
+- action/error are called back to the server via MCP tools.
 
-## 安全注意
+## Security Considerations
 
-- 所有 Agent 输出的 UI 数据视作不可信输入。
-- 需做数据校验、渲染隔离、链接白名单、CSP 等安全措施。
-- 生产环境禁止把敏感凭据暴露给前端。
+- All Agent-produced UI data is treated as untrusted input.
+- Data validation, rendering isolation, link whitelisting, and CSP security measures are required.
+- Do not expose sensitive credentials to the frontend in production environments.

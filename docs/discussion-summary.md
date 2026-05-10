@@ -1,32 +1,32 @@
-# A2Learn 讨论纪要
+# A2Learn Discussion Summary
 
-## 项目目标
+## Project Goals
 
-- 输入一份教学资源（文件或目录）。
-- 由 AI 自动理解资源并构建教学网站。
-- 输出一个可访问的网址（本地预览或部署 URL）。
+- Input: A set of teaching resources (file or directory).
+- AI automatically understands the resources and builds a teaching website.
+- Output: An accessible URL (local preview or deployment URL).
 
-## 两种构建模式
+## Two Building Modes
 
-### Fast Mode（一次成型）
+### Fast Mode (One-pass Generation)
 
-- 先完整理解资源，再一次性生成网站首版。
-- 生成后支持用户通过聊天持续修改。
-- 优点是速度快、可快速看到结果。
+- Fully understands resources first, then generates the initial version of the website in one pass.
+- Supports continuous modification by the user through chat after generation.
+- Pros: Fast, provides immediate results.
 
-### Deep Mode（自主迭代）
+### Deep Mode (Autonomous Iteration)
 
-- Agent 面对文件系统持续探索与补全。
-- 不预设固定循环目标，依赖 AI 自主判断下一步动作与收敛时机。
-- 人类可在任意时间插话调整方向。
+- Agent continuously explores and completes the filesystem.
+- No preset fixed loop goals; relies on AI autonomous judgment for the next action and convergence timing.
+- Humans can intervene at any time to adjust direction.
 
-## 架构共识
+## Architectural Consensus
 
-- 两种模式共享同一套资源解析、内容生成、站点渲染、发布能力。
-- 优先先做 Fast Mode，尽快产出可运行最小版本。
-- 技术框架明确为 OpenRouter + LangGraph。
+- Both modes share the same resource parsing, content generation, site rendering, and publishing capabilities.
+- Prioritize Fast Mode to produce a minimum runnable version as soon as possible.
+- Technical framework finalized as OpenRouter + LangGraph.
 
-## A2UI 接入方向
+## A2UI Integration Direction
 
-- A2UI 作为后续“生成式交互层”能力引入，优先使用 v0.9。
-- Fast Mode 已按要求落到 A2UI 框架：生成 A2UI v0.9 messages 并用 `@a2ui/lit` 渲染。
+- A2UI will be introduced as the subsequent "Generative Interaction Layer," prioritizing v0.9.
+- Fast Mode has been implemented using the A2UI framework as requested: generating A2UI v0.9 messages and rendering them with `@a2ui/lit`.

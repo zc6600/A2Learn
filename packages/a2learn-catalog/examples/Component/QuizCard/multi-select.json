@@ -14,11 +14,11 @@
         {
           "id": "root",
           "component": "QuizCard",
-          "title": { "literalString": "期中考试：前端基础" },
+          "title": { "literalString": "Midterm Exam: Frontend Basics" },
           "questions": [
             {
               "id": "q1",
-              "question": { "literalString": "下面哪些属于 JavaScript 的基础数据类型（Primitive Types）？（多选）" },
+              "question": { "literalString": "Which of the following are primitive data types in JavaScript? (Select all that apply)" },
               "options": [
                 { "literalString": "String" },
                 { "literalString": "Object" },
@@ -26,23 +26,23 @@
                 { "literalString": "Array" }
               ],
               "correctIndex": [0, 2],
-              "explanation": { "literalString": "Object 和 Array 是引用类型 (Reference Types)。" }
+              "explanation": { "literalString": "Object and Array are Reference Types." }
             },
             {
               "id": "q2",
-              "question": { "literalString": "React 中能够触发组件重新渲染的操作有哪些？（多选）" },
+              "question": { "literalString": "Which operations in React can trigger a component re-render? (Select all that apply)" },
               "options": [
-                { "literalString": "调用 `setState`" },
-                { "literalString": "修改普通的 `let` 变量" },
-                { "literalString": "父组件重新渲染" },
-                { "literalString": "修改 `useRef` 的 `current` 值" }
+                { "literalString": "Calling `setState`" },
+                { "literalString": "Modifying a regular `let` variable" },
+                { "literalString": "Parent component re-rendering" },
+                { "literalString": "Modifying the `current` value of a `useRef`" }
               ],
               "correctIndex": [0, 2],
-              "explanation": { "literalString": "普通变量和 ref 值的改变不会触发组件重渲染。只有 state 改变或父组件渲染时才会。" }
+              "explanation": { "literalString": "Changes to regular variables or ref values do not trigger re-renders. Re-renders are only triggered by state changes or when the parent component renders." }
             },
             {
               "id": "q3",
-              "question": { "literalString": "下面哪一个**不是** HTML5 新增的语义化标签？" },
+              "question": { "literalString": "Which of the following is **NOT** a new semantic tag in HTML5?" },
               "options": [
                 { "literalString": "`<article>`" },
                 { "literalString": "`<section>`" },
@@ -50,7 +50,7 @@
                 { "literalString": "`<nav>`" }
               ],
               "correctIndex": 2,
-              "explanation": { "literalString": "`<div>` 早就有了，它没有语义，是一个无意义的块级元素。" }
+              "explanation": { "literalString": "The `<div>` tag has existed for a long time; it has no semantic meaning and is simply a generic block-level element." }
             }
           ]
         }

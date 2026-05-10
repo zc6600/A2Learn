@@ -14,18 +14,15 @@ if [ -d ".venv" ]; then
   source .venv/bin/activate
 fi
 
+export A2LEARN_SYNC_VIEWER="${A2LEARN_SYNC_VIEWER:-1}"
+export A2LEARN_VIEWER_MESSAGES_PATH="${A2LEARN_VIEWER_MESSAGES_PATH:-apps/viewer/public/generated/site_messages.json}"
 python run_agent.py --resource "$RESOURCE_PATH"
 
-if [ ! -d "third_party/A2UI/renderers/web_core/dist" ]; then
-  (cd third_party/A2UI/renderers/web_core && npm install && npm run build)
-fi
+./scripts/ensure_a2ui.sh
 
-if [ ! -d "third_party/A2UI/renderers/lit/dist" ]; then
-  (cd third_party/A2UI/renderers/lit && npm install && npm run build)
-fi
-
-cd apps/viewer
 if [ ! -d "node_modules" ]; then
   npm install
 fi
-npm run dev -- --host 127.0.0.1 --port "$PORT"
+cd apps/viewer
+VITE_A2LEARN_MESSAGES_URL="${VITE_A2LEARN_MESSAGES_URL:-/generated/site_messages.json}" \
+  npm run dev -- --host 127.0.0.1 --port "$PORT"

@@ -20,39 +20,39 @@
           "id": "header",
           "component": "Text",
           "variant": "h1",
-          "text": "JavaScript 异步编程与 Promise 核心原理"
+          "text": "JavaScript Async Programming and Promise Core Principles"
         },
         {
           "id": "learning-path",
           "component": "LearningPath",
-          "title": "Promise 学习路径",
+          "title": "Promise Learning Path",
           "activeStepId": "1",
           "steps": [
-            { "id": "1", "title": "认识 Promise" },
-            { "id": "2", "title": "手写 delay" },
-            { "id": "3", "title": "解锁成就" }
+            { "id": "1", "title": "Understanding Promises" },
+            { "id": "2", "title": "Handwriting delay" },
+            { "id": "3", "title": "Unlock Achievements" }
           ],
           "onStepSelect": { "name": "learning_path_select", "context": {} }
         },
         {
           "id": "intro-text",
           "component": "Text",
-          "text": "在浏览器和 Node.js 等 JavaScript 运行环境中，异步编程是处理 I/O 密集型任务的核心。传统的异步依赖回调函数，导致了“回调地狱”。ES6 引入的 Promise 改变了这一困境。"
+          "text": "In JavaScript runtimes like the browser and Node.js, asynchronous programming is core to handling I/O-intensive tasks. Traditional async relied on callback functions, leading to \"callback hell.\" The introduction of Promise in ES6 changed this predicament."
         },
         {
           "id": "concept",
           "component": "ConceptCard",
           "title": "Promise",
           "tags": ["JavaScript", "Async", "ES6"],
-          "definition": "<b>Promise</b> 对象代表了异步操作的最终完成（或失败）及其结果值。它有三种状态：<code>pending</code> (进行中)、<code>fulfilled</code> (已成功) 和 <code>rejected</code> (已失败)。状态一旦改变，就不会再变。",
+          "definition": "A <b>Promise</b> object represents the eventual completion (or failure) of an asynchronous operation and its resulting value. It has three states: <code>pending</code> (in progress), <code>fulfilled</code> (succeeded), and <code>rejected</code> (failed). Once the state changes, it will not change again.",
           "example": "<pre><code>const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    resolve('Success!');\n  }, 1000);\n});\n\npromise.then((value) => {\n  console.log(value); // \"Success!\"\n});</code></pre>",
           "relatedConcepts": ["async / await", "Event Loop", "Microtask Queue"]
         },
         {
           "id": "sandbox",
           "component": "InteractiveSandbox",
-          "title": "动手尝试 Promise.all",
-          "description": "你可以运行下面的代码，看看 <code>Promise.all</code> 是如何等待所有 Promise 并行完成的。",
+          "title": "Try Promise.all Hands-on",
+          "description": "You can run the code below to see how <code>Promise.all</code> waits for all Promises to complete in parallel.",
           "language": "javascript",
           "code": "const p1 = Promise.resolve(3);\nconst p2 = 1337;\nconst p3 = new Promise((resolve, reject) => {\n  setTimeout(resolve, 100, 'foo');\n});\n\nPromise.all([p1, p2, p3]).then(values => {\n  console.log(values); \n});",
           "status": "success",
@@ -63,37 +63,37 @@
         {
           "id": "quiz",
           "component": "QuizCard",
-          "title": "Promise 小测验",
+          "title": "Promise Quiz",
           "questions": [
             {
               "id": "q1",
-              "question": "Promise 一旦从 pending 变为 fulfilled/rejected 后会怎样？",
+              "question": "What happens once a Promise changes from pending to fulfilled/rejected?",
               "options": [
-                "状态可以反复切换",
-                "状态不可再变化",
-                "只能变回 pending",
-                "必须由 setTimeout 重置"
+                "The state can switch back and forth",
+                "The state can no longer change",
+                "It can only change back to pending",
+                "It must be reset by setTimeout"
               ],
               "correctIndex": 1,
-              "explanation": "Promise 的状态具有一次性，状态落定后不可逆。"
+              "explanation": "The state of a Promise is immutable once settled."
             }
           ]
         },
         {
           "id": "resources",
           "component": "ResourceList",
-          "title": "官方文档与指南",
+          "title": "Official Documentation and Guides",
           "resources": [
             {
-              "title": "MDN: 使用 Promise",
-              "url": "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Using_promises",
-              "description": "Mozilla 开发者网络上权威的 Promise 使用指南。",
+              "title": "MDN: Using Promises",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises",
+              "description": "The authoritative guide to using Promises on the Mozilla Developer Network.",
               "type": "doc"
             },
             {
               "title": "JavaScript Visualized: Promises & Async/Await",
               "url": "https://dev.to/lydiahallie/javascript-visualized-promises-async-await-5gke",
-              "description": "通过动图直观讲解 JavaScript 的事件循环和异步机制。",
+              "description": "An intuitive explanation of the JavaScript event loop and async mechanisms using animations.",
               "type": "article"
             }
           ]

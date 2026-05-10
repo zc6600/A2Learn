@@ -1,57 +1,59 @@
-# Agent Pipeline 设计文档（OpenRouter + LangGraph）
+# Agent Pipeline Design Document (OpenRouter + LangGraph)
 
-## 目标
+## Goal
 
-在最短路径内实现：
+Achieve the following in the shortest path:
 
-- 输入教学资源（文件或目录）
-- AI 进行一次性理解与生成
-- 使用 A2UI 框架渲染并产出可访问教学网站 URL
+- Input: Teaching resources (file or directory).
+- AI: One-pass understanding and generation.
+- Rendering: Use A2UI framework to render and produce an accessible teaching website URL.
 
-## 处理流程
+## Workflow
 
-1. 资源读取：扫描文件/目录，提取文本内容。
-2. 课程规划：LLM 生成课程标题、受众、章节结构。
-3. 站点内容生成：LLM 生成每章讲解、要点、练习与测验。
-4. A2UI 消息转换：将结构化结果转为 A2UI v0.9 messages。
-5. A2UI 渲染：通过 `@a2ui/lit` + `@a2ui/web_core` 渲染页面。
-6. 本地发布：Vite 启动 viewer 并返回 URL。
+1. Resource Reading: Scan files/directories, extract text content.
+2. Curriculum Planning: LLM generates course title, audience, and chapter structure.
+3. Site Content Generation: LLM generates explanations, key points, exercises, and quizzes for each chapter.
+4. A2UI Message Conversion: Convert structured results into A2UI v0.9 messages.
+5. A2UI Rendering: Render pages via `@a2ui/lit` + `@a2ui/web_core`.
+6. Local Publishing: Vite starts the viewer and returns the URL.
 
-## LangGraph 状态图（线性图）
+## LangGraph State Chart (Linear Graph)
 
-- `load_resource` -> `plan_curriculum` -> `build_site` -> `export_messages`
+- `init_output` -> `load_resource` -> `plan_curriculum` -> `build_site` -> `generate_messages` -> `export_messages`
 
-状态字段：
+State Fields:
 
-- `resource_path`: 输入路径
-- `resource_text`: 解析后的资源文本
-- `course_json`: 课程结构化数据
-- `a2ui_messages`: A2UI 消息数组
-- `output_dir`: 输出目录
+- `resource_path`: Input path.
+- `resource_text`: Parsed resource text.
+- `curriculum`: Structured curriculum planning data.
+- `site_plan`: Structured site plan data.
+- `a2ui_messages`: A2UI message array.
+- `output_dir`: Output directory.
 
-## OpenRouter 配置
+## OpenRouter Configuration
 
-- 环境变量：
-  - `OPENROUTER_API_KEY`（必填，若希望真实 LLM 生成）
-  - `OPENROUTER_MODEL`（可选，默认一个通用模型）
-- 通过 `langchain_openai.ChatOpenAI` 配置：
+- Environment Variables:
+  - `OPENROUTER_API_KEY` (Required for real LLM generation).
+  - `OPENROUTER_MODEL` (Optional, defaults to a general-purpose model).
+- Configured via `langchain_openai.ChatOpenAI`:
   - `base_url=https://openrouter.ai/api/v1`
   - `api_key=$OPENROUTER_API_KEY`
 
-## 失败与降级策略
+## Failure and Fallback Strategy
 
-- 若无 API Key 或调用失败，启用本地 fallback 生成最小课程结构，确保始终能产出网站。
-- 限制读取体量，避免超大资源导致提示词过长。
+- If no API Key is provided or a call fails, throw an error and abort execution.
+- Limit reading volume to avoid excessively long prompts from large resources.
 
-## 输出结构（当前实现）
+## Output Structure (Current Implementation)
 
+- `outputs/<task_id>/curriculum.json`
 - `outputs/<task_id>/site.json`
 - `outputs/<task_id>/site_messages.json`
 - `apps/viewer/public/generated/site_messages.json`
-- 预览 URL：`http://127.0.0.1:<port>`
+- Preview URL: `http://127.0.0.1:<port>`
 
-## 下一步演进
+## Future Evolution
 
-- 将 HTML 生成层替换为 A2UI v0.9 渲染层。
-- 增加聊天增量修改接口（编辑章节、替换练习、更新难度）。
-- 增加 Deep Mode（无预设目标的自主迭代）。
+- Replace the HTML generation layer with the A2UI v0.9 rendering layer.
+- Add an interface for incremental chat modifications (edit chapters, replace exercises, update difficulty).
+- Add Deep Mode (autonomous iteration without preset goals).

@@ -15,14 +15,14 @@
           "id": "root",
           "component": "SectionNavigator",
           "title": {
-            "literalString": "选择学习路径"
+            "literalString": "Select Learning Path"
           },
           "activeSectionId": "s1",
           "sections": [
             {
               "id": "s1",
               "title": {
-                "literalString": "前端开发"
+                "literalString": "Frontend Development"
               },
               "description": {
                 "literalString": "HTML, CSS, React"
@@ -32,20 +32,20 @@
             {
               "id": "s2",
               "title": {
-                "literalString": "后端开发"
+                "literalString": "Backend Development"
               },
               "description": {
-                "literalString": "Node.js, 数据库"
+                "literalString": "Node.js, Databases"
               },
               "status": "pending"
             },
             {
               "id": "s3",
               "title": {
-                "literalString": "AI 赋能"
+                "literalString": "AI Empowerment"
               },
               "description": {
-                "literalString": "大模型与Agent应用"
+                "literalString": "LLMs and Agent Applications"
               },
               "status": "locked"
             }

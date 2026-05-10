@@ -20,8 +20,8 @@
             { "literalString": "Frontend Architecture" },
             { "literalString": "Protocol" }
           ],
-          "definition": { "literalString": "<b>A2UI</b> 是一种专为 AI Agent 设计的声明式 UI 协议。传统 Web 应用是由服务器下发 HTML/CSS 或者由客户端发起 API 请求获取数据再渲染。而在 A2UI 架构下，AI Agent 直接向客户端发送描述 UI 结构和数据的 <b>JSON 消息</b>，客户端（如浏览器）根据预定义的组件库 (Catalog) 将其动态渲染成原生界面。" },
-          "example": { "literalString": "<pre><code>// Agent 发送的典型消息\n{\n  \"updateComponents\": {\n    \"surfaceId\": \"main\",\n    \"components\": [\n      { \"id\": \"root\", \"component\": \"Card\" }\n    ]\n  }\n}</code></pre>" },
+          "definition": { "literalString": "<b>A2UI</b> is a declarative UI protocol designed specifically for AI Agents. Traditional web applications involve servers delivering HTML/CSS or clients initiating API requests to fetch data for rendering. Under the A2UI architecture, the AI Agent directly sends <b>JSON messages</b> describing the UI structure and data to the client, which then dynamically renders them into a native interface based on a predefined component library (Catalog)." },
+          "example": { "literalString": "<pre><code>// Typical message sent by an Agent\n{\n  \"updateComponents\": {\n    \"surfaceId\": \"main\",\n    \"components\": [\n      { \"id\": \"root\", \"component\": \"Card\" }\n    ]\n  }\n}</code></pre>" },
           "relatedConcepts": [
             { "literalString": "Generative UI" },
             { "literalString": "Catalog" },

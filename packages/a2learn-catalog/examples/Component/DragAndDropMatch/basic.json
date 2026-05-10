@@ -38,19 +38,19 @@
             {
               "id": "r1",
               "content": {
-                "literalString": "香蕉"
+                "literalString": "Fruit (Banana)"
               }
             },
             {
               "id": "r2",
               "content": {
-                "literalString": "苹果"
+                "literalString": "Fruit (Apple)"
               }
             },
             {
               "id": "r3",
               "content": {
-                "literalString": "橘子"
+                "literalString": "Fruit (Orange)"
               }
             }
           ],

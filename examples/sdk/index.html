@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A2Learn SDK Embed Example</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+          Arial, "PingFang SC", "Microsoft YaHei";
+        background: #0b0f14;
+        color: #e5e7eb;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 16px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .panel {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 10px 0 6px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        padding: 10px 12px;
+      }
+      button {
+        margin-top: 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: #4f46e5;
+        color: #fff;
+        padding: 10px 12px;
+        cursor: pointer;
+      }
+      #preview {
+        min-height: 520px;
+      }
+      code {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <div class="panel">
+        <h2 style="margin: 0 0 8px">SDK Example</h2>
+          You need to run <code>npm run embed:build</code> first.
+
+        <label>viewerUrl</label>
+        <input id="viewerUrl" value="http://127.0.0.1:8010/" />
+
+        <label>messagesUrl</label>
+        <input id="messagesUrl" value="http://127.0.0.1:8010/generated/site_messages.json" />
+
+        <label>primaryColor</label>
+        <input id="primaryColor" value="#10b981" />
+
+        <button id="mount">Mount</button>
+        <button id="unmount" style="background: transparent">Unmount</button>
+      </div>
+
+      <div id="preview" class="panel"></div>
+    </div>
+
+    <script type="module">
+      import { createA2LearnEmbed } from "../../packages/embed/dist/index.js";
+
+      let controller = null;
+
+      const mountBtn = document.getElementById("mount");
+      const unmountBtn = document.getElementById("unmount");
+      const preview = document.getElementById("preview");
+
+      mountBtn.addEventListener("click", () => {
+        controller?.destroy();
+        controller = createA2LearnEmbed({
+          container: preview,
+          viewerUrl: document.getElementById("viewerUrl").value,
+          source: {
+            mode: "offline",
+            messagesUrl: document.getElementById("messagesUrl").value,
+            themeVars: {
+              "--a2ui-color-primary": document.getElementById("primaryColor").value,
+            },
+          },
+        });
+      });
+
+      unmountBtn.addEventListener("click", () => {
+        controller?.destroy();
+        controller = null;
+        preview.textContent = "";
+      });
+    </script>
+  </body>
+</html>

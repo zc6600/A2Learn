@@ -1,39 +1,31 @@
-const DISALLOWED_TAGS = new Set([
-  "script",
-  "style",
-  "iframe",
-  "object",
+import createDOMPurify from "dompurify";
+
+const FORBID_TAGS = [
+  "base",
   "embed",
+  "iframe",
   "link",
   "meta",
-  "base",
-]);
+  "object",
+  "script",
+  "style",
+];
+
+let purifier: ReturnType<typeof createDOMPurify> | null = null;
+
+function getPurifier() {
+  if (purifier) return purifier;
+  purifier = createDOMPurify(window);
+  return purifier;
+}
 
 export function sanitizeHtml(input: string): string {
   if (!input) return "";
-  if (typeof window === "undefined" || typeof DOMParser === "undefined") {
-    return input;
-  }
+  if (typeof window === "undefined") return input;
 
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(input, "text/html");
-
-  for (const tag of DISALLOWED_TAGS) {
-    doc.querySelectorAll(tag).forEach((el) => el.remove());
-  }
-
-  doc.querySelectorAll("*").forEach((el) => {
-    for (const attr of Array.from(el.attributes)) {
-      const name = attr.name.toLowerCase();
-      const value = attr.value.trim().toLowerCase();
-      if (name.startsWith("on")) {
-        el.removeAttribute(attr.name);
-      }
-      if ((name === "href" || name === "src") && value.startsWith("javascript:")) {
-        el.removeAttribute(attr.name);
-      }
-    }
-  });
-
-  return doc.body.innerHTML;
+  return getPurifier().sanitize(input, {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS,
+    FORBID_ATTR: ["style"],
+  }) as string;
 }

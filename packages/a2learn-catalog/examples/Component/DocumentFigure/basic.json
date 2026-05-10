@@ -21,7 +21,7 @@
             "literalString": "Figure 1: The Transformer - model architecture."
           },
           "aiExplanation": {
-            "literalString": "这是一张经典的 Transformer 模型架构图。左侧为 Encoder 模块，右侧为 Decoder 模块。"
+            "literalString": "This is a classic diagram of the Transformer model architecture. The left side is the Encoder module, and the right side is the Decoder module."
           }
         }
       ]

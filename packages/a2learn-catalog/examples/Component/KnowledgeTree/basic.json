@@ -14,15 +14,15 @@
         {
           "id": "root",
           "component": "KnowledgeTree",
-          "title": { "literalString": "A2UI 知识体系" },
+          "title": { "literalString": "A2UI Knowledge System" },
           "path": [
             { "id": "a2ui", "label": { "literalString": "A2UI" } },
-            { "id": "renderers", "label": { "literalString": "渲染器" } }
+            { "id": "renderers", "label": { "literalString": "Renderers" } }
           ],
           "currentNode": {
             "id": "web",
-            "label": { "literalString": "Web 渲染层" },
-            "description": { "literalString": "探索不同前端渲染器的实现方式与适用场景。" }
+            "label": { "literalString": "Web Rendering Layer" },
+            "description": { "literalString": "Explore implementation methods and applicable scenarios for different frontend renderers." }
           },
           "childrenNodes": [
             { "id": "lit-renderer", "label": { "literalString": "Lit (Web Components)" }, "hasChildren": false },

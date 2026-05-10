@@ -6,7 +6,11 @@
   "main": "./page-shell.ts",
   "types": "./page-shell.ts",
   "dependencies": {
-    "@a2learn/a2learn-catalog": "file:../a2learn-catalog"
+    "@a2learn/a2learn-catalog": "file:../a2learn-catalog",
+    "@a2ui/lit": "file:../../third_party/A2UI/renderers/lit",
+    "@a2ui/markdown-it": "file:../../third_party/A2UI/renderers/markdown/markdown-it",
+    "@a2ui/web_core": "file:../../third_party/A2UI/renderers/web_core",
+    "@lit/context": "^1.1.4",
+    "lit": "^3.3.1"
   }
 }
-

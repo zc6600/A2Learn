@@ -29,7 +29,7 @@
                 "literalString": "Multi-Head Attention"
               },
               "description": {
-                "literalString": "多头注意力机制，允许模型在不同的表示子空间中联合关注来自不同位置的信息。"
+                "literalString": "Multi-head attention mechanism, allowing the model to jointly attend to information from different positions in different representation subspaces."
               }
             },
             {
@@ -40,7 +40,7 @@
                 "literalString": "Masked Multi-Head Attention"
               },
               "description": {
-                "literalString": "防止解码器在预测当前词时“偷看”未来的词汇。"
+                "literalString": "Prevents the decoder from \"peeking\" at future tokens when predicting the current token."
               }
             }
           ]

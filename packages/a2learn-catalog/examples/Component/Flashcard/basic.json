@@ -14,8 +14,8 @@
         {
           "id": "root",
           "component": "Flashcard",
-          "front": { "literalString": "什么是 A2UI？" },
-          "back": { "literalString": "A2UI (Agent-to-User Interface) 是一个开放标准，允许 AI Agent 以声明式 JSON 格式发送富 UI 界面。" }
+          "front": { "literalString": "What is A2UI?" },
+          "back": { "literalString": "A2UI (Agent-to-User Interface) is an open standard that allows AI Agents to deliver rich user interfaces in a declarative JSON format." }
         }
       ]
     }

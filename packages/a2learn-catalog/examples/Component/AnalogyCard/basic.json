@@ -15,10 +15,10 @@
           "id": "root",
           "component": "AnalogyCard",
           "title": {
-            "literalString": "什么是 API？"
+            "literalString": "What is an API?"
           },
           "analogy": {
-            "literalString": "把 API 想象成餐厅里的**服务员**。\n\n你（客户端）坐在桌前点菜，厨师（服务器）在后厨做菜。你不能直接跑进厨房自己炒菜，必须把菜单交给服务员，服务员把菜单递给后厨，等菜做好了再端给你。这个传递信息的中间人，就是 API。"
+            "literalString": "Think of an API as a **waiter** in a restaurant.\n\nYou (the client) sit at a table to order food, and the chef (the server) prepares it in the kitchen. You can't just walk into the kitchen and cook for yourself; you must hand your order to the waiter. The waiter takes it to the kitchen and brings the food back when it's ready. That intermediary who conveys information is an API."
           },
           "icon": {
             "literalString": "💁‍♂️"
