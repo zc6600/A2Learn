@@ -8,6 +8,7 @@ export type ViewerSourceOnline = {
   mode: "online";
   apiBaseUrl: string;
   resourcePath?: string;
+  resourceText?: string;
   headers?: Record<string, string>;
   themeVars?: Record<string, string>;
 };
@@ -179,6 +180,7 @@ export class A2LearnEmbedElement extends HTMLElement {
       "messages-url",
       "api-base-url",
       "resource-path",
+      "resource-text",
       "theme-vars",
     ];
   }
@@ -235,6 +237,7 @@ export class A2LearnEmbedElement extends HTMLElement {
     if (mode === "online") {
       const apiBaseUrl = (this.getAttribute("api-base-url") || "").trim();
       const resourcePath = (this.getAttribute("resource-path") || "").trim() || undefined;
+      const resourceText = (this.getAttribute("resource-text") || "").trim() || undefined;
       if (!apiBaseUrl) {
         container.textContent = "Missing api-base-url.";
         return;
@@ -243,6 +246,7 @@ export class A2LearnEmbedElement extends HTMLElement {
         mode: "online",
         apiBaseUrl,
         resourcePath,
+        resourceText,
         headers: this.headers,
         themeVars,
       };
