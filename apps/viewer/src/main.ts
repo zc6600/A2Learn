@@ -31,6 +31,7 @@ type ViewerSourceOnline = {
   mode: "online";
   apiBaseUrl: string;
   resourcePath?: string;
+  resourceText?: string;
   headers?: Record<string, string>;
   themeVars?: Record<string, string>;
 };
@@ -52,6 +53,7 @@ type InitMessage = {
         mode: "online";
         apiBaseUrl?: string;
         resourcePath?: string;
+        resourceText?: string;
         headers?: Record<string, string>;
         themeVars?: Record<string, string>;
       };
@@ -122,6 +124,7 @@ function configFromLocation(): ViewerRuntimeConfig {
   const messagesUrlParam = params.get("messagesUrl") || "";
   const apiBaseUrlParam = params.get("apiBaseUrl") || params.get("apiUrl") || "";
   const resourcePathParam = params.get("resourcePath") || "";
+  const resourceTextParam = params.get("resourceText") || "";
   const headersParam = params.get("headers") || "";
   const themeParam = params.get("themeVars") || params.get("theme") || "";
   const parsedHeaders = headersParam ? safeJsonParse(headersParam) : undefined;
@@ -139,10 +142,12 @@ function configFromLocation(): ViewerRuntimeConfig {
   const envApiUrl = (import.meta.env.VITE_A2LEARN_API_URL || "").trim();
   const envMessagesUrl = (import.meta.env.VITE_A2LEARN_MESSAGES_URL || "").trim();
   const envResourcePath = (import.meta.env.VITE_A2LEARN_RESOURCE_PATH || "").trim();
+  const envResourceText = (import.meta.env.VITE_A2LEARN_RESOURCE_TEXT || "").trim();
 
   const apiBaseUrl = (apiBaseUrlParam || envApiUrl).trim();
   const messagesUrl = (messagesUrlParam || envMessagesUrl || "/generated/site_messages.json").trim();
   const resourcePath = (resourcePathParam || envResourcePath).trim() || undefined;
+  const resourceText = (resourceTextParam || envResourceText).trim() || undefined;
 
   const preferredMode = modeRaw === "online" || modeRaw === "offline" ? (modeRaw as "online" | "offline") : undefined;
   const resolvedMode = preferredMode || (apiBaseUrl ? "online" : "offline");
@@ -154,6 +159,7 @@ function configFromLocation(): ViewerRuntimeConfig {
         mode: "online",
         apiBaseUrl: normalizeBaseUrl(apiBaseUrl),
         resourcePath,
+        resourceText,
         headers,
         themeVars,
       },
@@ -284,6 +290,7 @@ async function bootstrapOnline(
 ): Promise<boolean> {
   const startPayload = {
     resource_path: source.resourcePath || undefined,
+    resource_text: source.resourceText || undefined,
   };
   const startResponse = await fetch(`${source.apiBaseUrl}/api/session/start`, {
     method: "POST",
@@ -456,6 +463,7 @@ async function bootstrapViewer() {
             mode: "online",
             apiBaseUrl: normalizeBaseUrl(String((source as any).apiBaseUrl || "")),
             resourcePath: typeof (source as any).resourcePath === "string" ? String((source as any).resourcePath) : undefined,
+            resourceText: typeof (source as any).resourceText === "string" ? String((source as any).resourceText) : undefined,
             headers: isPlainObject((source as any).headers)
               ? Object.fromEntries(
                   Object.entries((source as any).headers).filter(([, v]) => typeof v === "string") as Array<[

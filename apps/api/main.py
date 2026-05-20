@@ -9,12 +9,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from agent.action_response import build_action_response
+from agent.engine import run_agent
 from agent.validate import validate_a2ui_messages
 from apps.api.session_store import SessionState, SessionStore
 
 
 class SessionStartRequest(BaseModel):
     resource_path: str | None = Field(default=None, description="Path to teaching resources (file or directory)")
+    resource_text: str | None = Field(default=None, description="Direct text input to use as teaching resource")
 
 
 class SessionStartResponse(BaseModel):
@@ -31,6 +33,23 @@ class SessionActionResponse(BaseModel):
     session_id: str
     messages: list[dict[str, Any]]
     action_count: int
+
+
+class StatelessInitRequest(BaseModel):
+    resource_path: str | None = Field(default=None, description="Path to teaching resources")
+    resource_text: str | None = Field(default=None, description="Direct text input")
+
+class StatelessInitResponse(BaseModel):
+    messages: list[dict[str, Any]]
+
+class StatelessActionRequest(BaseModel):
+    action: dict[str, Any]
+    components: dict[str, dict[str, Any]] = Field(default_factory=dict, description="Current components state")
+    surface_ids: list[str] = Field(default_factory=list, description="Current surface IDs")
+    action_count: int = Field(default=0, description="Current action count")
+
+class StatelessActionResponse(BaseModel):
+    messages: list[dict[str, Any]]
 
 
 app = FastAPI(title="A2Learn Session API", version="0.1.0")
@@ -70,10 +89,14 @@ def _resolve_resource_path(req_path: str | None) -> str:
 
     chosen = req_path.strip() if req_path and req_path.strip() else default_path
     candidate = Path(chosen).expanduser()
-    if not candidate.is_absolute():
-        candidate = (root / candidate).resolve()
-    else:
+    if candidate.is_absolute():
         candidate = candidate.resolve()
+    else:
+        candidate_cwd = (Path.cwd() / candidate).resolve()
+        if candidate_cwd.exists():
+            candidate = candidate_cwd
+        else:
+            candidate = (root / candidate).resolve()
 
     try:
         common = os.path.commonpath([str(candidate), str(root)])
@@ -100,9 +123,16 @@ def healthz() -> dict[str, str]:
 
 @app.post("/api/session/start", response_model=SessionStartResponse)
 def start_session(payload: SessionStartRequest) -> SessionStartResponse:
-    resource_path = _resolve_resource_path(payload.resource_path)
+    resource_path = None
+    resource_text = payload.resource_text or os.getenv("A2LEARN_DEFAULT_RESOURCE_TEXT")
+
+    if not resource_text:
+        if not payload.resource_path and not os.getenv("A2LEARN_DEFAULT_RESOURCE_PATH"):
+            raise HTTPException(status_code=400, detail="Either resource_path or resource_text must be provided")
+        resource_path = _resolve_resource_path(payload.resource_path)
+        
     try:
-        session = store.create(resource_path)
+        session = store.create(resource_path=resource_path, resource_text=resource_text)
         validate_a2ui_messages(session.messages)
         return SessionStartResponse(session_id=session.session_id, messages=session.messages)
     except HTTPException:
@@ -134,3 +164,40 @@ def handle_action(session_id: str, payload: SessionActionRequest) -> SessionActi
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"ACTION_HANDLE_FAILED: {exc}") from exc
+
+
+@app.post("/api/stateless/init", response_model=StatelessInitResponse)
+def stateless_init(payload: StatelessInitRequest) -> StatelessInitResponse:
+    resource_path = None
+    resource_text = payload.resource_text or os.getenv("A2LEARN_DEFAULT_RESOURCE_TEXT")
+
+    if not resource_text:
+        if not payload.resource_path and not os.getenv("A2LEARN_DEFAULT_RESOURCE_PATH"):
+            raise HTTPException(status_code=400, detail="Either resource_path or resource_text must be provided")
+        resource_path = _resolve_resource_path(payload.resource_path)
+        
+    try:
+        state = run_agent(resource_path=resource_path, resource_text=resource_text)
+        messages = SessionStore._extract_messages(state)
+        validate_a2ui_messages(messages)
+        return StatelessInitResponse(messages=messages)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"STATELESS_INIT_FAILED: {exc}") from exc
+
+
+@app.post("/api/stateless/action", response_model=StatelessActionResponse)
+def stateless_action(payload: StatelessActionRequest) -> StatelessActionResponse:
+    try:
+        messages = build_action_response(
+            action=payload.action,
+            components=payload.components,
+            surface_ids=payload.surface_ids,
+            action_count=payload.action_count + 1,
+        )
+        if messages:
+            validate_a2ui_messages(messages, require_create_surface=False)
+        return StatelessActionResponse(messages=messages or [])
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"STATELESS_ACTION_FAILED: {exc}") from exc

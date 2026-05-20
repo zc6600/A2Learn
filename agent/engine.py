@@ -26,6 +26,8 @@ def _node_init_output(state: AgentState) -> AgentState:
 
 
 def _node_load_resource(state: AgentState) -> AgentState:
+    if state.get("resource_text"):
+        return {"resource_text": state["resource_text"]}
     return {"resource_text": extract_text_from_path(state["resource_path"])}
 
 
@@ -86,6 +88,15 @@ def build_agent_graph():
     return graph.compile()
 
 
-def run_agent(resource_path: str) -> AgentState:
+def run_agent(resource_path: str = None, resource_text: str = None) -> AgentState:
     app = build_agent_graph()
-    return app.invoke({"resource_path": resource_path})
+    initial_state = {}
+    if resource_path:
+        initial_state["resource_path"] = resource_path
+    if resource_text:
+        initial_state["resource_text"] = resource_text
+        
+    if not resource_path and not resource_text:
+        raise ValueError("Either resource_path or resource_text must be provided")
+        
+    return app.invoke(initial_state)

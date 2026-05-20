@@ -143,6 +143,21 @@ def build_site_plan(llm: Any, curriculum: dict[str, Any]) -> dict[str, Any]:
 
 
 def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]:
+    from pathlib import Path
+
+    examples_text = ""
+    examples_dir = Path(__file__).parent.parent / "packages" / "a2learn-catalog" / "examples" / "Website"
+    if examples_dir.exists():
+        examples = []
+        for file_path in sorted(examples_dir.glob("*.json")):
+            try:
+                content = file_path.read_text(encoding="utf-8")
+                examples.append(f"Example ({file_path.name}):\n```json\n{content}\n```")
+            except Exception:
+                continue
+        if examples:
+            examples_text = "\n\nHere are some examples of valid A2UI message arrays:\n" + "\n\n".join(examples)
+
     system_prompt = textwrap.dedent(
         f"""
         You are an A2Learn agent that MUST directly output A2UI v0.9 messages.
@@ -164,6 +179,9 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
           ]
         """
     ).strip()
+
+    if examples_text:
+        system_prompt += "\n" + examples_text
 
     user_prompt = (
         "请根据以下教学资源直接生成 A2UI 消息数组（组件树）。\n\n"

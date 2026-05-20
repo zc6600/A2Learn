@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import threading
 import uuid
+from collections import OrderedDict
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -65,27 +66,33 @@ class SessionState:
 
 
 class SessionStore:
-    def __init__(self) -> None:
+    def __init__(self, max_capacity: int = 1000) -> None:
         self._lock = threading.Lock()
-        self._sessions: dict[str, SessionState] = {}
+        self._sessions: OrderedDict[str, SessionState] = OrderedDict()
+        self._max_capacity = max_capacity
 
-    def create(self, resource_path: str) -> SessionState:
-        state = run_agent(resource_path)
+    def create(self, resource_path: str | None = None, resource_text: str | None = None) -> SessionState:
+        state = run_agent(resource_path=resource_path, resource_text=resource_text)
         messages = self._extract_messages(state)
         session = SessionState(
             session_id=f"sess_{uuid.uuid4().hex[:12]}",
-            resource_path=resource_path,
+            resource_path=resource_path or "text-input",
             messages=messages,
             surface_ids=extract_surface_ids(messages),
         )
         session.apply_messages(messages)
         with self._lock:
+            if len(self._sessions) >= self._max_capacity:
+                self._sessions.popitem(last=False)  # Remove the oldest session
             self._sessions[session.session_id] = session
         return session
 
     def get(self, session_id: str) -> SessionState | None:
         with self._lock:
-            return self._sessions.get(session_id)
+            if session_id in self._sessions:
+                self._sessions.move_to_end(session_id)  # Mark as most recently used
+                return self._sessions[session_id]
+            return None
 
     def append_messages(self, session: SessionState, messages: list[dict[str, Any]]) -> None:
         if not messages:
@@ -95,6 +102,7 @@ class SessionStore:
         session.updated_at = _now_iso()
         with self._lock:
             self._sessions[session.session_id] = session
+            self._sessions.move_to_end(session.session_id)
 
     @staticmethod
     def _extract_messages(state: dict[str, Any]) -> list[dict[str, Any]]:
