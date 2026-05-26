@@ -170,7 +170,7 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
         - Components MUST be practical for interactive learning and should prefer:
           LearningPath, ConceptCard, QuizCard, DeepDivePrompt, ScenarioDialogue,
           Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList.
-        - Use stable IDs and keep components connected under a root layout.
+        - Use stable IDs and keep components connected under a root layout. The root component of each surface MUST have the ID "root".
         - Use Chinese text for learner-facing content.
         - Output format example:
           [
