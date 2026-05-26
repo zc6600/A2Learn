@@ -226,9 +226,12 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
     const textarea = this.shadowRoot?.querySelector('.code-input') as HTMLTextAreaElement;
     const currentCode = textarea ? textarea.value : this.resolveString(props.code);
 
-    const language = props.language || "html";
+    const language = props.language || "javascript";
 
-    if (props.runLocally) {
+    // runLocally 默认为 true：LLM 可能不设置此字段，但应默认在本地执行
+    const shouldRunLocally = props.runLocally !== false;
+
+    if (shouldRunLocally) {
       this.executeLocally(currentCode, language);
     } else if (props.onRunCode) {
       this.context.dispatchAction({

@@ -143,6 +143,52 @@ export function injectBaseTheme(): void {
       border-color: color-mix(in oklab, #ef4444 44%, var(--a2ui-color-border));
       background: color-mix(in oklab, #ef4444 10%, var(--a2ui-color-surface));
     }
+    pre, code {
+      font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    pre {
+      margin: 14px 0;
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: #1e2433;
+      border: 1px solid #2d3652;
+      color: #e2e8f0;
+      font-size: 13px;
+      line-height: 1.65;
+      overflow-x: auto;
+      white-space: pre;
+      word-break: normal;
+      word-wrap: normal;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      border-radius: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+    code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.12);
+      color: #6366f1;
+      font-size: 0.875em;
+      border: 1px solid rgba(99, 102, 241, 0.18);
+    }
+    @media (prefers-color-scheme: dark) {
+      pre {
+        background: #0d1117;
+        border-color: #30363d;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      }
+      code {
+        background: rgba(129, 140, 248, 0.15);
+        color: #a5b4fc;
+        border-color: rgba(129, 140, 248, 0.22);
+      }
+    }
     @media (max-width: 768px) {
       #app {
         padding: 14px 12px 24px;
