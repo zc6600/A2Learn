@@ -141,23 +141,48 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
     return "";
   }
 
-  private handleStepClick(stepId: string, status: 'completed' | 'current' | 'locked') {
-    // Only allow clicking on completed or locked steps to navigate
-    // In a real app, you might want to prevent clicking locked steps, 
-    // but for "progressive unlocking", clicking a locked step can unlock it.
-    
+  private navigateToSurface(surfaceId: string): boolean {
+    // 尝试在当前文档里找到对应的 surface
+    const candidates = [
+      document.querySelector(`[data-surface-id="${surfaceId}"]`),
+      document.getElementById(`surface-${surfaceId}`),
+      document.getElementById(surfaceId),
+    ];
+    const target = candidates.find(Boolean) as HTMLElement | null;
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      // 尚光效果：简短闪烁高亮
+      target.style.transition = "box-shadow 0.3s ease";
+      target.style.boxShadow = "0 0 0 3px var(--a2ui-color-primary)";
+      setTimeout(() => { target.style.boxShadow = ""; }, 1200);
+      return true;
+    }
+    // 如果 viewer 在 iframe 里，尝试通过 postMessage 通知父级
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: "a2learn:navigate", surfaceId }, "*");
+      return true;
+    }
+    return false;
+  }
+
+  private handleStepClick(step: any, status: 'completed' | 'current' | 'locked') {
     const props = (this as any).controller?.props;
     if (!props) return;
 
-    // 1. Optimistic Update (前端自洽更新)
-    this.localActiveId = stepId;
+    // 1. 乐观更新游标
+    this.localActiveId = step.id;
     (this as any).requestUpdate();
 
-    // 2. Dispatch Action to Agent
+    // 2. 如果 step 配置了 targetSurfaceId，直接滚动导航
+    if (step.targetSurfaceId) {
+      this.navigateToSurface(step.targetSurfaceId);
+    }
+
+    // 3. 同时 dispatch，让 Agent 也知道用户点击了
     if (props.onStepSelect) {
       (this as any).context.dispatchAction({
         ...(props.onStepSelect as Record<string, unknown>),
-        context: { stepId },
+        context: { stepId: step.id },
       });
     }
   }
@@ -199,7 +224,7 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
                   ${status === 'completed' ? '✓' : 
                     status === 'current' ? '●' : '🔒'}
                 </div>
-                <div class="content-wrapper" @click=${() => this.handleStepClick(step.id, status)}>
+                <div class="content-wrapper" @click=${() => this.handleStepClick(step, status)}>
                   <h4 class="title">${this.resolveString(step.title)}</h4>
                   ${step.description ? html`<p class="desc">${this.resolveString(step.description)}</p>` : nothing}
                 </div>

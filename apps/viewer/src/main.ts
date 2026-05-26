@@ -230,6 +230,7 @@ function renderSurfaces(
   for (const surface of surfaces) {
     const el = document.createElement("a2learn-markdown-surface") as any;
     el.surface = surface;
+    el.setAttribute("data-surface-id", surface.id ?? "");
     container.appendChild(el);
   }
 }
