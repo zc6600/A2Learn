@@ -9,6 +9,116 @@ from .llm import build_llm
 from .validate import validate_a2ui_messages
 
 
+def _truncate_value(
+    value: Any,
+    *,
+    max_str_len: int,
+    max_list_len: int,
+    max_dict_items: int,
+    max_depth: int,
+) -> Any:
+    if max_depth <= 0:
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            return value
+        return "<truncated>"
+    if isinstance(value, str):
+        if len(value) <= max_str_len:
+            return value
+        return value[: max(0, max_str_len - 1)] + "…"
+    if isinstance(value, (int, float, bool)) or value is None:
+        return value
+    if isinstance(value, list):
+        sliced = value[:max_list_len]
+        out = [
+            _truncate_value(
+                x,
+                max_str_len=max_str_len,
+                max_list_len=max_list_len,
+                max_dict_items=max_dict_items,
+                max_depth=max_depth - 1,
+            )
+            for x in sliced
+        ]
+        if len(value) > max_list_len:
+            out.append(f"<{len(value) - max_list_len} more items>")
+        return out
+    if isinstance(value, dict):
+        items = list(value.items())[:max_dict_items]
+        out: dict[str, Any] = {}
+        for k, v in items:
+            out[str(k)] = _truncate_value(
+                v,
+                max_str_len=max_str_len,
+                max_list_len=max_list_len,
+                max_dict_items=max_dict_items,
+                max_depth=max_depth - 1,
+            )
+        if len(value) > max_dict_items:
+            out["<more_keys>"] = len(value) - max_dict_items
+        return out
+    return str(value)
+
+
+def _components_index(
+    components: dict[str, dict[str, Any]],
+    component_surfaces: dict[str, str] | None,
+) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for cid, comp in components.items():
+        if not isinstance(comp, dict):
+            continue
+        out.append(
+            {
+                "id": cid,
+                "component": comp.get("component"),
+                "surfaceId": (component_surfaces or {}).get(cid),
+            }
+        )
+    out.sort(key=lambda x: (str(x.get("surfaceId") or ""), str(x.get("component") or ""), str(x.get("id") or "")))
+    return out
+
+
+def _select_components_for_prompt(
+    *,
+    components: dict[str, dict[str, Any]],
+    component_surfaces: dict[str, str] | None,
+    target_surface: str,
+    source_component_id: str,
+    max_components: int,
+) -> list[dict[str, Any]]:
+    surface_map = component_surfaces or {}
+
+    def score(cid: str) -> tuple[int, int, str]:
+        if cid == source_component_id:
+            return (0, 0, cid)
+        sid = surface_map.get(cid, "")
+        if target_surface and sid == target_surface:
+            return (1, 0, cid)
+        if sid:
+            return (2, 0, cid)
+        return (3, 0, cid)
+
+    selected_ids = [cid for cid in sorted(components.keys(), key=score)][:max_components]
+    out: list[dict[str, Any]] = []
+    for cid in selected_ids:
+        comp = components.get(cid)
+        if not isinstance(comp, dict):
+            continue
+        out.append(
+            {
+                "surfaceId": surface_map.get(cid),
+                **_truncate_value(
+                    {"id": cid, **comp},
+                    max_str_len=1800,
+                    max_list_len=80,
+                    max_dict_items=160,
+                    max_depth=6,
+                ),
+            }
+        )
+    return out
+
+
 def _extract_json_array(text: str) -> list[dict[str, Any]]:
     fenced = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text)
     candidate = (fenced.group(1) if fenced else text).strip()
@@ -150,12 +260,22 @@ def _build_llm_messages(
     components: dict[str, dict[str, Any]],
     surface_ids: list[str],
     action_count: int,
+    component_surfaces: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     source_component_id = str(action.get("sourceComponentId") or "")
     component_snapshot = components.get(source_component_id, {})
     target_surface = str(action.get("surfaceId") or "")
     if not target_surface:
         target_surface = surface_ids[0] if surface_ids else "main"
+
+    all_components_index = _components_index(components, component_surfaces)
+    components_snapshot = _select_components_for_prompt(
+        components=components,
+        component_surfaces=component_surfaces,
+        target_surface=target_surface,
+        source_component_id=source_component_id,
+        max_components=200,
+    )
 
     system_prompt = textwrap.dedent(
         """
@@ -184,6 +304,12 @@ def _build_llm_messages(
 
         Source component snapshot:
         {json.dumps(component_snapshot, ensure_ascii=False, indent=2)}
+
+        All components index (id/component/surfaceId):
+        {json.dumps(all_components_index, ensure_ascii=False, indent=2)}
+
+        Selected components snapshot (prioritize same surface; truncated):
+        {json.dumps(components_snapshot, ensure_ascii=False, indent=2)}
 
         Existing surface IDs:
         {json.dumps(surface_ids, ensure_ascii=False)}
@@ -219,9 +345,10 @@ def build_action_response(
     components: dict[str, dict[str, Any]],
     surface_ids: list[str],
     action_count: int,
+    component_surfaces: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     try:
-        messages = _build_llm_messages(action, components, surface_ids, action_count)
+        messages = _build_llm_messages(action, components, surface_ids, action_count, component_surfaces)
         if isinstance(messages, list) and messages:
             validate_a2ui_messages(messages, require_create_surface=False)
             return messages

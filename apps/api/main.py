@@ -149,6 +149,7 @@ def handle_action(session_id: str, payload: SessionActionRequest) -> SessionActi
         messages = build_action_response(
             action=payload.action,
             components=session.components,
+            component_surfaces=session.component_surfaces,
             surface_ids=session.surface_ids,
             action_count=session.action_count,
         )

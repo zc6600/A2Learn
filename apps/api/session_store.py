@@ -43,6 +43,7 @@ class SessionState:
     messages: list[dict[str, Any]]
     surface_ids: list[str]
     components: dict[str, dict[str, Any]] = field(default_factory=dict)
+    component_surfaces: dict[str, str] = field(default_factory=dict)
     action_count: int = 0
     created_at: str = field(default_factory=_now_iso)
     updated_at: str = field(default_factory=_now_iso)
@@ -52,6 +53,8 @@ class SessionState:
             update = msg.get("updateComponents")
             if not isinstance(update, dict):
                 continue
+            surface_id = update.get("surfaceId")
+            surface_id = surface_id if isinstance(surface_id, str) else ""
             comps = update.get("components")
             if not isinstance(comps, list):
                 continue
@@ -63,6 +66,8 @@ class SessionState:
                     continue
                 existing = self.components.get(cid, {})
                 self.components[cid] = {**existing, **deepcopy(comp)}
+                if surface_id:
+                    self.component_surfaces[cid] = surface_id
 
 
 class SessionStore:
