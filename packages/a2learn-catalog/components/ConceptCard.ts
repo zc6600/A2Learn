@@ -74,14 +74,42 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       color: var(--a2ui-color-on-surface);
       margin-bottom: var(--a2ui-spacing-xl);
     }
+    code {
+      font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: var(--a2ui-color-secondary);
+      color: var(--a2ui-color-primary);
+      font-size: 0.9em;
+      border: 1px solid color-mix(in oklab, var(--a2ui-color-primary) 15%, transparent);
+    }
     .example-box {
-      background: #f8f9fa;
+      background: var(--a2ui-color-secondary);
       border-left: 4px solid var(--a2ui-color-primary);
-      padding: var(--a2ui-spacing-m);
+      padding: var(--a2ui-spacing-m) var(--a2ui-spacing-l);
       border-radius: 0 var(--a2ui-border-radius) var(--a2ui-border-radius) 0;
       margin-bottom: var(--a2ui-spacing-xl);
       font-size: 14px;
       overflow-x: auto;
+      color: var(--a2ui-color-on-surface);
+    }
+    .example-box pre {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .example-box code {
+      padding: 0;
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-family: inherit;
+      font-size: inherit;
     }
     .related-box {
       border-top: 1px dashed var(--a2ui-color-border);
