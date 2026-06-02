@@ -1,0 +1,25 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "DetailedExplanation-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "DetailedExplanation-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "DetailedExplanation",
+          "title": { "literalString": "深入理解闭包的生命周期与内存管理" },
+          "icon": { "literalString": "📖" },
+          "estimatedReadTime": { "literalString": "5 分钟阅读" },
+          "content": { "literalString": "在 JavaScript 中，闭包（Closure）的产生通常伴随着一个内部函数被返回并在外部引用的过程。当这种情况发生时，垃圾回收机制（Garbage Collection）不会立即回收该函数的词法作用域。\n\n**核心概念：**\n- **活动对象 (Active Object)**：每个函数执行时都会创建一个活动对象，包含其局部变量。\n- **作用域链引用 (Scope Chain)**：返回的内部函数保留了对外部函数活动对象的引用，导致其留在内存中。\n\n> 注意：不当使用闭包可能会导致内存泄漏，例如在循环中创建闭包并且未清除引用时。因此，在不需要使用时应当将引用手动置为 `null` 进行释放。\n\n```javascript\nfunction outer() {\n  let largeData = new Array(1000000);\n  return function inner() {\n    console.log(largeData.length);\n  };\n}\nlet myClosure = outer(); // 此时 largeData 常驻内存\nmyClosure = null; // 手动置空，释放内存\n```" }
+        }
+      ]
+    }
+  }
+]

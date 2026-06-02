@@ -178,7 +178,8 @@ def stateless_init(payload: StatelessInitRequest) -> StatelessInitResponse:
         resource_path = _resolve_resource_path(payload.resource_path)
         
     try:
-        state = run_agent(resource_path=resource_path, resource_text=resource_text)
+        mode = os.getenv("A2LEARN_MODE", "agent")
+        state = run_agent(resource_path=resource_path, resource_text=resource_text, mode=mode)
         messages = SessionStore._extract_messages(state)
         validate_a2ui_messages(messages)
         return StatelessInitResponse(messages=messages)

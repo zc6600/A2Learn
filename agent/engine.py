@@ -5,8 +5,10 @@ from typing import Any, TypedDict
 from langgraph.graph import END, StateGraph
 
 from .io import create_output_dir, export_messages, extract_text_from_path, write_json
-from .llm import build_llm, build_site_plan, generate_a2ui_messages, plan_curriculum
+from .llm import build_llm, build_site_plan, generate_a2ui_messages, plan_curriculum, generate_structured_json
 from .validate import validate_a2ui_messages
+from .parser import parse_json_to_a2ui
+
 
 
 class AgentState(TypedDict, total=False):
@@ -106,7 +108,58 @@ def build_agent_graph():
     return graph.compile()
 
 
-def run_agent(resource_path: str = None, resource_text: str = None) -> AgentState:
+def run_parser_mode(resource_path: str = None, resource_text: str = None) -> AgentState:
+    """Runs direct structured JSON generation and uses the parser to generate A2UI messages."""
+    from pathlib import Path
+    
+    _log("🚀 Starting A2Learn parser mode...")
+    out = create_output_dir()
+    output_dir = str(out.resolve())
+    _log(f"📁 Output directory: {output_dir}")
+    
+    if resource_text:
+        _log("📝 Using provided text as resource.")
+        text = resource_text
+    elif resource_path:
+        _log(f"📂 Loading resource from: {resource_path}")
+        text = extract_text_from_path(resource_path)
+        _log(f"✅ Resource loaded ({len(text)} characters).")
+    else:
+        raise ValueError("Either resource_path or resource_text must be provided")
+        
+    prompt_file = Path(__file__).parent.parent / "skill" / "references" / "parser_mode_prompt.txt"
+    if not prompt_file.exists():
+        raise FileNotFoundError(f"Parser prompt template not found at {prompt_file}")
+    prompt_template = prompt_file.read_text(encoding="utf-8")
+    
+    _log("✨ Generating structured JSON (calling LLM, please wait...)")
+    llm = build_llm()
+    structured_data = generate_structured_json(llm, text, prompt_template)
+    
+    # Save the structured content json
+    write_json(output_dir, "course_content.json", structured_data)
+    _log("✅ Structured course JSON generated.")
+    
+    _log("⚙️ Parsing JSON to A2UI messages...")
+    messages = parse_json_to_a2ui(structured_data)
+    validate_a2ui_messages(messages)
+    _log(f"✅ Generated {len(messages)} A2UI messages from parser.")
+    
+    export_res = export_messages(messages, output_dir=output_dir)
+    
+    return {
+        "resource_path": resource_path or "",
+        "resource_text": text,
+        "a2ui_messages": messages,
+        "output_dir": output_dir,
+        "generated_messages_path": export_res["generated_messages_path"]
+    }
+
+
+def run_agent(resource_path: str = None, resource_text: str = None, mode: str = "agent") -> AgentState:
+    if mode == "parser":
+        return run_parser_mode(resource_path, resource_text)
+
     app = build_agent_graph()
     initial_state = {}
     if resource_path:
@@ -118,3 +171,4 @@ def run_agent(resource_path: str = None, resource_text: str = None) -> AgentStat
         raise ValueError("Either resource_path or resource_text must be provided")
         
     return app.invoke(initial_state)
+

@@ -132,6 +132,7 @@ var A2LearnEmbedElement = class extends HTMLElement {
       "messages-url",
       "api-base-url",
       "resource-path",
+      "resource-text",
       "theme-vars"
     ];
   }
@@ -175,6 +176,7 @@ var A2LearnEmbedElement = class extends HTMLElement {
     if (mode === "online") {
       const apiBaseUrl = (this.getAttribute("api-base-url") || "").trim();
       const resourcePath = (this.getAttribute("resource-path") || "").trim() || void 0;
+      const resourceText = (this.getAttribute("resource-text") || "").trim() || void 0;
       if (!apiBaseUrl) {
         container.textContent = "Missing api-base-url.";
         return;
@@ -183,6 +185,7 @@ var A2LearnEmbedElement = class extends HTMLElement {
         mode: "online",
         apiBaseUrl,
         resourcePath,
+        resourceText,
         headers: this.headers,
         themeVars
       };

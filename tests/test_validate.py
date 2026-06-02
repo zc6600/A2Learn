@@ -22,6 +22,73 @@ class ValidateMessagesTests(unittest.TestCase):
         ]
         validate_a2ui_messages(incremental, require_create_surface=False)
 
+    def test_accepts_mental_model(self) -> None:
+        messages = [
+            {
+                "version": "v0.9",
+                "createSurface": {
+                    "surfaceId": "main",
+                    "catalogId": "https://a2learn.ai/spec/v1/catalog.json",
+                },
+            },
+            {
+                "version": "v0.9",
+                "updateComponents": {
+                    "surfaceId": "main",
+                    "components": [
+                        {
+                            "id": "root",
+                            "component": "Column",
+                            "children": ["model1"],
+                        },
+                        {
+                            "id": "model1",
+                            "component": "MentalModel",
+                            "title": "MVC Pattern",
+                            "description": "Model-View-Controller architecture",
+                            "pillars": [
+                                {"title": "Model", "description": "Data and logic"}
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+        validate_a2ui_messages(messages)
+
+    def test_accepts_detailed_explanation(self) -> None:
+        messages = [
+            {
+                "version": "v0.9",
+                "createSurface": {
+                    "surfaceId": "main",
+                    "catalogId": "https://a2learn.ai/spec/v1/catalog.json",
+                },
+            },
+            {
+                "version": "v0.9",
+                "updateComponents": {
+                    "surfaceId": "main",
+                    "components": [
+                        {
+                            "id": "root",
+                            "component": "Column",
+                            "children": ["exp1"],
+                        },
+                        {
+                            "id": "exp1",
+                            "component": "DetailedExplanation",
+                            "title": "Closures Depth",
+                            "content": "Deep explanation of scope",
+                        }
+                    ]
+                }
+            }
+        ]
+        validate_a2ui_messages(messages)
+
+
+
     def test_rejects_missing_update_components_by_default(self) -> None:
         only_create = [
             {

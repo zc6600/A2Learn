@@ -19,6 +19,11 @@ import { A2learnCodeSnippet } from "./components/CodeSnippet";
 import { A2learnSmartAnnotationBoard } from "./components/SmartAnnotationBoard";
 import { A2learnDocumentFigure } from "./components/DocumentFigure";
 import { A2learnScenarioDialogue } from "./components/ScenarioDialogue";
+import { A2learnMentalModel } from "./components/MentalModel";
+import { A2learnDetailedExplanation } from "./components/DetailedExplanation";
+import { A2learnPaperAbstract } from "./components/PaperAbstract";
+import { A2learnLiteratureReference } from "./components/LiteratureReference";
+import { A2learnInteractiveFormula } from "./components/InteractiveFormula";
 
 export const a2learnCatalog = new Catalog<LitComponentApi>(
   "https://a2learn.ai/spec/v1/catalog.json",
@@ -43,6 +48,11 @@ export const a2learnCatalog = new Catalog<LitComponentApi>(
     A2learnSmartAnnotationBoard,
     A2learnDocumentFigure,
     A2learnScenarioDialogue,
+    A2learnMentalModel,
+    A2learnDetailedExplanation,
+    A2learnPaperAbstract,
+    A2learnLiteratureReference,
+    A2learnInteractiveFormula,
   ],
   basicCatalog?.functions ? Array.from(basicCatalog.functions.values()) : []
 );

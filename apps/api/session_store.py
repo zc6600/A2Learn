@@ -77,7 +77,9 @@ class SessionStore:
         self._max_capacity = max_capacity
 
     def create(self, resource_path: str | None = None, resource_text: str | None = None) -> SessionState:
-        state = run_agent(resource_path=resource_path, resource_text=resource_text)
+        import os
+        mode = os.getenv("A2LEARN_MODE", "agent")
+        state = run_agent(resource_path=resource_path, resource_text=resource_text, mode=mode)
         messages = self._extract_messages(state)
         session = SessionState(
             session_id=f"sess_{uuid.uuid4().hex[:12]}",

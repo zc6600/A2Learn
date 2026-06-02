@@ -9,3 +9,5 @@ apps/viewer/node_modules/
 apps/viewer/dist/
 apps/viewer/.vite/
 paper/
+.venv/
+.pytest_cache/

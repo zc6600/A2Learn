@@ -123,8 +123,8 @@ def build_site_plan(llm: Any, curriculum: dict[str, Any]) -> dict[str, Any]:
         - Use Chinese for learner-facing strings.
         - Include: siteTitle, surfaces (array).
         - Each surface: surfaceId, title, description, moduleId (optional), recommendedComponents (array).
-        - recommendedComponents must be chosen from: LearningPath, ConceptCard, QuizCard, DeepDivePrompt,
-          ScenarioDialogue, Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList.
+        - recommendedComponents must be chosen from: LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt,
+          ScenarioDialogue, Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.
         """
     ).strip()
     user_prompt = "请把下面 curriculum 转成站点结构（site plan），每个 surface 对应一个学习页面。\n\n" + json.dumps(
@@ -168,8 +168,11 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
         - Must include createSurface and updateComponents.
         - createSurface.catalogId MUST be "{DEFAULT_CATALOG_ID}".
         - Components MUST be practical for interactive learning and should prefer:
-          LearningPath, ConceptCard, QuizCard, DeepDivePrompt, ScenarioDialogue,
-          Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList.
+          LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue,
+          Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.
+        - Use MentalModel to introduce complex structural concepts from a high level (using description, pillars/elements, analogy, and diagrams).
+        - Use DetailedExplanation to provide deep, detailed, and markdown-rich explanations/articles of specific mechanisms, architectures, or topics.
+        - IMPORTANT: InteractiveSandbox and CodeSnippet components should ONLY be generated when the topic/course is explicitly about coding, programming, or software engineering. NEVER use code block or sandbox components in general science, biology, history, or non-programming subjects, as they distract general learners.
         - Use stable IDs and keep components connected under a root layout. The root component of each surface MUST have the ID "root".
         - Use Chinese text for learner-facing content.
         - Output format example:
@@ -198,3 +201,20 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
     if isinstance(content, list):
         content = "".join(str(x) for x in content)
     return _extract_json_array(str(content))
+
+
+def generate_structured_json(llm: Any, resource_text: str, prompt_template: str) -> dict[str, Any]:
+    """Generates structured course JSON directly based on the custom prompt template."""
+    system_prompt = prompt_template.strip()
+    user_prompt = f"请根据以下教学资源生成结构化课程 JSON 对象。\n\nResource text:\n{resource_text}"
+    response = llm.invoke(
+        [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+    )
+    content = getattr(response, "content", "")
+    if isinstance(content, list):
+        content = "".join(str(x) for x in content)
+    return _extract_json_object(str(content))
+

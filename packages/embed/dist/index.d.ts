@@ -7,6 +7,7 @@ type ViewerSourceOnline = {
     mode: "online";
     apiBaseUrl: string;
     resourcePath?: string;
+    resourceText?: string;
     headers?: Record<string, string>;
     themeVars?: Record<string, string>;
 };

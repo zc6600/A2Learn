@@ -142,27 +142,8 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
   }
 
   private navigateToSurface(surfaceId: string): boolean {
-    // 尝试在当前文档里找到对应的 surface
-    const candidates = [
-      document.querySelector(`[data-surface-id="${surfaceId}"]`),
-      document.getElementById(`surface-${surfaceId}`),
-      document.getElementById(surfaceId),
-    ];
-    const target = candidates.find(Boolean) as HTMLElement | null;
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-      // 尚光效果：简短闪烁高亮
-      target.style.transition = "box-shadow 0.3s ease";
-      target.style.boxShadow = "0 0 0 3px var(--a2ui-color-primary)";
-      setTimeout(() => { target.style.boxShadow = ""; }, 1200);
-      return true;
-    }
-    // 如果 viewer 在 iframe 里，尝试通过 postMessage 通知父级
-    if (window.parent !== window) {
-      window.parent.postMessage({ type: "a2learn:navigate", surfaceId }, "*");
-      return true;
-    }
-    return false;
+    window.location.hash = "#/" + surfaceId;
+    return true;
   }
 
   private handleStepClick(step: any, status: 'completed' | 'current' | 'locked') {

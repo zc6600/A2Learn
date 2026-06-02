@@ -370,3 +370,103 @@ export const InteractiveSandboxApi = {
     })
     .strict(),
 } satisfies ComponentApi;
+
+export const MentalModelApi = {
+  name: "MentalModel",
+  schema: z
+    .object({
+      ...CommonProps,
+      title: DynamicStringSchema.describe("心智模型名称，例如 'MVC 架构' 或 'Event Loop'"),
+      description: DynamicStringSchema.describe("高层次的整体心智模型描述（支持 Markdown）"),
+      icon: DynamicStringSchema.optional().describe("心智模型图标 (Emoji)"),
+      analogy: DynamicStringSchema.optional().describe("生活中的生动类比，帮助建立直觉（支持 Markdown）"),
+      diagram: DynamicStringSchema.optional().describe("结构/流程示意图，例如文本流程或 ASCII Art"),
+      pillars: z
+        .array(
+          z.object({
+            title: DynamicStringSchema.describe("要素名称"),
+            description: DynamicStringSchema.describe("要素描述"),
+            icon: DynamicStringSchema.optional().describe("要素图标 (Emoji)"),
+          })
+        )
+        .optional()
+        .describe("该心智模型的几个核心要素"),
+    })
+    .strict(),
+} satisfies ComponentApi;
+
+export const DetailedExplanationApi = {
+  name: "DetailedExplanation",
+  schema: z
+    .object({
+      ...CommonProps,
+      title: DynamicStringSchema.optional().describe("章节/深入介绍的标题"),
+      content: DynamicStringSchema.describe("深入讲解的核心 Markdown 文本内容"),
+      icon: DynamicStringSchema.optional().describe("讲解卡片的图标 (Emoji)"),
+      estimatedReadTime: DynamicStringSchema.optional().describe("预计阅读时间，例如 '5 分钟阅读'"),
+    })
+    .strict(),
+} satisfies ComponentApi;
+
+
+export const PaperAbstractApi = {
+  name: "PaperAbstract",
+  schema: z
+    .object({
+      ...CommonProps,
+      title: DynamicStringSchema.describe("论文标题"),
+      authors: z.array(DynamicStringSchema).describe("作者列表"),
+      venue: DynamicStringSchema.optional().describe("发表会议或期刊名称"),
+      year: DynamicNumberSchema.optional().describe("发表年份"),
+      abstract: DynamicStringSchema.describe("论文的英文或中文摘要内容"),
+      tldr: DynamicStringSchema.optional().describe("Agent 总结的一句话论文核心发现 (TL;DR)"),
+      pdfUrl: DynamicStringSchema.optional().describe("论文的 PDF 下载或查看链接"),
+      sourceUrl: DynamicStringSchema.optional().describe("论文的原始链接 (如 arXiv, ACM, IEEE 等)"),
+    })
+    .strict(),
+} satisfies ComponentApi;
+
+
+export const LiteratureReferenceApi = {
+  name: "LiteratureReference",
+  schema: z
+    .object({
+      ...CommonProps,
+      citation: DynamicStringSchema.describe("文献在正文中的引用符号，例如 '[1]' 或 'Vaswani et al., 2017'"),
+      title: DynamicStringSchema.describe("引用的文献/论文名称"),
+      authors: z.array(DynamicStringSchema).optional().describe("文献作者列表"),
+      url: DynamicStringSchema.optional().describe("文献的参考链接"),
+      highlightQuote: DynamicStringSchema.optional().describe("文献中与当前段落高度相关的核心金句/原文引用"),
+      onReferenceClick: ActionSchema.optional().describe("用户点击该文献引用卡片时触发，让 Agent 增量生成或弹窗显示相关文献背景"),
+    })
+    .strict(),
+} satisfies ComponentApi;
+
+
+export const InteractiveFormulaApi = {
+  name: "InteractiveFormula",
+  schema: z
+    .object({
+      ...CommonProps,
+      latex: DynamicStringSchema.describe("核心 LaTeX 数学公式，例如 '\\sigma(z) = \\frac{1}{1 + e^{-z}}'"),
+      description: DynamicStringSchema.optional().describe("公式的整体介绍"),
+      variables: z
+        .record(z.string(), DynamicStringSchema)
+        .optional()
+        .describe("公式中各个符号/变量的解释映射表，key 为 Latex 中的符号"),
+      derivationSteps: z
+        .array(
+          z.object({
+            step: DynamicStringSchema.describe("步骤序号或简短说明，如 '第一步'"),
+            latex: DynamicStringSchema.describe("当前推导步骤的 Latex 公式"),
+            explanation: DynamicStringSchema.describe("步骤的推导原理与解释说明"),
+          })
+        )
+        .optional()
+        .describe("可选：公式的推导步骤列表"),
+    })
+    .strict(),
+} satisfies ComponentApi;
+
+
+

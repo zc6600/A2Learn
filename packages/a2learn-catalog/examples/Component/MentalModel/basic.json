@@ -1,0 +1,23 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "MentalModel-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "MentalModel-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "MentalModel",
+          "title": { "literalString": "MVC (Model-View-Controller)" },
+          "description": { "literalString": "MVC 是一种经典的软件架构模式，将应用程序分为三个核心部分：模型（Model）、视图（View）和控制器（Controller）。" }
+        }
+      ]
+    }
+  }
+]

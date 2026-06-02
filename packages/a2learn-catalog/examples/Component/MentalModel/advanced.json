@@ -1,0 +1,43 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "MentalModel-advanced",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "MentalModel-advanced",
+      "components": [
+        {
+          "id": "root",
+          "component": "MentalModel",
+          "title": { "literalString": "Event Loop (事件循环)" },
+          "description": { "literalString": "JavaScript 单线程异步非阻塞执行的核心机制。它通过持续轮询，协调主线程执行栈、微任务队列和宏任务队列的任务分配。" },
+          "icon": { "literalString": "⚙️" },
+          "analogy": { "literalString": "事件循环就像是一个**旋转木马**。主线程（执行栈）在木马转动时不断处理当前位置的人（同步任务）。当遇到需要等很久的活动（如网络请求，Web APIs），主线程就把人请下木马，等他排队等完后（任务完成），就排到准备上马的队列（任务队列）里，旋转木马每转完一圈（Tick），就看看队列里有没有人，有就拉上木马继续运行。" },
+          "diagram": { "literalString": "┌─────────────────────────────────────────┐\n│            Call Stack (执行栈)          │\n└────────────────────┬────────────────────┘\n                     │ (遇到异步 API)\n                     ▼\n┌─────────────────────────────────────────┐\n│         Web APIs (定时器/网络/I/O)       │\n└────────────────────┬────────────────────┘\n                     │ (回调触发)\n                     ▼\n┌─────────────────────────────────────────┐\n│        Microtask / Macrotask Queue      │\n└─────────────────────────────────────────┘" },
+          "pillars": [
+            {
+              "title": { "literalString": "Call Stack" },
+              "description": { "literalString": "当前主线程正在同步执行的函数调用栈，单线程一次只执行一个任务。" },
+              "icon": { "literalString": "🥞" }
+            },
+            {
+              "title": { "literalString": "Task Queue" },
+              "description": { "literalString": "存放各种宏任务（如 setTimeout, setInterval）和微任务（如 Promise.then）的回调函数队列。" },
+              "icon": { "literalString": "📬" }
+            },
+            {
+              "title": { "literalString": "Loop Engine" },
+              "description": { "literalString": "不断监视 Call Stack 是否为空。若为空，优先清空微任务队列，再取出一个宏任务压入 Stack。" },
+              "icon": { "literalString": "🔄" }
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -9,6 +9,13 @@ import {
 } from "@a2learn/viewer-kit/page-shell";
 import { bootstrapGallery } from "@a2learn/viewer-kit/gallery/gallery-ui";
 
+let activeRuntime: {
+  container: HTMLElement;
+  processor: MessageProcessor<any>;
+  modeHint?: string;
+} | null = null;
+
+
 type SessionStartResponse = {
   session_id: string;
   mode: "online";
@@ -208,11 +215,121 @@ function setupRoot(): HTMLElement | null {
   return root;
 }
 
+function extractLastCreatedSurfaceId(messages: A2uiMessage[]): string | null {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i];
+    if (msg && typeof msg === "object" && "createSurface" in msg) {
+      const surfaceId = (msg as any).createSurface?.surfaceId;
+      if (typeof surfaceId === "string") {
+        return surfaceId;
+      }
+    }
+  }
+  return null;
+}
+
+function injectRoutingTheme(): void {
+  if (document.getElementById("a2learn-routing-theme")) {
+    return;
+  }
+  const style = document.createElement("style");
+  style.id = "a2learn-routing-theme";
+  style.textContent = `
+    .surface-tabs-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      margin-bottom: 24px;
+    }
+    .surface-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 12px;
+      background: color-mix(in oklab, var(--a2ui-color-surface) 92%, var(--a2ui-color-secondary));
+      border: 1px solid var(--a2ui-color-border);
+      overflow-x: auto;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none;  /* IE and Edge */
+    }
+    .surface-tabs::-webkit-scrollbar {
+      display: none; /* Chrome, Safari and Opera */
+    }
+    .surface-tab {
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--app-muted);
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      white-space: nowrap;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .surface-tab:hover {
+      color: var(--a2ui-color-primary);
+      background: color-mix(in oklab, var(--a2ui-color-primary) 8%, transparent);
+    }
+    .surface-tab.active {
+      color: #ffffff;
+      background: var(--a2ui-color-primary);
+      box-shadow: 0 4px 12px color-mix(in oklab, var(--a2ui-color-primary) 30%, transparent);
+    }
+    @media (prefers-color-scheme: dark) {
+      .surface-tab.active {
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function getSurfaceTitle(surface: any): string {
+  if (surface.title) return surface.title;
+  if (surface.name) return surface.name;
+  
+  if (surface.componentsMap && surface.componentsMap.size > 0) {
+    const components = Array.from(surface.componentsMap.values()) as any[];
+    
+    // Look for first Text component with variant h1/h2
+    const headingComp = components.find((c: any) => c.component === "Text" && (c.variant === "h1" || c.variant === "h2") && c.text);
+    if (headingComp) {
+      return headingComp.text;
+    }
+    
+    // Look for any component with title
+    const titleComp = components.find((c: any) => c.title);
+    if (titleComp) {
+      return titleComp.title;
+    }
+
+    // Look for any Text component
+    const anyTextComp = components.find((c: any) => c.component === "Text" && c.text);
+    if (anyTextComp) {
+      return anyTextComp.text;
+    }
+  }
+  
+  const id = surface.id || "Page";
+  return id
+    .replace(/^site-/, "")
+    .replace(/[-_]/g, " ")
+    .replace(/\b\w/g, (c: string) => c.toUpperCase());
+}
+
 function renderSurfaces(
   container: HTMLElement,
   processor: MessageProcessor<any>,
   modeHint?: string,
 ): void {
+  injectRoutingTheme();
+
   const surfaces = Array.from(processor.model.surfacesMap.values());
   if (surfaces.length === 0) {
     showState(container, "No renderable surfaces generated.");
@@ -227,13 +344,68 @@ function renderSurfaces(
     container.appendChild(hint);
   }
 
-  for (const surface of surfaces) {
+  // Determine the active surface ID
+  const hash = window.location.hash;
+  let activeId: string | null = null;
+  if (hash.startsWith("#/")) {
+    const parsedId = hash.slice(2);
+    if (surfaces.some(s => s.id === parsedId)) {
+      activeId = parsedId;
+    }
+  }
+  
+  if (!activeId && surfaces.length > 0) {
+    activeId = surfaces[0].id ?? null;
+  }
+
+  // Render tab bar if there are multiple surfaces
+  if (surfaces.length > 1) {
+    const tabsContainer = document.createElement("div");
+    tabsContainer.className = "surface-tabs-container";
+
+    const tabsList = document.createElement("div");
+    tabsList.className = "surface-tabs";
+    tabsList.setAttribute("role", "tablist");
+
+    for (const surface of surfaces) {
+      const surfaceId = surface.id ?? "";
+      const isActive = surfaceId === activeId;
+      const tabButton = document.createElement("button");
+      tabButton.className = `surface-tab${isActive ? " active" : ""}`;
+      tabButton.setAttribute("role", "tab");
+      tabButton.setAttribute("aria-selected", isActive ? "true" : "false");
+      tabButton.setAttribute("data-surface-id", surfaceId);
+      
+      const tabTitle = getSurfaceTitle(surface);
+      tabButton.textContent = tabTitle;
+
+      tabButton.addEventListener("click", () => {
+        window.location.hash = `#/${surfaceId}`;
+      });
+
+      tabsList.appendChild(tabButton);
+    }
+    tabsContainer.appendChild(tabsList);
+    container.appendChild(tabsContainer);
+  }
+
+  // Render only the active surface
+  const activeSurface = surfaces.find(s => s.id === activeId);
+  if (activeSurface) {
     const el = document.createElement("a2learn-markdown-surface") as any;
-    el.surface = surface;
-    el.setAttribute("data-surface-id", surface.id ?? "");
+    el.surface = activeSurface;
+    el.setAttribute("data-surface-id", activeSurface.id ?? "");
     container.appendChild(el);
   }
 }
+
+// Register window hashchange listener once
+window.addEventListener("hashchange", () => {
+  if (activeRuntime) {
+    renderSurfaces(activeRuntime.container, activeRuntime.processor, activeRuntime.modeHint);
+  }
+});
+
 
 function modeHintForSending(container: HTMLElement, isSending: boolean): void {
   const first = container.querySelector(".viewer-state");
@@ -342,6 +514,10 @@ async function bootstrapOnline(
       const data = (await res.json()) as SessionActionResponse;
       if (Array.isArray(data.messages) && data.messages.length > 0) {
         processor.processMessages(data.messages);
+        const lastCreatedId = extractLastCreatedSurfaceId(data.messages);
+        if (lastCreatedId) {
+          window.location.hash = `#/${lastCreatedId}`;
+        }
         renderSurfaces(container, processor, "Online mode connected, supporting interaction callbacks and incremental updates.");
       }
     } catch (err) {
@@ -360,7 +536,17 @@ async function bootstrapOnline(
     }
   };
 
+  activeRuntime = {
+    container,
+    processor,
+    modeHint: "Online mode connected, supporting interaction callbacks and incremental updates.",
+  };
+
   processor.processMessages(startData.messages);
+  const startCreatedId = extractLastCreatedSurfaceId(startData.messages);
+  if (startCreatedId) {
+    window.location.hash = `#/${startCreatedId}`;
+  }
   renderSurfaces(container, processor, "Online mode connected, supporting interaction callbacks and incremental updates.");
   return true;
 }
@@ -381,6 +567,17 @@ async function bootstrapOffline(container: HTMLElement, source: ViewerSourceOffl
   } catch (err) {
     showState(container, `A2UI message processing failed: ${String(err)}`, "error");
     return;
+  }
+
+  activeRuntime = {
+    container,
+    processor,
+    modeHint: "Offline mode: Previewing message file only, no interaction callbacks.",
+  };
+
+  const lastCreatedId = extractLastCreatedSurfaceId(messages);
+  if (lastCreatedId) {
+    window.location.hash = `#/${lastCreatedId}`;
   }
   renderSurfaces(container, processor, "Offline mode: Previewing message file only, no interaction callbacks.");
 }
