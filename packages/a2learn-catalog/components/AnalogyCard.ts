@@ -55,10 +55,9 @@ export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCard
     }
     .title {
       font-size: 16px;
-      font-weight: 700;
-      color: var(--a2ui-color-primary);
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      font-weight: 800;
+      color: var(--a2ui-color-primary, #0d9488);
+      letter-spacing: 0.5px;
       margin: 0;
     }
     .content {
@@ -66,21 +65,23 @@ export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCard
       z-index: 1;
       font-size: 16px;
       line-height: 1.7;
-      color: var(--a2ui-color-on-surface);
-      background: rgba(255, 255, 255, 0.6);
+      color: var(--a2ui-color-on-surface, #111827);
+      background: var(--a2ui-color-surface-subtle, #f9fafb);
+      border: 1px solid var(--a2ui-color-border, #e5e7eb);
       padding: 16px;
       border-radius: 12px;
-      backdrop-filter: blur(4px);
     }
     /* Style markdown elements inside analogy */
     .content p {
       margin-top: 0;
+      color: var(--a2ui-color-on-surface, #111827);
     }
     .content p:last-child {
       margin-bottom: 0;
     }
-    .content strong {
-      color: var(--a2ui-color-primary);
+    .content strong, .content b {
+      color: var(--a2ui-color-primary, #0d9488);
+      font-weight: 700;
     }
   `;
 
@@ -103,16 +104,16 @@ export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCard
 
   // Lightweight markdown rendering for gallery/static mode.
   private renderInlineMarkdown(markdown: string): string {
-    const escaped = markdown
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-    const withStrong = escaped.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-    const withParagraphs = withStrong
+    if (!markdown) return "";
+    let htmlStr = markdown
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/<b>/gi, "<strong>")
+      .replace(/<\/b>/gi, "</strong>");
+    const paragraphs = htmlStr
       .split(/\n{2,}/)
       .map((p) => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
       .join("");
-    return withParagraphs || "<p></p>";
+    return paragraphs || "<p></p>";
   }
 
   render() {

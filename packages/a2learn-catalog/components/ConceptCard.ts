@@ -46,8 +46,9 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       flex-wrap: wrap;
     }
     .tag {
-      background: color-mix(in oklab, var(--a2ui-color-secondary) 15%, var(--a2ui-color-surface));
-      color: var(--a2ui-color-secondary);
+      background: #f3f4f6;
+      color: #0f766e;
+      border: 1px solid #e5e7eb;
       padding: 4px 10px;
       border-radius: 12px;
       font-size: 12px;
@@ -60,8 +61,8 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
     }
     .section-title {
       font-size: 14px;
-      font-weight: 600;
-      color: var(--app-muted);
+      font-weight: 700;
+      color: #6b7280;
       text-transform: uppercase;
       letter-spacing: 1px;
       margin: 0 0 12px 0;
@@ -71,27 +72,28 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
     .definition {
       font-size: 16px;
       line-height: 1.6;
-      color: var(--a2ui-color-on-surface);
+      color: var(--a2ui-color-on-surface, #111827);
       margin-bottom: var(--a2ui-spacing-xl);
     }
     code {
-      font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
       padding: 2px 6px;
       border-radius: 6px;
-      background: var(--a2ui-color-secondary);
-      color: var(--a2ui-color-primary);
+      background: #f3f4f6;
+      color: #0d9488;
       font-size: 0.9em;
-      border: 1px solid color-mix(in oklab, var(--a2ui-color-primary) 15%, transparent);
+      border: 1px solid #e5e7eb;
     }
     .example-box {
-      background: var(--a2ui-color-secondary);
-      border-left: 4px solid var(--a2ui-color-primary);
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-left: 4px solid #0d9488;
       padding: var(--a2ui-spacing-m) var(--a2ui-spacing-l);
       border-radius: 0 var(--a2ui-border-radius) var(--a2ui-border-radius) 0;
       margin-bottom: var(--a2ui-spacing-xl);
       font-size: 14px;
       overflow-x: auto;
-      color: var(--a2ui-color-on-surface);
+      color: #111827;
     }
     .example-box pre {
       margin: 0;

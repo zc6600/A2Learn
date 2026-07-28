@@ -130,18 +130,15 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
   private renderMarkdown(markdown: string): string {
     if (!markdown) return "";
     let htmlContent = markdown
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/<b>/gi, "<strong>")
+      .replace(/<\/b>/gi, "</strong>");
 
     // 1) Replace code blocks
     htmlContent = htmlContent.replace(/```(?:[a-zA-Z0-9]+)?\n([\s\S]+?)\n```/g, "<pre><code>$1</code></pre>");
 
     // 2) Replace inline code
     htmlContent = htmlContent.replace(/`([^`]+)`/g, "<code>$1</code>");
-
-    // 3) Replace bold
-    htmlContent = htmlContent.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
 
     // 4) Parse blockquotes
     htmlContent = htmlContent.split("\n").map(line => {

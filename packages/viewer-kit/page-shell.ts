@@ -43,8 +43,9 @@ export function injectBaseTheme(): void {
 
       /* Portfolio Design Tokens (Teal Accent Matrix - Light Mode Baseline) */
       --a2ui-color-primary: #0d9488; /* Teal-600 */
-      --a2ui-color-secondary: #f9fafb; /* Gray-50 Neutral Surface */
+      --a2ui-color-secondary: #0f766e; /* Teal-700 High-Contrast Secondary */
       --a2ui-color-surface: #ffffff;
+      --a2ui-color-surface-subtle: #f9fafb; /* Gray-50 Neutral Surface */
       --a2ui-color-on-surface: #111827;
       --a2ui-color-on-background: #374151;
       --a2ui-color-border: #e5e7eb; /* Gray-200 */

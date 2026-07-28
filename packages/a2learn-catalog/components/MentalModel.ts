@@ -193,16 +193,15 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
 
   private renderInlineMarkdown(markdown: string): string {
     if (!markdown) return "";
-    const escaped = markdown
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-    const withStrong = escaped.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-    const withParagraphs = withStrong
+    let htmlStr = markdown
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/<b>/gi, "<strong>")
+      .replace(/<\/b>/gi, "</strong>");
+    const paragraphs = htmlStr
       .split(/\n{2,}/)
       .map((p) => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
       .join("");
-    return withParagraphs || "<p></p>";
+    return paragraphs || "<p></p>";
   }
 
   render() {
