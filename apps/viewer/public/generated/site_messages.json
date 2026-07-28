@@ -31,7 +31,7 @@
           "id": "header-1",
           "component": "Text",
           "variant": "h1",
-          "text": "Module 1 ❓ 查找效率危机：如何在海量数据中实现 O(1) 定位？"
+          "text": "关卡 1 ❓ 查找效率危机：如何在海量数据中实现 O(1) 定位？"
         },
         {
           "id": "learning-path-1",
@@ -41,26 +41,26 @@
           "steps": [
             {
               "id": "1",
-              "title": "1. 查找效率危机 (O(1)计算)"
+              "title": "1. 发现痛点：查找太慢"
             },
             {
               "id": "2",
-              "title": "2. 散列碰撞困境 (冲突解决)"
+              "title": "2. 破局思路：名字即编号"
             },
             {
               "id": "3",
-              "title": "3. 空间性能妥协 (负载因子/Rehash)"
+              "title": "3. 衍生难题：碰撞怎么办"
             },
             {
               "id": "4",
-              "title": "4. 工业安全防御 (HashDoS/红黑树)"
+              "title": "4. 解决方案：挂长链 vs 找邻居"
             }
           ]
         },
         {
           "id": "step1-background",
           "component": "AnalogyCard",
-          "title": "Step 1 | 介绍背景，引出现实问题：海量数据下的查询瘫痪",
+          "title": "现实痛点：海量数据下的查询瘫痪",
           "analogy": "<b>背景</b>：现代软件系统（如用户中心、路由表、数据库索引）需要频繁检索数据。<br><b>现实问题</b>：当数据量达到 100 万条甚至上亿条时，如何在不耗费几百毫秒的前提下，瞬间找到特定记录？"
         },
         {
@@ -93,7 +93,7 @@
         {
           "id": "step2-naive",
           "component": "MentalModel",
-          "title": "Step 2 | 第一性原理与 Naive 方案及缺陷",
+          "title": "第一性原理与 Naive 方案及缺陷",
           "description": "计算机物理内存 (RAM) 本质是一个支持根据数字地址直接访问的连续字节数组。所有数据存取最终都建立在这个硬件特性上。",
           "icon": "🧠",
           "analogy": "<b>Naive 方案 1：无序数组遍历 (顺序查找 O(N))</b><br>从下标 0 挨个比对目标 Key。缺陷：数据量 N 越大，最坏比对 N 次，极其低下。<br><br><b>Naive 方案 2：保持数组有序 (二分查找 O(log N))</b><br>按字典序排好数组。缺陷：查找变快了，但每次插入/删除新数据都要移动半个数组（开销 O(N)）。",
@@ -114,7 +114,7 @@
         {
           "id": "step3-mindset",
           "component": "ConceptCard",
-          "title": "Step 3 | 解决思路 Mindset：从“比对范式”转向“计算范式”",
+          "title": "解决思路 Mindset：从“比对范式”转向“计算范式”",
           "tags": [
             "思维转变",
             "计算代替比对",
@@ -131,7 +131,7 @@
         {
           "id": "step4-implementation",
           "component": "DetailedExplanation",
-          "title": "Step 4 | Mindset 的实际落地：哈希函数 + 槽位数组",
+          "title": "工程落地：哈希函数 + 槽位数组",
           "icon": "⚙️",
           "estimatedReadTime": "3 分钟阅读",
           "content": "为了将“计算范式”落地，工程上引入了两个核心组件：\n\n1. **<dfn title=\"将任意长度输入Key转换为固定范围整数索引的算法\">哈希函数 (Hash Function)</dfn>**：负责接收 Key（如字符串、身份证号），输出一个无符号整数。\n2. **<dfn title=\"存储数据真实值的连续内存数组\">槽位数组 (Bucket Array / Hash Table)</dfn>**：将算出的整数对数组容量取模，得到具体的内存下标。`index = hash(key) % capacity`。\n\n只要哈希函数计算极快，无论存储 10 条还是 1,000,000 条数据，定位时间都固定为常数级别（即 **<dfn title=\"执行开销与数据总量规模无关的极致性能\">常数时间复杂度 O(1)</dfn>**）。"
@@ -148,13 +148,13 @@
         {
           "id": "step5-summary",
           "component": "AnalogyCard",
-          "title": "Step 5 | Module 1 总结",
+          "title": "本模块总结：范式替换",
           "analogy": "<b>总结</b>：实现 O(1) 极速查找的关键，在于利用物理内存可直接按数字下标存取的特性，将<b>‘挨个搜索比对’</b>替换为<b>‘公式直接计算’</b>。"
         },
         {
           "id": "step6-anchors",
           "component": "ConceptCard",
-          "title": "Step 6 | 术语逻辑盘点与记忆锚点 ⚓",
+          "title": "术语逻辑盘点与记忆锚点 ⚓",
           "tags": [
             "术语锚点",
             "核心定义"
@@ -202,7 +202,7 @@
           "id": "header-2",
           "component": "Text",
           "variant": "h1",
-          "text": "Module 2 🔀 散列碰撞困境：当不同的 Key 产生了相同的索引？"
+          "text": "关卡 2 🔀 散列碰撞困境：当不同的 Key 产生了相同的索引？"
         },
         {
           "id": "learning-path-2",
@@ -212,26 +212,26 @@
           "steps": [
             {
               "id": "1",
-              "title": "1. 查找效率危机 (O(1)计算)"
+              "title": "1. 发现痛点：查找太慢"
             },
             {
               "id": "2",
-              "title": "2. 散列碰撞困境 (冲突解决)"
+              "title": "2. 破局思路：名字即编号"
             },
             {
               "id": "3",
-              "title": "3. 空间性能妥协 (负载因子/Rehash)"
+              "title": "3. 衍生难题：碰撞怎么办"
             },
             {
               "id": "4",
-              "title": "4. 工业安全防御 (HashDoS/红黑树)"
+              "title": "4. 解决方案：挂长链 vs 找邻居"
             }
           ]
         },
         {
           "id": "step1-background-2",
           "component": "AnalogyCard",
-          "title": "Step 1 | 介绍背景，引出现实问题：散列重号危机",
+          "title": "现实痛点：散列重号危机",
           "analogy": "<b>背景</b>：我们在 Module 1 中用哈希函数算出了数组下标。<br><b>衍生新问题</b>：当系统存入多个不同用户时（如 'Alice' 与 'David'），哈希函数竟然算出了<b>完全相同的下标 5</b>！后存入的数据会直接把前面的数据覆盖抹掉！"
         },
         {
@@ -264,7 +264,7 @@
         {
           "id": "step2-naive-2",
           "component": "MentalModel",
-          "title": "Step 2 | 第一性原理与 Naive 方案及缺陷",
+          "title": "第一性原理与 Naive 方案及缺陷",
           "description": "根据数学上的鸽巢原理 (Pigeonhole Principle)，当钥匙数量大于箱子数量时，必然存在至少两个钥匙指向同一个箱子。",
           "icon": "🐦",
           "analogy": "<b>Naive 方案：直接覆写 (Overwrite)</b><br>当发生索引重号时，直接用新值覆盖旧值。<br><b>缺陷</b>：导致严重的数据丢失破坏，属于无法接受的系统 Bug。",
@@ -285,7 +285,7 @@
         {
           "id": "step3-mindset-2",
           "component": "ConceptCard",
-          "title": "Step 3 | 解决思路 Mindset：从“独占槽位”改为“多节点挂载或规则顺延”",
+          "title": "解决思路 Mindset：从“独占槽位”改为“多节点挂载或规则顺延”",
           "tags": [
             "思维转变",
             "容忍碰撞",
@@ -302,7 +302,7 @@
         {
           "id": "step4-implementation-2",
           "component": "DetailedExplanation",
-          "title": "Step 4 | Mindset 的实际落地：链地址法 vs 开放寻址法与 CPU 缓存效应",
+          "title": "工程落地：链地址法 vs 开放寻址法与 CPU 缓存效应",
           "icon": "⚙️",
           "estimatedReadTime": "4 分钟阅读",
           "content": "工程上对碰撞处理有两种主流落地方案：\n\n1. **<dfn title=\"每个槽位维护一条单链表，冲突节点追加到链表末尾\">链地址法 (Separate Chaining)</dfn>**：Java HashMap 采用此法。优点是简单高容错；缺点是链表节点在内存中随机分散，<dfn title=\"CPU预取连续内存数据的硬件加速机制\">CPU 缓存局部性</dfn> 较差。\n2. **<dfn title=\"不建链表，冲突时按线性或二次探测规则去检查数组相邻闲置槽位\">开放寻址法 (Open Addressing)</dfn>**：Python dict 采用此法。优点是所有数据紧密挨在数组里，充分利用 CPU 缓存线 (Cache Line)，读取速度极快；缺点是接近满载时效率剧降。\n\n> 💡 落地权衡：追求高容错选链地址法；追求极致内存与 CPU 缓存性能选开放寻址法。"
@@ -310,13 +310,13 @@
         {
           "id": "step5-summary-2",
           "component": "AnalogyCard",
-          "title": "Step 5 | Module 2 总结",
+          "title": "本模块总结：碰撞权衡",
           "analogy": "<b>总结</b>：碰撞不可消除。链地址法通过纵向扩展链表解决冲突，开放寻址法通过横向寻找连续空槽解决冲突。"
         },
         {
           "id": "step6-anchors-2",
           "component": "ConceptCard",
-          "title": "Step 6 | 术语逻辑盘点与记忆锚点 ⚓",
+          "title": "术语逻辑盘点与记忆锚点 ⚓",
           "tags": [
             "术语锚点",
             "核心定义"
@@ -391,7 +391,7 @@
           "id": "header-3",
           "component": "Text",
           "variant": "h1",
-          "text": "Module 3 📈 空间与性能妥协：负载因子与动态重散列 (Rehash)"
+          "text": "关卡 3 📈 空间与性能妥协：负载因子与动态重散列 (Rehash)"
         },
         {
           "id": "learning-path-3",
@@ -401,26 +401,26 @@
           "steps": [
             {
               "id": "1",
-              "title": "1. 查找效率危机 (O(1)计算)"
+              "title": "1. 发现痛点：查找太慢"
             },
             {
               "id": "2",
-              "title": "2. 散列碰撞困境 (冲突解决)"
+              "title": "2. 破局思路：名字即编号"
             },
             {
               "id": "3",
-              "title": "3. 空间性能妥协 (负载因子/Rehash)"
+              "title": "3. 衍生难题：碰撞怎么办"
             },
             {
               "id": "4",
-              "title": "4. 工业安全防御 (HashDoS/红黑树)"
+              "title": "4. 解决方案：挂长链 vs 找邻居"
             }
           ]
         },
         {
           "id": "step1-background-3",
           "component": "AnalogyCard",
-          "title": "Step 1 | 介绍背景，引出现实问题：满载下的性能滑坡",
+          "title": "现实痛点：满载下的性能滑坡",
           "analogy": "<b>背景</b>：我们在 Module 2 中用链地址法和开放寻址法解决了碰撞。<br><b>衍生新问题</b>：随着数据不断写入，槽位利用率接近 100%，无论是链表变长还是找空槽困难，查找性能都急剧下滑！"
         },
         {
@@ -453,7 +453,7 @@
         {
           "id": "step2-naive-3",
           "component": "MentalModel",
-          "title": "Step 2 | 第一性原理与 Naive 方案及缺陷",
+          "title": "第一性原理与 Naive 方案及缺陷",
           "description": "哈希表的冲突概率与闲置空间比例成反比。要维持低碰撞率，必须保证足够的闲置槽位。",
           "icon": "📈",
           "analogy": "<b>Naive 方案：一开始申请巨大的内存空间 (比如 100 GB)</b><br><b>缺陷</b>：严重浪费内存资源，且无法预估应用实际需要存多少数据。",
@@ -474,7 +474,7 @@
         {
           "id": "step3-mindset-3",
           "component": "ConceptCard",
-          "title": "Step 3 | 解决思路 Mindset：按需监控，达到临界点时动态扩容",
+          "title": "解决思路 Mindset：按需监控，达到临界点时动态扩容",
           "tags": [
             "思维转变",
             "动态平衡",
@@ -491,7 +491,7 @@
         {
           "id": "step4-implementation-3",
           "component": "DetailedExplanation",
-          "title": "Step 4 | Mindset 的实际落地：负载因子 + 位运算优化 + 渐进式 Rehash",
+          "title": "工程落地：负载因子 + 位运算优化 + 渐进式 Rehash",
           "icon": "⚙️",
           "estimatedReadTime": "4 分钟阅读",
           "content": "工程上对动态扩容的具体落地细节：\n\n1. **<dfn title=\"已存元素总数与当前数组容量的比值 (size / capacity)\">负载因子 (Load Factor)</dfn>**：监控指标。Java HashMap 默认阈值选为 `0.75`（空间与时间的黄金折中）。\n2. **<dfn title=\"容量翻倍为2的幂，用按位与运算替代慢速取模\">位运算优化 (Bitwise And)</dfn>**：容量总是保持为 2 的幂（如 16, 32, 64），取模 `hash % capacity` 被硬件极速指令 `<dfn title=\"位运算替代取模硬件加速\">hash & (capacity - 1)</dfn>` 替代！\n3. **<dfn title=\"将大规模数据搬迁平摊到日常读写中的高并发优化\">渐进式 Rehash (Incremental Rehash)</dfn>**：Redis 采用此法，避免一次性搬迁几百万数据导致系统瞬间卡顿死锁。\n\n> 💡 总结：负载因子是空间与时间杠杆；2 的幂让位运算取代除法；渐进式 Rehash 消除卡顿。"
@@ -499,13 +499,13 @@
         {
           "id": "step5-summary-3",
           "component": "AnalogyCard",
-          "title": "Step 5 | Module 3 总结",
+          "title": "本模块总结：容量调优",
           "analogy": "<b>总结</b>：负载因子是监控指标，动态 Rehash 是扩容手段，位运算是性能加速器。"
         },
         {
           "id": "step6-anchors-3",
           "component": "ConceptCard",
-          "title": "Step 6 | 术语逻辑盘点与记忆锚点 ⚓",
+          "title": "术语逻辑盘点与记忆锚点 ⚓",
           "tags": [
             "术语锚点",
             "核心定义"
@@ -571,7 +571,7 @@
           "id": "header-4",
           "component": "Text",
           "variant": "h1",
-          "text": "Module 4 🛡️ 工业安全与极限退化：HashDoS 攻击与红黑树树化"
+          "text": "关卡 4 🛡️ 工业安全与极限退化：HashDoS 攻击与红黑树树化"
         },
         {
           "id": "learning-path-4",
@@ -600,7 +600,7 @@
         {
           "id": "step1-background-4",
           "component": "AnalogyCard",
-          "title": "Step 1 | 介绍背景，引出现实问题：最坏分布与安全攻击",
+          "title": "现实痛点：最坏分布与安全攻击",
           "analogy": "<b>背景</b>：我们在 Module 1~3 建立了完备的哈希表。<br><b>极端新问题</b>：黑客故意发送成千上万个经过精心构造的碰撞 Key，全部挤在同一个槽位里！O(1) 暴跌为 O(N)，导致服务器 CPU 100% 瘫痪！"
         },
         {
@@ -633,7 +633,7 @@
         {
           "id": "step2-naive-4",
           "component": "MentalModel",
-          "title": "Step 2 | 第一性原理与 Naive 方案及缺陷",
+          "title": "第一性原理与 Naive 方案及缺陷",
           "description": "哈希表的 O(1) 性能依赖于均匀散列假设。当输入分布被恶心操纵时，性能界限面临最坏情况考验。",
           "icon": "⚠️",
           "analogy": "<b>Naive 方案：假定所有输入都是随机均匀的 (盲目信任)</b><br><b>缺陷</b>：黑客可以事先在本地计算好几万个哈希值相同的 Key（HashDoS），一秒击垮防线。",
@@ -654,7 +654,7 @@
         {
           "id": "step3-mindset-4",
           "component": "ConceptCard",
-          "title": "Step 3 | 解决思路 Mindset：算法入口随机化 + 结构底层自适应保底",
+          "title": "解决思路 Mindset：算法入口随机化 + 结构底层自适应保底",
           "tags": [
             "思维转变",
             "SipHash随机化",
@@ -671,7 +671,7 @@
         {
           "id": "step4-implementation-4",
           "component": "DetailedExplanation",
-          "title": "Step 4 | Mindset 的实际落地：Java 8 红黑树树化 + SipHash 随机种子",
+          "title": "工程落地：Java 8 红黑树树化 + SipHash 随机种子",
           "icon": "⚙️",
           "estimatedReadTime": "4 分钟阅读",
           "content": "工业级哈希表的两大防线：\n\n1. **<dfn title=\"链表长度达到阈值8时自动升级为自平衡二叉查找树的机制\">红黑树树化 (Treeify)</dfn>**：Java 8+ HashMap 规定，当单槽位链表长度 ≥ 8 且容量 ≥ 64 时，链表转换为红黑树。哪怕挂了 1,000,000 个碰撞节点，最坏查找步数也只需 log(1000000) ≈ 20 次，强行锁定在 **O(log N)**！\n2. **<dfn title=\"采用随机密钥防预测的工业级安全散列算法\">SipHash 随机加盐</dfn>**：Python 3.4+ 和 Rust 默认采用 SipHash，每次启动随机生成哈希 Seed，使外部黑客完全无法预测碰撞 Key。\n\n> 💡 总结：数据结构树化解决极端退化；随机 SipHash 解决攻击预测。"
@@ -679,13 +679,13 @@
         {
           "id": "step5-summary-4",
           "component": "AnalogyCard",
-          "title": "Step 5 | Module 4 总结",
+          "title": "本模块总结：工业弹性兜底",
           "analogy": "<b>总结</b>：工业级哈希表通过算法随机化和数据结构自适应兜底，彻底封死了黑客攻击与最坏退化的漏洞。"
         },
         {
           "id": "step6-anchors-4",
           "component": "ConceptCard",
-          "title": "Step 6 | 术语逻辑盘点与记忆锚点 ⚓",
+          "title": "终极术语逻辑盘点与记忆锚点 ⚓",
           "tags": [
             "术语锚点",
             "核心定义"

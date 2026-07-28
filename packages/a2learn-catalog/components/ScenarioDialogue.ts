@@ -3,23 +3,25 @@ import { customElement, state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { ScenarioDialogueApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "../utils/sanitize";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 
 export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof ScenarioDialogueApi> {
-  static styles = css`
-    :host {
-      display: block;
-      margin: var(--a2ui-spacing-l) 0;
-      font-family: var(--a2ui-font-family);
-    }
-    .chat-container {
-      background: color-mix(in oklab, var(--a2ui-color-surface) 95%, black);
-      border: 1px solid var(--a2ui-color-border);
-      border-radius: 16px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+  static styles = [
+    tooltipStyles,
+    css`
+      :host {
+        display: block;
+        margin: var(--a2ui-spacing-l) 0;
+        font-family: var(--a2ui-font-family);
+      }
+      .chat-container {
+        background: color-mix(in oklab, var(--a2ui-color-surface) 95%, black);
+        border: 1px solid var(--a2ui-color-border);
+        border-radius: 16px;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+      }
     .chat-header {
       background: var(--a2ui-color-surface);
       padding: 12px 16px;
@@ -34,8 +36,7 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
       display: flex;
       flex-direction: column;
       gap: 16px;
-      max-height: 600px;
-      overflow-y: auto;
+      overflow: visible;
     }
     
     /* Message Row */
@@ -170,7 +171,8 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-4px); }
     }
-  `;
+  `
+];
 
   @state() private visibleMessageCount = 0;
   @state() private isTyping = false;

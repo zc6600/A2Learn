@@ -172,14 +172,15 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
           LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue,
           Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.
         - 6-STEP PROBLEM-DRIVEN MODULE METHODOLOGY (6 步问题驱动教学法则):
-          Every module MUST strictly follow these 6 sequential steps:
+          Every module MUST strictly follow these 6 sequential steps internally:
           1. 介绍背景，引出现实问题 (Background & Practical Pain Point)
           2. 从第一性原理出发建立基本模型 + Naive 解决方案及其缺陷 (First-Principles Model & Naive Solution + Why Naive fails)
           3. 介绍解决思路 Mindset (Paradigm Shift / Core Breakthrough Mindset)
           4. Mindset 的实际落地方式 (具体回答/工程方案。若落地衍生新工程难题，则在新 Module 中开启下一轮 6 步探索)
           5. 本模块总结 (Module Summary / Key Takeaway)
           6. 术语逻辑盘点与记忆锚点 (Do NOT evade technical jargon! Thoroughly explain each term as a key memory anchor ⚓).
-          Note: Metaphors and Problem-Driven methodology are independent. Explain technical terms boldly with complete explanations!
+        - NATURAL USER-FACING TITLES (自然面向读者的标题):
+          When outputting component titles, write natural, engaging headlines directly. NEVER print internal methodology labels like "Step 1 | 介绍背景", "Step 2 | 第一性原理", "Step 3 | Mindset", or "Step 4 | 实际落地" in the title strings!
         - GLOSSARY ANNOTATION: When mentioning obscure, technical, or precursor concepts in explanations (such as algorithms, metrics, or mechanisms), wrap them with a semantic HTML definition tag: <dfn title="一句话通俗注解">生僻概念</dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法">开放寻址法</dfn> 解决。"
         - Output format example:
           [
