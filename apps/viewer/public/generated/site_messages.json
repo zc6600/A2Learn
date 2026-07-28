@@ -17,6 +17,7 @@
           "children": [
             "header",
             "learning-path",
+            "chat-intro",
             "problem-intro",
             "concept-idea",
             "mental-model-hash",
@@ -51,6 +52,37 @@
             {
               "id": "4",
               "title": "4. 解决方案：挂长链 vs 找邻居"
+            }
+          ]
+        },
+        {
+          "id": "chat-intro",
+          "component": "ScenarioDialogue",
+          "topic": "💬 微信技术群：为什么我的代码在 100 万条数据里搜得这么慢？",
+          "characters": {
+            "alice": {
+              "name": "小白程序员 (Alice)",
+              "avatar": "👩‍💻",
+              "alignment": "left"
+            },
+            "boss_zhang": {
+              "name": "架构师老张",
+              "avatar": "👨‍💼",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alice",
+              "content": "张老大！我写了个用户查询，在 100 万条数据里用数组遍历找人，CPU 直接飙到 100%，耗时 800 毫秒！怎么才能像秒杀一样快啊？"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "哈哈，你这是在用 <dfn title=\"按顺序一个个比对数据的线性查找方式\">顺序查找 O(N)</dfn>！100 万个人你得问 100 万次。如果改用哈希表（Hash Map），能直接从名字算出存储位置，查找时间直接降到 O(1)！"
+            },
+            {
+              "characterId": "alice",
+              "content": "惊了！不用挨个比对，居然能直接‘算’出位置？这背后到底是怎么做到的？"
             }
           ]
         },
@@ -141,9 +173,11 @@
           "children": [
             "header-2",
             "learning-path-2",
+            "chat-collision",
             "problem-collision",
             "mental-model-collision",
             "detailed-explanation-2",
+            "quiz-card",
             "cloze-test"
           ]
         },
@@ -174,6 +208,41 @@
             {
               "id": "4",
               "title": "4. 解决方案：挂长链 vs 找邻居"
+            }
+          ]
+        },
+        {
+          "id": "chat-collision",
+          "component": "ScenarioDialogue",
+          "topic": "💬 微信技术群：惨了！两个人居然算出了同一个车位号！",
+          "characters": {
+            "alice": {
+              "name": "小白程序员 (Alice)",
+              "avatar": "👩‍💻",
+              "alignment": "left"
+            },
+            "boss_zhang": {
+              "name": "架构师老张",
+              "avatar": "👨‍💼",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alice",
+              "content": "老大！我试了下哈希算号，结果用户 'Alice' 和 'David' 居然算出了相同的索引 5！后面存的把前面的覆盖掉了，这不就丢数据了吗？😱"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "别慌！这就是必然会发生的“哈希碰撞”。你想想，如果停车场 5 号车位被占了，你有两种办法：要么在 5 号车位上面建一个双层吊架（链地址法），要么顺着往前开找 6 号空位（开放寻址法）。"
+            },
+            {
+              "characterId": "alice",
+              "content": "懂了！挂吊架就是链表，找邻居就是开新格子！那 Java 和 Python 都是怎么选的呀？"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "Java 的 HashMap 选了挂链表；而 Python 的 dict 则选了寻找邻居空位，充分发挥 CPU 缓存优势！"
             }
           ]
         },
@@ -222,6 +291,32 @@
           "icon": "⚖️",
           "estimatedReadTime": "3 分钟阅读",
           "content": "理解了问题之后，选择哪种技术方案就非常明确了：\n\n**链地址法（挂长链表）**：\n- 优点：永远不会装满，哪怕装了超过容量的数据也能挂下去。\n- 缺点：需要指针开销，且内存不连续，对 CPU 缓存不够友好。\n\n**开放地址法（找邻居空位）**：\n- 优点：所有数据紧密挨在数组里，充分利用 CPU 缓存，速度极快。\n- 缺点：当数组快装满（<dfn title=\"已用元素与总容量的比值\">负载因子</dfn> 超过 0.7）时，找空位的效率会剧减，需要做 <dfn title=\"分配更大新数组并重新计算所有数据编号\">动态扩容</dfn>。\n\n> 💡 极简总结：追求简单高容错选链地址法；追求极致内存与缓存效率选开放地址法。"
+        },
+        {
+          "id": "quiz-card",
+          "component": "QuizCard",
+          "title": "🧠 快速小测验：理解检验",
+          "question": "当哈希表中发生碰撞，且希望数据全都在连续内存中、获得最佳 CPU 缓存效率时，应该优先选择哪种方案？",
+          "options": [
+            {
+              "id": "opt1",
+              "text": "A. 链地址法 (Separate Chaining)"
+            },
+            {
+              "id": "opt2",
+              "text": "B. 开放寻址法 (Open Addressing)"
+            },
+            {
+              "id": "opt3",
+              "text": "C. 放弃存储"
+            },
+            {
+              "id": "opt4",
+              "text": "D. 重新排序数组"
+            }
+          ],
+          "correctOptionId": "opt2",
+          "explanation": "开放寻址法将所有数据直接连续存放在数组中，没有链表指针开销，因此具有极佳的 CPU 缓存局部性。"
         },
         {
           "id": "cloze-test",

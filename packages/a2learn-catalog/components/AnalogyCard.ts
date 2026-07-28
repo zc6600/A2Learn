@@ -21,7 +21,7 @@ export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCard
       border-radius: 16px;
       padding: 24px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-      overflow: hidden;
+      overflow: visible;
     }
     /* Playful decorative quote mark */
     .analogy-container::before {

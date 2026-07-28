@@ -16,7 +16,7 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       border: 1px solid var(--a2ui-color-border);
       border-radius: var(--a2ui-border-radius);
       background: var(--a2ui-color-surface);
-      overflow: hidden;
+      overflow: visible;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       transition: box-shadow 0.2s ease;
     }

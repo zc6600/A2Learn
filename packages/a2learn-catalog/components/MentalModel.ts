@@ -17,7 +17,7 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
       border: 1px solid var(--a2ui-color-border, #e2e8f0);
       border-radius: var(--a2ui-border-radius, 16px);
       background: var(--a2ui-color-surface, #ffffff);
-      overflow: hidden;
+      overflow: visible;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
