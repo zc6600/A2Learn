@@ -417,6 +417,106 @@ export function injectBaseTheme(): void {
       font-size: 0.875em;
       border: 1px solid rgba(99, 102, 241, 0.18);
     }
+
+    /* Term Tooltip Styling (Just-In-Time Glossary) */
+    .a2learn-term-tooltip {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      color: #0d9488;
+      font-weight: 600;
+      text-decoration: underline dotted #0d9488;
+      text-underline-offset: 4px;
+      cursor: help;
+      padding: 0 4px;
+      border-radius: 4px;
+      background: rgba(13, 148, 136, 0.05);
+      transition: all 0.2s ease;
+    }
+    .a2learn-term-tooltip:hover,
+    .a2learn-term-tooltip:focus {
+      background: rgba(13, 148, 136, 0.12);
+    }
+    .a2learn-term-tooltip .term-badge {
+      font-size: 11px;
+      opacity: 0.75;
+    }
+    .a2learn-term-tooltip .tooltip-popup {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      bottom: 130%;
+      left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      width: 250px;
+      padding: 12px 14px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+      z-index: 999;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+      white-space: normal;
+      font-weight: normal;
+      text-decoration: none;
+      color: #111827;
+      line-height: 1.5;
+    }
+    .a2learn-term-tooltip .tooltip-popup::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px;
+      border-style: solid;
+      border-color: #ffffff transparent transparent transparent;
+    }
+    .a2learn-term-tooltip:hover .tooltip-popup,
+    .a2learn-term-tooltip:focus .tooltip-popup {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+    .a2learn-term-tooltip .tooltip-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0d9488;
+    }
+    .a2learn-term-tooltip .tooltip-desc {
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #374151;
+      margin: 0;
+    }
+    .a2learn-term-tooltip .tooltip-explore-btn {
+      margin-top: 4px;
+      background: #f9fafb;
+      color: #0d9488;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+    .a2learn-term-tooltip .tooltip-explore-btn:hover {
+      background: #0d9488;
+      color: #ffffff;
+      border-color: #0d9488;
+    }
     @media (prefers-color-scheme: dark) {
       pre {
         background: #0d1117;

@@ -174,8 +174,7 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
         - Use MentalModel to introduce complex structural concepts from a high level (using description, pillars/elements, analogy, and diagrams).
         - Use DetailedExplanation to provide deep, detailed, and markdown-rich explanations/articles of specific mechanisms, architectures, or topics.
         - IMPORTANT: InteractiveSandbox and CodeSnippet components should ONLY be generated when the topic/course is explicitly about coding, programming, or software engineering. NEVER use code block or sandbox components in general science, biology, history, or non-programming subjects, as they distract general learners.
-        - Use stable IDs and keep components connected under a root layout. The root component of each surface MUST have the ID "root".
-        - Use Chinese text for learner-facing content.
+        - GLOSSARY ANNOTATION: When mentioning obscure, technical, or precursor concepts in explanations (such as algorithms, metrics, or mechanisms), wrap them with a semantic HTML definition tag: <dfn title="一句话通俗注解">生僻概念</dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法">开放寻址法</dfn> 解决。"
         - Output format example:
           [
             {{"version":"v0.9","createSurface":{{"surfaceId":"main","catalogId":"{DEFAULT_CATALOG_ID}"}}}},

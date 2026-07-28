@@ -44,7 +44,7 @@
           "component": "ConceptCard",
           "title": "Promise",
           "tags": ["JavaScript", "Async", "ES6"],
-          "definition": "A <b>Promise</b> object represents the eventual completion (or failure) of an asynchronous operation and its resulting value. It has three states: <code>pending</code> (in progress), <code>fulfilled</code> (succeeded), and <code>rejected</code> (failed). Once the state changes, it will not change again.",
+          "definition": "A <b>Promise</b> object represents the eventual completion of an <dfn title=\"无需等待结果返回即可继续执行后续代码的非阻塞操作\">asynchronous operation</dfn>. It relies on the <dfn title=\"浏览器处理微任务与宏任务调度的单线程事件轮询机制\">Event Loop</dfn> and maintains three states: <code>pending</code>, <code>fulfilled</code>, and <code>rejected</code>.",
           "example": "<pre><code>const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    resolve('Success!');\n  }, 1000);\n});\n\npromise.then((value) => {\n  console.log(value); // \"Success!\"\n});</code></pre>",
           "relatedConcepts": ["async / await", "Event Loop", "Microtask Queue"]
         },
