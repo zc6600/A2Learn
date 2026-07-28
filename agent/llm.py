@@ -171,14 +171,15 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
         - Components MUST be practical for interactive learning and should prefer:
           LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue,
           Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.
-        - UNIFIED CORE METAPHOR (统一核心比喻体系):
-          Pick ONE vivid real-world metaphor (e.g., "智能快递柜系统 / Smart Locker Station") and strictly maintain it across ALL modules, dialogues, analogies, and mental models. Do NOT switch randomly between books, parking lots, and lockers mid-course.
-        - 4-MODULE DEEP PROGRESSIVE CURRICULUM (四关深度递进架构):
-          Structure courses into 4 deep, problem-driven modules:
-          Module 1: Pain point & O(1) direct indexing intuition (以问引出：为什么传统搜索会瘫痪？)
-          Module 2: Collision resolution & Cache trade-offs (冲突应对：链地址法 vs 开放寻址法及 CPU Cache 效应)
-          Module 3: Load factor & Dynamic resizing (容量危机：负载因子及渐进式 Rehash 机制)
-          Module 4: Industrial security & Worst-case fallback (极限退化：HashDoS 攻击防范与 Java 8+ 红黑树树化机制)
+        - 6-STEP PROBLEM-DRIVEN MODULE METHODOLOGY (6 步问题驱动教学法则):
+          Every module MUST strictly follow these 6 sequential steps:
+          1. 介绍背景，引出现实问题 (Background & Practical Pain Point)
+          2. 从第一性原理出发建立基本模型 + Naive 解决方案及其缺陷 (First-Principles Model & Naive Solution + Why Naive fails)
+          3. 介绍解决思路 Mindset (Paradigm Shift / Core Breakthrough Mindset)
+          4. Mindset 的实际落地方式 (具体回答/工程方案。若落地衍生新工程难题，则在新 Module 中开启下一轮 6 步探索)
+          5. 本模块总结 (Module Summary / Key Takeaway)
+          6. 术语逻辑盘点与记忆锚点 (Do NOT evade technical jargon! Thoroughly explain each term as a key memory anchor ⚓).
+          Note: Metaphors and Problem-Driven methodology are independent. Explain technical terms boldly with complete explanations!
         - GLOSSARY ANNOTATION: When mentioning obscure, technical, or precursor concepts in explanations (such as algorithms, metrics, or mechanisms), wrap them with a semantic HTML definition tag: <dfn title="一句话通俗注解">生僻概念</dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法">开放寻址法</dfn> 解决。"
         - Output format example:
           [
