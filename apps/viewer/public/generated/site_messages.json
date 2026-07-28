@@ -2,27 +2,25 @@
   {
     "version": "v0.9",
     "createSurface": {
-      "surfaceId": "main",
+      "surfaceId": "surface-module-1",
       "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
     }
   },
   {
     "version": "v0.9",
     "updateComponents": {
-      "surfaceId": "main",
+      "surfaceId": "surface-module-1",
       "components": [
         {
           "id": "root",
           "component": "Column",
           "children": [
             "header",
-            "intro-text",
             "learning-path",
             "concept",
             "mental-model",
-            "sandbox",
-            "quiz",
             "detailed-explanation",
+            "sandbox",
             "resources"
           ]
         },
@@ -30,187 +28,651 @@
           "id": "header",
           "component": "Text",
           "variant": "h1",
-          "text": "哈希映射（Hash Map）入门"
-        },
-        {
-          "id": "intro-text",
-          "component": "Text",
-          "text": "哈希映射是一种高效的数据结构，通过键直接访问值，平均时间复杂度为 O(1)。本课程将带你从零理解其工作原理、冲突处理策略以及实际应用。"
+          "text": "哈希表（Hash Map）基础概念"
         },
         {
           "id": "learning-path",
           "component": "LearningPath",
-          "title": "学习路径：掌握哈希映射",
+          "title": "哈希表学习路径",
           "activeStepId": "1",
           "steps": [
             {
               "id": "1",
-              "title": "理解哈希函数"
+              "title": "基础概念"
             },
             {
               "id": "2",
-              "title": "数组与桶"
+              "title": "冲突解决"
             },
             {
               "id": "3",
-              "title": "冲突解决：链地址法"
+              "title": "时间复杂度"
             },
             {
               "id": "4",
-              "title": "冲突解决：开放地址法"
-            },
-            {
-              "id": "5",
-              "title": "动态扩容与负载因子"
+              "title": "实际应用"
             }
-          ],
-          "onStepSelect": {
-            "name": "learning_path_select",
-            "context": {}
-          }
+          ]
         },
         {
           "id": "concept",
           "component": "ConceptCard",
-          "title": "哈希映射",
+          "title": "哈希表（Hash Table）",
           "tags": [
             "数据结构",
-            "哈希表",
-            "键值对",
-            "O(1)"
+            "哈希",
+            "键值对"
           ],
-          "definition": "哈希映射（Hash Map）是一种基于<strong>哈希函数</strong>将键映射到数组索引的数据结构。它通过计算键的哈希值，快速定位存储位置，实现<code>插入</code>、<code>查找</code>、<code>删除</code>操作的平均 O(1) 时间复杂度。",
-          "example": "假设有一个哈希映射存储学生成绩：<br><pre><code>map = {}\nmap[\"Alice\"] = 95\nmap[\"Bob\"] = 87\nprint(map[\"Alice\"])  # 输出 95</code></pre>",
+          "definition": "<b>哈希表</b>是一种通过<b>哈希函数</b>将键（Key）映射到数组索引的数据结构，实现平均 O(1) 时间复杂度的插入、删除和查找操作。核心思想是：<br><br>1. 使用哈希函数将任意类型的键转换为整数（哈希值）<br>2. 对哈希值取模（或位运算）得到数组下标<br>3. 将键值对存储在该下标对应的桶（Bucket）中<br><br>当多个键映射到同一索引时，发生<b>哈希冲突</b>，需要额外处理。",
+          "example": "<pre><code>// 简单哈希表示例（JavaScript）\nclass SimpleHashMap {\n  constructor(size = 10) {\n    this.buckets = new Array(size);\n  }\n  _hash(key) {\n    let hash = 0;\n    for (let i = 0; i < key.length; i++) {\n      hash += key.charCodeAt(i);\n    }\n    return hash % this.buckets.length;\n  }\n  set(key, value) {\n    const index = this._hash(key);\n    this.buckets[index] = [key, value];\n  }\n  get(key) {\n    const index = this._hash(key);\n    const entry = this.buckets[index];\n    return entry ? entry[1] : undefined;\n  }\n}\n\nconst map = new SimpleHashMap();\nmap.set('name', 'Alice');\nconsole.log(map.get('name')); // 'Alice'</code></pre>",
           "relatedConcepts": [
             "哈希函数",
+            "哈希冲突",
             "负载因子",
-            "冲突",
-            "字典",
-            "集合"
+            "动态扩容"
           ]
         },
         {
           "id": "mental-model",
           "component": "MentalModel",
-          "title": "储物柜系统",
-          "description": "想象一个大型储物柜阵列，每个柜子有一个编号。你有一个物品（键）和一个对应的物品（值）。你需要快速存放和取出。哈希函数就像一把钥匙，能根据物品名称计算出柜子编号。如果两个物品算出相同编号（冲突），就在那个柜子里放一个多层架子（链表或树）。",
-          "icon": "🗄️",
-          "analogy": "就像图书馆的索书号系统：每本书有一个唯一的索书号（哈希值），根据索书号可以快速找到书架位置。如果多本书共享同一个索书号（冲突），它们会被放在同一排架子上，用标签区分。",
-          "diagram": "┌─────────┐\n│ 哈希函数 │\n└────┬────┘\n     │\n     ▼\n┌────┴────┐\n│ 数组索引 │\n└────┬────┘\n     │\n     ▼\n┌─────────┐\n│ 桶(链表) │\n│ ┌───┐   │\n│ │ k1│v1│ │\n│ ├───┤   │\n│ │ k2│v2│ │\n│ └───┘   │\n└─────────┘",
+          "title": "哈希映射心智模型",
+          "description": "哈希表的核心思想是将键通过哈希函数转化为数组索引，实现直接存取。就像图书馆的索引系统：每本书有一个唯一的编号（哈希值），告诉你它在书架上的精确位置。",
+          "icon": "📚",
+          "analogy": "想象你有一个巨大的<b>储物柜阵列</b>，每个柜子有编号 0 到 N-1。你有一堆物品（键值对），每个物品上贴着一个标签（键）。你需要一个快速的方法决定每个物品放进哪个柜子。哈希函数就像一台<b>标签扫描仪</b>：扫描标签后输出一个数字，你把这个数字对 N 取模，就得到了柜子编号。这样，你可以在 O(1) 时间内找到任何物品。",
+          "diagram": "[键（Key）] ──> [哈希函数] ──> [哈希值] ──> [取模] ──> [数组索引] ──> [存储值（Value）]\n\n例如：\n键 \"apple\" ──> hash(\"apple\") = 97+112+112+108+101 = 530 ──> 530 % 10 = 0 ──> 存入 buckets[0]",
           "pillars": [
             {
               "title": "哈希函数",
-              "description": "将任意大小的键转换为固定范围整数的函数。好的哈希函数应均匀分布、计算快速。",
-              "icon": "🔑"
+              "description": "将任意类型的键转换为整数的函数，要求计算快速且输出分布均匀，减少冲突。",
+              "icon": "🔢"
             },
             {
-              "title": "数组与桶",
-              "description": "底层使用数组存储桶（bucket），每个桶可以是一个链表或红黑树，用于存放哈希值相同的键值对。",
-              "icon": "📦"
+              "title": "数组（桶）",
+              "description": "底层存储结构，每个位置称为一个桶（Bucket），用于存放键值对。",
+              "icon": "🗄️"
             },
             {
-              "title": "冲突解决",
-              "description": "当两个键的哈希值相同时，需要策略处理。常见方法：链地址法（链表）、开放地址法（探测空位）。",
-              "icon": "⚔️"
-            },
-            {
-              "title": "动态扩容",
-              "description": "当元素数量超过负载因子阈值时，数组大小翻倍并重新哈希所有键，以保持操作效率。",
-              "icon": "📈"
-            }
-          ]
-        },
-        {
-          "id": "sandbox",
-          "component": "InteractiveSandbox",
-          "title": "动手试试：模拟哈希映射",
-          "description": "下面的 JavaScript 代码模拟了一个简单的哈希映射（使用链地址法）。你可以修改键值对，观察冲突和查找过程。",
-          "language": "javascript",
-          "code": "class SimpleHashMap {\n  constructor(size = 10) {\n    this.size = size;\n    this.buckets = new Array(size).fill(null).map(() => []);\n  }\n  _hash(key) {\n    let hash = 0;\n    for (let char of key) {\n      hash += char.charCodeAt(0);\n    }\n    return hash % this.size;\n  }\n  set(key, value) {\n    const index = this._hash(key);\n    const bucket = this.buckets[index];\n    for (let pair of bucket) {\n      if (pair[0] === key) {\n        pair[1] = value;\n        return;\n      }\n    }\n    bucket.push([key, value]);\n  }\n  get(key) {\n    const index = this._hash(key);\n    const bucket = this.buckets[index];\n    for (let pair of bucket) {\n      if (pair[0] === key) return pair[1];\n    }\n    return undefined;\n  }\n}\n\nconst map = new SimpleHashMap();\nmap.set('apple', 5);\nmap.set('banana', 3);\nmap.set('grape', 7);\nconsole.log(map.get('apple'));  // 5\nconsole.log(map.get('banana')); // 3\nconsole.log(map.get('cherry')); // undefined",
-          "status": "success",
-          "output": "5\n3\nundefined",
-          "onRunCode": {
-            "name": "run_sandbox_code",
-            "context": {}
-          },
-          "onStatusChange": {
-            "name": "sandbox_status_change",
-            "context": {}
-          }
-        },
-        {
-          "id": "quiz",
-          "component": "QuizCard",
-          "title": "概念检查：哈希映射",
-          "questions": [
-            {
-              "id": "q1",
-              "question": "哈希映射的平均时间复杂度是多少？",
-              "options": [
-                "O(1)",
-                "O(log n)",
-                "O(n)",
-                "O(n²)"
-              ],
-              "correctIndex": 0,
-              "explanation": "在良好设计的哈希函数和合理负载因子下，插入、查找、删除的平均时间复杂度为 O(1)。最坏情况（所有键冲突）可能退化为 O(n)。"
-            },
-            {
-              "id": "q2",
-              "question": "以下哪种方法不是常见的哈希冲突解决策略？",
-              "options": [
-                "链地址法",
-                "开放地址法",
-                "二分查找法",
-                "再哈希法"
-              ],
-              "correctIndex": 2,
-              "explanation": "二分查找法用于有序数组，不是冲突解决策略。链地址法、开放地址法和再哈希法都是常见策略。"
-            },
-            {
-              "id": "q3",
-              "question": "负载因子（load factor）的作用是什么？",
-              "options": [
-                "决定哈希函数强度",
-                "控制数组扩容时机",
-                "计算键的哈希值",
-                "决定桶的大小"
-              ],
-              "correctIndex": 1,
-              "explanation": "负载因子 = 元素数量 / 数组长度。当负载因子超过阈值（如 0.75）时，哈希表会扩容并重新哈希，以保持性能。"
+              "title": "键值对映射",
+              "description": "通过哈希函数将键映射到桶索引，实现 O(1) 的存取操作。",
+              "icon": "🔗"
             }
           ]
         },
         {
           "id": "detailed-explanation",
           "component": "DetailedExplanation",
-          "title": "深入理解：哈希映射的机制与权衡",
-          "icon": "🔍",
-          "estimatedReadTime": "5 分钟",
-          "content": "## 核心机制\n\n哈希映射的核心是**哈希函数**将键映射到数组索引。理想情况下，哈希函数应均匀分布，避免冲突。实际中冲突不可避免，因此需要冲突解决策略。\n\n### 链地址法（Separate Chaining）\n每个桶是一个链表（或红黑树）。插入时直接追加到链表；查找时遍历链表。当链表过长时，性能下降，Java 8 中当链表长度超过 8 时转为红黑树（O(log n)）。\n\n### 开放地址法（Open Addressing）\n所有元素直接存储在数组中，冲突时通过探测序列寻找下一个空位。常见探测方式：线性探测、二次探测、双重哈希。删除时需使用惰性删除标记。\n\n## 权衡与优化\n\n- **负载因子**：链地址法通常设为 0.75，开放地址法更低（如 0.5）。负载因子越小，冲突越少，但空间浪费越大。\n- **哈希函数质量**：简单取模可能导致分布不均，工业实现使用更复杂的位运算（如 Java 的 `hashCode()` 扰动函数）。\n- **扩容成本**：扩容需要重新哈希所有键，是 O(n) 操作，但均摊到每次插入后仍为 O(1)。\n\n## 实际应用\n\n- 编程语言内置字典（Python dict、Java HashMap、JavaScript Map）\n- 缓存系统（Redis、Memcached）\n- 数据库索引（部分实现使用哈希索引）\n- 去重、计数等场景"
+          "title": "深入理解哈希函数与索引映射",
+          "icon": "📝",
+          "estimatedReadTime": "3 分钟阅读",
+          "content": "哈希函数是哈希表的核心。一个好的哈希函数应该满足以下特性：\n\n- **确定性**：相同的键必须产生相同的哈希值。\n- **高效性**：计算哈希值的时间复杂度应为 O(1) 或 O(k)（k 为键的长度）。\n- **均匀性**：哈希值应尽可能均匀分布在整个输出空间，以减少冲突。\n\n常见的哈希函数包括：\n- **除留余数法**：`hash(key) = key % table_size`（适用于整数键）\n- **乘法哈希**：`hash(key) = floor(table_size * (key * A % 1))`，其中 A 为黄金比例倒数。\n- **字符串哈希**：将字符串视为多进制数，如 `hash = (hash * 31 + char) % table_size`（Java String 的 hashCode 类似）。\n\n**索引映射**：得到哈希值后，通常通过取模运算 `index = hash % capacity` 将哈希值映射到数组下标。为了性能，容量通常取 2 的幂，此时可以用位运算 `index = hash & (capacity - 1)` 替代取模。\n\n> 💡 注意：哈希函数的设计直接影响哈希表的性能。如果哈希函数导致大量冲突，哈希表会退化为链表，时间复杂度从 O(1) 恶化为 O(n)。"
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "动手试试：简单哈希表",
+          "description": "运行下面的代码，观察一个简单哈希表的插入和查找过程。注意：此实现未处理冲突，仅用于演示基本映射。",
+          "language": "javascript",
+          "code": "class SimpleHashMap {\n  constructor(size = 10) {\n    this.buckets = new Array(size);\n  }\n  _hash(key) {\n    let hash = 0;\n    for (let i = 0; i < key.length; i++) {\n      hash += key.charCodeAt(i);\n    }\n    return hash % this.buckets.length;\n  }\n  set(key, value) {\n    const index = this._hash(key);\n    this.buckets[index] = [key, value];\n    console.log(`插入键 \"${key}\" 到索引 ${index}`);\n  }\n  get(key) {\n    const index = this._hash(key);\n    const entry = this.buckets[index];\n    if (entry && entry[0] === key) {\n      console.log(`找到键 \"${key}\" 在索引 ${index}，值为 ${entry[1]}`);\n      return entry[1];\n    }\n    console.log(`键 \"${key}\" 未找到`);\n    return undefined;\n  }\n}\n\nconst map = new SimpleHashMap();\nmap.set('name', 'Alice');\nmap.set('age', 25);\nmap.get('name');\nmap.get('age');\nmap.get('gender');",
+          "runLocally": true
         },
         {
           "id": "resources",
           "component": "ResourceList",
-          "title": "参考资源",
+          "title": "推荐资源",
           "resources": [
             {
-              "title": "Wikipedia: Hash table",
-              "url": "https://en.wikipedia.org/wiki/Hash_table",
-              "description": "哈希表的详细百科，包含各种冲突解决方法和复杂度分析。",
+              "title": "维基百科：哈希表",
+              "url": "https://zh.wikipedia.org/wiki/%E5%93%88%E5%B8%8C%E8%A1%A8",
+              "description": "哈希表的详细百科介绍，包含各种冲突解决方法和复杂度分析。",
+              "type": "wiki"
+            },
+            {
+              "title": "MDN：Map 对象",
+              "url": "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Map",
+              "description": "JavaScript 内置的哈希表实现——Map 对象的文档。",
               "type": "doc"
             },
             {
-              "title": "Java HashMap 源码分析",
-              "url": "https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/HashMap.html",
-              "description": "Java HashMap 官方文档，了解工业级实现细节。",
-              "type": "doc"
+              "title": "Visualgo：哈希表可视化",
+              "url": "https://visualgo.net/zh/hashtable",
+              "description": "交互式哈希表可视化工具，直观展示插入、查找和冲突解决过程。",
+              "type": "article"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface-module-2",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface-module-2",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "learning-path",
+            "concept",
+            "mental-model",
+            "detailed-explanation",
+            "cloze-test",
+            "drag-match",
+            "sandbox"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "哈希冲突与解决方法"
+        },
+        {
+          "id": "learning-path",
+          "component": "LearningPath",
+          "title": "哈希表学习路径",
+          "activeStepId": "2",
+          "steps": [
+            {
+              "id": "1",
+              "title": "基础概念"
             },
             {
-              "title": "哈希表可视化（CS USF）",
-              "url": "https://www.cs.usfca.edu/~galles/visualization/OpenHash.html",
-              "description": "交互式可视化工具，直观展示哈希表插入、查找、冲突过程。",
-              "type": "video"
+              "id": "2",
+              "title": "冲突解决"
+            },
+            {
+              "id": "3",
+              "title": "时间复杂度"
+            },
+            {
+              "id": "4",
+              "title": "实际应用"
+            }
+          ]
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "哈希冲突",
+          "tags": [
+            "哈希冲突",
+            "链地址法",
+            "开放地址法"
+          ],
+          "definition": "<b>哈希冲突</b>指两个不同的键通过哈希函数计算后得到相同的数组索引。由于数组容量有限，冲突不可避免。常见的解决方法有：<br><br><b>① 链地址法（Separate Chaining）</b>：每个桶存储一个链表（或其他数据结构），冲突的键值对追加到链表中。<br><br><b>② 开放地址法（Open Addressing）</b>：当冲突发生时，在数组中寻找下一个空闲位置。常见探测方式：<br> - 线性探测：`index = (hash + i) % capacity`<br> - 二次探测：`index = (hash + i^2) % capacity`<br> - 双重哈希：`index = (hash + i * hash2(key)) % capacity`",
+          "example": "<pre><code>// 链地址法示例（伪代码）\nclass ChainedHashMap {\n  buckets = new Array(size);\n  _hash(key) { return key.hashCode() % size; }\n  put(key, value) {\n    int index = _hash(key);\n    if (buckets[index] == null) {\n      buckets[index] = new LinkedList();\n    }\n    buckets[index].add(new Entry(key, value));\n  }\n  get(key) {\n    int index = _hash(key);\n    LinkedList list = buckets[index];\n    for (Entry e : list) {\n      if (e.key.equals(key)) return e.value;\n    }\n    return null;\n  }\n}</code></pre>",
+          "relatedConcepts": [
+            "负载因子",
+            "动态扩容",
+            "完美哈希"
+          ]
+        },
+        {
+          "id": "mental-model",
+          "component": "MentalModel",
+          "title": "冲突解决心智模型",
+          "description": "哈希冲突就像多个物品被分配到同一个储物柜。链地址法允许柜子里放一个抽屉（链表）来容纳多个物品；开放地址法则是在柜子满了时，去旁边的空柜子寻找位置。",
+          "icon": "🔀",
+          "analogy": "想象一个<b>停车场</b>，每个车位对应一个哈希值。当两辆车（键）被分配到同一个车位时：<br>• <b>链地址法</b>：在该车位上方搭建一个多层停车架，所有分配到该车位的车都停在这个架子上（链表）。<br>• <b>开放地址法</b>：如果车位被占，司机就按规则（线性探测：依次检查下一个车位；二次探测：检查第1、4、9...个车位）寻找空位。",
+          "diagram": "链地址法：\n[索引0] -> [键A,值] -> [键B,值] -> null\n[索引1] -> [键C,值] -> null\n[索引2] -> null\n...\n\n开放地址法（线性探测）：\n插入键D，哈希到索引2，但索引2已被占，则检查索引3，若空则放入。",
+          "pillars": [
+            {
+              "title": "链地址法",
+              "description": "每个桶维护一个链表，冲突元素追加到链表末尾。简单易实现，但链表过长时性能下降。",
+              "icon": "⛓️"
+            },
+            {
+              "title": "线性探测",
+              "description": "冲突后顺序检查下一个桶，直到找到空位。容易产生聚集（Clustering）现象。",
+              "icon": "➡️"
+            },
+            {
+              "title": "二次探测",
+              "description": "冲突后检查索引偏移 i² 的位置，减少聚集，但可能无法遍历所有桶。",
+              "icon": "📈"
+            },
+            {
+              "title": "双重哈希",
+              "description": "使用第二个哈希函数计算探测步长，分布更均匀，但计算开销稍大。",
+              "icon": "🔁"
+            }
+          ]
+        },
+        {
+          "id": "detailed-explanation",
+          "component": "DetailedExplanation",
+          "title": "深入对比：链地址法与开放地址法",
+          "icon": "⚖️",
+          "estimatedReadTime": "4 分钟阅读",
+          "content": "**链地址法** 是最常用的冲突解决方法，Java 的 HashMap 和 Python 的 dict（早期版本）都采用此方法。其优点：\n- 实现简单，插入和删除操作容易。\n- <dfn title=\"哈希表中实际填入元素数量与数组总容量的比值 (size / capacity)\">负载因子</dfn> 可以大于 1（链表可以无限增长）。\n- 对哈希函数要求较低。\n缺点：\n- 需要额外的内存存储链表节点。\n- 缓存不友好，链表节点在内存中不连续。\n\n**开放地址法** 将所有元素直接存储在数组中，无需额外指针。优点：\n- 内存利用率高，无链表开销。\n- 缓存友好，数据连续存储。\n缺点：\n- 负载因子必须小于 1，否则无法插入。\n- 删除操作复杂（需要 <dfn title=\"删除时不立即回收节点，而是打上已删标记以维护后续探测路径\">惰性删除</dfn> 标记）。\n- 容易产生聚集，影响性能。\n\n**实际选择**：\n- 链地址法适用于负载因子较高、插入删除频繁的场景。\n- 开放地址法适用于负载因子较低、对缓存性能要求高的场景（如某些嵌入式系统）。\n\n> 💡 现代哈希表实现通常结合两者：当链表长度超过阈值（如 8）时，将链表转换为 <dfn title=\"一种自平衡二叉查找树，可确保在最坏情况下查找时间复杂度仍为 O(log N)\">红黑树</dfn>（如 Java 8+ HashMap），以应对最坏情况。"
+        },
+        {
+          "id": "cloze-test",
+          "component": "ClozeTest",
+          "text": "哈希冲突的两种主要解决方法是 ___ 和 ___。链地址法在每个桶中维护一个 ___，而开放地址法通过 ___ 寻找下一个空闲位置。线性探测的缺点是容易产生 ___ 现象。",
+          "correctAnswers": [
+            "链地址法",
+            "开放地址法",
+            "链表",
+            "探测",
+            "聚集"
+          ],
+          "explanation": "**解析：**\n- 链地址法（Separate Chaining）在每个桶中维护一个链表，冲突元素追加到链表。\n- 开放地址法（Open Addressing）通过探测（Probing）寻找下一个空闲位置。\n- 线性探测（Linear Probing）顺序检查下一个桶，容易导致连续被占用的聚集（Clustering）现象。"
+        },
+        {
+          "id": "drag-match",
+          "component": "DragAndDropMatch",
+          "leftItems": [
+            {
+              "id": "chaining",
+              "content": "链地址法"
+            },
+            {
+              "id": "linear",
+              "content": "线性探测"
+            },
+            {
+              "id": "quadratic",
+              "content": "二次探测"
+            },
+            {
+              "id": "double",
+              "content": "双重哈希"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "r1",
+              "content": "探测步长固定为 1，容易产生聚集"
+            },
+            {
+              "id": "r2",
+              "content": "每个桶维护一个链表，冲突元素追加"
+            },
+            {
+              "id": "r3",
+              "content": "使用第二个哈希函数计算步长，分布均匀"
+            },
+            {
+              "id": "r4",
+              "content": "探测步长为 i²，减少聚集"
+            }
+          ],
+          "correctMatches": {
+            "chaining": "r2",
+            "linear": "r1",
+            "quadratic": "r4",
+            "double": "r3"
+          }
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "动手试试：链地址法实现",
+          "description": "运行下面的代码，观察链地址法如何处理冲突。",
+          "language": "javascript",
+          "code": "class ChainedHashMap {\n  constructor(size = 5) {\n    this.buckets = new Array(size).fill(null).map(() => []);\n  }\n  _hash(key) {\n    let hash = 0;\n    for (let i = 0; i < key.length; i++) {\n      hash += key.charCodeAt(i);\n    }\n    return hash % this.buckets.length;\n  }\n  set(key, value) {\n    const index = this._hash(key);\n    const bucket = this.buckets[index];\n    for (let entry of bucket) {\n      if (entry[0] === key) {\n        entry[1] = value;\n        console.log(`更新键 \"${key}\" 在索引 ${index}`);\n        return;\n      }\n    }\n    bucket.push([key, value]);\n    console.log(`插入键 \"${key}\" 到索引 ${index}，当前桶大小: ${bucket.length}`);\n  }\n  get(key) {\n    const index = this._hash(key);\n    const bucket = this.buckets[index];\n    for (let entry of bucket) {\n      if (entry[0] === key) {\n        console.log(`找到键 \"${key}\" 在索引 ${index}，值为 ${entry[1]}`);\n        return entry[1];\n      }\n    }\n    console.log(`键 \"${key}\" 未找到`);\n    return undefined;\n  }\n}\n\nconst map = new ChainedHashMap();\nmap.set('cat', '小猫');\nmap.set('act', '行动');  // 与 'cat' 可能冲突\nmap.set('tac', 'TAC');  // 可能冲突\nmap.get('cat');\nmap.get('act');\nconsole.log('桶状态:', map.buckets);",
+          "runLocally": true
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface-module-3",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface-module-3",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "learning-path",
+            "concept",
+            "detailed-explanation",
+            "formula",
+            "sandbox",
+            "quiz"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "时间复杂度与负载因子"
+        },
+        {
+          "id": "learning-path",
+          "component": "LearningPath",
+          "title": "哈希表学习路径",
+          "activeStepId": "3",
+          "steps": [
+            {
+              "id": "1",
+              "title": "基础概念"
+            },
+            {
+              "id": "2",
+              "title": "冲突解决"
+            },
+            {
+              "id": "3",
+              "title": "时间复杂度"
+            },
+            {
+              "id": "4",
+              "title": "实际应用"
+            }
+          ]
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "负载因子与时间复杂度",
+          "tags": [
+            "负载因子",
+            "时间复杂度",
+            "动态扩容"
+          ],
+          "definition": "<b>负载因子（Load Factor）</b> = 已存储元素数量 / 数组容量。它衡量哈希表的填充程度。<br><br><b>平均时间复杂度</b>：在负载因子较低且哈希函数均匀时，插入、删除、查找的平均时间复杂度为 <b>O(1)</b>。<br><br><b>最坏时间复杂度</b>：当所有键映射到同一索引时，退化为链表（或红黑树），时间复杂度为 <b>O(n)</b>（或 O(log n) 若使用树）。<br><br><b>动态扩容（Rehashing）</b>：当负载因子超过阈值（如 0.75）时，创建一个更大的数组（通常为原容量的 2 倍），重新计算所有键的哈希并插入新数组。扩容操作的时间复杂度为 O(n)，但均摊后仍为 O(1)。",
+          "example": "<pre><code>// 负载因子示例\nconst capacity = 16;\nconst size = 12;\nconst loadFactor = size / capacity; // 0.75\n// 当 loadFactor > 0.75 时触发扩容\nif (loadFactor > 0.75) {\n  // 扩容为 2 倍\n  resize(capacity * 2);\n}</code></pre>",
+          "relatedConcepts": [
+            "均摊分析",
+            "哈希冲突",
+            "动态数组"
+          ]
+        },
+        {
+          "id": "detailed-explanation",
+          "component": "DetailedExplanation",
+          "title": "深入分析：为什么哈希表是 O(1)？",
+          "icon": "⏱️",
+          "estimatedReadTime": "4 分钟阅读",
+          "content": "哈希表之所以能达到平均 O(1) 的时间复杂度，依赖于以下假设：\n\n1. **哈希函数均匀**：每个键被映射到任意桶的概率大致相等。\n2. **负载因子有界**：通过动态扩容，负载因子保持在一个常数以下（如 0.75）。\n\n在这些假设下，每个桶中的平均元素数量为负载因子 λ，是一个常数。因此，查找、插入、删除操作的平均时间就是常数时间。\n\n**最坏情况**：如果哈希函数设计不当或攻击者故意构造冲突键，所有元素可能进入同一个桶，此时操作退化为 O(n)。现代哈希表通过以下方式缓解：\n- 使用高质量的哈希函数（如 SipHash）。\n- 当链表长度超过阈值时转换为红黑树（Java 8+）。\n- 随机化哈希种子（如 Python 3.3+ 的 PYTHONHASHSEED）。\n\n**动态扩容（Rehashing）**：\n- 当负载因子超过阈值时，分配新数组（通常 2 倍大小），遍历旧数组重新计算每个键的哈希并插入新数组。\n- 扩容操作本身是 O(n)，但均摊到每次插入操作上，仍然是 O(1)。\n- 扩容后，所有元素重新分布，负载因子降低，后续操作保持高效。\n\n> 💡 均摊分析：假设每次插入触发扩容，扩容成本为 O(n)，但扩容后至少 n/2 次插入不会触发扩容，因此每次插入的均摊成本为 O(1)。"
+        },
+        {
+          "id": "formula",
+          "component": "InteractiveFormula",
+          "latex": "\\text{Load Factor} = \\frac{n}{m}",
+          "description": "负载因子 λ = 元素数量 n / 桶数量 m。当 λ 超过阈值（如 0.75）时触发扩容。",
+          "variables": {
+            "n": "哈希表中已存储的键值对数量",
+            "m": "底层数组的容量（桶的数量）"
+          },
+          "derivationSteps": [
+            {
+              "step": "平均查找长度（链地址法）",
+              "latex": "\\text{成功查找平均长度} = 1 + \\frac{\\lambda}{2}",
+              "explanation": "在链地址法中，成功查找需要遍历链表的一半。平均链表长度为 λ，因此平均比较次数为 1 + λ/2。当 λ 为常数时，仍为 O(1)。"
+            },
+            {
+              "step": "扩容条件",
+              "latex": "\\text{if } \\frac{n}{m} > \\text{threshold} \\implies \\text{resize}(m \\times 2)",
+              "explanation": "当负载因子超过阈值（通常 0.75）时，将容量翻倍并重新哈希所有元素。"
+            }
+          ]
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "动手试试：观察负载因子与扩容",
+          "description": "运行下面的代码，观察哈希表在插入过程中负载因子的变化以及扩容触发。",
+          "language": "javascript",
+          "code": "class HashMapWithResize {\n  constructor(initialCapacity = 4, loadFactorThreshold = 0.75) {\n    this.capacity = initialCapacity;\n    this.size = 0;\n    this.threshold = loadFactorThreshold;\n    this.buckets = new Array(this.capacity).fill(null).map(() => []);\n  }\n  _hash(key) {\n    let hash = 0;\n    for (let i = 0; i < key.length; i++) {\n      hash = (hash * 31 + key.charCodeAt(i)) | 0;\n    }\n    return (hash & 0x7fffffff) % this.capacity;\n  }\n  _resize() {\n    const oldBuckets = this.buckets;\n    this.capacity *= 2;\n    this.buckets = new Array(this.capacity).fill(null).map(() => []);\n    this.size = 0;\n    console.log(`扩容！新容量: ${this.capacity}`);\n    for (let bucket of oldBuckets) {\n      for (let [key, value] of bucket) {\n        this.set(key, value);\n      }\n    }\n  }\n  set(key, value) {\n    if (this.size / this.capacity > this.threshold) {\n      this._resize();\n    }\n    const index = this._hash(key);\n    const bucket = this.buckets[index];\n    for (let entry of bucket) {\n      if (entry[0] === key) {\n        entry[1] = value;\n        return;\n      }\n    }\n    bucket.push([key, value]);\n    this.size++;\n    console.log(`插入 \"${key}\" 到索引 ${index}，当前负载因子: ${(this.size/this.capacity).toFixed(2)}`);\n  }\n  get(key) {\n    const index = this._hash(key);\n    const bucket = this.buckets[index];\n    for (let entry of bucket) {\n      if (entry[0] === key) return entry[1];\n    }\n    return undefined;\n  }\n}\n\nconst map = new HashMapWithResize(4, 0.75);\nmap.set('a', 1);\nmap.set('b', 2);\nmap.set('c', 3);\nmap.set('d', 4);  // 此时负载因子 4/4=1 > 0.75，触发扩容\nmap.set('e', 5);\nconsole.log('最终大小:', map.size, '容量:', map.capacity);",
+          "runLocally": true
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "时间复杂度与负载因子测验",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "哈希表在平均情况下的查找时间复杂度是多少？",
+              "options": [
+                "O(1)",
+                "O(log n)",
+                "O(n)",
+                "O(n log n)"
+              ],
+              "correctIndex": 0,
+              "explanation": "在哈希函数均匀且负载因子有界的情况下，平均查找时间复杂度为 O(1)。"
+            },
+            {
+              "id": "q2",
+              "question": "负载因子的计算公式是什么？",
+              "options": [
+                "元素数量 / 数组容量",
+                "数组容量 / 元素数量",
+                "冲突数量 / 元素数量",
+                "元素数量 * 数组容量"
+              ],
+              "correctIndex": 0,
+              "explanation": "负载因子 = 已存储元素数量 / 数组容量。"
+            },
+            {
+              "id": "q3",
+              "question": "当负载因子超过阈值时，哈希表通常会执行什么操作？",
+              "options": [
+                "删除部分元素",
+                "动态扩容（Rehashing）",
+                "转换为树结构",
+                "增加哈希函数数量"
+              ],
+              "correctIndex": 1,
+              "explanation": "当负载因子超过阈值时，哈希表会动态扩容，创建一个更大的数组并重新哈希所有元素。"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface-module-4",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface-module-4",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "learning-path",
+            "concept",
+            "detailed-explanation",
+            "dialogue",
+            "deep-dive",
+            "resources"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "实际应用与总结"
+        },
+        {
+          "id": "learning-path",
+          "component": "LearningPath",
+          "title": "哈希表学习路径",
+          "activeStepId": "4",
+          "steps": [
+            {
+              "id": "1",
+              "title": "基础概念"
+            },
+            {
+              "id": "2",
+              "title": "冲突解决"
+            },
+            {
+              "id": "3",
+              "title": "时间复杂度"
+            },
+            {
+              "id": "4",
+              "title": "实际应用"
+            }
+          ]
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "哈希表的实际应用",
+          "tags": [
+            "Python dict",
+            "Java HashMap",
+            "数据库索引",
+            "缓存"
+          ],
+          "definition": "哈希表是计算机科学中最基础且应用最广泛的数据结构之一。以下是几个典型应用：<br><br><b>① 编程语言内置字典</b>：Python 的 <code>dict</code>、Java 的 <code>HashMap</code>、JavaScript 的 <code>Map</code> 和对象、C++ 的 <code>unordered_map</code> 均基于哈希表实现。<br><br><b>② 数据库索引</b>：某些数据库（如 MySQL 的 Memory 引擎）使用哈希索引实现 O(1) 的等值查找。<br><br><b>③ 缓存系统</b>：Redis、Memcached 等缓存系统使用哈希表存储键值对，实现快速存取。<br><br><b>④ 编译器符号表</b>：编译器使用哈希表管理变量名和函数名，实现快速查找。<br><br><b>⑤ 去重与计数</b>：使用哈希表统计元素出现次数或判断元素是否重复。",
+          "example": "<pre><code>// Python dict 示例\nphone_book = {\n    'Alice': '123-4567',\n    'Bob': '987-6543'\n}\nprint(phone_book['Alice'])  # O(1) 查找\n\n// Java HashMap 示例\nHashMap<String, Integer> map = new HashMap<>();\nmap.put(\"apple\", 5);\nint count = map.get(\"apple\"); // O(1)</code></pre>",
+          "relatedConcepts": [
+            "哈希函数",
+            "负载因子",
+            "动态扩容",
+            "一致性哈希"
+          ]
+        },
+        {
+          "id": "detailed-explanation",
+          "component": "DetailedExplanation",
+          "title": "深入探讨：Python dict 与 Java HashMap 的实现差异",
+          "icon": "🔍",
+          "estimatedReadTime": "5 分钟阅读",
+          "content": "虽然 Python 的 dict 和 Java 的 HashMap 都是哈希表，但它们在实现细节上有显著差异：\n\n**Python dict（CPython 实现）**：\n- 使用开放地址法（伪随机探测）解决冲突。\n- 哈希表条目存储在一个紧凑的数组中，每个条目包含哈希值、键和值指针。\n- 负载因子阈值约为 2/3（约 0.66）。\n- 插入顺序保留（Python 3.7+ 官方保证）。\n- 使用 SipHash 作为哈希函数，防止哈希碰撞攻击。\n\n**Java HashMap（Java 8+）**：\n- 使用链地址法解决冲突。\n- 当链表长度超过 8 且数组容量大于等于 64 时，链表转换为红黑树（Treeify），以应对最坏情况。\n- 负载因子默认 0.75。\n- 不保证插入顺序。\n- 使用 key 的 hashCode() 方法，并经过二次扰动（高 16 位与低 16 位异或）以增加随机性。\n\n**性能对比**：\n- Python dict 的开放地址法缓存更友好，但删除操作需要惰性标记。\n- Java HashMap 的链地址法实现简单，但链表节点内存开销较大。\n- 两者在平均情况下均提供 O(1) 性能。\n\n> 💡 了解这些差异有助于在跨语言开发时做出正确的数据结构选择。"
+        },
+        {
+          "id": "dialogue",
+          "component": "ScenarioDialogue",
+          "topic": "🎙️ 对话：哈希表在实际项目中的选择",
+          "characters": {
+            "student": {
+              "name": "小明（初级开发者）",
+              "avatar": "🧑‍💻",
+              "alignment": "left"
+            },
+            "mentor": {
+              "name": "导师",
+              "avatar": "👨‍🏫",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "student",
+              "content": "导师，我理解了哈希表的基本原理，但在实际项目中，什么时候应该用哈希表而不是其他数据结构呢？",
+              "delayMs": 200
+            },
+            {
+              "characterId": "mentor",
+              "content": "好问题！哈希表最适合<b>键值对存储</b>和<b>快速查找</b>的场景。比如用户信息缓存、单词计数、去重等。但如果需要有序遍历，应该使用平衡树（如 TreeMap）或跳表。",
+              "delayMs": 500
+            },
+            {
+              "characterId": "student",
+              "content": "那 Python 的 dict 和 Java 的 HashMap 有什么区别？我经常混用。",
+              "delayMs": 300
+            },
+            {
+              "characterId": "mentor",
+              "content": "Python dict 使用开放地址法，内存更紧凑，而且从 3.7 开始保留插入顺序。Java HashMap 使用链地址法，当链表过长时会转换为红黑树，适合高冲突场景。选择时主要看语言生态和具体需求。",
+              "delayMs": 600
+            },
+            {
+              "characterId": "student",
+              "content": "明白了！那在数据库里，哈希索引和 B+ 树索引有什么区别？",
+              "delayMs": 300
+            },
+            {
+              "characterId": "mentor",
+              "content": "哈希索引只支持等值查询（=），不支持范围查询（>、<、BETWEEN）。B+ 树索引支持范围查询和排序。所以 MySQL 的 InnoDB 引擎默认使用 B+ 树，而 Memory 引擎可以选择哈希索引。",
+              "delayMs": 700
+            },
+            {
+              "characterId": "student",
+              "content": "谢谢导师！我现在对哈希表的应用场景清晰多了。",
+              "delayMs": 200
+            }
+          ]
+        },
+        {
+          "id": "deep-dive",
+          "component": "DeepDivePrompt",
+          "prompts": [
+            {
+              "id": "dp1",
+              "label": "一致性哈希（Consistent Hashing）的原理与应用",
+              "icon": "🌐"
+            },
+            {
+              "id": "dp2",
+              "label": "布隆过滤器（Bloom Filter）与哈希表的关系",
+              "icon": "🔍"
+            },
+            {
+              "id": "dp3",
+              "label": "完美哈希（Perfect Hashing）与最小完美哈希",
+              "icon": "🎯"
+            },
+            {
+              "id": "dp4",
+              "label": "并发哈希表（ConcurrentHashMap）的实现策略",
+              "icon": "⚡"
+            }
+          ]
+        },
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "推荐资源与参考文献",
+          "resources": [
+            {
+              "title": "Python dict 实现详解（CPython）",
+              "url": "https://github.com/python/cpython/blob/main/Objects/dictobject.c",
+              "description": "CPython 字典的源代码，展示了开放地址法的具体实现。",
+              "type": "github"
+            },
+            {
+              "title": "Java HashMap 源码分析（Java 8）",
+              "url": "https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/HashMap.java",
+              "description": "Java 8 HashMap 的源代码，包含红黑树转换逻辑。",
+              "type": "github"
+            },
+            {
+              "title": "维基百科：哈希表",
+              "url": "https://zh.wikipedia.org/wiki/%E5%93%88%E5%B8%8C%E8%A1%A8",
+              "description": "哈希表的全面介绍，包含各种变体和应用。",
+              "type": "wiki"
+            },
+            {
+              "title": "《算法导论》第11章：哈希表",
+              "url": "https://mitpress.mit.edu/books/introduction-algorithms-fourth-edition",
+              "description": "经典教材，深入讲解哈希表理论分析与证明。",
+              "type": "article"
             }
           ]
         }
