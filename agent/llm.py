@@ -171,9 +171,12 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
         - Components MUST be practical for interactive learning and should prefer:
           LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue,
           Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.
-        - Use MentalModel to introduce complex structural concepts from a high level (using description, pillars/elements, analogy, and diagrams).
-        - Use DetailedExplanation to provide deep, detailed, and markdown-rich explanations/articles of specific mechanisms, architectures, or topics.
-        - IMPORTANT: InteractiveSandbox and CodeSnippet components should ONLY be generated when the topic/course is explicitly about coding, programming, or software engineering. NEVER use code block or sandbox components in general science, biology, history, or non-programming subjects, as they distract general learners.
+        - PROBLEM-DRIVEN PEDAGOGY (问题驱动教学法):
+          Do NOT dump technical frameworks or jargon upfront. Structure learning around a progressive narrative:
+          1. Start with a real-world PAIN POINT or QUESTION (e.g., "Why does searching 1,000,000 records get painfully slow?").
+          2. Introduce simple INTUITION / METAPHOR before code or math.
+          3. Introduce tech concepts ONLY as solution responses to the pain point ("How do we jump directly to the target drawer?").
+          4. When a new obstacle arises ("What if two keys get assigned to the same drawer?"), introduce the next concept (Collision Resolution) as the logical fix.
         - GLOSSARY ANNOTATION: When mentioning obscure, technical, or precursor concepts in explanations (such as algorithms, metrics, or mechanisms), wrap them with a semantic HTML definition tag: <dfn title="一句话通俗注解">生僻概念</dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法">开放寻址法</dfn> 解决。"
         - Output format example:
           [
