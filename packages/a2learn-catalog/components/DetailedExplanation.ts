@@ -64,8 +64,8 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       color: var(--a2ui-color-on-surface, #334155);
     }
     .content-body p {
-      margin: 0 0 10px 0;
-      line-height: 1.65;
+      margin: 0 0 6px 0;
+      line-height: 1.6;
     }
     .content-body p:last-child {
       margin-bottom: 0;
@@ -75,12 +75,20 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       font-weight: 700;
     }
     .content-body ul, .content-body ol {
-      margin: 6px 0 12px 0;
+      margin: 4px 0 8px 0;
       padding-left: 20px;
     }
+    .content-body p + ul,
+    .content-body p + ol {
+      margin-top: 2px;
+    }
+    .content-body ul + p,
+    .content-body ol + p {
+      margin-top: 6px;
+    }
     .content-body li {
-      margin-bottom: 4px;
-      line-height: 1.6;
+      margin-bottom: 3px;
+      line-height: 1.55;
     }
     .content-body li:last-child {
       margin-bottom: 0;

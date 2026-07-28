@@ -75,7 +75,19 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       font-size: 16px;
       line-height: 1.6;
       color: var(--a2ui-color-on-surface, #111827);
-      margin-bottom: var(--a2ui-spacing-xl);
+      margin-bottom: var(--a2ui-spacing-l, 20px);
+    }
+    .definition p {
+      margin: 0 0 6px 0;
+      line-height: 1.6;
+    }
+    .definition ul, .definition ol {
+      margin: 4px 0 8px 0;
+      padding-left: 20px;
+    }
+    .definition li {
+      margin-bottom: 3px;
+      line-height: 1.55;
     }
     code {
       font-family: "JetBrains Mono", "Fira Code", monospace;
