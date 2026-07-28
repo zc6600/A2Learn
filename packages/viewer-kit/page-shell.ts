@@ -43,7 +43,7 @@ export function injectBaseTheme(): void {
 
       /* Portfolio Design Tokens (Teal Accent Matrix - Light Mode Baseline) */
       --a2ui-color-primary: #0d9488; /* Teal-600 */
-      --a2ui-color-secondary: #f0fdfa; /* Teal-50 浅绿底 */
+      --a2ui-color-secondary: #f9fafb; /* Gray-50 Neutral Surface */
       --a2ui-color-surface: #ffffff;
       --a2ui-color-on-surface: #111827;
       --a2ui-color-on-background: #374151;
@@ -131,9 +131,9 @@ export function injectBaseTheme(): void {
       transition: all 0.2s ease;
     }
     .app-key-pill.active {
-      background: #f0fdfa; /* Teal-50 浅绿底 */
-      color: #0f766e; /* Teal-700 深绿/黑字 */
-      border: 1px solid #99f6e4;
+      background: #f9fafb;
+      color: #0d9488;
+      border: 1px solid #e5e7eb;
     }
     .app-key-pill.missing {
       background: #fffbeb;
@@ -160,15 +160,15 @@ export function injectBaseTheme(): void {
       transform: scale(1.03);
     }
 
-    /* Prompt Input Bar (浅绿底 #f0fdfa) & Hero Controls */
+    /* Prompt Input Bar (Clean Neutral Surface #f9fafb) & Hero Controls */
     .app-prompt-bar {
       display: flex;
       flex-direction: column;
       gap: 14px;
-      background: #f0fdfa; /* Teal-50 浅绿底 */
+      background: #f9fafb;
       padding: 16px;
       border-radius: 16px;
-      border: 1px solid #ccfbf1; /* Teal-100 浅绿边框 */
+      border: 1px solid #e5e7eb;
     }
     .app-prompt-form {
       display: flex;
