@@ -179,8 +179,14 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
           4. Mindset 的实际落地方式 (具体回答/工程方案。若落地衍生新工程难题，则在新 Module 中开启下一轮 6 步探索)
           5. 本模块总结 (Module Summary / Key Takeaway)
           6. 术语逻辑盘点与记忆锚点 (Do NOT evade technical jargon! Thoroughly explain each term as a key memory anchor ⚓).
-        - NATURAL USER-FACING TITLES (自然面向读者的标题):
-          When outputting component titles, write natural, engaging headlines directly. NEVER print internal methodology labels like "Step 1 | 介绍背景", "Step 2 | 第一性原理", "Step 3 | Mindset", or "Step 4 | 实际落地" in the title strings!
+        - PURE CONTENT TITLES (绝对去除框架标号与元描述废话):
+          Write clean, direct subject-matter titles for all components and headers.
+          STRICTLY FORBIDDEN IN TITLES & HEADINGS:
+          - NO "关卡 1 ❓", "关卡 2 🔀", "关卡 3 📈", "关卡 4 🛡️" prefixes!
+          - NO "第一性原理与 Naive 方案及缺陷" meta labels!
+          - NO "解决思路 Mindset：", "工程落地：", "本模块总结：" meta tags!
+          - NO "Step 1 | 介绍背景...", "Step 2 | 第一性原理..." prefixes!
+          Titles MUST directly express the core technical content itself (e.g. "物理内存本质与线性搜索缺陷", "让 Key 的名称直接算出内存下标", "链地址法 vs 开放寻址法及 CPU 缓存效应", "0.75 负载因子、位运算加速与渐进式 Rehash").
         - GLOSSARY ANNOTATION: When mentioning obscure, technical, or precursor concepts in explanations (such as algorithms, metrics, or mechanisms), wrap them with a semantic HTML definition tag: <dfn title="一句话通俗注解">生僻概念</dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法">开放寻址法</dfn> 解决。"
         - Output format example:
           [
