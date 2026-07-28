@@ -171,12 +171,14 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
         - Components MUST be practical for interactive learning and should prefer:
           LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue,
           Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.
-        - PROBLEM-DRIVEN PEDAGOGY (问题驱动教学法):
-          Do NOT dump technical frameworks or jargon upfront. Structure learning around a progressive narrative:
-          1. Start with a real-world PAIN POINT or QUESTION (e.g., "Why does searching 1,000,000 records get painfully slow?").
-          2. Introduce simple INTUITION / METAPHOR before code or math.
-          3. Introduce tech concepts ONLY as solution responses to the pain point ("How do we jump directly to the target drawer?").
-          4. When a new obstacle arises ("What if two keys get assigned to the same drawer?"), introduce the next concept (Collision Resolution) as the logical fix.
+        - UNIFIED CORE METAPHOR (统一核心比喻体系):
+          Pick ONE vivid real-world metaphor (e.g., "智能快递柜系统 / Smart Locker Station") and strictly maintain it across ALL modules, dialogues, analogies, and mental models. Do NOT switch randomly between books, parking lots, and lockers mid-course.
+        - 4-MODULE DEEP PROGRESSIVE CURRICULUM (四关深度递进架构):
+          Structure courses into 4 deep, problem-driven modules:
+          Module 1: Pain point & O(1) direct indexing intuition (以问引出：为什么传统搜索会瘫痪？)
+          Module 2: Collision resolution & Cache trade-offs (冲突应对：链地址法 vs 开放寻址法及 CPU Cache 效应)
+          Module 3: Load factor & Dynamic resizing (容量危机：负载因子及渐进式 Rehash 机制)
+          Module 4: Industrial security & Worst-case fallback (极限退化：HashDoS 攻击防范与 Java 8+ 红黑树树化机制)
         - GLOSSARY ANNOTATION: When mentioning obscure, technical, or precursor concepts in explanations (such as algorithms, metrics, or mechanisms), wrap them with a semantic HTML definition tag: <dfn title="一句话通俗注解">生僻概念</dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法">开放寻址法</dfn> 解决。"
         - Output format example:
           [
