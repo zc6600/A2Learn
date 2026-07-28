@@ -281,11 +281,6 @@ function injectRoutingTheme(): void {
       background: var(--a2ui-color-primary);
       box-shadow: 0 4px 12px color-mix(in oklab, var(--a2ui-color-primary) 30%, transparent);
     }
-    @media (prefers-color-scheme: dark) {
-      .surface-tab.active {
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-      }
-    }
   `;
   document.head.appendChild(style);
 }
@@ -337,12 +332,6 @@ function renderSurfaces(
   }
 
   container.innerHTML = "";
-  if (modeHint) {
-    const hint = document.createElement("p");
-    hint.className = "viewer-state";
-    hint.textContent = modeHint;
-    container.appendChild(hint);
-  }
 
   // Determine the active surface ID
   const hash = window.location.hash;
