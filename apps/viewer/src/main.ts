@@ -286,7 +286,6 @@ function injectRoutingTheme(): void {
 }
 
 function getSurfaceTitle(surface: any): string {
-  if (surface.title) return surface.title;
   if (surface.name) return surface.name;
   
   if (surface.componentsMap && surface.componentsMap.size > 0) {
@@ -294,28 +293,38 @@ function getSurfaceTitle(surface: any): string {
     
     // Look for first Text component with variant h1/h2
     const headingComp = components.find((c: any) => c.component === "Text" && (c.variant === "h1" || c.variant === "h2") && c.text);
-    if (headingComp) {
+    if (headingComp && headingComp.text) {
       return headingComp.text;
     }
-    
-    // Look for any component with title
-    const titleComp = components.find((c: any) => c.title);
+
+    // Look for custom catalog components with title (ConceptCard, AnalogyCard, MentalModel, DetailedExplanation, etc.)
+    const titleComp = components.find((c: any) => c.title && typeof c.title === "string");
     if (titleComp) {
       return titleComp.title;
     }
-
+    
     // Look for any Text component
     const anyTextComp = components.find((c: any) => c.component === "Text" && c.text);
-    if (anyTextComp) {
+    if (anyTextComp && anyTextComp.text) {
       return anyTextComp.text;
     }
   }
   
-  const id = surface.id || "Page";
-  return id
+  const rawId = (surface.id || "Page").toLowerCase();
+  if (rawId.includes("main") || rawId.includes("concept")) return "💡 核心概念";
+  if (rawId.includes("analogy")) return "💡 直觉类比";
+  if (rawId.includes("quiz") || rawId.includes("test")) return "✍️ 自测练习";
+  if (rawId.includes("outline")) return "📚 课程大纲";
+  if (rawId.includes("detail") || rawId.includes("explain")) return "📖 详细讲解";
+  if (rawId.includes("mode") || rawId.includes("mental")) return "🧠 心智模型";
+
+  const cleanId = rawId
     .replace(/^site-/, "")
+    .replace(/^surface-/, "")
     .replace(/[-_]/g, " ")
     .replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+  return cleanId || "学习页面";
 }
 
 function renderSurfaces(
