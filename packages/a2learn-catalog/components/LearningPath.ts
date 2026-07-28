@@ -31,7 +31,17 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
       display: flex;
       gap: 16px;
       position: relative;
-      padding-bottom: 24px;
+      padding: 8px 12px 24px 12px;
+      margin: 0 -12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+    .step:hover {
+      background: color-mix(in oklab, var(--a2ui-color-primary) 6%, transparent);
+    }
+    .step:active {
+      transform: scale(0.99);
     }
     .step:last-child {
       padding-bottom: 0;
@@ -148,19 +158,30 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
 
   private handleStepClick(step: any, status: 'completed' | 'current' | 'locked') {
     const props = (this as any).controller?.props;
-    if (!props) return;
 
     // 1. 乐观更新游标
     this.localActiveId = step.id;
     (this as any).requestUpdate();
 
-    // 2. 如果 step 配置了 targetSurfaceId，直接滚动导航
+    // 2. 跨 Surface 切换视角
     if (step.targetSurfaceId) {
       this.navigateToSurface(step.targetSurfaceId);
     }
 
-    // 3. 同时 dispatch，让 Agent 也知道用户点击了
-    if (props.onStepSelect) {
+    // 3. 同页或跨页 DOM 元素平滑滚动
+    const targetSectionId = step.targetSectionId || step.targetComponentId;
+    if (targetSectionId) {
+      setTimeout(() => {
+        const targetEl = document.getElementById(targetSectionId) ||
+          document.querySelector(`[data-component-id="${targetSectionId}"]`);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 60);
+    }
+
+    // 4. 同时 dispatch，让 Agent 追踪点击行为
+    if (props && props.onStepSelect) {
       (this as any).context.dispatchAction({
         ...(props.onStepSelect as Record<string, unknown>),
         context: { stepId: step.id },
@@ -176,10 +197,7 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
     const steps = props.steps || [];
     
     // Determine the active cursor
-    // 优先使用前端乐观更新的 localActiveId，如果没被点击过，则使用 Agent 下发的 activeStepId
     const activeId = this.localActiveId || props.activeStepId;
-    
-    // Find the index of the active step to determine the status of all steps
     const activeIndex = steps.findIndex((s: any) => s.id === activeId);
 
     return html`
@@ -187,11 +205,9 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
         ${title ? html`<h3 class="path-title">${title}</h3>` : nothing}
         <div class="steps-wrapper">
           ${steps.map((step: any, index: number) => {
-            // Self-consistent status calculation
             let status: 'completed' | 'current' | 'locked' = 'locked';
             
             if (activeIndex === -1) {
-              // If activeId not found, default to first step being current
               status = index === 0 ? 'current' : 'locked';
             } else {
               if (index < activeIndex) status = 'completed';
@@ -200,12 +216,12 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
             }
 
             return html`
-              <div class="step ${status}">
+              <div class="step ${status}" @click=${() => this.handleStepClick(step, status)}>
                 <div class="icon-wrapper">
                   ${status === 'completed' ? '✓' : 
                     status === 'current' ? '●' : '🔒'}
                 </div>
-                <div class="content-wrapper" @click=${() => this.handleStepClick(step, status)}>
+                <div class="content-wrapper">
                   <h4 class="title">${this.resolveString(step.title)}</h4>
                   ${step.description ? html`<p class="desc">${this.resolveString(step.description)}</p>` : nothing}
                 </div>

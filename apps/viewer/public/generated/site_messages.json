@@ -41,19 +41,23 @@
           "steps": [
             {
               "id": "1",
-              "title": "1. 发现痛点：查找太慢"
+              "title": "1. 查找效率危机 (O(1)计算)",
+              "targetSurfaceId": "surface-module-1"
             },
             {
               "id": "2",
-              "title": "2. 破局思路：名字即编号"
+              "title": "2. 散列碰撞困境 (冲突解决)",
+              "targetSurfaceId": "surface-module-2"
             },
             {
               "id": "3",
-              "title": "3. 衍生难题：碰撞怎么办"
+              "title": "3. 空间性能妥协 (负载因子/Rehash)",
+              "targetSurfaceId": "surface-module-3"
             },
             {
               "id": "4",
-              "title": "4. 解决方案：挂长链 vs 找邻居"
+              "title": "4. 工业安全防御 (HashDoS/红黑树)",
+              "targetSurfaceId": "surface-module-4"
             }
           ]
         },
@@ -212,19 +216,23 @@
           "steps": [
             {
               "id": "1",
-              "title": "1. 发现痛点：查找太慢"
+              "title": "1. 查找效率危机 (O(1)计算)",
+              "targetSurfaceId": "surface-module-1"
             },
             {
               "id": "2",
-              "title": "2. 破局思路：名字即编号"
+              "title": "2. 散列碰撞困境 (冲突解决)",
+              "targetSurfaceId": "surface-module-2"
             },
             {
               "id": "3",
-              "title": "3. 衍生难题：碰撞怎么办"
+              "title": "3. 空间性能妥协 (负载因子/Rehash)",
+              "targetSurfaceId": "surface-module-3"
             },
             {
               "id": "4",
-              "title": "4. 解决方案：挂长链 vs 找邻居"
+              "title": "4. 工业安全防御 (HashDoS/红黑树)",
+              "targetSurfaceId": "surface-module-4"
             }
           ]
         },
@@ -401,19 +409,23 @@
           "steps": [
             {
               "id": "1",
-              "title": "1. 发现痛点：查找太慢"
+              "title": "1. 查找效率危机 (O(1)计算)",
+              "targetSurfaceId": "surface-module-1"
             },
             {
               "id": "2",
-              "title": "2. 破局思路：名字即编号"
+              "title": "2. 散列碰撞困境 (冲突解决)",
+              "targetSurfaceId": "surface-module-2"
             },
             {
               "id": "3",
-              "title": "3. 衍生难题：碰撞怎么办"
+              "title": "3. 空间性能妥协 (负载因子/Rehash)",
+              "targetSurfaceId": "surface-module-3"
             },
             {
               "id": "4",
-              "title": "4. 解决方案：挂长链 vs 找邻居"
+              "title": "4. 工业安全防御 (HashDoS/红黑树)",
+              "targetSurfaceId": "surface-module-4"
             }
           ]
         },
@@ -581,19 +593,23 @@
           "steps": [
             {
               "id": "1",
-              "title": "1. 查找效率危机 (O(1)计算)"
+              "title": "1. 查找效率危机 (O(1)计算)",
+              "targetSurfaceId": "surface-module-1"
             },
             {
               "id": "2",
-              "title": "2. 散列碰撞困境 (冲突解决)"
+              "title": "2. 散列碰撞困境 (冲突解决)",
+              "targetSurfaceId": "surface-module-2"
             },
             {
               "id": "3",
-              "title": "3. 空间性能妥协 (负载因子/Rehash)"
+              "title": "3. 空间性能妥协 (负载因子/Rehash)",
+              "targetSurfaceId": "surface-module-3"
             },
             {
               "id": "4",
-              "title": "4. 工业安全防御 (HashDoS/红黑树)"
+              "title": "4. 工业安全防御 (HashDoS/红黑树)",
+              "targetSurfaceId": "surface-module-4"
             }
           ]
         },
