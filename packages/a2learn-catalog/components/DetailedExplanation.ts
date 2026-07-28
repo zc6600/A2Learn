@@ -62,29 +62,35 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       color: var(--a2ui-color-on-surface, #334155);
     }
     .content-body p {
-      margin: 0 0 16px 0;
+      margin: 0 0 10px 0;
+      line-height: 1.65;
     }
     .content-body p:last-child {
       margin-bottom: 0;
     }
     .content-body strong {
-      color: var(--a2ui-color-primary, #3b82f6);
+      color: var(--a2ui-color-primary, #0d9488);
+      font-weight: 700;
     }
     .content-body ul, .content-body ol {
-      margin: 0 0 16px 0;
+      margin: 6px 0 12px 0;
       padding-left: 20px;
     }
     .content-body li {
-      margin-bottom: 8px;
+      margin-bottom: 4px;
+      line-height: 1.6;
+    }
+    .content-body li:last-child {
+      margin-bottom: 0;
     }
     .content-body code {
       font-family: "JetBrains Mono", "Fira Code", monospace;
       padding: 2px 6px;
       border-radius: 4px;
-      background: color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 6%, var(--a2ui-color-surface, #ffffff));
-      color: var(--a2ui-color-primary, #3b82f6);
+      background: #f3f4f6;
+      color: var(--a2ui-color-primary, #0d9488);
       font-size: 0.9em;
-      border: 1px solid color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 12%, transparent);
+      border: 1px solid #e5e7eb;
     }
     .content-body pre {
       background: #0f172a;
@@ -101,11 +107,11 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       padding: 0;
     }
     .content-body blockquote {
-      margin: 16px 0;
+      margin: 12px 0;
       padding: 8px 16px;
-      border-left: 4px solid var(--a2ui-color-secondary, #6366f1);
-      background: color-mix(in oklab, var(--a2ui-color-secondary, #6366f1) 4%, var(--a2ui-color-surface, #ffffff));
-      color: color-mix(in oklab, var(--a2ui-color-on-surface, #334155) 90%, transparent);
+      border-left: 4px solid var(--a2ui-color-primary, #0d9488);
+      background: #f9fafb;
+      color: var(--a2ui-color-on-surface, #111827);
       border-radius: 0 8px 8px 0;
     }
   `;
@@ -140,7 +146,7 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
     // 2) Replace inline code
     htmlContent = htmlContent.replace(/`([^`]+)`/g, "<code>$1</code>");
 
-    // 4) Parse blockquotes
+    // 3) Parse blockquotes
     htmlContent = htmlContent.split("\n").map(line => {
       if (line.trim().startsWith("&gt;")) {
         return `<blockquote>${line.trim().substring(4).trim()}</blockquote>`;
@@ -148,18 +154,29 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       return line;
     }).join("\n");
 
-    // 5) Parse bullet points
+    // 4) Parse bullet points intelligently
     let inList = false;
     const lines = htmlContent.split("\n");
     const outputLines: string[] = [];
-    for (const line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
       const trimmed = line.trim();
-      if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      if (trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("• ")) {
         if (!inList) {
           outputLines.push("<ul>");
           inList = true;
         }
-        outputLines.push(`<li>${trimmed.substring(2)}</li>`);
+        const text = trimmed.replace(/^[-*•]\s*/, "");
+        outputLines.push(`<li>${text}</li>`);
+      } else if (trimmed === "" && inList) {
+        // Look ahead: if next non-empty line is a list item, stay in list
+        const nextLine = lines.slice(i + 1).find(l => l.trim().length > 0);
+        if (nextLine && (nextLine.trim().startsWith("- ") || nextLine.trim().startsWith("* ") || nextLine.trim().startsWith("• "))) {
+          continue;
+        } else {
+          outputLines.push("</ul>");
+          inList = false;
+        }
       } else {
         if (inList) {
           outputLines.push("</ul>");
@@ -171,7 +188,7 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
     if (inList) outputLines.push("</ul>");
     htmlContent = outputLines.join("\n");
 
-    // 6) Split paragraphs
+    // 5) Split paragraphs
     const paragraphs = htmlContent
       .split(/\n{2,}/)
       .map(p => {
