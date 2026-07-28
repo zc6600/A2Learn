@@ -2,7 +2,7 @@ import { html, css, nothing } from "lit";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { ResourceListApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "./sanitize";
+import { sanitizeHtml } from "../utils/sanitize";
 
 export class A2learnResourceListElement extends A2uiLitElement<typeof ResourceListApi> {
   static styles = css`

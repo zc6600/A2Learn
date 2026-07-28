@@ -2,7 +2,7 @@ import { html, css, nothing } from "lit";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { ConceptCardApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml, tooltipStyles } from "./sanitize";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 
 export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCardApi> {
   static styles = [

@@ -1,4 +1,5 @@
 import createDOMPurify from "dompurify";
+import { css } from "lit";
 
 const FORBID_TAGS = [
   "base",
@@ -18,8 +19,6 @@ function getPurifier() {
   purifier = createDOMPurify(window);
   return purifier;
 }
-
-import { css } from "lit";
 
 export const tooltipStyles = css`
   .a2learn-term-tooltip {

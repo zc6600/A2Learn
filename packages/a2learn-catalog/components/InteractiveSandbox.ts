@@ -3,7 +3,7 @@ import { customElement, state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { InteractiveSandboxApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "./sanitize";
+import { sanitizeHtml } from "../utils/sanitize";
 
 export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof InteractiveSandboxApi> {
   static styles = css`
