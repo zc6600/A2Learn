@@ -678,6 +678,21 @@ function initAppControls(onGenerate: (promptText: string) => void): void {
       }
     });
   });
+
+  window.addEventListener("a2learn-explore-concept", (e: Event) => {
+    const concept = (e as CustomEvent).detail?.concept;
+    if (!concept) return;
+    const promptText = `详细解释 ${concept}`;
+    if (promptInput) promptInput.value = promptText;
+
+    const key = getStoredApiKey();
+    if (!key) {
+      openModal();
+      alert("请先点击右上角配置你的 OpenRouter API Key 以调用 AI 引擎。");
+      return;
+    }
+    onGenerate(promptText);
+  });
 }
 
 async function bootstrapViewer() {

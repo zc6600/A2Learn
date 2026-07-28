@@ -113,35 +113,56 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       font-family: inherit;
       font-size: inherit;
     }
-    .related-box {
-      border-top: 1px dashed var(--a2ui-color-border);
-      padding-top: var(--a2ui-spacing-l);
+    .related-accordion {
+      border-top: 1px dashed var(--a2ui-color-border, #e5e7eb);
+      margin-top: 16px;
+      padding-top: 12px;
+    }
+    .related-summary {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0d9488;
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      transition: all 0.2s ease;
+    }
+    .related-summary:hover {
+      background: #f3f4f6;
+      border-color: #0d9488;
     }
     .related-links {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       flex-wrap: wrap;
+      margin-top: 12px;
+      padding: 4px 0;
     }
     .related-link {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      color: var(--a2ui-color-primary);
-      background: transparent;
-      border: 1px solid var(--a2ui-color-primary);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 14px;
+      gap: 6px;
+      color: #0f766e;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
     .related-link:hover {
-      background: var(--a2ui-color-primary);
-      color: white;
-    }
-    .related-link::after {
-      content: "→";
-      font-size: 12px;
+      background: #0d9488;
+      color: #ffffff;
+      border-color: #0d9488;
+      transform: scale(1.03);
     }
   `;
 
@@ -170,6 +191,13 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
         context: { concept },
       });
     }
+    this.dispatchEvent(
+      new CustomEvent("a2learn-explore-concept", {
+        detail: { concept },
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   render() {
@@ -205,16 +233,18 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
           ` : nothing}
 
           ${relatedConcepts.length > 0 ? html`
-            <div class="related-box">
-              <h3 class="section-title">关联探索</h3>
+            <details class="related-accordion">
+              <summary class="related-summary">
+                🔍 关联延伸探索 (${relatedConcepts.length})
+              </summary>
               <div class="related-links">
                 ${relatedConcepts.map((concept: string) => html`
                   <button class="related-link" @click=${() => this.handleRelatedClick(concept)}>
-                    ${concept}
+                    ${concept} →
                   </button>
                 `)}
               </div>
-            </div>
+            </details>
           ` : nothing}
         </div>
       </div>
