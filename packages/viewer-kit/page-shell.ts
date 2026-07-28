@@ -19,12 +19,12 @@ export function injectBaseTheme(): void {
       box-shadow: none;
     }
     :root {
-      color-scheme: light;
-      --app-bg: linear-gradient(180deg, #f5f8ff 0%, #eef3ff 100%);
-      --app-text: #101828;
-      --app-muted: #475467;
-      --app-outline: rgba(99, 102, 241, 0.2);
-      --a2ui-font-family-title: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color-scheme: light !important;
+      --app-bg: #ffffff;
+      --app-text: #111827;
+      --app-muted: #6b7280;
+      --app-outline: #e5e7eb;
+      --a2ui-font-family-title: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
       --a2ui-font-size-xs: 12px;
       --a2ui-font-size-s: 14px;
       --a2ui-font-size-m: 16px;
@@ -35,76 +35,56 @@ export function injectBaseTheme(): void {
       --a2ui-line-height-body: 1.65;
       --a2ui-spacing-xs: 6px;
       --a2ui-spacing-s: 10px;
-      --a2ui-spacing-m: 14px;
-      --a2ui-spacing-l: 20px;
-      --a2ui-spacing-xl: 28px;
-      --a2ui-border-radius: 14px;
+      --a2ui-spacing-m: 16px;
+      --a2ui-spacing-l: 24px;
+      --a2ui-spacing-xl: 32px;
+      --a2ui-border-radius: 16px;
       --a2ui-border-width: 1px;
-      --a2ui-color-primary: #4f46e5;
-      --a2ui-color-secondary: #e4e7ff;
+
+      /* Portfolio Design Tokens (Teal Accent Matrix - Light Mode Baseline) */
+      --a2ui-color-primary: #0d9488; /* Teal-600 */
+      --a2ui-color-secondary: #f0fdfa; /* Teal-50 浅绿底 */
       --a2ui-color-surface: #ffffff;
-      --a2ui-color-on-surface: #0f172a;
-      --a2ui-color-on-background: #1f2937;
-      --a2ui-color-border: #d7defa;
+      --a2ui-color-on-surface: #111827;
+      --a2ui-color-on-background: #374151;
+      --a2ui-color-border: #e5e7eb; /* Gray-200 */
       --a2ui-card-border: 1px solid var(--a2ui-color-border);
       --a2ui-card-border-radius: 16px;
-      --a2ui-card-padding: 16px 18px;
-      --a2ui-card-box-shadow: 0 10px 30px rgba(79, 70, 229, 0.08);
+      --a2ui-card-padding: 20px 24px;
+      --a2ui-card-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
       --a2ui-card-margin: 0;
-      --a2ui-column-gap: 14px;
-      --a2ui-text-a-color: #4338ca;
+      --a2ui-column-gap: 16px;
+      --a2ui-text-a-color: #0d9488;
       --a2ui-text-a-font-weight: 600;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --app-bg: linear-gradient(180deg, #0b1220 0%, #121a2b 100%);
-        --app-text: #e2e8f0;
-        --app-muted: #94a3b8;
-        --app-outline: rgba(129, 140, 248, 0.32);
-        --a2ui-color-primary: #818cf8;
-        --a2ui-color-secondary: #232b43;
-        --a2ui-color-surface: #111827;
-        --a2ui-color-on-surface: #e5e7eb;
-        --a2ui-color-on-background: #cbd5e1;
-        --a2ui-color-border: #2b354f;
-        --a2ui-card-box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
-      }
     }
     html, body {
       margin: 0;
       min-height: 100%;
       background: var(--app-bg);
       color: var(--app-text);
-      font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(circle at 12% 10%, rgba(99, 102, 241, 0.2), transparent 38%),
-        radial-gradient(circle at 86% 6%, rgba(14, 165, 233, 0.16), transparent 34%);
-      pointer-events: none;
-      z-index: -1;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
     }
     #app {
       box-sizing: border-box;
       max-width: 1200px;
       min-height: 100vh;
       margin: 0 auto;
-      padding: 20px;
+      padding: 24px 20px;
     }
+
+    /* Glassmorphic Navigation Header */
     .app-header {
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       padding: 20px 24px;
-      border: 1px solid var(--app-outline);
+      border: 1px solid var(--a2ui-color-border);
       border-radius: 20px;
-      background: color-mix(in oklab, var(--a2ui-color-surface) 92%, transparent);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+      background: color-mix(in oklab, var(--a2ui-color-surface) 80%, transparent);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
     }
     .app-header-top {
       display: flex;
@@ -122,26 +102,28 @@ export function injectBaseTheme(): void {
       margin: 0;
       font-size: 24px;
       font-weight: 800;
-      letter-spacing: -0.3px;
-      background: linear-gradient(135deg, var(--a2ui-color-primary) 0%, #06b6d4 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      color: var(--app-text);
+    }
+    .app-title .brand-teal {
+      color: var(--a2ui-color-primary);
     }
     .app-subtitle {
       margin: 0;
       color: var(--app-muted);
       font-size: 13.5px;
-      line-height: 1.4;
+      line-height: 1.5;
     }
     .app-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
     .app-key-pill {
       font-size: 12px;
+      font-family: "JetBrains Mono", monospace;
       font-weight: 600;
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: 20px;
       display: inline-flex;
       align-items: center;
@@ -149,48 +131,48 @@ export function injectBaseTheme(): void {
       transition: all 0.2s ease;
     }
     .app-key-pill.active {
-      background: rgba(16, 185, 129, 0.12);
-      color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.25);
+      background: #f0fdfa; /* Teal-50 浅绿底 */
+      color: #0f766e; /* Teal-700 深绿/黑字 */
+      border: 1px solid #99f6e4;
     }
     .app-key-pill.missing {
-      background: rgba(245, 158, 11, 0.12);
-      color: #f59e0b;
-      border: 1px solid rgba(245, 158, 11, 0.25);
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
     }
     .app-btn-icon {
-      background: color-mix(in oklab, var(--a2ui-color-surface) 90%, var(--a2ui-color-secondary));
+      background: var(--a2ui-color-surface);
       color: var(--app-text);
       border: 1px solid var(--a2ui-color-border);
       border-radius: 12px;
-      padding: 8px 14px;
+      padding: 8px 16px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s ease;
     }
     .app-btn-icon:hover {
       border-color: var(--a2ui-color-primary);
       color: var(--a2ui-color-primary);
-      transform: translateY(-1px);
+      transform: scale(1.03);
     }
 
-    /* Prompt Input Bar & Hero Controls */
+    /* Prompt Input Bar (浅绿底 #f0fdfa) & Hero Controls */
     .app-prompt-bar {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      background: color-mix(in oklab, var(--a2ui-color-surface) 96%, var(--a2ui-color-secondary));
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: 1px solid var(--a2ui-color-border);
+      gap: 14px;
+      background: #f0fdfa; /* Teal-50 浅绿底 */
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid #ccfbf1; /* Teal-100 浅绿边框 */
     }
     .app-prompt-form {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       width: 100%;
     }
     .app-prompt-input {
@@ -198,35 +180,38 @@ export function injectBaseTheme(): void {
       background: var(--a2ui-color-surface);
       color: var(--app-text);
       border: 1px solid var(--a2ui-color-border);
-      border-radius: 10px;
-      padding: 10px 16px;
+      border-radius: 12px;
+      padding: 12px 18px;
       font-size: 14px;
       outline: none;
       transition: all 0.2s ease;
     }
     .app-prompt-input:focus {
       border-color: var(--a2ui-color-primary);
-      box-shadow: 0 0 0 3px color-mix(in oklab, var(--a2ui-color-primary) 15%, transparent);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--a2ui-color-primary) 18%, transparent);
     }
     .app-submit-btn {
       background: var(--a2ui-color-primary);
       color: #ffffff;
       border: none;
-      border-radius: 10px;
-      padding: 10px 20px;
+      border-radius: 12px;
+      padding: 12px 22px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       white-space: nowrap;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 12px color-mix(in oklab, var(--a2ui-color-primary) 30%, transparent);
+      box-shadow: 0 4px 14px color-mix(in oklab, var(--a2ui-color-primary) 25%, transparent);
     }
     .app-submit-btn:hover {
       filter: brightness(1.08);
-      transform: translateY(-1px);
+      transform: scale(1.02);
+    }
+    .app-submit-btn:active {
+      transform: scale(0.98);
     }
     .app-submit-btn:disabled {
       opacity: 0.6;
@@ -245,8 +230,8 @@ export function injectBaseTheme(): void {
       background: var(--a2ui-color-surface);
       color: var(--app-text);
       border: 1px solid var(--a2ui-color-border);
-      border-radius: 16px;
-      padding: 4px 12px;
+      border-radius: 20px;
+      padding: 5px 14px;
       font-size: 12px;
       font-weight: 500;
       cursor: pointer;
@@ -255,7 +240,7 @@ export function injectBaseTheme(): void {
     .app-preset-chip:hover {
       border-color: var(--a2ui-color-primary);
       color: var(--a2ui-color-primary);
-      background: color-mix(in oklab, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
+      transform: scale(1.04);
     }
 
     /* Modal Overlay */
@@ -480,7 +465,7 @@ export function renderAppFrame(
     <header class="app-header">
       <div class="app-header-top">
         <div class="app-brand">
-          <h1 class="app-title">${title}</h1>
+          <h1 class="app-title">${title.replace(/A2Learn/g, '<span class="brand-teal">A2</span>Learn')}</h1>
           <p class="app-subtitle">${subtitle}</p>
         </div>
         <div class="app-actions">

@@ -26,6 +26,7 @@ Use these guidelines and component patterns when building or refactoring any web
 | Tokens | Tailwind Class | Value / Hex | Usage |
 | :--- | :--- | :--- | :--- |
 | **Primary Accent** | `teal-600` / `teal-500` | `#0d9488` / `#14b8a6` | Primary CTAs, active links, hover states, logo accent |
+| **Subtle Accent Surface** | `bg-teal-50` / `bg-teal-100` | `#f0fdfa` / `#ccfbf1` | **浅绿底黑字/深字**：标签 Badge、高亮气泡、输入框背景 |
 | **Accent Gradient** | `from-teal-600 via-teal-500 to-teal-400` | Teal gradient | Dynamic text, hero highlights, brand badges |
 | **Page Background** | `bg-white` | `#ffffff` | Root body & main section background |
 | **Card / Elevated Surface** | `bg-gray-50` | `#f9fafb` (Gray-50) | Project cards, inputs, dropdown wrappers, prompt bar |
