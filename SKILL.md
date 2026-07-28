@@ -14,27 +14,27 @@ Use these guidelines and component patterns when building or refactoring any web
 ## 1. Design Philosophy & Visual Baseline
 
 - **Style**: Modern, clean, tech-focused, and minimal.
-- **Aesthetic Vibe**: Glassmorphism highlights, vibrant teal accents, polished dark mode contrast, smooth micro-interactions, clean cards, and crisp typography hierarchy.
-- **Theme**: Seamless Light & Dark Mode support enabled via Tailwind `class` dark mode strategy.
+- **Aesthetic Vibe**: Glassmorphism highlights, vibrant teal accents (`#0d9488`), crisp light mode contrast, smooth micro-interactions, clean cards, and structured typography hierarchy.
+- **Theme Strategy**: **Permanent Light Mode Only** (`color-scheme: light !important`). Dark mode media queries and class toggles are explicitly disabled for a unified, high-contrast visual brand.
 
 ---
 
 ## 2. Color System & Design Tokens
 
-### Color Palette Matrix
+### Color Palette Matrix (Light Mode Baseline)
 
-| Tokens | Tailwind Class | Light Mode Hex / Equivalent | Dark Mode Hex / Equivalent | Usage |
-| :--- | :--- | :--- | :--- | :--- |
-| **Primary Accent** | `teal-600` / `teal-500` / `teal-400` | `#0d9488` / `#14b8a6` | `#2dd4bf` / `#5eead4` | Primary CTAs, active links, hover states, logo accent |
-| **Accent Gradient** | `from-teal-600 via-teal-500 to-teal-400` | Teal gradient | Teal gradient | Dynamic rotating text, hero highlights |
-| **Page Background** | `bg-white` / `dark:bg-gray-900` | `#ffffff` | `#111827` (Gray-900) | Root body & main section background |
-| **Card / Elevated Surface** | `bg-gray-50` / `dark:bg-gray-800` | `#f9fafb` (Gray-50) | `#1f2937` (Gray-800) | Project cards, inputs, drop-down wrappers |
-| **Card Media Container** | `bg-white` / `dark:bg-gray-900/60` | `#ffffff` | `#111827` with 60% opacity | Project image aspect-ratio wrapper |
-| **Borders** | `border-gray-200` / `dark:border-gray-800` | `#e5e7eb` | `#1f2937` / `#374151` | Divider lines, card outlines, input borders |
-| **Primary Text** | `text-gray-900` / `dark:text-white` | `#111827` | `#ffffff` | Headings, card titles, main text bold |
-| **Body Text** | `text-gray-700` / `dark:text-gray-300` | `#374151` | `#d1d5db` | Main prose paragraphs, body copy |
-| **Muted Text / Subtitles**| `text-gray-500` / `dark:text-gray-400` | `#6b7280` | `#9ca3af` | Subheadings, descriptions, secondary icons |
-| **Metadata / Mono Text**| `text-gray-400` / `dark:text-gray-500` | `#9ca3af` | `#6b7280` | Dates, timestamps, tags, toggle buttons |
+| Tokens | Tailwind Class | Value / Hex | Usage |
+| :--- | :--- | :--- | :--- |
+| **Primary Accent** | `teal-600` / `teal-500` | `#0d9488` / `#14b8a6` | Primary CTAs, active links, hover states, logo accent |
+| **Accent Gradient** | `from-teal-600 via-teal-500 to-teal-400` | Teal gradient | Dynamic text, hero highlights, brand badges |
+| **Page Background** | `bg-white` | `#ffffff` | Root body & main section background |
+| **Card / Elevated Surface** | `bg-gray-50` | `#f9fafb` (Gray-50) | Project cards, inputs, dropdown wrappers, prompt bar |
+| **Card Media Container** | `bg-white` | `#ffffff` | Project image & component aspect-ratio wrapper |
+| **Borders** | `border-gray-200` | `#e5e7eb` (Gray-200) | Divider lines, card outlines, input borders |
+| **Primary Text** | `text-gray-900` | `#111827` (Gray-900) | Headings, card titles, main text bold |
+| **Body Text** | `text-gray-700` | `#374151` (Gray-700) | Main prose paragraphs, body copy |
+| **Muted Text / Subtitles**| `text-gray-500` | `#6b7280` (Gray-500) | Subheadings, descriptions, secondary icons |
+| **Metadata / Mono Text**| `text-gray-400` | `#9ca3af` (Gray-400) | Dates, timestamps, tags, key status badges |
 
 ### Tailwind Color Extension (`tailwind.config.mjs`)
 ```javascript
