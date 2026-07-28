@@ -205,9 +205,24 @@ export class A2learnSmartAnnotationBoardElement extends A2uiLitElement<typeof Sm
   `;
 
   @state() private localContent = "";
+  private lastUserContent = "";
 
   protected createController() {
     return new A2uiController(this, SmartAnnotationBoardApi);
+  }
+
+  updated(changedProperties: Map<PropertyKey, unknown>) {
+    super.updated(changedProperties);
+    if (changedProperties.has("controller")) {
+      const props = (this as any).controller?.props;
+      if (props) {
+        const nextContent = this.resolveString(props.userContent || "");
+        if (this.lastUserContent !== nextContent) {
+          this.localContent = nextContent;
+          this.lastUserContent = nextContent;
+        }
+      }
+    }
   }
 
   private resolveString(value: unknown): string {
@@ -287,8 +302,7 @@ export class A2learnSmartAnnotationBoardElement extends A2uiLitElement<typeof Sm
     const status = props.status || "idle";
     const feedback = props.feedback;
     
-    // 如果 Agent 下发了恢复的 content，且本地还没输入，则使用 Agent 的
-    const displayContent = this.localContent || (props.userContent ? this.resolveString(props.userContent) : "");
+    const displayContent = this.localContent;
     const wordCount = displayContent.trim() ? displayContent.trim().split(/\s+/).length : 0;
     
     const isReviewing = status === "reviewing";

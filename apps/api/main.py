@@ -116,13 +116,39 @@ def _require_session(session_id: str) -> SessionState:
     return session
 
 
+from fastapi import FastAPI, Header, HTTPException
+
+
+def _extract_api_key(
+    authorization: str | None = None,
+    x_openrouter_api_key: str | None = None,
+    x_api_key: str | None = None,
+) -> str | None:
+    if x_openrouter_api_key and x_openrouter_api_key.strip():
+        return x_openrouter_api_key.strip()
+    if x_api_key and x_api_key.strip():
+        return x_api_key.strip()
+    if authorization and authorization.strip():
+        raw = authorization.strip()
+        if raw.lower().startswith("bearer "):
+            return raw[7:].strip()
+        return raw
+    return None
+
+
 @app.get("/healthz")
 def healthz() -> dict[str, str]:
     return {"status": "ok"}
 
 
 @app.post("/api/session/start", response_model=SessionStartResponse)
-def start_session(payload: SessionStartRequest) -> SessionStartResponse:
+def start_session(
+    payload: SessionStartRequest,
+    authorization: str | None = Header(default=None),
+    x_openrouter_api_key: str | None = Header(default=None),
+    x_api_key: str | None = Header(default=None),
+) -> SessionStartResponse:
+    api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
     resource_path = None
     resource_text = payload.resource_text or os.getenv("A2LEARN_DEFAULT_RESOURCE_TEXT")
 
@@ -132,7 +158,7 @@ def start_session(payload: SessionStartRequest) -> SessionStartResponse:
         resource_path = _resolve_resource_path(payload.resource_path)
         
     try:
-        session = store.create(resource_path=resource_path, resource_text=resource_text)
+        session = store.create(resource_path=resource_path, resource_text=resource_text, api_key=api_key)
         validate_a2ui_messages(session.messages)
         return SessionStartResponse(session_id=session.session_id, messages=session.messages)
     except HTTPException:
@@ -168,7 +194,13 @@ def handle_action(session_id: str, payload: SessionActionRequest) -> SessionActi
 
 
 @app.post("/api/stateless/init", response_model=StatelessInitResponse)
-def stateless_init(payload: StatelessInitRequest) -> StatelessInitResponse:
+def stateless_init(
+    payload: StatelessInitRequest,
+    authorization: str | None = Header(default=None),
+    x_openrouter_api_key: str | None = Header(default=None),
+    x_api_key: str | None = Header(default=None),
+) -> StatelessInitResponse:
+    api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
     resource_path = None
     resource_text = payload.resource_text or os.getenv("A2LEARN_DEFAULT_RESOURCE_TEXT")
 
@@ -179,7 +211,7 @@ def stateless_init(payload: StatelessInitRequest) -> StatelessInitResponse:
         
     try:
         mode = os.getenv("A2LEARN_MODE", "agent")
-        state = run_agent(resource_path=resource_path, resource_text=resource_text, mode=mode)
+        state = run_agent(resource_path=resource_path, resource_text=resource_text, mode=mode, api_key=api_key)
         messages = SessionStore._extract_messages(state)
         validate_a2ui_messages(messages)
         return StatelessInitResponse(messages=messages)

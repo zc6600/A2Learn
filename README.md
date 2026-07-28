@@ -46,16 +46,17 @@ OPENROUTER_API_KEY=your_openrouter_api_key_here
 
 ### 3. Generate & Launch Showcase (Offline Preview)
 ```bash
-# Generate showcase in Parser Mode and serve it offline
-bash start.sh --text "Explain how a hash map works" --mode parser --port 8010
+# Launch offline viewer with default showcase (or specify --text)
+bash start.sh
 ```
 Open `http://127.0.0.1:8010` in your browser.
 
-### 4. Running Backend API (Online Mode)
+### 4. Running Web App & Backend API (Online Interactive Mode)
 ```bash
-# Start both backend FastAPI session server and frontend viewer
-bash start_interactive.sh --text "Explain how a hash map works"
+# Start Web App (FastAPI backend + Frontend viewer)
+bash start_interactive.sh
 ```
+Open `http://127.0.0.1:8010` in your browser to enter topics directly in the Web UI!
 
 ### 5. Running Tests
 ```bash

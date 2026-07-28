@@ -37,11 +37,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$RESOURCE_PATH" && -z "$RESOURCE_TEXT" ]]; then
-  echo "Usage:"
-  echo "  bash start.sh <resource_path> [port]"
-  echo "  bash start.sh --text \"Some topic to teach\" [--port 8010]"
-  echo "  bash start.sh --file ./docs [--port 8010]"
-  exit 1
+  RESOURCE_TEXT="Explain how a hash map works"
 fi
 
 if [ -d ".venv" ]; then

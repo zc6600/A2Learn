@@ -43,11 +43,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$RESOURCE_PATH" && -z "$RESOURCE_TEXT" ]]; then
-  echo "Usage:"
-  echo "  bash start_interactive.sh <resource_path> [viewer_port] [api_port]"
-  echo "  bash start_interactive.sh --text \"Some topic\" [--viewer-port 8010] [--api-port 8008]"
-  echo "  bash start_interactive.sh --file ./docs"
-  exit 1
+  RESOURCE_TEXT="Explain how a hash map works"
 fi
 
 if [ -d ".venv" ]; then

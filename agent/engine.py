@@ -14,6 +14,7 @@ from .parser import parse_json_to_a2ui
 class AgentState(TypedDict, total=False):
     resource_path: str
     resource_text: str
+    api_key: str
     curriculum: dict[str, Any]
     curriculum_path: str
     site_plan: dict[str, Any]
@@ -47,7 +48,7 @@ def _node_load_resource(state: AgentState) -> AgentState:
 
 def _node_plan_curriculum(state: AgentState) -> AgentState:
     _log("🧠 Step 1/3: Planning curriculum (calling LLM, please wait...)")
-    llm = build_llm()
+    llm = build_llm(api_key=state.get("api_key"))
     curriculum = plan_curriculum(llm, state["resource_text"])
     _log(f"✅ Curriculum planned: {len(curriculum.get('modules', []))} modules.")
     output_dir = state.get("output_dir")
@@ -59,7 +60,7 @@ def _node_plan_curriculum(state: AgentState) -> AgentState:
 
 def _node_build_site(state: AgentState) -> AgentState:
     _log("🏗️  Step 2/3: Building site plan (calling LLM, please wait...)")
-    llm = build_llm()
+    llm = build_llm(api_key=state.get("api_key"))
     site_plan = build_site_plan(llm, state["curriculum"])
     _log(f"✅ Site plan built: {len(site_plan.get('surfaces', []))} surfaces.")
     output_dir = state.get("output_dir")
@@ -71,7 +72,7 @@ def _node_build_site(state: AgentState) -> AgentState:
 
 def _node_generate_messages(state: AgentState) -> AgentState:
     _log("✨ Step 3/3: Generating A2UI messages (calling LLM, please wait...)")
-    llm = build_llm()
+    llm = build_llm(api_key=state.get("api_key"))
     resource_text = state["resource_text"]
     site_plan = state.get("site_plan")
     if site_plan:
@@ -108,7 +109,11 @@ def build_agent_graph():
     return graph.compile()
 
 
-def run_parser_mode(resource_path: str = None, resource_text: str = None) -> AgentState:
+def run_parser_mode(
+    resource_path: str = None,
+    resource_text: str = None,
+    api_key: str = None,
+) -> AgentState:
     """Runs direct structured JSON generation and uses the parser to generate A2UI messages."""
     from pathlib import Path
     
@@ -133,7 +138,7 @@ def run_parser_mode(resource_path: str = None, resource_text: str = None) -> Age
     prompt_template = prompt_file.read_text(encoding="utf-8")
     
     _log("✨ Generating structured JSON (calling LLM, please wait...)")
-    llm = build_llm()
+    llm = build_llm(api_key=api_key)
     structured_data = generate_structured_json(llm, text, prompt_template)
     
     # Save the structured content json
@@ -156,9 +161,14 @@ def run_parser_mode(resource_path: str = None, resource_text: str = None) -> Age
     }
 
 
-def run_agent(resource_path: str = None, resource_text: str = None, mode: str = "agent") -> AgentState:
+def run_agent(
+    resource_path: str = None,
+    resource_text: str = None,
+    mode: str = "agent",
+    api_key: str = None,
+) -> AgentState:
     if mode == "parser":
-        return run_parser_mode(resource_path, resource_text)
+        return run_parser_mode(resource_path, resource_text, api_key=api_key)
 
     app = build_agent_graph()
     initial_state = {}
@@ -166,6 +176,8 @@ def run_agent(resource_path: str = None, resource_text: str = None, mode: str = 
         initial_state["resource_path"] = resource_path
     if resource_text:
         initial_state["resource_text"] = resource_text
+    if api_key:
+        initial_state["api_key"] = api_key
         
     if not resource_path and not resource_text:
         raise ValueError("Either resource_path or resource_text must be provided")

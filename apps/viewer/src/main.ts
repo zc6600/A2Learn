@@ -582,6 +582,115 @@ async function bootstrapOffline(container: HTMLElement, source: ViewerSourceOffl
   renderSurfaces(container, processor, "Offline mode: Previewing message file only, no interaction callbacks.");
 }
 
+const LOCAL_STORAGE_KEY = "a2learn_user_api_key";
+
+function getStoredApiKey(): string {
+  try {
+    return (localStorage.getItem(LOCAL_STORAGE_KEY) || "").trim();
+  } catch {
+    return "";
+  }
+}
+
+function setStoredApiKey(key: string): void {
+  try {
+    if (key) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, key.trim());
+    } else {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function updateKeyPillStatus(): void {
+  const pill = document.getElementById("app-key-pill");
+  if (!pill) return;
+  const key = getStoredApiKey();
+  if (key) {
+    pill.className = "app-key-pill active";
+    pill.textContent = "🔑 API Key 已配置";
+  } else {
+    pill.className = "app-key-pill missing";
+    pill.textContent = "🔑 API Key 待配置";
+  }
+}
+
+function initAppControls(onGenerate: (promptText: string) => void): void {
+  const settingsBtn = document.getElementById("app-settings-btn");
+  const modal = document.getElementById("app-settings-modal");
+  const closeBtn = document.getElementById("app-modal-close");
+  const saveBtn = document.getElementById("app-modal-save");
+  const clearBtn = document.getElementById("app-modal-clear");
+  const keyInput = document.getElementById("app-api-key-input") as HTMLInputElement | null;
+  const form = document.getElementById("app-prompt-form") as HTMLFormElement | null;
+  const promptInput = document.getElementById("app-prompt-input") as HTMLInputElement | null;
+
+  updateKeyPillStatus();
+
+  const openModal = () => {
+    if (keyInput) keyInput.value = getStoredApiKey();
+    modal?.classList.remove("hidden");
+  };
+
+  const closeModal = () => {
+    modal?.classList.add("hidden");
+  };
+
+  settingsBtn?.addEventListener("click", openModal);
+  closeBtn?.addEventListener("click", closeModal);
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  saveBtn?.addEventListener("click", () => {
+    if (keyInput) {
+      setStoredApiKey(keyInput.value);
+      updateKeyPillStatus();
+    }
+    closeModal();
+  });
+
+  clearBtn?.addEventListener("click", () => {
+    setStoredApiKey("");
+    if (keyInput) keyInput.value = "";
+    updateKeyPillStatus();
+    closeModal();
+  });
+
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const promptText = (promptInput?.value || "").trim();
+    if (!promptText) return;
+
+    const key = getStoredApiKey();
+    if (!key) {
+      openModal();
+      alert("请先点击右上角配置你的 OpenRouter API Key 以调用 AI 引擎。");
+      return;
+    }
+    onGenerate(promptText);
+  });
+
+  const chips = document.querySelectorAll(".app-preset-chip");
+  chips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const preset = chip.getAttribute("data-preset");
+      if (preset) {
+        if (promptInput) promptInput.value = preset;
+        const key = getStoredApiKey();
+        if (!key) {
+          openModal();
+          alert("请先配置你的 OpenRouter API Key 以开始生成流程！");
+          return;
+        }
+        onGenerate(preset);
+      }
+    });
+  });
+}
+
 async function bootstrapViewer() {
   const root = setupRoot();
   if (!root) {
@@ -591,17 +700,17 @@ async function bootstrapViewer() {
   applyEmbedFlag(initialConfig.embed);
   applyThemeVars(initialConfig.source.themeVars);
 
-  const title = initialConfig.embed ? "" : "A2Learn Viewer";
+  const title = initialConfig.embed ? "" : "A2Learn Showcase Generator";
   const subtitle = initialConfig.embed
     ? ""
-    : "For previewing Agent-generated A2UI Surfaces, with real-time loading and basic error feedback.";
+    : "AI 驱动的动态教学 Showcase 引擎 · 自动规划课程大纲并实时生成 A2UI 界面";
 
   renderAppFrame(
     root,
     title,
     subtitle,
     `<section id="surface-container" aria-live="polite">
-      <p class="viewer-state loading">Loading A2UI message file, please wait...</p>
+      <p class="viewer-state loading">正在加载 A2UI Showcase 界面，请稍候...</p>
     </section>`,
   );
 
@@ -619,8 +728,19 @@ async function bootstrapViewer() {
   const startWithConfig = async (cfg: ViewerRuntimeConfig) => {
     applyEmbedFlag(cfg.embed);
     applyThemeVars(cfg.source.themeVars);
+
+    // Merge stored API Key if present
+    const storedKey = getStoredApiKey();
+    if (cfg.source.mode === "online" && storedKey) {
+      cfg.source.headers = {
+        ...(cfg.source.headers || {}),
+        Authorization: `Bearer ${storedKey}`,
+      };
+    }
+
     try {
       if (cfg.source.mode === "online") {
+        showState(container, "🧠 AI Agent 正在规划大纲与生成 A2UI 组件，请稍候...", "loading");
         await bootstrapOnline(container, cfg.source);
         stopResize();
         stopResize = setupAutoResize(container, () => parentOrigin);
@@ -629,7 +749,7 @@ async function bootstrapViewer() {
     } catch (err) {
       showState(
         container,
-        `Online mode unavailable, downgrading to offline preview.\nReason: ${String(err)}`,
+        `Online 交互生成失败（可能缺少有效的 API Key 或 API 服务未连通）。\n错误信息: ${String(err)}\n降级到 Offline 预设视图展示。`,
         "error",
       );
     }
@@ -642,6 +762,27 @@ async function bootstrapViewer() {
     stopResize();
     stopResize = setupAutoResize(container, () => parentOrigin);
   };
+
+  if (!initialConfig.embed) {
+    initAppControls((promptText: string) => {
+      const currentApiUrl =
+        initialConfig.source.mode === "online"
+          ? initialConfig.source.apiBaseUrl
+          : (import.meta.env.VITE_A2LEARN_API_URL || "http://127.0.0.1:8008").trim();
+
+      const userKey = getStoredApiKey();
+      const onlineConfig: ViewerRuntimeConfig = {
+        embed: false,
+        source: {
+          mode: "online",
+          apiBaseUrl: normalizeBaseUrl(currentApiUrl),
+          resourceText: promptText,
+          headers: userKey ? { Authorization: `Bearer ${userKey}` } : undefined,
+        },
+      };
+      void startWithConfig(onlineConfig);
+    });
+  }
 
   const onMessage = (event: MessageEvent) => {
     const data = event.data;

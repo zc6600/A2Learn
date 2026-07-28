@@ -76,10 +76,20 @@ class SessionStore:
         self._sessions: OrderedDict[str, SessionState] = OrderedDict()
         self._max_capacity = max_capacity
 
-    def create(self, resource_path: str | None = None, resource_text: str | None = None) -> SessionState:
+    def create(
+        self,
+        resource_path: str | None = None,
+        resource_text: str | None = None,
+        api_key: str | None = None,
+    ) -> SessionState:
         import os
         mode = os.getenv("A2LEARN_MODE", "agent")
-        state = run_agent(resource_path=resource_path, resource_text=resource_text, mode=mode)
+        state = run_agent(
+            resource_path=resource_path,
+            resource_text=resource_text,
+            mode=mode,
+            api_key=api_key,
+        )
         messages = self._extract_messages(state)
         session = SessionState(
             session_id=f"sess_{uuid.uuid4().hex[:12]}",

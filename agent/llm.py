@@ -17,19 +17,20 @@ except Exception:  # pragma: no cover
 load_dotenv()
 
 
-def build_llm() -> Any:
-    api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPEN_ROUTER_API_KEY")
-    if not api_key or ChatOpenAI is None:
+def build_llm(api_key: str | None = None) -> Any:
+    key = api_key or os.getenv("OPENROUTER_API_KEY") or os.getenv("OPEN_ROUTER_API_KEY")
+    if not key or ChatOpenAI is None:
         raise RuntimeError(
-            "OPENROUTER_API_KEY is required and langchain_openai must be installed."
+            "API Key is required. Please set your OpenRouter API Key in Settings or env."
         )
     model = os.getenv("OPENROUTER_MODEL", DEFAULT_MODEL)
     return ChatOpenAI(
         model=model,
-        api_key=api_key,
+        api_key=key,
         base_url="https://openrouter.ai/api/v1",
         temperature=0.2,
     )
+
 
 
 def _extract_json_array(text: str) -> list[dict[str, Any]]:
