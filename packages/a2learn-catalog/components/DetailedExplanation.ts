@@ -2,11 +2,13 @@ import { html, css, nothing } from "lit";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { DetailedExplanationApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "./sanitize";
+import { sanitizeHtml, tooltipStyles } from "./sanitize";
 
 export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof DetailedExplanationApi> {
-  static styles = css`
-    :host {
+  static styles = [
+    tooltipStyles,
+    css`
+      :host {
       display: block;
       margin: var(--a2ui-spacing-l, 20px) 0;
       font-family: var(--a2ui-font-family, sans-serif);
@@ -114,7 +116,8 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       color: var(--a2ui-color-on-surface, #111827);
       border-radius: 0 8px 8px 0;
     }
-  `;
+  `
+];
 
   protected createController() {
     return new A2uiController(this, DetailedExplanationApi);

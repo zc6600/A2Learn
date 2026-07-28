@@ -3,11 +3,13 @@ import { customElement } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { AnalogyCardApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "./sanitize";
+import { sanitizeHtml, tooltipStyles } from "./sanitize";
 
 export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCardApi> {
-  static styles = css`
-    :host {
+  static styles = [
+    tooltipStyles,
+    css`
+      :host {
       display: block;
       margin: var(--a2ui-spacing-l) 0;
       font-family: var(--a2ui-font-family);
@@ -83,7 +85,8 @@ export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCard
       color: var(--a2ui-color-primary, #0d9488);
       font-weight: 700;
     }
-  `;
+  `
+];
 
   protected createController() {
     return new A2uiController(this, AnalogyCardApi);

@@ -2,11 +2,13 @@ import { html, css, nothing } from "lit";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { ConceptCardApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "./sanitize";
+import { sanitizeHtml, tooltipStyles } from "./sanitize";
 
 export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCardApi> {
-  static styles = css`
-    :host {
+  static styles = [
+    tooltipStyles,
+    css`
+      :host {
       display: block;
       margin: var(--a2ui-spacing-m) 0;
     }
@@ -164,7 +166,8 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       border-color: #0d9488;
       transform: scale(1.03);
     }
-  `;
+  `
+];
 
   protected createController() {
     return new A2uiController(this, ConceptCardApi);

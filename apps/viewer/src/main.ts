@@ -702,6 +702,26 @@ function initAppControls(onGenerate: (promptText: string) => void): void {
     }
     onGenerate(promptText);
   });
+
+  document.addEventListener("click", (e: MouseEvent) => {
+    const path = e.composedPath();
+    const btn = path.find(
+      (el) =>
+        el instanceof HTMLElement &&
+        el.classList.contains("tooltip-explore-btn")
+    ) as HTMLElement | undefined;
+
+    if (btn) {
+      const term = btn.getAttribute("data-term");
+      if (term) {
+        window.dispatchEvent(
+          new CustomEvent("a2learn-explore-concept", {
+            detail: { concept: term },
+          })
+        );
+      }
+    }
+  });
 }
 
 async function bootstrapViewer() {
