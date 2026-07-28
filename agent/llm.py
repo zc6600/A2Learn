@@ -186,7 +186,13 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
           - NO "第一性原理与 Naive 方案及缺陷" meta labels!
           - NO "解决思路 Mindset：", "工程落地：", "本模块总结：" meta tags!
           - NO "Step 1 | 介绍背景...", "Step 2 | 第一性原理..." prefixes!
-          Titles MUST directly express the core technical content itself (e.g. "物理内存本质与线性搜索缺陷", "让 Key 的名称直接算出内存下标", "链地址法 vs 开放寻址法及 CPU 缓存效应", "0.75 负载因子、位运算加速与渐进式 Rehash").
+        - CONCRETE REAL EXAMPLES (用具体数据步步演推代替抽象公式):
+          When explaining data structures or algorithms, NEVER use abstract formulas like "shifting half the array O(N)".
+          ALWAYS provide a concrete step-by-step numeric trace:
+          1. State the exact initial data (e.g., `[10, 20, 30, 50, 60]`).
+          2. State the target operation (e.g., "Insert 25").
+          3. Trace each memory move step-by-step (e.g., "60 -> index 5, 50 -> index 4, 30 -> index 3").
+          4. Conclude with real-world impact (e.g., "Inserting 1 element forced 3 RAM moves; 1,000,000 items forces 500,000 RAM moves!").
         - GLOSSARY ANNOTATION: When mentioning obscure, technical, or precursor concepts in explanations (such as algorithms, metrics, or mechanisms), wrap them with a semantic HTML definition tag: <dfn title="一句话通俗注解">生僻概念</dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法">开放寻址法</dfn> 解决。"
         - Output format example:
           [

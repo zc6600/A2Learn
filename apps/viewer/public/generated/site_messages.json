@@ -97,11 +97,11 @@
         {
           "id": "step2-naive",
           "component": "MentalModel",
-          "title": "物理内存本质与线性搜索缺陷",
+          "title": "物理内存本质与真实搬迁演推",
           "description": "计算机物理内存 (RAM) 本质是一个支持根据数字地址直接访问的连续字节数组。所有数据存取最终都建立在这个硬件特性上。",
           "icon": "🧠",
-          "analogy": "<b>无序数组遍历 (顺序查找 O(N))</b><br>从下标 0 挨个比对目标 Key。缺陷：数据量 N 越大，最坏比对 N 次，极其低下。<br><br><b>保持数组有序 (二分查找 O(log N))</b><br>按字典序排好数组。缺陷：查找变快了，但每次插入/删除新数据都要移动半个数组（开销 O(N)）。",
-          "diagram": "内存硬件本质：[ 0号地址 | 1号地址 | 2号地址 | ... | N-1号地址 ]  (可直接按数字下标读取)\n顺序遍历：Key == arr[0]? -> Key == arr[1]? -> ... (最坏 N 次比较！)",
+          "analogy": "<b>具体演推例子：向已排好序的数组 [ 10, 20, 30, 50, 60 ] 中插入数字 25</b><br><br>1. <b>定位</b>：对比发现 25 应该插在 20 和 30 之间（即下标 2）；<br>2. <b>搬迁</b>：为给 25 腾出空位，60、50、30 必须在内存物理地址里<b>整体右移 1 位</b>（60->5, 50->4, 30->3）；<br>3. <b>写入</b>：将 25 写入已腾空的下标 2。<br><br>💥 <b>痛感直击</b>：仅插入 1 个数字，就导致内存中 3 个元素被迫搬家！若数组存有 100 万个数据，插入一次将在 RAM 中搬迁 50 万个内存块！",
+          "diagram": "初始内存: [0:10 | 1:20 | 2:30 | 3:50 | 4:60]\n目标: 插入 25 到下标 2\nStep1 右移: 60->5, 50->4, 30->3  ==> [0:10 | 1:20 | 2:空 | 3:30 | 4:50 | 5:60]\nStep2 写入: 25 写入下标 2      ==> [0:10 | 1:20 | 2:25 | 3:30 | 4:50 | 5:60]",
           "pillars": [
             {
               "title": "硬件存取特性",
@@ -109,8 +109,8 @@
               "icon": "⚡"
             },
             {
-              "title": "传统搜索缺陷",
-              "description": "无论是顺序比对还是保持有序，都受制于比对与移动开销。",
+              "title": "内存搬迁缺陷",
+              "description": "有序数组插入或删除会导致后续大量内存节点移动。",
               "icon": "❌"
             }
           ]
@@ -143,10 +143,10 @@
         {
           "id": "step4-sandbox",
           "component": "InteractiveSandbox",
-          "title": "Key 如何直接算出内存索引？",
-          "description": "点击运行代码，观察不同字符串 Key 如何通过哈希计算直接映射到数组下标：",
+          "title": "代码演示：观察内存数组挪动与哈希直接定位的区别",
+          "description": "点击运行代码，对比在有序数组中插入元素（需搬迁后续内存）与哈希计算直接定位的执行开销：",
           "language": "javascript",
-          "code": "function simpleHash(key, capacity = 10) {\n  let hash = 0;\n  for (let i = 0; i < key.length; i++) {\n    hash = (hash * 31 + key.charCodeAt(i)) % capacity;\n  }\n  return hash;\n}\n\nconsole.log(\"'Alice' 计算出的内存下标:\", simpleHash('Alice'));\nconsole.log(\"'Bob' 计算出的内存下标:\", simpleHash('Bob'));\nconsole.log(\"'Charlie' 计算出的内存下标:\", simpleHash('Charlie'));",
+          "code": "// 演示：在有序数组 [10, 20, 30, 50, 60] 中插入 25\nlet arr = [10, 20, 30, 50, 60];\nlet insertVal = 25;\nlet shiftCount = 0;\n\n// 模拟物理内存右移\narr.push(undefined);\nfor (let i = arr.length - 1; i > 2; i--) {\n  arr[i] = arr[i - 1];\n  shiftCount++;\n}\narr[2] = insertVal;\n\nconsole.log(\"插入后数组:\", arr);\nconsole.log(\"被迫搬迁的内存块数量:\", shiftCount, \"次\");\nconsole.log(\"------------------------------\");\n\n// 哈希定位示例\nfunction simpleHash(key, capacity = 10) {\n  let hash = 0;\n  for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) % capacity;\n  return hash;\n}\nconsole.log(\"'Alice' 直接算出的槽位号:\", simpleHash('Alice'));",
           "runLocally": true
         },
         {
