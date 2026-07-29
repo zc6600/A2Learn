@@ -797,6 +797,27 @@ async function bootstrapViewer() {
   };
 
   if (!initialConfig.embed) {
+    const zhBtn = document.getElementById("lang-zh-btn");
+    const enBtn = document.getElementById("lang-en-btn");
+    if (zhBtn && enBtn) {
+      zhBtn.addEventListener("click", () => {
+        zhBtn.classList.add("active");
+        enBtn.classList.remove("active");
+        void startWithConfig({
+          embed: false,
+          source: { mode: "offline", messagesUrl: "/generated/site_messages.json" },
+        });
+      });
+      enBtn.addEventListener("click", () => {
+        enBtn.classList.add("active");
+        zhBtn.classList.remove("active");
+        void startWithConfig({
+          embed: false,
+          source: { mode: "offline", messagesUrl: "/generated/site_messages_en.json" },
+        });
+      });
+    }
+
     initAppControls((promptText: string) => {
       const currentApiUrl =
         initialConfig.source.mode === "online"

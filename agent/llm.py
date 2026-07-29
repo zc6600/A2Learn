@@ -143,7 +143,7 @@ def build_site_plan(llm: Any, curriculum: dict[str, Any]) -> dict[str, Any]:
     return _extract_json_object(str(content))
 
 
-def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]:
+def generate_a2ui_messages(llm: Any, resource_text: str, target_language: str = "zh") -> list[dict[str, Any]]:
     from pathlib import Path
 
     examples_text = ""
@@ -159,10 +159,18 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
         if examples:
             examples_text = "\n\nHere are some examples of valid A2UI message arrays:\n" + "\n\n".join(examples)
 
+    lang_instruction = (
+        "TARGET LANGUAGE: CHINESE (简体中文). All generated titles, descriptions, definitions, dialogues, analogies, and tooltips MUST be in clear, engaging, professional Chinese."
+        if target_language == "zh" else
+        "TARGET LANGUAGE: ENGLISH. All generated titles, descriptions, definitions, dialogues, analogies, and tooltips MUST be in fluent, clear, engaging, professional English."
+    )
+
     system_prompt = textwrap.dedent(
         f"""
         You are an A2Learn agent that MUST directly output A2UI v0.9 messages.
         Return ONLY a JSON array of messages, no explanation.
+
+        {lang_instruction}
 
         Hard requirements:
         - Every message MUST include: "version": "v0.9".

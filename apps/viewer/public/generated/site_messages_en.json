@@ -1,0 +1,176 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface-module-1",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface-module-1",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-1",
+            "learning-path-1",
+            "step1-background",
+            "step1-chat",
+            "step2-naive",
+            "step3-mindset",
+            "step4-implementation",
+            "step4-sandbox",
+            "step5-summary"
+          ]
+        },
+        {
+          "id": "header-1",
+          "component": "Text",
+          "variant": "h1",
+          "text": "How to Achieve O(1) Instant Lookup in Massive Data?"
+        },
+        {
+          "id": "learning-path-1",
+          "component": "LearningPath",
+          "title": "Hash Table 4-Stage Progressive Path",
+          "activeStepId": "1",
+          "steps": [
+            {
+              "id": "1",
+              "title": "1. Search Crisis (O(1) Direct Access)",
+              "targetSurfaceId": "surface-module-1"
+            },
+            {
+              "id": "2",
+              "title": "2. Collision Dilemma (Conflict Resolution)",
+              "targetSurfaceId": "surface-module-2"
+            },
+            {
+              "id": "3",
+              "title": "3. Space vs Speed (Load Factor & Rehash)",
+              "targetSurfaceId": "surface-module-3"
+            },
+            {
+              "id": "4",
+              "title": "4. Security Defense (HashDoS & Treeify)",
+              "targetSurfaceId": "surface-module-4"
+            }
+          ]
+        },
+        {
+          "id": "step1-background",
+          "component": "AnalogyCard",
+          "title": "Throughput Bottlenecks in Large-Scale Search",
+          "analogy": "<b>Real-World Context</b>: In modern distributed systems, web frameworks, and database kernels, data retrieval is one of the most frequent operations.<br><br><b>Core Pain Point</b>: When in-memory data scales to 1,000,000 or 100,000,000 items, traditional search algorithms severely degrade. Scanning thousands of nodes per query exhausts CPU cycles, spiking query latency to hundreds of milliseconds. How can we achieve instant millisecond lookups completely independent of dataset size?"
+        },
+        {
+          "id": "step1-chat",
+          "component": "ScenarioDialogue",
+          "topic": "💬 Tech Group: Why does traversing 1M items freeze the server?",
+          "characters": {
+            "alice": {
+              "name": "Alice (Junior Dev)",
+              "avatar": "👩‍💻",
+              "alignment": "left"
+            },
+            "boss_zhang": {
+              "name": "Architect Zhang",
+              "avatar": "👨‍💼",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alice",
+              "content": "Boss! I deployed a user lookup feature that loops over a 1M array in memory. It ran fast locally, but today during peak traffic CPU hit 100% and lookups took 800ms!"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "You are using <dfn title=\"Linear search comparing items one by one, worst case O(N)\">Linear Search O(N)</dfn>! As dataset N grows 1000x, comparisons and CPU instructions grow 1000x. We must abandon the 'compare one by one' mindset!"
+            },
+            {
+              "characterId": "alice",
+              "content": "What if I keep the array sorted and use Binary Search O(log N)? That takes only ~20 comparisons!"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "Binary search is fast for reading, but keeping an array sorted in RAM is extremely costly! Every insert requires shifting hundreds of thousands of items right. We need a paradigm shift that achieves O(1) for both reads and writes!"
+            }
+          ]
+        },
+        {
+          "id": "step2-naive",
+          "component": "MentalModel",
+          "title": "Physical RAM Nature & Memory Shift Overhead",
+          "description": "Physical Random Access Memory (RAM) is hardware-wise a contiguous byte array. RAM hardware natively supports O(1) random access by numerical memory address.",
+          "icon": "🧠",
+          "diagramTitle": "📊 Physical RAM Data Movement Trace",
+          "diagram": "Initial RAM: [0:10 | 1:20 | 2:30 | 3:50 | 4:60]\nTarget: Insert 25 into sorted index 2\nStep 1 Shift Right: 60->idx 5, 50->idx 4, 30->idx 3  ==> [0:10 | 1:20 | 2:Empty | 3:30 | 4:50 | 5:60]\nStep 2 Write Value: Write 25 to freed index 2      ==> [0:10 | 1:20 | 2:25    | 3:30 | 4:50 | 5:60]",
+          "pillarsTitle": "Hardware Nature & Naive Flaws",
+          "pillars": [
+            {
+              "title": "Hardware Access",
+              "description": "RAM bus natively supports O(1) random access by numeric index regardless of array size.",
+              "icon": "⚡"
+            },
+            {
+              "title": "Unsorted Array Flaw",
+              "description": "Sequential scan takes O(N) worst case, latency scales linearly with dataset size.",
+              "icon": "❌"
+            },
+            {
+              "title": "Sorted Array Flaw",
+              "description": "Search takes O(log N), but inserts/deletes force shifting memory blocks with O(N) cost.",
+              "icon": "⚠️"
+            }
+          ],
+          "analogyTitle": "💡 Concrete Memory Shift Trace",
+          "analogy": "<b>Trace of inserting 25 into sorted array [ 10, 20, 30, 50, 60 ]:</b><br><br>1. <b>Locate Index</b>: Number 25 belongs between 20 and 30 (target index 2);<br>2. <b>Shift Memory</b>: Because array RAM must be contiguous, items 60, 50, 30 must shift right by 1 index (60->5, 50->4, 30->3);<br>3. <b>Write Value</b>: Write 25 into freed slot 2.<br><br>💥 <b>Real Impact</b>: Inserting just 1 item forced 3 memory shifts! In a 1,000,000 array, inserting 1 item forces 500,000 RAM block shifts!"
+        },
+        {
+          "id": "step3-mindset",
+          "component": "ConceptCard",
+          "title": "Paradigm Shift: Calculate Memory Address Directly from Key",
+          "tags": [
+            "Computation Over Comparison",
+            "O(1) Addressing",
+            "Paradigm Shift"
+          ],
+          "definition": "<b>Core Mindset Breakthrough</b>: Stop searching through memory! Switch to <b>'Direct Computation of Memory Addresses'</b>!<br><br>Do not iterate to compare key values. Instead, design a mathematical formula where Key string directly calculates its target array index!",
+          "example": "<pre><code>// Search Paradigm (Comparison): Find 'Alice' -> Compare 1,000,000 times\n// Hash Paradigm (Computation): Compute 'Alice' -> Directly get Index 5 -> Read arr[5]</code></pre>",
+          "relatedConcepts": [
+            "Hash Function",
+            "O(1) Complexity",
+            "Hash Mapping"
+          ]
+        },
+        {
+          "id": "step4-implementation",
+          "component": "DetailedExplanation",
+          "title": "Hash Function & Bucket Array Engineering",
+          "icon": "⚙️",
+          "estimatedReadTime": "4 min read",
+          "content": "To implement the 'Computation over Comparison' mindset into code, engineering introduces two core components:\n\n1. **<dfn title=\"Mathematical algorithm converting arbitrary length Key into fixed unsigned integer\">Hash Function</dfn>**: Takes arbitrary Key input (string, ID, reference) and computes an integer index. E.g. `hash('Alice') = 154829`.\n2. **<dfn title=\"Contiguous memory array holding actual data values\">Bucket Array (Hash Table)</dfn>**: Allocates an array of size `capacity`. Modulo arithmetic maps integer hash to array index: `index = hash(key) % capacity`.\n\n**O(1) Hardware Guarantee**:\nWhether the hash table contains 10 items or 1,000,000 items, as long as the hash calculation executes in a few CPU instructions, lookup time is constant! This is the physical foundation of **<dfn title=\"Constant time performance independent of dataset size\">O(1) Complexity</dfn>**."
+        },
+        {
+          "id": "step4-sandbox",
+          "component": "InteractiveSandbox",
+          "title": "Code Demo: Array Memory Shifts vs O(1) Hash Direct Access",
+          "description": "Run the code to compare array element shifts vs O(1) direct hash calculation:",
+          "language": "javascript",
+          "code": "// Demo 1: Inserting 25 into sorted array [10, 20, 30, 50, 60]\nlet arr = [10, 20, 30, 50, 60];\nlet insertVal = 25;\nlet shiftCount = 0;\n\n// Simulate physical memory shift right\narr.push(undefined);\nfor (let i = arr.length - 1; i > 2; i--) {\n  arr[i] = arr[i - 1];\n  shiftCount++;\n}\narr[2] = insertVal;\n\nconsole.log(\"Array after insert:\", arr);\nconsole.log(\"RAM memory blocks forced to shift:\", shiftCount);\nconsole.log(\"------------------------------------------\");\n\n// Demo 2: Hash function calculating direct slot index (O(1))\nfunction simpleHash(key, capacity = 10) {\n  let hash = 0;\n  for (let i = 0; i < key.length; i++) {\n    hash = (hash * 31 + key.charCodeAt(i)) % capacity;\n  }\n  return hash;\n}\n\nconsole.log(\"Key 'Alice' calculated slot index:\", simpleHash('Alice'));\nconsole.log(\"Key 'Bob'   calculated slot index:\", simpleHash('Bob'));",
+          "runLocally": true
+        },
+        {
+          "id": "step5-summary",
+          "component": "AnalogyCard",
+          "title": "Summary: From Searching to Computation",
+          "analogy": "The key to O(1) speed is leveraging physical RAM's native numeric addressing to replace <b>'comparing items one by one'</b> with <b>'direct formula computation'</b>.<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Terminology Summary</h5><p>To solve the search efficiency crisis, we shift from <dfn title=\"Linear scan comparing items sequentially with O(N) cost\"><strong>Linear Search O(N)</strong></dfn> to computation. A <dfn title=\"Algorithm converting arbitrary Keys into integer array indexes\"><strong>Hash Function</strong></dfn> converts Key names directly into array indexes, achieving <dfn title=\"Constant time performance independent of dataset size\"><strong>O(1) Time Complexity</strong></dfn>.</p></div>"
+        }
+      ]
+    }
+  }
+]

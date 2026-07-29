@@ -40,22 +40,22 @@
           "steps": [
             {
               "id": "1",
-              "title": "查找效率危机 (O(1)计算)",
+              "title": "1. 查找效率危机 (O(1)计算)",
               "targetSurfaceId": "surface-module-1"
             },
             {
               "id": "2",
-              "title": "散列碰撞困境 (冲突解决)",
+              "title": "2. 散列碰撞困境 (冲突解决)",
               "targetSurfaceId": "surface-module-2"
             },
             {
               "id": "3",
-              "title": "空间性能妥协 (负载因子/Rehash)",
+              "title": "3. 空间性能妥协 (负载因子/Rehash)",
               "targetSurfaceId": "surface-module-3"
             },
             {
               "id": "4",
-              "title": "工业安全防御 (HashDoS/红黑树)",
+              "title": "4. 工业安全防御 (HashDoS/红黑树)",
               "targetSurfaceId": "surface-module-4"
             }
           ]
@@ -64,7 +64,7 @@
           "id": "step1-background",
           "component": "AnalogyCard",
           "title": "海量数据检索的吞吐量瓶颈",
-          "analogy": "<b>背景</b>：现代软件系统（如用户中心、路由表、数据库索引）需要频繁检索数据。<br><b>现实痛点</b>：当数据量达到 100 万条甚至上亿条时，如何在不耗费几百毫秒的前提下，瞬间找到特定记录？"
+          "analogy": "<b>现实背景</b>：在现代分布式系统、高并发 Web 框架或数据库内核中，数据检索是最频繁的操作之一。无论是根据 Token 校验用户身份、在缓存中查找 Key，还是路由 HTTP 请求，都面临巨大的吞吐量压力。<br><br><b>核心痛点</b>：当内存中的数据规模增长到 100 万甚至 1 亿条时，传统的查找方式效率会极剧恶化。如果每次查询都需要扫描成千上万个数据节点，服务器 CPU 将迅速被无意义的比对指令占满，导致系统响应耗时飙升至数百毫秒甚至卡死瘫痪。如何才能实现不受数据总量规模影响的毫秒级极速定位？"
         },
         {
           "id": "step1-chat",
@@ -85,49 +85,62 @@
           "messages": [
             {
               "characterId": "alice",
-              "content": "张老大！我写了个用户查询，在 100 万条数据里用数组循环找人，CPU 直接飙到 100%，耗时 800 毫秒！怎么才能像秒杀一样快啊？"
+              "content": "张老大！我在线上写了个用户查询功能，在内存的 100 万条数组里循环比对用户名。平时几百条数据挺快的，今天上线大促，CPU 瞬间飙到了 100%，一次查询居然耗时 800ms！"
             },
             {
               "characterId": "boss_zhang",
-              "content": "你这是在用 <dfn title=\"按顺序一个个比对数据的线性查找方式\">顺序查找 O(N)</dfn>！数据量翻倍，耗时就翻倍。必须改掉‘挨个比对’的逻辑！"
+              "content": "你这是典型的 <dfn title=\"按顺序逐个比对数据的线性查找方式，最坏需要比对N次\">顺序查找 O(N)</dfn>！当数据规模 N 扩大 1000 倍，你的比较次数和 CPU 指令数也跟着翻了 1000 倍。海量数据下必须彻底改掉‘挨个比对’的直觉思路！"
+            },
+            {
+              "characterId": "alice",
+              "content": "那我如果先把数组按字母排序，用二分查找 O(log N) 呢？查找只需要 20 次，是不是就解决问题了？"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "二分查找虽然查得快，但在内存里保持有序的代价极其昂贵！每次新用户注册插入数据时，你都得把后续几十万个节点在内存里整体平移，写性能会直接崩溃。我们需要的是一种兼顾读写且速度达到 O(1) 的全新范式！"
             }
           ]
         },
         {
           "id": "step2-naive",
           "component": "MentalModel",
-          "title": "物理内存本质与节点搬迁分析",
-          "description": "计算机物理内存 (RAM) 本质是一个支持根据数字地址直接访问的连续字节数组。所有数据存取最终都建立在这个硬件特性上。",
+          "title": "物理内存本质与节点搬迁开销",
+          "description": "计算机物理内存 (RAM) 在硬件层面本质是一个连续的字节数组。RAM 硬件天生支持根据数字物理下标在常数时间内直接读取任意内存地址。所有高级数据结构的存取最终都建立在这个硬件特性上。",
           "icon": "🧠",
-          "diagramTitle": "📊 物理内存数据流动演推",
-          "diagram": "初始内存: [0:10 | 1:20 | 2:30 | 3:50 | 4:60]\n目标: 插入数字 25 到有序位置 (下标 2)\n步骤1 右移: 60->5, 50->4, 30->3  ==> [0:10 | 1:20 | 2:空 | 3:30 | 4:50 | 5:60]\n步骤2 写入: 25 写入下标 2      ==> [0:10 | 1:20 | 2:25 | 3:30 | 4:50 | 5:60]",
-          "pillarsTitle": "物理特性与缺陷",
+          "diagramTitle": "📊 物理内存数据流动与搬迁演推",
+          "diagram": "初始内存: [0:10 | 1:20 | 2:30 | 3:50 | 4:60]\n目标操作: 插入数字 25 到有序位置 (下标 2)\n步骤1 右移: 60->下标5, 50->下标4, 30->下标3  ==> [0:10 | 1:20 | 2:空 | 3:30 | 4:50 | 5:60]\n步骤2 写入: 25 写入已腾空的下标 2           ==> [0:10 | 1:20 | 2:25 | 3:30 | 4:50 | 5:60]",
+          "pillarsTitle": "硬件特性与传统方案缺陷",
           "pillars": [
             {
               "title": "硬件存取特性",
-              "description": "内存数组天然支持按物理数字下标 O(1) 随机存取。",
+              "description": "RAM 物理总线天然支持按数字下标 O(1) 随机存取，耗时只与电信号传输有关，与数据总量无关。",
               "icon": "⚡"
             },
             {
-              "title": "内存搬迁缺陷",
-              "description": "有序数组插入或删除会导致后续大量内存节点移动。",
+              "title": "无序数组缺陷",
+              "description": "顺序遍历最坏比对 N 次，数据量越大耗时呈线性成倍剧增。",
               "icon": "❌"
+            },
+            {
+              "title": "有序数组缺陷",
+              "description": "查找需 O(log N)，但插入与删除需要搬迁大量后续内存节点，内存总线开销达到 O(N)。",
+              "icon": "⚠️"
             }
           ],
-          "analogyTitle": "💡 真实数据搬迁开销分析",
-          "analogy": "<b>向已排序数组 [ 10, 20, 30, 50, 60 ] 中插入数字 25 的开销分析：</b><br><br>1. <b>定位</b>：对比发现 25 应该插在 20 和 30 之间（即下标 2）；<br>2. <b>搬迁</b>：为给 25 腾出空位，60、50、30 必须在内存物理地址里<b>整体右移 1 位</b>（60->5, 50->4, 30->3）；<br>3. <b>写入</b>：将 25 写入已腾空的下标 2。<br><br>💥 <b>结论直击</b>：仅插入 1 个数字，就导致内存中 3 个元素被迫搬家！若数组存有 100 万个数据，插入一次将在 RAM 中搬迁 50 万个内存块！"
+          "analogyTitle": "💡 真实数据搬迁开销步步演推",
+          "analogy": "<b>向已排序数组 [ 10, 20, 30, 50, 60 ] 中插入数字 25 的内存演推：</b><br><br>1. <b>定位槽位</b>：经过对比发现数字 25 应该插入到 20 和 30 之间（即目标下标 2）；<br>2. <b>内存搬迁</b>：由于物理数组内存空间必须连续，为了给 25 腾出物理空位，节点 60、50、30 必须在物理地址上整体右移 1 位（60 移动到下标 5，50 移动到 4，30 移动到 3）；<br>3. <b>数据写入</b>：将数字 25 写入已经腾空的物理下标 2。<br><br>💥 <b>痛感直击</b>：仅仅插入 1 个数字，就导致内存中 3 个元素被迫平移搬家！如果数组存有 100 万个数据，插入一次将在物理内存总线上搬迁 50 万个节点，性能极其低下！"
         },
         {
           "id": "step3-mindset",
           "component": "ConceptCard",
-          "title": "计算范式：让 Key 的名称直接算出内存下标",
+          "title": "计算范式突破：让 Key 的名称直接算出内存下标",
           "tags": [
             "计算代替比对",
             "O(1)寻址",
             "范式突破"
           ],
-          "definition": "<b>突破思路</b>：放弃‘遍历比对键值’，改用<b>‘直接计算内存地址’</b>！<br>不要去数据库里搜数据在哪，而是设计一个计算公式，让 Key 的名称直接算出它应该藏在哪个内存下标中！",
-          "example": "<pre><code>// 传统比对 (搜索范式): 寻找 'Alice' -> 比对 1000 次\n// 哈希突破 (计算范式): 计算 'Alice' -> 直接得出 下标 5 -> 一步读取 arr[5]</code></pre>",
+          "definition": "<b>核心突破 Mindset</b>：彻底放弃‘逐个遍历比对 Key 值’的旧思维，转向<b>‘直接计算物理内存地址’</b>的新范式！<br><br>不要去遍历内存询问数据藏在哪里，而是设计一个高效的数学计算公式，传入 Key 的名称（如用户 ID），公式直接计算出该数据应该保存在数组的哪个物理下标中！",
+          "example": "<pre><code>// 传统搜索范式 (遍历比对): 查找 'Alice' -> 遍历比对 1,000,000 次\n// 哈希计算范式 (直接计算): 计算 'Alice' -> 算法直接得出 下标 5 -> 一步读取 arr[5]</code></pre>",
           "relatedConcepts": [
             "哈希函数",
             "O(1)复杂度",
@@ -137,10 +150,10 @@
         {
           "id": "step4-implementation",
           "component": "DetailedExplanation",
-          "title": "哈希函数与槽位数组",
+          "title": "哈希函数与槽位数组工程落地",
           "icon": "⚙️",
-          "estimatedReadTime": "3 分钟阅读",
-          "content": "为了将“计算范式”落地，工程上引入了两个核心组件：\n\n1. **<dfn title=\"将任意长度输入Key转换为固定范围整数索引的算法\">哈希函数 (Hash Function)</dfn>**：负责接收 Key（如字符串、身份证号），输出一个无符号整数。\n2. **<dfn title=\"存储数据真实值的连续内存数组\">槽位数组 (Bucket Array / Hash Table)</dfn>**：将算出的整数对数组容量取模，得到具体的内存下标。`index = hash(key) % capacity`。\n\n只要哈希函数计算极快，无论存储 10 条还是 1,000,000 条数据，定位时间都固定为常数级别（即 **<dfn title=\"执行开销与数据总量规模无关的极致性能\">常数时间复杂度 O(1)</dfn>**）。"
+          "estimatedReadTime": "4 分钟深度解析",
+          "content": "为了将“用计算代替比对”的 Mindset 落地到工程实践中，数据结构引入了两个核心基础设施：\n\n1. **<dfn title=\"将任意长度输入 Key 映射转换为固定范围无符号整数的数学算法\">哈希函数 (Hash Function)</dfn>**：负责接收任意格式的 Key（如字符串、身份证号、对象引用），通过位运算与散列算法计算出一个无符号整数。比如 `hash('Alice') = 154829`。\n2. **<dfn title=\"在物理内存中连续开辟的存储槽位数组\">槽位数组 (Bucket Array / Hash Table)</dfn>**：开辟容量为 `capacity` 的物理数组，将算出的哈希值对容量取模，得到物理下标：`index = hash(key) % capacity`。\n\n**常数时间复杂度 O(1) 的物理保障**：\n无论数组里当前保存的是 10 条数据还是 1,000,000 条数据，只要哈希函数的计算过程极快（只需几条 CPU 执行指令），定位特定 Key 所在内存地址的总耗时都是固定的！这就是 **<dfn title=\"执行耗时与数据总量规模完全无关的极致性能界限\">常数时间复杂度 O(1)</dfn>** 的物理来源。"
         },
         {
           "id": "step4-sandbox",
@@ -148,14 +161,14 @@
           "title": "代码演示：观察内存数组挪动与哈希直接定位的区别",
           "description": "点击运行代码，对比在有序数组中插入元素（需搬迁后续内存）与哈希计算直接定位的执行开销：",
           "language": "javascript",
-          "code": "// 演示：在有序数组 [10, 20, 30, 50, 60] 中插入 25\nlet arr = [10, 20, 30, 50, 60];\nlet insertVal = 25;\nlet shiftCount = 0;\n\n// 模拟物理内存右移\narr.push(undefined);\nfor (let i = arr.length - 1; i > 2; i--) {\n  arr[i] = arr[i - 1];\n  shiftCount++;\n}\narr[2] = insertVal;\n\nconsole.log(\"插入后数组:\", arr);\nconsole.log(\"被迫搬迁的内存块数量:\", shiftCount, \"次\");\nconsole.log(\"------------------------------\");\n\n// 哈希定位示例\nfunction simpleHash(key, capacity = 10) {\n  let hash = 0;\n  for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) % capacity;\n  return hash;\n}\nconsole.log(\"'Alice' 直接算出的槽位号:\", simpleHash('Alice'));",
+          "code": "// 演示 1：在有序数组 [10, 20, 30, 50, 60] 中插入数字 25\nlet arr = [10, 20, 30, 50, 60];\nlet insertVal = 25;\nlet shiftCount = 0;\n\n// 模拟物理内存平移：从后往前挪动元素\narr.push(undefined);\nfor (let i = arr.length - 1; i > 2; i--) {\n  arr[i] = arr[i - 1];\n  shiftCount++;\n}\narr[2] = insertVal;\n\nconsole.log(\"插入后数组:\", arr);\nconsole.log(\"被迫平移搬迁的内存块数量:\", shiftCount, \"次\");\nconsole.log(\"------------------------------------------\");\n\n// 演示 2：哈希函数直接计算内存下标 (O(1)定位)\nfunction simpleHash(key, capacity = 10) {\n  let hash = 0;\n  for (let i = 0; i < key.length; i++) {\n    hash = (hash * 31 + key.charCodeAt(i)) % capacity;\n  }\n  return hash;\n}\n\nconsole.log(\"Key 'Alice' 直接算出的槽位号:\", simpleHash('Alice'));\nconsole.log(\"Key 'Bob'   直接算出的槽位号:\", simpleHash('Bob'));",
           "runLocally": true
         },
         {
           "id": "step5-summary",
           "component": "AnalogyCard",
           "title": "总结：从搜索比对到公式计算",
-          "analogy": "实现 O(1) 极速查找的关键，在于利用物理内存可直接按数字下标存取的特性，将<b>‘挨个搜索比对’</b>替换为<b>‘公式直接计算’</b>。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>要彻底破解海量数据检索的效率危机，核心在于从传统的 <dfn title=\"按顺序逐个比对元素的基准方案，耗时随数据量成正比\"><strong>顺序查找 O(N)</strong></dfn> 转向计算思想。通过精心设计的 <dfn title=\"将任意格式Key映射转换为固定范围整数索引的散列计算公式\"><strong>哈希函数 (Hash Function)</strong></dfn>，将任意 Key 直接转换为内存下标，从而将数据存取性能提升至与规模完全无关的 <dfn title=\"数据检索耗时与数据总量规模完全无关的极致性能表现\"><strong>常数时间复杂度 O(1)</strong></dfn>。</p></div>"
+          "analogy": "实现 O(1) 极速查找的关键，在于利用物理内存可直接按数字下标存取的硬件特性，将<b>‘挨个搜索比对’</b>替换为<b>‘公式直接计算’</b>。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>要彻底破解海量数据检索的效率危机，核心在于从传统的 <dfn title=\"按顺序逐个比对元素的基准方案，耗时随数据量成正比\"><strong>顺序查找 O(N)</strong></dfn> 转向计算思想。通过精心设计的 <dfn title=\"将任意格式Key映射转换为固定范围整数索引的散列计算公式\"><strong>哈希函数 (Hash Function)</strong></dfn>，将任意 Key 直接转换为内存下标，从而将数据存取性能提升至与规模完全无关的 <dfn title=\"数据检索耗时与数据总量规模完全无关的极致性能表现\"><strong>常数时间复杂度 O(1)</strong></dfn>。</p></div>"
         }
       ]
     }
@@ -201,22 +214,22 @@
           "steps": [
             {
               "id": "1",
-              "title": "查找效率危机 (O(1)计算)",
+              "title": "1. 查找效率危机 (O(1)计算)",
               "targetSurfaceId": "surface-module-1"
             },
             {
               "id": "2",
-              "title": "散列碰撞困境 (冲突解决)",
+              "title": "2. 散列碰撞困境 (冲突解决)",
               "targetSurfaceId": "surface-module-2"
             },
             {
               "id": "3",
-              "title": "空间性能妥协 (负载因子/Rehash)",
+              "title": "3. 空间性能妥协 (负载因子/Rehash)",
               "targetSurfaceId": "surface-module-3"
             },
             {
               "id": "4",
-              "title": "工业安全防御 (HashDoS/红黑树)",
+              "title": "4. 工业安全防御 (HashDoS/红黑树)",
               "targetSurfaceId": "surface-module-4"
             }
           ]
@@ -225,7 +238,7 @@
           "id": "step1-background-2",
           "component": "AnalogyCard",
           "title": "散列重号引发的数据覆盖危机",
-          "analogy": "<b>背景</b>：我们在 Module 1 中用哈希函数算出了数组下标。<br><b>衍生新问题</b>：当系统存入多个不同用户时（如 'Alice' 与 'David'），哈希函数竟然算出了<b>完全相同的下标 5</b>！后存入的数据会直接把前面的数据覆盖抹掉！"
+          "analogy": "<b>衍生新问题</b>：在 Module 1 中，我们利用哈希函数算出了数组下标。但在实际业务中，输入的 Key 组合是无限的（如无数的用户姓名），而开辟的数组槽位容量永远是有限的。<br><br><b>覆写灾难</b>：当系统存入多个不同 Key 时（如 'Alice' 与 'David'），哈希函数不可避免地算出了<b>完全相同的物理下标 5</b>！如果直接把数据写入 5 号槽位，后存入的 David 会把 Alice 的数据彻底覆盖抹掉，引发致命的数据丢失错误！"
         },
         {
           "id": "step1-chat-2",
@@ -246,11 +259,19 @@
           "messages": [
             {
               "characterId": "alice",
-              "content": "张老大！不好了！用户 'Alice' 和 'David' 存入时算出了相同的下标 5，David 把 Alice 的数据覆盖掉了！这怎么解决啊？"
+              "content": "张老大！不好了！用户 'Alice' 和 'David' 存入系统时，哈希函数居然算出了相同的下标 5！David 的数据直接把 Alice 覆盖掉了，线上出现了严重的数据覆盖 Bug！"
             },
             {
               "characterId": "boss_zhang",
-              "content": "这就是必然发生的“哈希碰撞”！因为输出的槽位有限，而输入的名字是无限的。"
+              "content": "这就是必然发生的“哈希碰撞”！因为输出的数组槽位是有限的，而输入的 Key 是无限的。数学上早就证明了碰撞绝对无法被彻底避免。"
+            },
+            {
+              "characterId": "alice",
+              "content": "那能不能设计一个完美不碰撞的哈希函数？"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "不可能的！鸽巢原理告诉我们，只要苹果数量大于抽屉数量，就必定有至少两个苹果挤在同一个抽屉里。工程上必须学会‘容忍碰撞’并建立冲突处理机制！"
             }
           ]
         },
@@ -258,25 +279,25 @@
           "id": "step2-naive-2",
           "component": "MentalModel",
           "title": "鸽巢原理与冲突解决流派",
-          "description": "根据数学上的鸽巢原理 (Pigeonhole Principle)，当钥匙数量大于箱子数量时，必然存在至少两个钥匙指向同一个箱子。",
+          "description": "根据数学上的鸽巢原理 (Pigeonhole Principle)，当 Key 的取值空间远大于数组容量 `capacity` 时，必定存在至少两个不同的 Key 映射到相同的物理下标。这是数学规律，而非代码 Bug。",
           "icon": "🐦",
-          "diagramTitle": "📊 输入映射冲突图示",
-          "diagram": "Alice映射: [0:空 | 1:空 | 5:Alice | 6:空]\nDavid冲突: [0:空 | 1:空 | 5:冲突! | 6:空]",
-          "pillarsTitle": "原理与缺陷",
+          "diagramTitle": "📊 输入映射冲突与节点覆写示意",
+          "diagram": "Alice 映射: [0:空 | 1:空 | 5:Alice | 6:空]\nDavid 冲突: [0:空 | 1:空 | 5:冲突!  | 6:空]\n\n直接覆写: 5号槽位 Alice 数据丢失！ ❌",
+          "pillarsTitle": "数学原理与方案对比",
           "pillars": [
             {
               "title": "鸽巢原理",
-              "description": "无限输入映射到有限槽位，碰撞在数学上不可避免。",
+              "description": "无限输入映射到有限槽位，哈希碰撞在数学逻辑上绝对不可避免。",
               "icon": "📐"
             },
             {
               "title": "直接覆写缺陷",
-              "description": "覆盖旧数据会导致致命的数据丢失灾难。",
+              "description": "覆盖旧数据将导致致命的数据破坏与业务灾难。",
               "icon": "💥"
             }
           ],
           "analogyTitle": "💡 碰撞后覆写的灾难剖析",
-          "analogy": "当发生索引重号时，如果采用直接用新值覆盖旧值的逻辑，会导致前面存入的数据彻底丢失，引发严重计算 Bug。"
+          "analogy": "当发生索引重号时，如果采用了直接用新值覆盖旧值的简单逻辑，会导致前面存入的数据彻底消失。用户在登录 Alice 账号时居然查到了 David 的信息！"
         },
         {
           "id": "step3-mindset-2",
@@ -287,8 +308,8 @@
             "多维存储",
             "空间解耦"
           ],
-          "definition": "<b>突破思路</b>：承认碰撞必然发生，不再追求‘一个槽位只能存一个值’。<br>转而在槽位内部建立<b>多节点挂载机制</b>，或者当槽位被占时允许数据<b>按既定规则去附近寻址闲置槽位</b>！",
-          "example": "<pre><code>// 突破思路 1 (挂载): 槽位 5 里面放一条链表 -> [Alice] -> [David]\n// 突破思路 2 (顺延): 槽位 5 被占 -> 按规则看 6号槽位 -> 空闲则存入 6号</code></pre>",
+          "definition": "<b>核心突破 Mindset</b>：承认碰撞必然发生，不再追求‘一个槽位只能存一个元素’。<br><br><b>两大流派思维</b>：<br>1. <b>纵向挂载 (Chaining)</b>：在槽位内部建立多节点挂载链表，同一个槽位挂载多个碰撞数据！<br>2. <b>横向探测 (Open Addressing)</b>：当槽位被占时，允许新数据按既定探测规则去附近寻址闲置槽位！",
+          "example": "<pre><code>// 思路 1 (链地址法): 槽位 5 内部挂载链表 -> [Alice] -> [David]\n// 思路 2 (开放寻址法): 槽位 5 被占 -> 顺延检查 6号槽位 -> 若空闲则存入 6号</code></pre>",
           "relatedConcepts": [
             "链地址法",
             "开放寻址法",
@@ -300,8 +321,8 @@
           "component": "DetailedExplanation",
           "title": "链地址法 vs 开放寻址法及 CPU 缓存效应",
           "icon": "⚙️",
-          "estimatedReadTime": "4 分钟阅读",
-          "content": "工程上对碰撞处理有两种主流落地方案：\n\n1. **<dfn title=\"每个槽位维护一条单链表，冲突节点追加到链表末尾\">链地址法 (Separate Chaining)</dfn>**：Java HashMap 采用此法。优点是简单高容错；缺点是链表节点在内存中随机分散，<dfn title=\"CPU预取连续内存数据的硬件加速机制\">CPU 缓存局部性</dfn> 较差。\n2. **<dfn title=\"不建链表，冲突时按线性或二次探测规则去检查数组相邻闲置槽位\">开放寻址法 (Open Addressing)</dfn>**：Python dict 采用此法。优点是所有数据紧密挨在数组里，充分利用 CPU 缓存线 (Cache Line)，读取速度极快；缺点是接近满载时效率剧降。\n\n> 💡 落地权衡：追求高容错选链地址法；追求极致内存与 CPU 缓存性能选开放寻址法。"
+          "estimatedReadTime": "4 分钟深度解析",
+          "content": "工程实现中对碰撞处理形成了两大主流解法：\n\n1. **<dfn title=\"每个槽位维护一条单链表，冲突节点追加到链表末尾\">链地址法 (Separate Chaining)</dfn>**：Java HashMap 采用此法。每个数组槽位指向一条单向链表。发生碰撞时将新节点追加到链表末尾。优点是实现简单、高容错；缺点是链表节点在物理内存中随机分布，<dfn title=\"CPU预取连续内存数据的硬件加速机制\">CPU 缓存局部性</dfn> 较差，存在指针内存开销。\n2. **<dfn title=\"不建链表，冲突时按线性或二次探测规则检查数组相邻闲置槽位\">开放寻址法 (Open Addressing)</dfn>**：Python dict 采用此法。所有数据都紧密平铺在连续数组空间里。当发生碰撞时，按探查规则（如 `(index + 1) % capacity`）寻找下一个空闲槽位。优点是数据物理连续，能极佳地利用 CPU Cache Line 硬件预取加速；缺点是接近满载时碰撞率剧增。\n\n> 💡 工业权衡：Java HashMap 选链地址法求高容错；Python dict 选开放寻址法求极致物理内存与 CPU 缓存性能。"
         },
         {
           "id": "step5-summary-2",
@@ -379,22 +400,22 @@
           "steps": [
             {
               "id": "1",
-              "title": "查找效率危机 (O(1)计算)",
+              "title": "1. 查找效率危机 (O(1)计算)",
               "targetSurfaceId": "surface-module-1"
             },
             {
               "id": "2",
-              "title": "散列碰撞困境 (冲突解决)",
+              "title": "2. 散列碰撞困境 (冲突解决)",
               "targetSurfaceId": "surface-module-2"
             },
             {
               "id": "3",
-              "title": "空间性能妥协 (负载因子/Rehash)",
+              "title": "3. 空间性能妥协 (负载因子/Rehash)",
               "targetSurfaceId": "surface-module-3"
             },
             {
               "id": "4",
-              "title": "工业安全防御 (HashDoS/红黑树)",
+              "title": "4. 工业安全防御 (HashDoS/红黑树)",
               "targetSurfaceId": "surface-module-4"
             }
           ]
@@ -403,7 +424,7 @@
           "id": "step1-background-3",
           "component": "AnalogyCard",
           "title": "满载情况下的性能滑坡",
-          "analogy": "<b>背景</b>：我们在 Module 2 中用链地址法和开放寻址法解决了碰撞。<br><b>衍生新问题</b>：随着数据不断写入，槽位利用率接近 100%，无论是链表变长还是找空槽困难，查找性能都急剧下滑！"
+          "analogy": "<b>衍生新问题</b>：在 Module 2 中，我们用链地址法和开放寻址法解决了碰撞问题。但随着系统运行，存入的数据量越来越多，物理数组的利用率渐渐接近 100%。<br><br><b>性能滑坡危机</b>：当槽位几乎被填满时，链地址法的单链表变得越来越长，查找退化为遍历链表；开放寻址法则很难找到闲置空槽，探测寻找步数剧增！哈希表原本引以为傲的 O(1) 性能迅速滑坡坍塌。"
         },
         {
           "id": "step1-chat-3",
@@ -424,11 +445,11 @@
           "messages": [
             {
               "characterId": "alice",
-              "content": "张老大！我们的数组容量是 100，现在存了 80 个数据后，每次存取都频繁发生碰撞，速度又慢下来了！"
+              "content": "张老大！我们的哈希表初始容量设了 100。现在写入了 90 个元素，结果每次读写都频繁碰撞，速度又慢成狗了！"
             },
             {
               "characterId": "boss_zhang",
-              "content": "因为你的负载因子太高了！数组越满，碰撞概率越高。必须做动态扩容！"
+              "content": "因为你的负载因子太高了！哈希表就像一个停车场，空位越少，找车位的耗时越长。必须引入拥挤度监控与动态扩容！"
             }
           ]
         },
@@ -436,20 +457,20 @@
           "id": "step2-naive-3",
           "component": "MentalModel",
           "title": "拥挤度对碰撞率的指数级影响",
-          "description": "哈希表的冲突概率与闲置空间比例成反比。要维持低碰撞率，必须保证足够的闲置槽位。",
+          "description": "哈希表的冲突概率与闲置槽位比例成反比。要维持低碰撞率与 O(1) 检索，必须保证足够的闲置空间比例。",
           "icon": "📈",
-          "diagramTitle": "📊 满载分布与扩容演推",
-          "diagram": "拥挤度90%: [0:占用 | 1:占用 | 2:占用 | 3:占用 | 4:空闲]\n扩容倍增:   [0:占用 | 1:空闲 | 2:占用 | 3:空闲 | ... | 9:空闲]",
+          "diagramTitle": "📊 满载分布与容量翻倍 Rehash 演推",
+          "diagram": "拥挤度90%: [0:占用 | 1:占用 | 2:占用 | 3:占用 | 4:空闲]\n容量翻倍:   [0:占用 | 1:空闲 | 2:占用 | 3:空闲 | ... | 9:空闲]",
           "pillarsTitle": "核心原则",
           "pillars": [
             {
               "title": "拥挤度第一性原理",
-              "description": "闲置槽位越少，碰撞率越呈指数级上升。",
+              "description": "闲置槽位越少，冲突概率呈指数级上升，必须动态维持安全水位。",
               "icon": "📊"
             },
             {
-              "title": "预分配缺陷",
-              "description": "静态预分配大内存会造成极大的空间浪费。",
+              "title": "静态大内存缺陷",
+              "description": "一开始就申请巨大的物理内存会造成极大的内存资源浪费。",
               "icon": "⚠️"
             }
           ],
@@ -459,14 +480,14 @@
         {
           "id": "step3-mindset-3",
           "component": "ConceptCard",
-          "title": "按需监控与容量翻倍",
+          "title": "按需监控与容量翻倍重散列",
           "tags": [
             "动态平衡",
             "按需扩容",
             "空间杠杆"
           ],
-          "definition": "<b>突破思路</b>：不静态死扣内存，而是设置一个<b>拥挤度监控指标</b>。<br>平时保持小内存，一旦拥挤度达到警戒线，立即<b>申请双倍新空间并重新映射</b>！",
-          "example": "<pre><code>// 监控拥挤度指标: size / capacity > 阈值\n// 一旦超标: capacity = capacity * 2，并重新分布原有数据</code></pre>",
+          "definition": "<b>核心突破 Mindset</b>：不静态死扣内存，而是设置一个<b>拥挤度监控指标</b>。<br><br>平时保持小内存，一旦拥挤度超过设定的安全警戒线，立即<b>申请双倍新数组空间，并将全量数据重新计算下标分布</b>！",
+          "example": "<pre><code>// 监控拥挤度指标: size / capacity > 0.75\n// 一旦超标: capacity = capacity * 2，并重新分布全量数据</code></pre>",
           "relatedConcepts": [
             "负载因子",
             "重散列",
@@ -478,8 +499,8 @@
           "component": "DetailedExplanation",
           "title": "0.75 负载因子、位运算加速与渐进式 Rehash",
           "icon": "⚙️",
-          "estimatedReadTime": "4 分钟阅读",
-          "content": "工程上对动态扩容的具体落地细节：\n\n1. **<dfn title=\"已存元素总数与当前数组容量的比值 (size / capacity)\">负载因子 (Load Factor)</dfn>**：监控指标。Java HashMap 默认阈值选为 `0.75`（空间与时间的黄金折中）。\n2. **<dfn title=\"容量翻倍为2的幂，用按位与运算替代慢速取模\">位运算优化 (Bitwise And)</dfn>**：容量总是保持为 2 的幂（如 16, 32, 64），取模 `hash % capacity` 被硬件极速指令 `<dfn title=\"位运算替代取模硬件加速\">hash & (capacity - 1)</dfn>` 替代！\n3. **<dfn title=\"将大规模数据搬迁平摊到日常读写中的高并发优化\">渐进式 Rehash (Incremental Rehash)</dfn>**：Redis 采用此法，避免一次性搬迁几百万数据导致系统瞬间卡顿死锁。\n\n> 💡 总结：负载因子是空间与时间杠杆；2 的幂让位运算取代除法；渐进式 Rehash 消除卡顿。"
+          "estimatedReadTime": "4 分钟深度解析",
+          "content": "工程落地中对动态扩容的三大精妙设计：\n\n1. **<dfn title=\"已存元素总数与当前数组容量的比值 (size / capacity)\">负载因子 (Load Factor)</dfn>**：监控指标。Java HashMap 默认阈值选为 `0.75`（空间利用率与时间性能的最佳数学折中）。\n2. **<dfn title=\"容量保持为2的幂，用按位与运算替代慢速取模\">位运算优化 (Bitwise And)</dfn>**：容量总是保持为 2 的幂（如 16, 32, 64），取模 `hash % capacity` 被硬件极速指令 `<dfn title=\"位运算替代取模硬件加速\">hash & (capacity - 1)</dfn>` 替代！\n3. **<dfn title=\"将大规模数据搬迁平摊到日常读写中的高并发优化\">渐进式 Rehash (Incremental Rehash)</dfn>**：Redis 采用此法，维护 `ht[0]` 与 `ht[1]` 两个哈希表，避免一次性搬迁几百万数据导致系统瞬间卡死。"
         },
         {
           "id": "step5-summary-3",
@@ -549,22 +570,22 @@
           "steps": [
             {
               "id": "1",
-              "title": "查找效率危机 (O(1)计算)",
+              "title": "1. 查找效率危机 (O(1)计算)",
               "targetSurfaceId": "surface-module-1"
             },
             {
               "id": "2",
-              "title": "散列碰撞困境 (冲突解决)",
+              "title": "2. 散列碰撞困境 (冲突解决)",
               "targetSurfaceId": "surface-module-2"
             },
             {
               "id": "3",
-              "title": "空间性能妥协 (负载因子/Rehash)",
+              "title": "3. 空间性能妥协 (负载因子/Rehash)",
               "targetSurfaceId": "surface-module-3"
             },
             {
               "id": "4",
-              "title": "工业安全防御 (HashDoS/红黑树)",
+              "title": "4. 工业安全防御 (HashDoS/红黑树)",
               "targetSurfaceId": "surface-module-4"
             }
           ]
@@ -573,7 +594,7 @@
           "id": "step1-background-4",
           "component": "AnalogyCard",
           "title": "最坏散列分布与安全攻击",
-          "analogy": "<b>背景</b>：我们在 Module 1~3 建立了完备的哈希表。<br><b>极端新问题</b>：黑客故意发送成千上万个经过精心构造的碰撞 Key，全部挤在同一个槽位里！O(1) 暴跌为 O(N)，导致服务器 CPU 100% 瘫痪！"
+          "analogy": "<b>衍生极端问题</b>：在 Module 1~3 中，我们构建了完备的动态哈希表。<br><br><b>最坏情况危机</b>：然而，黑客可以恶意利用哈希函数的公开确定性规则，事先在本地构造几万个哈希值完全相等的 Key 并一次性发送给服务器！所有的 Key 全部挤在同一个槽位里，单链表长达几万节点，O(1) 暴跌退化为 O(N)，导致线上服务器 CPU 100% 瘫痪！"
         },
         {
           "id": "step1-chat-4",
@@ -594,11 +615,11 @@
           "messages": [
             {
               "characterId": "alice",
-              "content": "老张！不好了！刚才接口突然收到了几万个精心构造的请求，结果槽位 5 下面的链表长达 1 万个节点，O(1) 变成了 O(N)，整个服务被卡死了！"
+              "content": "老张！不好了！刚才线上 API 突然收到几万个精心构造的请求，结果槽位 5 下面的链表居然挂了 1 万个节点，O(1) 变成了 O(N)，整个服务全卡死了！"
             },
             {
               "characterId": "boss_zhang",
-              "content": "这是经典的 <dfn title=\"黑客故意发送大量同哈希值的Key使哈希表退化为链表以瘫痪服务器的攻击\">HashDoS 攻击</dfn>！必须从算法与数据结构做双重防御。"
+              "content": "这是经典的 <dfn title=\"黑客故意发送大量同哈希值的Key使哈希表退化为链表以瘫痪服务器的攻击\">HashDoS 攻击</dfn>！必须从算法散列随机化与底层数据结构双重防御！"
             }
           ]
         },
@@ -606,7 +627,7 @@
           "id": "step2-naive-4",
           "component": "MentalModel",
           "title": "最坏情况下的复杂度退化",
-          "description": "哈希表的 O(1) 性能依赖于均匀散列假设。当输入分布被恶心操纵时，性能界限面临最坏情况考验。",
+          "description": "哈希表的 O(1) 性能依赖于“输入随机分布”假设。当输入分布被恶心操纵时，性能界限面临最坏情况考验。",
           "icon": "⚠️",
           "diagramTitle": "📊 恶劣散列退化示意",
           "diagram": "均匀分布: [0:Node | 1:Node | 2:Node | 3:Node]\n退化倾斜: [0:Node->Node->Node...10000个! | 1:空 | 2:空 | 3:空]",
@@ -614,7 +635,7 @@
           "pillars": [
             {
               "title": "最坏复杂度",
-              "description": "算法必须考虑最坏情况下的渐进性能界限。",
+              "description": "算法设计必须考虑最坏情况下的渐进性能界限。",
               "icon": "📉"
             },
             {
@@ -635,7 +656,7 @@
             "最坏情况保底",
             "安全防御"
           ],
-          "definition": "<b>突破思路</b>：双重兜底！<br>入口层使用<b>随机 Seed 散列算法</b>让黑客无法预测；底层在节点过长时<b>自动升级为高级数据结构</b>，硬性锁死最坏时间复杂度！",
+          "definition": "<b>核心突破 Mindset</b>：双重保底！<br><br>1. <b>入口随机化</b>：使用带随机 Seed 的散列算法，让黑客在本地无法预测线上哈希值！<br>2. <b>底层结构升级</b>：当单槽位节点数过多时，自动将单链表升级为高级平衡树，强行锁死最坏查找复杂度！",
           "example": "<pre><code>// 防御 1 (算法随机化): 每次启动进程注入随机种子 SipHash(Key, Seed)\n// 防御 2 (结构升级): 当单链表长度 >= 8 时，链表 -> 自平衡红黑树 (最坏 O(log N))</code></pre>",
           "relatedConcepts": [
             "HashDoS",
@@ -648,8 +669,8 @@
           "component": "DetailedExplanation",
           "title": "Java 8 红黑树树化与 SipHash 随机种子",
           "icon": "⚙️",
-          "estimatedReadTime": "4 分钟阅读",
-          "content": "工业级哈希表的两大防线：\n\n1. **<dfn title=\"链表长度达到阈值8时自动升级为自平衡二叉查找树的机制\">红黑树树化 (Treeify)</dfn>**：Java 8+ HashMap 规定，当单槽位链表长度 ≥ 8 且容量 ≥ 64 时，链表转换为红黑树。哪怕挂了 1,000,000 个碰撞节点，最坏查找步数也只需 log(1000000) ≈ 20 次，强行锁定在 **O(log N)**！\n2. **<dfn title=\"采用随机密钥防预测的工业级安全散列算法\">SipHash 随机加盐</dfn>**：Python 3.4+ 和 Rust 默认采用 SipHash，每次启动随机生成哈希 Seed，使外部黑客完全无法预测碰撞 Key。\n\n> 💡 总结：数据结构树化解决极端退化；随机 SipHash 解决攻击预测。"
+          "estimatedReadTime": "4 分钟深度解析",
+          "content": "工业级哈希表的两大防线：\n\n1. **<dfn title=\"链表长度达到阈值8时自动升级为自平衡二叉查找树的机制\">红黑树树化 (Treeify Threshold)</dfn>**：Java 8+ HashMap 规定，当单槽位链表长度 ≥ 8 且容量 ≥ 64 时，链表自动转换为红黑树。哪怕挂了 1,000,000 个碰撞节点，最坏查找步数也只需 log(1000000) ≈ 20 次，强行锁定在 **O(log N)**！\n2. **<dfn title=\"采用随机密钥防预测的工业级安全散列算法\">SipHash 随机加盐</dfn>**：Python 3.4+ 和 Rust 默认采用 SipHash，每次启动随机生成哈希 Seed，使外部黑客完全无法预测碰撞 Key。\n\n> 💡 工业总结：数据结构树化解决极端退化；随机 SipHash 解决攻击预测。"
         },
         {
           "id": "step5-summary-4",

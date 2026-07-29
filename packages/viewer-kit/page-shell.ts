@@ -118,7 +118,31 @@ export function injectBaseTheme(): void {
     .app-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+    }
+    .lang-switch-group {
+      display: inline-flex;
+      background: color-mix(in oklab, var(--a2ui-color-surface) 92%, black);
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: 9999px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .lang-btn {
+      border: none;
+      background: transparent;
+      color: var(--app-muted);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .lang-btn.active {
+      background: var(--a2ui-color-primary);
+      color: white;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
     }
     .app-key-pill {
       font-size: 12px;
@@ -570,11 +594,15 @@ export function renderAppFrame(
           <p class="app-subtitle">${subtitle}</p>
         </div>
         <div class="app-actions">
+          <div id="app-lang-switcher" class="lang-switch-group">
+            <button id="lang-zh-btn" class="lang-btn active">中文</button>
+            <button id="lang-en-btn" class="lang-btn">English</button>
+          </div>
           <span id="app-key-pill" class="app-key-pill missing">
             🔑 API Key 待配置
           </span>
           <button id="app-settings-btn" class="app-btn-icon" title="设置 OpenRouter API Key">
-            ⚙️ 设置 API Key
+            ⚙️ API Key
           </button>
         </div>
       </div>
