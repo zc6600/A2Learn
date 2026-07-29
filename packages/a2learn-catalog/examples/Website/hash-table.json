@@ -150,10 +150,10 @@
         {
           "id": "step4-implementation",
           "component": "DetailedExplanation",
-          "title": "哈希函数与槽位数组工程落地",
+          "title": "哈希函数与槽位数组工程落地 (含 Python 伪代码示例)",
           "icon": "⚙️",
           "estimatedReadTime": "4 分钟深度解析",
-          "content": "为了将“用计算代替比对”的 Mindset 落地到工程实践中，数据结构引入了两个核心基础设施：\n\n1. **<dfn title=\"将任意长度输入 Key 映射转换为固定范围无符号整数的数学算法\">哈希函数 (Hash Function)</dfn>**：负责接收任意格式的 Key（如字符串、身份证号、对象引用），通过位运算与散列算法计算出一个无符号整数。比如 `hash('Alice') = 154829`。\n2. **<dfn title=\"在物理内存中连续开辟的存储槽位数组\">槽位数组 (Bucket Array / Hash Table)</dfn>**：开辟容量为 `capacity` 的物理数组，将算出的哈希值对容量取模，得到物理下标：`index = hash(key) % capacity`。\n\n**常数时间复杂度 O(1) 的物理保障**：\n无论数组里当前保存的是 10 条数据还是 1,000,000 条数据，只要哈希函数的计算过程极快（只需几条 CPU 执行指令），定位特定 Key 所在内存地址的总耗时都是固定的！这就是 **<dfn title=\"执行耗时与数据总量规模完全无关的极致性能界限\">常数时间复杂度 O(1)</dfn>** 的物理来源。"
+          "content": "为了将“用计算代替比对”的 Mindset 落地到工程实践中，数据结构引入了两个核心基础设施：\n\n1. **<dfn title=\"将任意长度输入 Key 映射转换为固定范围无符号整数的数学算法\">哈希函数 (Hash Function)</dfn>**：负责接收任意格式的 Key（如字符串、身份证号、对象引用），计算出一个无符号整数。比如 `hash('Alice') = 154829`。\n2. **<dfn title=\"在物理内存中连续开辟的存储槽位数组\">槽位数组 (Bucket Array / Hash Table)</dfn>**：开辟容量为 `capacity` 的物理数组，将算出的哈希值对容量取模，得到物理下标：`index = hash(key) % capacity`。\n\n🐍 **Python 调库与伪代码示例**：\n```python\n# 方式 A: 直接调用 Python 内置 hash() 调库取模\nkey = \"Alice\"\ncapacity = 10\nslot_index = abs(hash(key)) % capacity  # 算出 0~9 槽位号\n\n# 方式 B: 极简哈希函数伪代码实现 (累加字符 ASCII 码)\ndef simple_hash(key: str, capacity: int = 10) -> int:\n    return sum(ord(char) for char in key) % capacity\n```\n\n**常数时间复杂度 O(1) 的物理保障**：\n无论数组里当前保存的是 10 条数据还是 1,000,000 条数据，只要哈希函数的计算过程极快，定位特定 Key 所在内存地址的总耗时都是固定的！这就是 **<dfn title=\"执行耗时与数据总量规模完全无关的极致性能界限\">常数时间复杂度 O(1)</dfn>** 的物理来源。"
         },
         {
           "id": "step4-sandbox",
@@ -319,10 +319,10 @@
         {
           "id": "step4-implementation-2",
           "component": "DetailedExplanation",
-          "title": "链地址法 vs 开放寻址法及 CPU 缓存效应",
+          "title": "链地址法 vs 开放寻址法及 Python dict 调库示例",
           "icon": "⚙️",
           "estimatedReadTime": "4 分钟深度解析",
-          "content": "工程实现中对碰撞处理形成了两大主流解法：\n\n1. **<dfn title=\"每个槽位维护一条单链表，冲突节点追加到链表末尾\">链地址法 (Separate Chaining)</dfn>**：Java HashMap 采用此法。每个数组槽位指向一条单向链表。发生碰撞时将新节点追加到链表末尾。优点是实现简单、高容错；缺点是链表节点在物理内存中随机分布，<dfn title=\"CPU预取连续内存数据的硬件加速机制\">CPU 缓存局部性</dfn> 较差，存在指针内存开销。\n2. **<dfn title=\"不建链表，冲突时按线性或二次探测规则检查数组相邻闲置槽位\">开放寻址法 (Open Addressing)</dfn>**：Python dict 采用此法。所有数据都紧密平铺在连续数组空间里。当发生碰撞时，按探查规则（如 `(index + 1) % capacity`）寻找下一个空闲槽位。优点是数据物理连续，能极佳地利用 CPU Cache Line 硬件预取加速；缺点是接近满载时碰撞率剧增。\n\n> 💡 工业权衡：Java HashMap 选链地址法求高容错；Python dict 选开放寻址法求极致物理内存与 CPU 缓存性能。"
+          "content": "工程实现中对碰撞处理形成了两大主流解法：\n\n1. **<dfn title=\"每个槽位维护一条单链表，冲突节点追加到链表末尾\">链地址法 (Separate Chaining)</dfn>**：Java HashMap 采用此法。每个数组槽位指向一条单向链表。发生碰撞时将新节点追加到链表末尾。缺点是链表节点在物理内存中随机分布，<dfn title=\"CPU预取连续内存数据的硬件加速机制\">CPU 缓存局部性</dfn> 较差。\n2. **<dfn title=\"不建链表，冲突时按线性或二次探测规则检查数组相邻闲置槽位\">开放寻址法 (Open Addressing)</dfn>**：Python dict 采用此法。所有数据都紧密平铺在连续数组空间里。当发生碰撞时，寻找下一个空闲槽位。\n\n🐍 **Python 原生字典 (dict) O(1) 调库与伪代码示例**：\n```python\n# 方式 1: 直接使用 Python 原生 dict (底层已自动处理冲突与扩展)\nuser_scores = {}\nuser_scores[\"Alice\"] = 95  # 内部自动通过 hash(\"Alice\") 找到槽位存入\nprint(user_scores[\"Alice\"])  # 极速 O(1) 查找\n\n# 方式 2: 开放寻址冲突顺延伪代码\ndef get_with_probe(buckets, key, capacity):\n    index = abs(hash(key)) % capacity\n    while buckets[index] is not None and buckets[index][0] != key:\n        index = (index + 1) % capacity  # 冲突时平滑顺延检查下一槽位\n    return buckets[index]\n```\n\n> 💡 工业权衡：Java HashMap 选链地址法求高容错；Python dict 选开放寻址法求极致物理内存与 CPU 缓存性能。"
         },
         {
           "id": "step5-summary-2",

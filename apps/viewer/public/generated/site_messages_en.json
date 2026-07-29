@@ -150,10 +150,10 @@
         {
           "id": "step4-implementation",
           "component": "DetailedExplanation",
-          "title": "Hash Function & Bucket Array Engineering",
+          "title": "Hash Function & Bucket Array Engineering (with Python Example)",
           "icon": "⚙️",
           "estimatedReadTime": "4 min read",
-          "content": "To implement the 'Computation over Comparison' mindset into code, engineering introduces two core components:\n\n1. **<dfn title=\"Mathematical algorithm converting arbitrary length Key into fixed unsigned integer\">Hash Function</dfn>**: Takes arbitrary Key input (string, ID, reference) and computes an integer index. E.g. `hash('Alice') = 154829`.\n2. **<dfn title=\"Contiguous memory array holding actual data values\">Bucket Array (Hash Table)</dfn>**: Allocates an array of size `capacity`. Modulo arithmetic maps integer hash to array index: `index = hash(key) % capacity`.\n\n**O(1) Hardware Guarantee**:\nWhether the hash table contains 10 items or 1,000,000 items, as long as the hash calculation executes in a few CPU instructions, lookup time is constant! This is the physical foundation of **<dfn title=\"Constant time performance independent of dataset size\">O(1) Complexity</dfn>**."
+          "content": "To implement the 'Computation over Comparison' mindset into code, engineering introduces two core components:\n\n1. **<dfn title=\"Mathematical algorithm converting arbitrary length Key into fixed unsigned integer\">Hash Function</dfn>**: Takes arbitrary Key input and computes an integer index.\n2. **<dfn title=\"Contiguous memory array holding actual data values\">Bucket Array (Hash Table)</dfn>**: Allocates an array of size `capacity`, mapping hash integer to index: `index = hash(key) % capacity`.\n\n🐍 **Python Direct Library & Pseudocode Example**:\n```python\n# Method A: Direct Python built-in hash() library call\nkey = \"Alice\"\ncapacity = 10\nslot_index = abs(hash(key)) % capacity  # Gets slot 0~9\n\n# Method B: Simple Python Pseudocode Hash Function\ndef simple_hash(key: str, capacity: int = 10) -> int:\n    return sum(ord(char) for char in key) % capacity\n```\n\n**O(1) Hardware Guarantee**:\nWhether the hash table contains 10 items or 1,000,000 items, as long as the hash calculation executes in a few CPU instructions, lookup time is constant! This is the physical foundation of **<dfn title=\"Constant time performance independent of dataset size\">O(1) Complexity</dfn>**."
         },
         {
           "id": "step4-sandbox",
@@ -319,10 +319,10 @@
         {
           "id": "step4-implementation-2",
           "component": "DetailedExplanation",
-          "title": "Separate Chaining vs Open Addressing & CPU Cache",
+          "title": "Separate Chaining vs Open Addressing & Python Dict Example",
           "icon": "⚙️",
           "estimatedReadTime": "4 min read",
-          "content": "Engineering has converged on two dominant collision resolution strategies:\n\n1. **<dfn title=\"Each bucket maintains a singly linked list appending colliding nodes\">Separate Chaining</dfn>**: Used by Java HashMap. Each array slot holds a linked list. Collisions append to the list. Simple and resilient, but nodes are scattered in memory with poor <dfn title=\"Hardware acceleration prefetching contiguous memory into cache\">CPU Cache Locality</dfn>.\n2. **<dfn title=\"No linked lists; probes neighboring array slots on collision\">Open Addressing</dfn>**: Used by Python dict. All data elements lie contiguously in the array. On collision, it probes next available slot `(idx + 1) % capacity`. Excellent CPU Cache Line prefetching, but performance drops sharply when full.\n\n> 💡 Engineering Tradeoff: Java uses Chaining for resilience; Python uses Open Addressing for raw CPU cache performance."
+          "content": "Engineering has converged on two dominant collision resolution strategies:\n\n1. **<dfn title=\"Each bucket maintains a singly linked list appending colliding nodes\">Separate Chaining</dfn>**: Used by Java HashMap. Each array slot holds a linked list.\n2. **<dfn title=\"No linked lists; probes neighboring array slots on collision\">Open Addressing</dfn>**: Used by Python dict. All data elements lie contiguously in the array.\n\n🐍 **Python Native Dict Library & Pseudocode Example**:\n```python\n# Method 1: Direct Python dict library usage (O(1) under the hood)\nuser_scores = {}\nuser_scores[\"Alice\"] = 95  # Automatically hashes and stores in O(1)\nprint(user_scores[\"Alice\"])  # O(1) instant read\n\n# Method 2: Open Addressing Probing Pseudocode\ndef get_with_probe(buckets, key, capacity):\n    index = abs(hash(key)) % capacity\n    while buckets[index] is not None and buckets[index][0] != key:\n        index = (index + 1) % capacity  # Smoothly probe next slot on collision\n    return buckets[index]\n```\n\n> 💡 Engineering Tradeoff: Java uses Chaining for resilience; Python uses Open Addressing for raw CPU cache performance."
         },
         {
           "id": "step5-summary-2",
