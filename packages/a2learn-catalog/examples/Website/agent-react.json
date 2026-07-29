@@ -14,7 +14,16 @@
         {
           "id": "root",
           "component": "Column",
-          "children": ["header", "knowledge-tree", "concept", "mental-model-react", "learning-path", "quiz", "detailed-explanation-react-tradeoffs", "resources"]
+          "children": [
+            "header",
+            "knowledge-tree",
+            "concept",
+            "mental-model-react",
+            "learning-path",
+            "quiz",
+            "detailed-explanation-react-tradeoffs",
+            "resources"
+          ]
         },
         {
           "id": "header",
@@ -27,7 +36,10 @@
           "component": "KnowledgeTree",
           "title": "Current Location: Agent Architecture System",
           "path": [
-            { "id": "agent", "label": "AI Agent Architecture" }
+            {
+              "id": "agent",
+              "label": "AI Agent Architecture"
+            }
           ],
           "currentNode": {
             "id": "react",
@@ -35,18 +47,33 @@
             "description": "Currently focused on the ReAct reasoning and execution closed loop."
           },
           "childrenNodes": [
-            { "id": "plan-and-solve", "label": "Plan-and-Solve", "hasChildren": false },
-            { "id": "reflexion", "label": "Reflexion", "hasChildren": false }
+            {
+              "id": "plan-and-solve",
+              "label": "Plan-and-Solve",
+              "hasChildren": false
+            },
+            {
+              "id": "reflexion",
+              "label": "Reflexion",
+              "hasChildren": false
+            }
           ]
         },
         {
           "id": "concept",
           "component": "ConceptCard",
           "title": "What is ReAct?",
-          "tags": ["Architecture", "Prompting", "LLM"],
+          "tags": [
+            "Architecture",
+            "Prompting",
+            "LLM"
+          ],
           "definition": "<b>ReAct (Reasoning and Acting)</b> is a large language model prompting paradigm proposed by Princeton University and Google. It requires the model to alternate between generating <b>Reasoning Traces</b> and <b>Specific Actions</b> when solving complex problems. This approach allows the model not only to make decisions but also to observe the results of its actions (Observation), thereby dynamically adjusting subsequent thinking and planning.",
           "example": "<pre><code>Question: What is the elevation range for the area that the eastern sector of the Colorado plateau goes up into?\n\nThought 1: I need to search Colorado plateau, find its eastern sector, then find the elevation range of the area it goes up into.\nAction 1: Search[Colorado plateau]\nObservation 1: The Colorado Plateau... is centered on the Four Corners region... \nThought 2: It does not mention the eastern sector. Let me look up the eastern sector...</code></pre>",
-          "relatedConcepts": ["Chain-of-Thought (CoT)", "Tool Use"]
+          "relatedConcepts": [
+            "Chain-of-Thought (CoT)",
+            "Tool Use"
+          ]
         },
         {
           "id": "mental-model-react",
@@ -55,7 +82,7 @@
           "description": "ReAct 核心思想是让大语言模型交替生成「推理痕迹（Thought）」和「具体行动（Action）」。通过外部环境的反馈（Observation）调整后续思考，实现推理与行动的有机协同。",
           "icon": "🧠",
           "analogy": "ReAct 就像一位**「一边看说明书一边组装家具」的工匠**。动手操作前，先根据图纸思考下一步动作（Thought），然后拿起工具实际操作（Action），观察木板是否拼接正确（Observation），最后依据实际拼接效果规划下一步组装（Next Thought）。",
-          "diagram": "┌──────────────────────────────────────────────┐\n│            LLM 推理痕迹 (Thought)            │\n└──────────────────────┬───────────────────────┘\n                       ▼ 决定下一步动作\n┌──────────────────────────────────────────────┐\n│            环境行动执行 (Action)             │\n└──────────────────────┬───────────────────────┘\n                       ▼ 调用外部工具并观察\n┌──────────────────────────────────────────────┐\n│            工具执行反馈 (Observation)        │\n└──────────────────────┬───────────────────────┘\n                       ▲ 反馈输入至 Prompt，更新思考\n                       └────────────────────────",
+          "diagram": "LLM 推理规划: Thought (确定工具与步骤)\n执行工具: Action -> 搜索引擎 / 代码计算器 / API 接口\n观察环境反馈: Observation -> 抓取结果输入上下文 ➔ 开启下一轮 Thought",
           "pillars": [
             {
               "title": "推理迹 (Thought)",
@@ -72,7 +99,8 @@
               "description": "将工具返回的结果以观察形式输入给 LLM，建立容错与动态纠偏机制。",
               "icon": "🔄"
             }
-          ]
+          ],
+          "diagramTitle": "📊 ReAct 循环执行节点流动演推"
         },
         {
           "id": "learning-path",
@@ -80,10 +108,22 @@
           "title": "Agent Learning Path",
           "activeStepId": "3",
           "steps": [
-            { "id": "1", "title": "Understanding CoT" },
-            { "id": "2", "title": "Learning Tool Use" },
-            { "id": "3", "title": "ReAct Core Loop" },
-            { "id": "4", "title": "Practical Agent Development" }
+            {
+              "id": "1",
+              "title": "Understanding CoT"
+            },
+            {
+              "id": "2",
+              "title": "Learning Tool Use"
+            },
+            {
+              "id": "3",
+              "title": "ReAct Core Loop"
+            },
+            {
+              "id": "4",
+              "title": "Practical Agent Development"
+            }
           ]
         },
         {

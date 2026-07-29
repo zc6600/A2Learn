@@ -14,7 +14,16 @@
         {
           "id": "root",
           "component": "Column",
-          "children": ["header", "learning-path", "intro-text", "concept", "mental-model-event-loop", "sandbox", "quiz", "resources"]
+          "children": [
+            "header",
+            "learning-path",
+            "intro-text",
+            "concept",
+            "mental-model-event-loop",
+            "sandbox",
+            "quiz",
+            "resources"
+          ]
         },
         {
           "id": "header",
@@ -28,11 +37,23 @@
           "title": "Promise Learning Path",
           "activeStepId": "1",
           "steps": [
-            { "id": "1", "title": "Understanding Promises" },
-            { "id": "2", "title": "Handwriting delay" },
-            { "id": "3", "title": "Unlock Achievements" }
+            {
+              "id": "1",
+              "title": "Understanding Promises"
+            },
+            {
+              "id": "2",
+              "title": "Handwriting delay"
+            },
+            {
+              "id": "3",
+              "title": "Unlock Achievements"
+            }
           ],
-          "onStepSelect": { "name": "learning_path_select", "context": {} }
+          "onStepSelect": {
+            "name": "learning_path_select",
+            "context": {}
+          }
         },
         {
           "id": "intro-text",
@@ -43,10 +64,18 @@
           "id": "concept",
           "component": "ConceptCard",
           "title": "Promise",
-          "tags": ["JavaScript", "Async", "ES6"],
+          "tags": [
+            "JavaScript",
+            "Async",
+            "ES6"
+          ],
           "definition": "A <b>Promise</b> object represents the eventual completion of an <dfn title=\"无需等待结果返回即可继续执行后续代码的非阻塞操作\">asynchronous operation</dfn>. It relies on the <dfn title=\"浏览器处理微任务与宏任务调度的单线程事件轮询机制\">Event Loop</dfn> and maintains three states: <code>pending</code>, <code>fulfilled</code>, and <code>rejected</code>.",
           "example": "<pre><code>const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    resolve('Success!');\n  }, 1000);\n});\n\npromise.then((value) => {\n  console.log(value); // \"Success!\"\n});</code></pre>",
-          "relatedConcepts": ["async / await", "Event Loop", "Microtask Queue"]
+          "relatedConcepts": [
+            "async / await",
+            "Event Loop",
+            "Microtask Queue"
+          ]
         },
         {
           "id": "mental-model-event-loop",
@@ -55,7 +84,7 @@
           "description": "JavaScript 是单线程的，但通过宿主环境（浏览器/Node.js）提供的多线程 Web APIs 和事件循环机制，实现了非阻塞 of 异步 I/O。",
           "icon": "⚙️",
           "analogy": "主线程就像是餐厅里唯一的**「前台服务员」**，只负责快速接单。当遇到耗时的做菜任务时，服务员把任务丢给厨房（Web APIs），然后继续接下一个客人的单。当厨房做好菜（异步任务完成），会把菜放到传送带上（任务队列），服务员忙完手头的事就去传送带拿菜上桌（事件循环）。",
-          "diagram": "[Call Stack (同步任务)] ──(Stack 空闲时)──> [读取微任务 / 宏任务队列]\n       │                                            ▲\n  (遇到异步任务)                                    │\n       ▼                                            │\n[Web APIs / 宿主线程] ──(异步完成)──> [Task Queue / Microtask Queue]",
+          "diagram": "同步主逻辑: Call Stack 压栈 ➔ 遇异步移交 Web APIs\n异步完成: Web APIs ➔ Microtask / Macrotask 队列\n轮询调度: Event Loop ➔ Stack 清空时清空微任务并取宏任务",
           "pillars": [
             {
               "title": "执行栈 (Call Stack)",
@@ -72,7 +101,8 @@
               "description": "持续监视执行栈是否为空。一旦为空，优先清空所有微任务，然后再取出一个宏任务放入执行栈执行。",
               "icon": "🔄"
             }
-          ]
+          ],
+          "diagramTitle": "📊 JS 单线程与 Event Loop 节点流动演推"
         },
         {
           "id": "sandbox",
@@ -83,8 +113,14 @@
           "code": "const p1 = Promise.resolve(3);\nconst p2 = 1337;\nconst p3 = new Promise((resolve, reject) => {\n  setTimeout(resolve, 100, 'foo');\n});\n\nPromise.all([p1, p2, p3]).then(values => {\n  console.log(values); \n});",
           "status": "success",
           "output": "[ 3, 1337, 'foo' ]",
-          "onRunCode": { "name": "run_sandbox_code", "context": {} },
-          "onStatusChange": { "name": "sandbox_status_change", "context": {} }
+          "onRunCode": {
+            "name": "run_sandbox_code",
+            "context": {}
+          },
+          "onStatusChange": {
+            "name": "sandbox_status_change",
+            "context": {}
+          }
         },
         {
           "id": "quiz",
