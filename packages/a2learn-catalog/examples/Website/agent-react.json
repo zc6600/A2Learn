@@ -35,40 +35,48 @@
           "id": "background-analogy",
           "component": "AnalogyCard",
           "title": "LLM 决策困境：静态推理与盲目调用的两难",
-          "analogy": "<b>研究背景</b>：在 Princeton & Google Brain 联合提出 ReAct 论文前，学术界在提高 LLM 复杂问题解决能力时分化为两大流派：纯思维链（CoT）与纯行动（Act-Only）。<br><br><b>核心瓶颈</b>：在 HotpotQA 等多跳问答（Multi-hop QA）实验中，纯 CoT 无法获取模型权重之外的最新外部知识，导致严重的<b>幻觉（Hallucination）</b>；而纯 Act-Only 盲目调用外部 API 缺少全局规划与逻辑推理，极其容易在复杂的探查中迷失陷入死循环。如何让 LLM 既具备大脑的推理规划，又具备双手的工具调用能力？"
+          "analogy": "<b>研究背景</b>：在学术界探索如何提高大模型复杂问题解决能力时，技术演进分化为两大流派：纯思维链（CoT）与纯行动（Act-Only）。<br><br><b>核心瓶颈</b>：在 HotpotQA 等多跳问答（Multi-hop QA）实验中，纯 CoT 无法获取模型权重之外的最新外部知识，导致严重的<b>幻觉（Hallucination）</b>；而纯 Act-Only 盲目调用外部 API 缺少全局规划与逻辑推理，极其容易在复杂的探查中迷失陷入死循环。如何让 LLM 既具备大脑的推理规划，又具备双手的工具调用能力？"
         },
         {
           "id": "scenario-chat",
           "component": "ScenarioDialogue",
-          "topic": "💬 AI 实验室研讨：CoT 与 Act-Only 在 HotpotQA 基准上的失效对话",
+          "topic": "💬 AI 实验室研讨：探究 CoT 与 Act-Only 在复杂问答上的失控现象",
           "characters": {
-            "yao": {
-              "name": "Yao (论文作者/研究员)",
-              "avatar": "🔬",
+            "alex": {
+              "name": "Alex (AI 系统研究员)",
+              "avatar": "👨‍🔬",
               "alignment": "left"
             },
-            "researcher": {
-              "name": "Senior AI Researcher",
-              "avatar": "👨‍🔬",
+            "elena": {
+              "name": "Elena (大模型负责人)",
+              "avatar": "👩‍💻",
               "alignment": "right"
             }
           },
           "messages": [
             {
-              "characterId": "researcher",
-              "content": "Yao！我们在 HotpotQA 多跳复杂问答上评测了 175B 的 LLM。用 CoT 思维链时，模型虽然推导得有模有样，但中间引用的实时数据全是凭空编造的幻觉！"
+              "characterId": "alex",
+              "content": "Elena，我们在 HotpotQA 上跑评测，发现哪怕用了 CoT 思维链，模型在做多步推导时也经常在第二步就开始编造数据了。你觉得根因是什么？"
             },
             {
-              "characterId": "yao",
-              "content": "没错，CoT 是静态知识库的自我博弈。那如果让模型直接调用 Wikipedia 搜索 API 呢？"
+              "characterId": "elena",
+              "content": "因为 CoT 完全是模型内部静态参数的自我推理啊。它没有外部观测反馈，一旦中间步骤对知识记错了，后面全是在错误假设上做自嗨推导。"
             },
             {
-              "characterId": "researcher",
-              "content": "我们试了纯 Act-Only 模式！结果模型搜到了第一页文章后，面对成千上万字的内容根本不知道如何提取子问题，下一动作直接胡乱搜索，陷入了无效 API 调用的死循环！"
+              "characterId": "alex",
+              "content": "那如果我们直接给它挂载 Wikipedia 搜索 API，让它不用记忆、只做工具调用（Act-Only）呢？"
             },
             {
-              "characterId": "yao",
-              "content": "这就是关键所在：思考与行动不能割裂！必须构建 <dfn title=\"交替生成 Reasoning Trace 与 Action 并在收到 Observation 后动态纠偏的范式\">ReAct 闭环</dfn>，让 Thought 指引 Action，再用 Observation 的真实反馈修正下一轮 Thought！"
+              "characterId": "elena",
+              "content": "我们试过纯 Act 模式，效果反而更差！搜索返回了万字文本后，模型因为缺乏显式的思考步骤，根本不知道如何从结果中提炼下一个搜索词，结果一直在胡乱搜同一个词，陷入死循环了。"
+            },
+            {
+              "characterId": "alex",
+              "content": "这就拉扯出矛盾了：只思考不行动会产生幻觉，只行动不思考又会盲目死循环。要是我们在每一轮行动前，强迫模型先输出一段显式的思考痕迹呢？"
+            },
+            {
+              "characterId": "elena",
+              "content": "这正好构成了闭环！让模型先生成 <dfn title=\"在行动前输出的自主逻辑与步骤规划\">Thought</dfn> 规划动作，再输出 <dfn title=\"模型触发外部API或工具的具体指令\">Action</dfn> 调 API，最后把 <dfn title=\"外部环境或 API 返回的真实观测\">Observation</dfn> 重新喂回 Prompt，这样每一步就都能基于物理事实动态纠偏了！"
             }
           ]
         },
@@ -111,7 +119,7 @@
             "Prompt Infrastructure",
             "Multi-hop Reasoning"
           ],
-          "definition": "<b>ReAct (Reasoning and Acting)</b> 是由 Princeton 和 Google Brain 提出的 Agent 基础架构。它通过在 Prompt 中显式定义 <code>Thought / Action / Observation</code> 范式，实现了大语言模型<b>内部隐式推理能力</b>与<b>外部物理世界工具执行力</b>的深度协同。",
+          "definition": "<b>ReAct (Reasoning and Acting)</b> 是 Agent 领域的基础架构。它通过在 Prompt 中显式定义 <code>Thought / Action / Observation</code> 范式，实现了大语言模型<b>内部隐性推理能力</b>与<b>外部物理世界工具执行力</b>的深度协同。",
           "example": "<pre><code>// ReAct 规范交替追踪 (Tracing) 示例：\nTask: 查阅科罗拉多高原东区所覆盖区域的海拔范围\nThought 1: 我需要先搜索科罗拉多高原，找到其 Eastern Sector 包含的具体地理区域名称。\nAction 1: Search[Colorado plateau]\nObservation 1: 科罗拉多高原位于四角地区，其 Eastern Sector 延伸至圣路易斯山谷...\nThought 2: 网页提及了圣路易斯山谷，我需要继续搜索圣路易斯山谷的海拔范围。\nAction 2: Search[San Luis Valley elevation]\nObservation 2: 圣路易斯山谷的平均海拔约在 2,300 米至 2,700 米之间。\nThought 3: 我已经获取了确切的海拔数据，可以给出最终结论。\nAction 3: Finish[2,300m - 2,700m]</code></pre>",
           "relatedConcepts": [
             "Chain-of-Thought (CoT)",

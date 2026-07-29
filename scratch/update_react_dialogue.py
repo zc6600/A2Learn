@@ -1,4 +1,7 @@
-[
+import json
+from pathlib import Path
+
+content = [
   {
     "version": "v0.9",
     "createSurface": {
@@ -172,3 +175,10 @@
     }
   }
 ]
+
+p1 = Path("packages/a2learn-catalog/examples/Website/agent-react.json")
+p2 = Path("skill/references/examples/agent-react.json")
+
+p1.write_text(json.dumps(content, ensure_ascii=False, indent=2), encoding="utf-8")
+p2.write_text(json.dumps(content, ensure_ascii=False, indent=2), encoding="utf-8")
+print("SUCCESSFULLY_UPDATED_EXPLORATORY_DIALOGUE")
