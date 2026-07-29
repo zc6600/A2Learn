@@ -178,7 +178,7 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
           3. 介绍解决思路 Mindset (Paradigm Shift / Core Breakthrough Mindset)
           4. Mindset 的实际落地方式 (具体回答/工程方案。若落地衍生新工程难题，则在新 Module 中开启下一轮 6 步探索)
           5. 本模块总结 (Module Summary / Key Takeaway)
-          6. 术语逻辑盘点与记忆锚点 (Do NOT use formulaic prefixes like "请牢记以下核心术语...". Weave terms naturally into a fluid explanatory summary paragraph! Wrap terms with <dfn title="通俗注解"><strong>术语名称</strong></dfn> so terms are bold with hover tooltips).
+          6. 术语总结 (Step 6 card title MUST simply be "术语总结". Do NOT use formulaic prefixes like "请牢记以下核心术语...". Weave terms naturally into a fluid explanatory summary paragraph! Wrap terms with <dfn title="通俗注解"><strong>术语名称</strong></dfn> so terms are bold with hover tooltips).
         - PURE CONTENT TITLES (绝对去除框架标号与元描述废话):
           Write clean, direct subject-matter titles for all components and headers.
           STRICTLY FORBIDDEN IN TITLES & HEADINGS:
