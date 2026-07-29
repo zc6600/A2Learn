@@ -171,8 +171,61 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
     .analogy-content p:last-child {
       margin-bottom: 0;
     }
-    .analogy-content strong {
-      color: var(--a2ui-color-secondary, #6366f1);
+    .diagram-box {
+      background: color-mix(in oklab, var(--a2ui-color-surface, #ffffff) 97%, black);
+      border: 1px solid var(--a2ui-color-border, #e2e8f0);
+      border-radius: 12px;
+      padding: 16px;
+      overflow-x: auto;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .visual-step-line {
+      margin-bottom: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--a2ui-color-on-surface, #1e293b);
+    }
+    .visual-step-line:last-child {
+      margin-bottom: 0;
+    }
+    .visual-memory-row {
+      display: inline-flex;
+      gap: 6px;
+      margin: 6px 0;
+      flex-wrap: wrap;
+      align-items: center;
+      vertical-align: middle;
+    }
+    .visual-memory-cell {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--a2ui-color-surface, #ffffff);
+      border: 1px solid var(--a2ui-color-border, #cbd5e1);
+      border-radius: 8px;
+      padding: 4px 8px;
+      min-width: 40px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .visual-memory-cell.highlight {
+      background: #dcfce7;
+      border-color: #10b981;
+      color: #047857;
+      font-weight: 700;
+    }
+    .cell-idx {
+      font-size: 10px;
+      color: var(--app-muted, #64748b);
+      font-family: monospace;
+    }
+    .cell-val {
+      font-size: 13px;
+      font-weight: 600;
+      font-family: monospace;
+    }
+    .step-suffix {
+      font-size: 13px;
+      color: var(--app-muted, #64748b);
     }
   `
 ];
@@ -207,6 +260,49 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
     return paragraphs || "<p></p>";
   }
 
+  private renderDiagram(diagramStr: string) {
+    if (!diagramStr) return nothing;
+    const lines = diagramStr.trim().split("\n");
+
+    return html`
+      <div class="diagram-box">
+        ${lines.map((line) => {
+          // Check if line contains array memory pattern like [0:10 | 1:20 | ...]
+          const arrayMatch = line.match(/\[(.*?)\]/);
+          if (arrayMatch) {
+            const rawCells = arrayMatch[1].split("|");
+            const prefix = line.substring(0, arrayMatch.index).trim();
+            const suffix = line.substring(arrayMatch.index! + arrayMatch[0].length).trim();
+
+            return html`
+              <div class="visual-step-line">
+                ${prefix ? html`<strong>${prefix}</strong> ` : nothing}
+                <div class="visual-memory-row">
+                  ${rawCells.map((cellStr) => {
+                    const parts = cellStr.trim().split(":");
+                    const idx = parts.length > 1 ? parts[0] : "";
+                    const val = parts.length > 1 ? parts[1] : parts[0];
+                    const isHighlight = val.includes("25") || val.includes("空") || val.includes("冲突");
+
+                    return html`
+                      <div class="visual-memory-cell ${isHighlight ? 'highlight' : ''}">
+                        ${idx ? html`<span class="cell-idx">idx ${idx}</span>` : nothing}
+                        <span class="cell-val">${val}</span>
+                      </div>
+                    `;
+                  })}
+                </div>
+                ${suffix ? html` <span class="step-suffix">${suffix}</span>` : nothing}
+              </div>
+            `;
+          }
+
+          return html`<div class="visual-step-line">${unsafeHTML(sanitizeHtml(this.renderInlineMarkdown(line)))}</div>`;
+        })}
+      </div>
+    `;
+  }
+
   render() {
     const props = (this as any).controller?.props;
     if (!props) return nothing;
@@ -215,15 +311,17 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
     const description = this.resolveString(props.description);
     const icon = this.resolveString(props.icon) || "🧠";
     const analogy = props.analogy ? this.resolveString(props.analogy) : "";
+    const analogyTitle = props.analogyTitle ? this.resolveString(props.analogyTitle) : "💡 真实案例剖析演推";
     const diagram = props.diagram ? this.resolveString(props.diagram) : "";
+    const diagramTitle = props.diagramTitle ? this.resolveString(props.diagramTitle) : "📊 内存与数据分布图示";
     const pillars = (props.pillars as Array<Record<string, unknown>>) || [];
+    const pillarsTitle = props.pillarsTitle ? this.resolveString(props.pillarsTitle) : "🗝️ 核心要素";
 
     return html`
       <div class="mm-container">
         <div class="header">
           <div class="icon-badge">${icon}</div>
           <div class="title-area">
-            <span class="subtitle">Mental Model · 心智模型</span>
             <h2 class="title">${title}</h2>
           </div>
         </div>
@@ -233,7 +331,7 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
           ${pillars.length > 0
             ? html`
                 <div>
-                  <h3 class="section-title">🗝️ 核心要素 (Pillars)</h3>
+                  <h3 class="section-title">${pillarsTitle}</h3>
                   <div class="pillars-grid">
                     ${pillars.map((pillar) => {
                       const pTitle = this.resolveString(pillar.title);
@@ -257,10 +355,8 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
           ${diagram
             ? html`
                 <div>
-                  <h3 class="section-title">📊 结构化示意 (Diagram)</h3>
-                  <div class="diagram-box">
-                    <pre><code>${diagram.trim()}</code></pre>
-                  </div>
+                  <h3 class="section-title">${diagramTitle}</h3>
+                  ${this.renderDiagram(diagram)}
                 </div>
               `
             : nothing}
@@ -268,7 +364,7 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
           ${analogy
             ? html`
                 <div class="analogy-box">
-                  <h4 class="analogy-header">💡 直觉类比 (Analogy)</h4>
+                  <h4 class="analogy-header">${analogyTitle}</h4>
                   <div class="analogy-content">
                     ${unsafeHTML(sanitizeHtml(this.renderInlineMarkdown(analogy)))}
                   </div>
