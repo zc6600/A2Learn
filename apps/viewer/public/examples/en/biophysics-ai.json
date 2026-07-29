@@ -66,28 +66,6 @@
             "label": "Protein Structure Prediction",
             "description": "Current focus: how AI predicts 3D protein structure from an amino-acid sequence"
           },
-          "childrenNodes": [
-            {
-              "id": "drug-discovery",
-              "label": "AI Drug Discovery",
-              "hasChildren": true
-            },
-            {
-              "id": "cryo-em",
-              "label": "Cryo-EM + AI",
-              "hasChildren": true
-            },
-            {
-              "id": "md-sim",
-              "label": "AI Molecular Dynamics",
-              "hasChildren": true
-            },
-            {
-              "id": "single-cell",
-              "label": "Single-Cell Omics + AI",
-              "hasChildren": false
-            }
-          ],
           "onNodeNavigate": {
             "name": "knowledge_tree_navigate",
             "context": {}

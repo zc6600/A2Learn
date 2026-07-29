@@ -66,28 +66,6 @@
             "label": "蛋白质结构预测",
             "description": "当前聚焦：AI 如何从氨基酸序列预测三维蛋白质结构"
           },
-          "childrenNodes": [
-            {
-              "id": "drug-discovery",
-              "label": "AI 药物发现",
-              "hasChildren": true
-            },
-            {
-              "id": "cryo-em",
-              "label": "冷冻电镜 + AI",
-              "hasChildren": true
-            },
-            {
-              "id": "md-sim",
-              "label": "AI 分子动力学",
-              "hasChildren": true
-            },
-            {
-              "id": "single-cell",
-              "label": "单细胞组学 + AI",
-              "hasChildren": false
-            }
-          ],
           "onNodeNavigate": {
             "name": "knowledge_tree_navigate",
             "context": {}

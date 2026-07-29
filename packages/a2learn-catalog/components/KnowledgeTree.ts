@@ -173,7 +173,9 @@ export class A2learnKnowledgeTreeElement extends A2uiLitElement<typeof Knowledge
           </div>
         ` : nothing}
 
-        <!-- 子节点网格导航 -->
+        <!-- 子节点网格导航（仅在作者提供了可导航的兄弟/子主题时渲染；
+             不提供 childrenNodes 就代表这里只是"你在知识地图中的位置"提示，
+             不代表这是叶子节点，所以留空时不再显示误导性的"已到达叶子节点"文案） -->
         ${childrenNodes.length > 0 ? html`
           <div class="children-grid">
             ${childrenNodes.map((child: any) => html`
@@ -187,11 +189,7 @@ export class A2learnKnowledgeTreeElement extends A2uiLitElement<typeof Knowledge
               </div>
             `)}
           </div>
-        ` : html`
-          <div style="padding: 24px; text-align: center; color: #888; font-style: italic;">
-            已到达知识叶子节点，暂无更深层级内容。
-          </div>
-        `}
+        ` : nothing}
       </div>
     `;
   }
