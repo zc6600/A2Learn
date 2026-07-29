@@ -178,7 +178,7 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
           3. 介绍解决思路 Mindset (Paradigm Shift / Core Breakthrough Mindset)
           4. Mindset 的实际落地方式 (具体回答/工程方案。若落地衍生新工程难题，则在新 Module 中开启下一轮 6 步探索)
           5. 本模块总结 (Module Summary / Key Takeaway)
-          6. 术语逻辑盘点与记忆锚点 (Do NOT evade technical jargon! Thoroughly explain each term as a key memory anchor ⚓).
+          6. 术语逻辑盘点与记忆锚点 (Do NOT use formulaic prefixes like "请牢记以下核心术语...". Weave terms naturally into a fluid explanatory summary paragraph! Wrap terms with <dfn title="通俗注解"><strong>术语名称</strong></dfn> so terms are bold with hover tooltips).
         - PURE CONTENT TITLES (绝对去除框架标号与元描述废话):
           Write clean, direct subject-matter titles for all components and headers.
           STRICTLY FORBIDDEN IN TITLES & HEADINGS:
@@ -193,7 +193,7 @@ def generate_a2ui_messages(llm: Any, resource_text: str) -> list[dict[str, Any]]
           2. State the target operation (e.g., "Insert 25").
           3. Trace each memory move step-by-step (e.g., "60 -> index 5, 50 -> index 4, 30 -> index 3").
           4. Conclude with real-world impact (e.g., "Inserting 1 element forced 3 RAM moves; 1,000,000 items forces 500,000 RAM moves!").
-        - GLOSSARY ANNOTATION: When mentioning obscure, technical, or precursor concepts in explanations (such as algorithms, metrics, or mechanisms), wrap them with a semantic HTML definition tag: <dfn title="一句话通俗注解">生僻概念</dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法">开放寻址法</dfn> 解决。"
+        - GLOSSARY & TERM ANNOTATION: NEVER output formulaic "请牢记以下..." lists. Weave key terms into a connected paragraph. Always wrap technical terms with semantic HTML definition tags: <dfn title="一句话通俗注解"><strong>术语名称</strong></dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法"><strong>开放寻址法</strong></dfn> 解决。"
         - Output format example:
           [
             {{"version":"v0.9","createSurface":{{"surfaceId":"main","catalogId":"{DEFAULT_CATALOG_ID}"}}}},
