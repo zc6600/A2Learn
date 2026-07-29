@@ -1,6 +1,8 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "a2learn",
-  "pages_build_output_dir": "apps/viewer/dist",
-  "compatibility_date": "2026-07-29"
+  "compatibility_date": "2026-07-29",
+  "assets": {
+    "directory": "apps/viewer/dist"
+  }
 }
