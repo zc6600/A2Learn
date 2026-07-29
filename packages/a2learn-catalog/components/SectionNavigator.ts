@@ -105,17 +105,54 @@ export class A2learnSectionNavigatorElement extends A2uiLitElement<typeof Sectio
     return "";
   }
 
-  private handleSectionClick(sectionId: string, status: string) {
-    if (status === "locked") return;
+  private findTargetElement(targetId: string): Element | null {
+    const matches = (el: Element): boolean =>
+      el.id === targetId || el.getAttribute("data-component-id") === targetId;
 
+    const search = (root: ParentNode): Element | null => {
+      const nodes = root.querySelectorAll("*");
+      for (const node of Array.from(nodes)) {
+        if (matches(node)) return node;
+        const shadow = (node as any).shadowRoot as ShadowRoot | null | undefined;
+        if (shadow) {
+          const found = search(shadow);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    return search(document.body);
+  }
+
+  private handleSectionClick(section: any, normalizedStatus: string) {
+    if (normalizedStatus === "locked") return;
+
+    // 1. targetSurfaceId: cross-surface navigation
+    if (section.targetSurfaceId) {
+      window.location.hash = "#/" + section.targetSurfaceId;
+    }
+
+    // 2. targetComponentId: smooth scroll within the same page
+    if (section.targetComponentId) {
+      setTimeout(() => {
+        const targetEl = this.findTargetElement(section.targetComponentId);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 60);
+    }
+
+    // 3. Dispatch action so Agent/static handler can track and update active state
     const props = this.controller?.props;
     if (props && props.onSectionClick) {
       this.context.dispatchAction({
         ...(props.onSectionClick as Record<string, unknown>),
-        context: { sectionId },
+        context: { sectionId: section.id },
       });
     }
   }
+
 
   render() {
     const props = this.controller?.props;
@@ -153,7 +190,7 @@ export class A2learnSectionNavigatorElement extends A2uiLitElement<typeof Sectio
             return html`
               <div 
                 class=${classMap(classes)} 
-                @click=${() => this.handleSectionClick(sec.id, normalizedStatus)}
+                @click=${() => this.handleSectionClick(sec, normalizedStatus)}
               >
                 <div class="icon-header">
                   <span>${icon}</span>

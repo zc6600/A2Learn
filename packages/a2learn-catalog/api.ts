@@ -183,6 +183,8 @@ export const SectionNavigatorApi = {
           .enum(["locked", "available", "pending", "current", "completed"])
           .default("available")
           .describe("章节状态"),
+        targetComponentId: z.string().optional().describe("点击后在当前页面内平滑滚动到的组件 ID（与 component.id 对应）"),
+        targetSurfaceId: z.string().optional().describe("点击后跳转到的另一个 surface ID（跨页导航）"),
       })).describe("章节列表"),
       activeSectionId: z.string().optional().describe("当前激活的章节 ID"),
       onSectionClick: ActionSchema.optional().describe("点击章节卡片时触发的操作，用于 Agent 进行页面级路由切换"),
