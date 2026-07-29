@@ -160,7 +160,14 @@ function configFromLocation(): ViewerRuntimeConfig {
   const resourceText = (resourceTextParam || envResourceText).trim() || undefined;
 
   const preferredMode = modeRaw === "online" || modeRaw === "offline" ? (modeRaw as "online" | "offline") : undefined;
-  const resolvedMode = preferredMode || (apiBaseUrl ? "online" : "offline");
+  // Having VITE_A2LEARN_API_URL configured only means the online-generation
+  // *feature* is available (used later when the user submits a prompt via
+  // onGenerate) — it must not, by itself, make a bare page load (or a stale
+  // hash deep link) try to auto-generate with no prompt. Only resolve to
+  // "online" here if the caller actually asked for it (mode=online) or gave
+  // something to generate from (resourceText/resourcePath).
+  const resolvedMode =
+    preferredMode || (apiBaseUrl && (resourceText || resourcePath) ? "online" : "offline");
 
   if (resolvedMode === "online") {
     return {
