@@ -172,5 +172,539 @@
         }
       ]
     }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface-module-2",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface-module-2",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-2",
+            "learning-path-2",
+            "step1-background-2",
+            "step1-chat-2",
+            "step2-naive-2",
+            "step3-mindset-2",
+            "step4-implementation-2",
+            "step5-summary-2",
+            "quiz-2"
+          ]
+        },
+        {
+          "id": "header-2",
+          "component": "Text",
+          "variant": "h1",
+          "text": "When Different Keys Compute the Same Index?"
+        },
+        {
+          "id": "learning-path-2",
+          "component": "LearningPath",
+          "title": "Hash Table 4-Stage Progressive Path",
+          "activeStepId": "2",
+          "steps": [
+            {
+              "id": "1",
+              "title": "1. Search Crisis (O(1) Direct Access)",
+              "targetSurfaceId": "surface-module-1"
+            },
+            {
+              "id": "2",
+              "title": "2. Collision Dilemma (Conflict Resolution)",
+              "targetSurfaceId": "surface-module-2"
+            },
+            {
+              "id": "3",
+              "title": "3. Space vs Speed (Load Factor & Rehash)",
+              "targetSurfaceId": "surface-module-3"
+            },
+            {
+              "id": "4",
+              "title": "4. Security Defense (HashDoS & Treeify)",
+              "targetSurfaceId": "surface-module-4"
+            }
+          ]
+        },
+        {
+          "id": "step1-background-2",
+          "component": "AnalogyCard",
+          "title": "Data Overwrite Disaster from Index Collisions",
+          "analogy": "<b>Emerging Problem</b>: In Module 1, we calculated array indices using hash functions. But in production, input Keys (e.g. user names) are infinite, whereas array slot capacities are always finite.<br><br><b>Overwrite Crisis</b>: When storing different keys ('Alice' and 'David'), the hash function inevitably calculates the <b>exact same index 5</b>! If written directly into slot 5, David overwrites Alice, causing catastrophic data loss!"
+        },
+        {
+          "id": "step1-chat-2",
+          "component": "ScenarioDialogue",
+          "topic": "💬 Tech Group: Help! Two keys produced the same index and data was overwritten!",
+          "characters": {
+            "alice": {
+              "name": "Alice (Junior Dev)",
+              "avatar": "👩‍💻",
+              "alignment": "left"
+            },
+            "boss_zhang": {
+              "name": "Architect Zhang",
+              "avatar": "👨‍💼",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alice",
+              "content": "Boss! Disaster! User 'Alice' and 'David' got the same index 5 from the hash function! David's data wiped out Alice's in production!"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "This is an inevitable 'Hash Collision'! Because output slots are finite while input keys are infinite. Mathematics proves collisions cannot be completely prevented."
+            },
+            {
+              "characterId": "alice",
+              "content": "Can't we design a perfect hash function with zero collisions?"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "Impossible! The Pigeonhole Principle proves that if you have more pigeons than holes, at least two pigeons share a hole. Engineering must learn to tolerate collisions!"
+            }
+          ]
+        },
+        {
+          "id": "step2-naive-2",
+          "component": "MentalModel",
+          "title": "Pigeonhole Principle & Conflict Resolution",
+          "description": "According to the Pigeonhole Principle, when Key space is larger than array capacity, at least two keys must map to the same index. This is math, not a software bug.",
+          "icon": "🐦",
+          "diagramTitle": "📊 Index Collision & Overwrite Diagram",
+          "diagram": "Alice Maps: [0:Empty | 1:Empty | 5:Alice | 6:Empty]\nDavid Collision: [0:Empty | 1:Empty | 5:Collision! | 6:Empty]\n\nDirect Overwrite: Slot 5 Alice data destroyed! ❌",
+          "pillarsTitle": "Principles & Approaches",
+          "pillars": [
+            {
+              "title": "Pigeonhole Principle",
+              "description": "Mapping infinite inputs to finite slots makes collisions mathematically inevitable.",
+              "icon": "📐"
+            },
+            {
+              "title": "Direct Overwrite Flaw",
+              "description": "Overwriting existing data causes severe data corruption.",
+              "icon": "💥"
+            }
+          ],
+          "analogyTitle": "💡 Overwrite Disaster Breakdown",
+          "analogy": "Overwriting old data when index collision occurs means previous entries disappear completely. A user logging into Alice's account sees David's profile!"
+        },
+        {
+          "id": "step3-mindset-2",
+          "component": "ConceptCard",
+          "title": "Multi-Node Attachment & Probing",
+          "tags": [
+            "Tolerate Collisions",
+            "Multi-Dimensional Storage",
+            "Decoupling"
+          ],
+          "definition": "<b>Core Mindset Breakthrough</b>: Accept collisions as inevitable. Stop expecting 'one slot stores only one item'.<br><br><b>Two Main Approaches</b>:<br>1. <b>Vertical Attachment (Separate Chaining)</b>: Store a linked list inside each bucket slot to attach multiple colliding items!<br>2. <b>Horizontal Probing (Open Addressing)</b>: When a slot is occupied, probe neighboring slots according to a fixed sequence rule!",
+          "example": "<pre><code>// Approach 1 (Chaining): Slot 5 holds linked list -> [Alice] -> [David]\n// Approach 2 (Open Addressing): Slot 5 occupied -> Probe slot 6 -> Store in 6 if free</code></pre>",
+          "relatedConcepts": [
+            "Separate Chaining",
+            "Open Addressing",
+            "Collision Resolution"
+          ]
+        },
+        {
+          "id": "step4-implementation-2",
+          "component": "DetailedExplanation",
+          "title": "Separate Chaining vs Open Addressing & CPU Cache",
+          "icon": "⚙️",
+          "estimatedReadTime": "4 min read",
+          "content": "Engineering has converged on two dominant collision resolution strategies:\n\n1. **<dfn title=\"Each bucket maintains a singly linked list appending colliding nodes\">Separate Chaining</dfn>**: Used by Java HashMap. Each array slot holds a linked list. Collisions append to the list. Simple and resilient, but nodes are scattered in memory with poor <dfn title=\"Hardware acceleration prefetching contiguous memory into cache\">CPU Cache Locality</dfn>.\n2. **<dfn title=\"No linked lists; probes neighboring array slots on collision\">Open Addressing</dfn>**: Used by Python dict. All data elements lie contiguously in the array. On collision, it probes next available slot `(idx + 1) % capacity`. Excellent CPU Cache Line prefetching, but performance drops sharply when full.\n\n> 💡 Engineering Tradeoff: Java uses Chaining for resilience; Python uses Open Addressing for raw CPU cache performance."
+        },
+        {
+          "id": "step5-summary-2",
+          "component": "AnalogyCard",
+          "title": "Summary: Vertical Chains vs Horizontal Array Probing",
+          "analogy": "Collisions are inevitable. Chaining extends vertically with linked lists; Open Addressing probes horizontally for free slots.<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Terminology Summary</h5><p>Index collisions represent <dfn title=\"Different keys mapping to identical array indexes\"><strong>Hash Collisions</strong></dfn>. Java uses <dfn title=\"Linked lists attached to array buckets for colliding items\"><strong>Separate Chaining</strong></dfn>, while Python dict uses <dfn title=\"Probing contiguous array memory for open slots\"><strong>Open Addressing</strong></dfn> to maximize <dfn title=\"Hardware prefetching of contiguous memory blocks\"><strong>CPU Cache Locality</strong></dfn>.</p></div>"
+        },
+        {
+          "id": "quiz-2",
+          "component": "QuizCard",
+          "title": "🧠 Collision Resolution Choice",
+          "question": "Which collision resolution strategy keeps all elements contiguous in memory for maximum CPU cache efficiency?",
+          "options": [
+            {
+              "id": "opt1",
+              "text": "A. Separate Chaining"
+            },
+            {
+              "id": "opt2",
+              "text": "B. Open Addressing"
+            },
+            {
+              "id": "opt3",
+              "text": "C. Discard new data"
+            },
+            {
+              "id": "opt4",
+              "text": "D. Sort the array"
+            }
+          ],
+          "correctOptionId": "opt2",
+          "explanation": "Open Addressing stores all key-value pairs contiguously in array RAM without pointer indirection, achieving optimal CPU cache locality."
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface-module-3",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface-module-3",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-3",
+            "learning-path-3",
+            "step1-background-3",
+            "step1-chat-3",
+            "step2-naive-3",
+            "step3-mindset-3",
+            "step4-implementation-3",
+            "step5-summary-3",
+            "cloze-3"
+          ]
+        },
+        {
+          "id": "header-3",
+          "component": "Text",
+          "variant": "h1",
+          "text": "Load Factor & Incremental Rehash"
+        },
+        {
+          "id": "learning-path-3",
+          "component": "LearningPath",
+          "title": "Hash Table 4-Stage Progressive Path",
+          "activeStepId": "3",
+          "steps": [
+            {
+              "id": "1",
+              "title": "1. Search Crisis (O(1) Direct Access)",
+              "targetSurfaceId": "surface-module-1"
+            },
+            {
+              "id": "2",
+              "title": "2. Collision Dilemma (Conflict Resolution)",
+              "targetSurfaceId": "surface-module-2"
+            },
+            {
+              "id": "3",
+              "title": "3. Space vs Speed (Load Factor & Rehash)",
+              "targetSurfaceId": "surface-module-3"
+            },
+            {
+              "id": "4",
+              "title": "4. Security Defense (HashDoS & Treeify)",
+              "targetSurfaceId": "surface-module-4"
+            }
+          ]
+        },
+        {
+          "id": "step1-background-3",
+          "component": "AnalogyCard",
+          "title": "Performance Degradation Under High Occupancy",
+          "analogy": "<b>Emerging Problem</b>: Module 2 solved collisions with Chaining and Open Addressing. But as millions of keys are inserted, array occupancy approaches 100%.<br><br><b>Performance Collapse</b>: Near full capacity, linked lists grow long and Open Addressing probing steps explode. The proud O(1) performance degrades back into slow linear scanning!"
+        },
+        {
+          "id": "step1-chat-3",
+          "component": "ScenarioDialogue",
+          "topic": "💬 Tech Group: Array is almost full, lookups are slowing down again!",
+          "characters": {
+            "alice": {
+              "name": "Alice (Junior Dev)",
+              "avatar": "👩‍💻",
+              "alignment": "left"
+            },
+            "boss_zhang": {
+              "name": "Architect Zhang",
+              "avatar": "👨‍💼",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alice",
+              "content": "Boss! Our hash table initial capacity was 100. We stored 90 items and now collisions are skyrocketing, lookups are slow again!"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "Your Load Factor is too high! Like a parking lot, fewer empty spots mean longer time finding a park. We must monitor load factor and trigger dynamic resizing!"
+            }
+          ]
+        },
+        {
+          "id": "step2-naive-3",
+          "component": "MentalModel",
+          "title": "Occupancy Rate & Exponential Collision Growth",
+          "description": "Collision probability is inversely proportional to free slot ratio. O(1) speed requires maintaining a minimum free slot margin.",
+          "icon": "📈",
+          "diagramTitle": "📊 High Occupancy & Doubling Rehash",
+          "diagram": "Occupancy 90%: [0:Full | 1:Full | 2:Full | 3:Full | 4:Free]\nCapacity Double: [0:Full | 1:Free | 2:Full | 3:Free | ... | 9:Free]",
+          "pillarsTitle": "Core Principles",
+          "pillars": [
+            {
+              "title": "Occupancy First Principle",
+              "description": "Fewer free slots cause exponential collision growth.",
+              "icon": "📊"
+            },
+            {
+              "title": "Static Huge Memory Flaw",
+              "description": "Pre-allocating giant memory wastes memory RAM resources.",
+              "icon": "⚠️"
+            }
+          ],
+          "analogyTitle": "💡 Static Memory Pre-allocation Flaw",
+          "analogy": "Allocating 100 GB RAM upfront wastes massive memory resources when storing small datasets."
+        },
+        {
+          "id": "step3-mindset-3",
+          "component": "ConceptCard",
+          "title": "Dynamic Monitoring & Capacity Doubling",
+          "tags": [
+            "Dynamic Balance",
+            "On-Demand Resizing",
+            "Space Leverage"
+          ],
+          "definition": "<b>Core Mindset Breakthrough</b>: Maintain small initial RAM. Monitor occupancy metrics. Once threshold is breached, <b>allocate double capacity and re-map all items</b>!",
+          "example": "<pre><code>// Monitor threshold: size / capacity > 0.75\n// When breached: capacity = capacity * 2, rehash all items</code></pre>",
+          "relatedConcepts": [
+            "Load Factor",
+            "Rehash",
+            "Dynamic Resizing"
+          ]
+        },
+        {
+          "id": "step4-implementation-3",
+          "component": "DetailedExplanation",
+          "title": "0.75 Load Factor, Bitwise AND & Incremental Rehash",
+          "icon": "⚙️",
+          "estimatedReadTime": "4 min read",
+          "content": "Three key engineering optimizations in dynamic resizing:\n\n1. **<dfn title=\"Ratio of total items to capacity (size / capacity)\">Load Factor</dfn>**: Threshold metric. Java HashMap uses `0.75` as optimal tradeoff between space efficiency and lookup speed.\n2. **<dfn title=\"Capacity kept power of 2 to replace slow modulo with fast bitwise AND\">Bitwise AND Optimization</dfn>**: Capacity kept as power of 2 (16, 32, 64), replacing modulo `hash % capacity` with fast hardware instruction `<dfn title=\"Bitwise AND replacing modulo operation\">hash & (capacity - 1)</dfn>`!\n3. **<dfn title=\"Amortizing rehash work across daily reads/writes to prevent spikes\">Incremental Rehash</dfn>**: Redis maintains two hash tables (`ht[0]`, `ht[1]`), migrating items incrementally to prevent latency spikes."
+        },
+        {
+          "id": "step5-summary-3",
+          "component": "AnalogyCard",
+          "title": "Summary: Occupancy Monitoring & Amortized Migration",
+          "analogy": "Load factor measures occupancy, Rehash doubles capacity, Bitwise AND accelerates indexing.<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Terminology Summary</h5><p>Monitoring the <dfn title=\"Ratio of stored elements to array capacity\"><strong>Load Factor</strong></dfn> triggers dynamic <dfn title=\"Allocating double space and re-mapping all keys\"><strong>Rehash</strong></dfn>. High-throughput systems employ <dfn title=\"Migrating data incrementally across routine writes\"><strong>Incremental Rehash</strong></dfn> to prevent blocking server threads.</p></div>"
+        },
+        {
+          "id": "cloze-3",
+          "component": "ClozeTest",
+          "title": "Dynamic Resizing Practice",
+          "instruction": "Fill in the missing blanks:",
+          "passage": "Hash tables monitor occupancy via [blank1]. Exceeding the threshold triggers [blank2]. Array capacities are kept as [blank3] to enable fast bitwise AND indexing.",
+          "options": [
+            "Load Factor",
+            "Rehash",
+            "Powers of 2",
+            "Binary Search"
+          ],
+          "correctAnswers": {
+            "blank1": "Load Factor",
+            "blank2": "Rehash",
+            "blank3": "Powers of 2"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface-module-4",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface-module-4",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-4",
+            "learning-path-4",
+            "step1-background-4",
+            "step1-chat-4",
+            "step2-naive-4",
+            "step3-mindset-4",
+            "step4-implementation-4",
+            "step5-summary-4",
+            "quiz-4"
+          ]
+        },
+        {
+          "id": "header-4",
+          "component": "Text",
+          "variant": "h1",
+          "text": "HashDoS Attacks & Red-Black Tree Treeify"
+        },
+        {
+          "id": "learning-path-4",
+          "component": "LearningPath",
+          "title": "Hash Table 4-Stage Progressive Path",
+          "activeStepId": "4",
+          "steps": [
+            {
+              "id": "1",
+              "title": "1. Search Crisis (O(1) Direct Access)",
+              "targetSurfaceId": "surface-module-1"
+            },
+            {
+              "id": "2",
+              "title": "2. Collision Dilemma (Conflict Resolution)",
+              "targetSurfaceId": "surface-module-2"
+            },
+            {
+              "id": "3",
+              "title": "3. Space vs Speed (Load Factor & Rehash)",
+              "targetSurfaceId": "surface-module-3"
+            },
+            {
+              "id": "4",
+              "title": "4. Security Defense (HashDoS & Treeify)",
+              "targetSurfaceId": "surface-module-4"
+            }
+          ]
+        },
+        {
+          "id": "step1-background-4",
+          "component": "AnalogyCard",
+          "title": "Worst-Case Collision Attack Vectors",
+          "analogy": "<b>Emerging Threat</b>: Attackers can exploit predictable deterministic hash algorithms by pre-computing thousands of keys that hash to the exact same bucket slot!<br><br><b>HashDoS Attack</b>: Forcing tens of thousands of items into a single bucket list degrades O(1) performance to O(N), spiking server CPU to 100% and causing Denial of Service!"
+        },
+        {
+          "id": "step1-chat-4",
+          "component": "ScenarioDialogue",
+          "topic": "💬 Tech Group: Alert! Server CPU 100% hit by a Hash Collision Attack!",
+          "characters": {
+            "alice": {
+              "name": "Alice (Junior Dev)",
+              "avatar": "👩‍💻",
+              "alignment": "left"
+            },
+            "boss_zhang": {
+              "name": "Architect Zhang",
+              "avatar": "👨‍💼",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alice",
+              "content": "Boss! Emergency! Our API received crafted requests and slot 5 list grew 10,000 nodes long! O(1) became O(N) and server froze!"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "That is a classic <dfn title=\"Malicious attack sending colliding keys to degrade hash tables into linear lists\">HashDoS Attack</dfn>! We need randomized hash seeds and treeified data structure fallbacks!"
+            }
+          ]
+        },
+        {
+          "id": "step2-naive-4",
+          "component": "MentalModel",
+          "title": "Worst-Case Algorithmic Complexity Bounds",
+          "description": "O(1) average lookup relies on uniform distribution assumptions. Malicious inputs challenge worst-case complexity bounds.",
+          "icon": "⚠️",
+          "diagramTitle": "📊 Skewed Hash Degradation Diagram",
+          "diagram": "Uniform: [0:Node | 1:Node | 2:Node | 3:Node]\nSkewed:  [0:Node->Node...10000 nodes! | 1:Empty | 2:Empty | 3:Empty]",
+          "pillarsTitle": "Complexity Bounds",
+          "pillars": [
+            {
+              "title": "Worst-Case Bound",
+              "description": "Algorithms must guarantee upper bound bounds against adversarial inputs.",
+              "icon": "📉"
+            },
+            {
+              "title": "Uniform Trust Risk",
+              "description": "Assuming random input leaves systems vulnerable to Denial of Service.",
+              "icon": "❌"
+            }
+          ],
+          "analogyTitle": "💡 Risk of Trusting Input Randomness",
+          "analogy": "Attackers pre-calculate colliding keys offline (HashDoS) to instantly paralyze online servers."
+        },
+        {
+          "id": "step3-mindset-4",
+          "component": "ConceptCard",
+          "title": "Algorithm Randomization & Tree Structures",
+          "tags": [
+            "SipHash Randomization",
+            "Worst-Case Guarantee",
+            "Security"
+          ],
+          "definition": "<b>Core Mindset Breakthrough</b>: Dual Defense System!<br><br>1. <b>Input Randomization</b>: Use random seed hashing (SipHash) so attackers cannot predict online hashes!<br>2. <b>Structure Upgrade</b>: Automatically convert long bucket linked lists into self-balancing search trees to hard-cap worst-case lookup bounds!",
+          "example": "<pre><code>// Defense 1 (SipHash): Random seed per process SipHash(Key, Seed)\n// Defense 2 (Treeify): When list length >= 8, convert to Red-Black Tree (O(log N) worst case)</code></pre>",
+          "relatedConcepts": [
+            "HashDoS",
+            "Treeify Threshold",
+            "SipHash"
+          ]
+        },
+        {
+          "id": "step4-implementation-4",
+          "component": "DetailedExplanation",
+          "title": "Java 8 Treeify & SipHash Security Seeds",
+          "icon": "⚙️",
+          "estimatedReadTime": "4 min read",
+          "content": "Industrial-grade hash table security defenses:\n\n1. **<dfn title=\"Converting bucket linked lists to self-balancing Red-Black trees when length exceeds 8\">Treeify Threshold</dfn>**: Java 8+ HashMap converts bucket lists to Red-Black Trees when length ≥ 8 and capacity ≥ 64. Even with 1,000,000 colliding nodes, worst-case search takes log(1000000) ≈ 20 steps, hard-capped at **O(log N)**!\n2. **<dfn title=\"Cryptographically strong hash algorithm with random seed to prevent prediction\">SipHash Algorithm</dfn>**: Python 3.4+ and Rust use SipHash with random per-process seeds, rendering offline collision pre-computation impossible."
+        },
+        {
+          "id": "step5-summary-4",
+          "component": "AnalogyCard",
+          "title": "Summary: Algorithmic Randomization & Tree Fallbacks",
+          "analogy": "Industrial hash tables pair random seeding with tree fallbacks to neutralize HashDoS attacks.<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Terminology Summary</h5><p>Defending against <dfn title=\"Crafting colliding keys to force linear lookup degradation\"><strong>HashDoS Attacks</strong></dfn> relies on randomized <dfn title=\"Random per-process keyed hashing algorithm\"><strong>SipHash</strong></dfn> and automatic <dfn title=\"Converting long bucket lists to self-balancing Red-Black Trees\"><strong>Treeify Thresholds</strong></dfn> capping worst-case lookups at O(log N).</p></div>"
+        },
+        {
+          "id": "quiz-4",
+          "component": "QuizCard",
+          "title": "🧠 Industrial Hash Table Security Quiz",
+          "question": "Why does Java 8 HashMap convert bucket linked lists into Red-Black Trees when list length reaches 8?",
+          "options": [
+            {
+              "id": "opt1",
+              "text": "A. Because 8 is a lucky number"
+            },
+            {
+              "id": "opt2",
+              "text": "B. To cap worst-case lookup at O(log N) and defend against HashDoS attacks"
+            },
+            {
+              "id": "opt3",
+              "text": "C. To save memory"
+            },
+            {
+              "id": "opt4",
+              "text": "D. Red-Black trees take less memory than linked lists"
+            }
+          ],
+          "correctOptionId": "opt2",
+          "explanation": "When severe collisions occur, linked lists degrade to O(N). Treeifying to Red-Black Trees caps worst-case search at O(log N), neutralizing HashDoS attacks."
+        }
+      ]
+    }
   }
 ]
