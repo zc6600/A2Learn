@@ -1,0 +1,166 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-js-async",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-js-async",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "learning-path",
+            "intro-text",
+            "concept",
+            "mental-model-event-loop",
+            "sandbox",
+            "quiz",
+            "resources"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "JavaScript Async Programming and Promise Core Principles"
+        },
+        {
+          "id": "learning-path",
+          "component": "LearningPath",
+          "title": "Promise Learning Path",
+          "activeStepId": "1",
+          "steps": [
+            {
+              "id": "1",
+              "title": "Understanding Promises"
+            },
+            {
+              "id": "2",
+              "title": "Handwriting delay"
+            },
+            {
+              "id": "3",
+              "title": "Unlock Achievements"
+            }
+          ],
+          "onStepSelect": {
+            "name": "learning_path_select",
+            "context": {}
+          }
+        },
+        {
+          "id": "intro-text",
+          "component": "Text",
+          "text": "In JavaScript runtimes like the browser and Node.js, asynchronous programming is core to handling I/O-intensive tasks. Traditional async relied on callback functions, leading to \"callback hell.\" The introduction of Promise in ES6 changed this predicament."
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "Promise",
+          "tags": [
+            "JavaScript",
+            "Async",
+            "ES6"
+          ],
+          "definition": "A <b>Promise</b> object represents the eventual completion of an <dfn title=\"无需等待结果返回即可继续执行后续代码的非阻塞操作\">asynchronous operation</dfn>. It relies on the <dfn title=\"浏览器处理微任务与宏任务调度的单线程事件轮询机制\">Event Loop</dfn> and maintains three states: <code>pending</code>, <code>fulfilled</code>, and <code>rejected</code>.",
+          "example": "<pre><code>const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    resolve('Success!');\n  }, 1000);\n});\n\npromise.then((value) => {\n  console.log(value); // \"Success!\"\n});</code></pre>",
+          "relatedConcepts": [
+            "async / await",
+            "Event Loop",
+            "Microtask Queue"
+          ]
+        },
+        {
+          "id": "mental-model-event-loop",
+          "component": "MentalModel",
+          "title": "JS 异步执行环境与事件循环 (Event Loop)",
+          "description": "JavaScript 是单线程的，但通过宿主环境（浏览器/Node.js）提供的多线程 Web APIs 和事件循环机制，实现了非阻塞 of 异步 I/O。",
+          "icon": "⚙️",
+          "analogy": "主线程就像是餐厅里唯一的**「前台服务员」**，只负责快速接单。当遇到耗时的做菜任务时，服务员把任务丢给厨房（Web APIs），然后继续接下一个客人的单。当厨房做好菜（异步任务完成），会把菜放到传送带上（任务队列），服务员忙完手头的事就去传送带拿菜上桌（事件循环）。",
+          "diagram": "同步主逻辑: Call Stack 压栈 ➔ 遇异步移交 Web APIs\n异步完成: Web APIs ➔ Microtask / Macrotask 队列\n轮询调度: Event Loop ➔ Stack 清空时清空微任务并取宏任务",
+          "pillars": [
+            {
+              "title": "执行栈 (Call Stack)",
+              "description": "单线程主逻辑执行的地方，遵循后进先出 (LIFO) 原则。主线程的同步代码都在栈内运行。",
+              "icon": "🥞"
+            },
+            {
+              "title": "任务队列 (Task Queues)",
+              "description": "包含微任务队列 (Microtask Queue, 如 Promise.then) 和宏任务队列 (Macrotask Queue, 如 setTimeout)，用于存放异步回调。",
+              "icon": "📬"
+            },
+            {
+              "title": "事件循环 (Event Loop)",
+              "description": "持续监视执行栈是否为空。一旦为空，优先清空所有微任务，然后再取出一个宏任务放入执行栈执行。",
+              "icon": "🔄"
+            }
+          ],
+          "diagramTitle": "📊 JS 单线程与 Event Loop 节点流动演推"
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "Try Promise.all Hands-on",
+          "description": "You can run the code below to see how <code>Promise.all</code> waits for all Promises to complete in parallel.",
+          "language": "javascript",
+          "code": "const p1 = Promise.resolve(3);\nconst p2 = 1337;\nconst p3 = new Promise((resolve, reject) => {\n  setTimeout(resolve, 100, 'foo');\n});\n\nPromise.all([p1, p2, p3]).then(values => {\n  console.log(values); \n});",
+          "status": "success",
+          "output": "[ 3, 1337, 'foo' ]",
+          "onRunCode": {
+            "name": "run_sandbox_code",
+            "context": {}
+          },
+          "onStatusChange": {
+            "name": "sandbox_status_change",
+            "context": {}
+          }
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "Promise Quiz",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "What happens once a Promise changes from pending to fulfilled/rejected?",
+              "options": [
+                "The state can switch back and forth",
+                "The state can no longer change",
+                "It can only change back to pending",
+                "It must be reset by setTimeout"
+              ],
+              "correctIndex": 1,
+              "explanation": "The state of a Promise is immutable once settled."
+            }
+          ]
+        },
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "Official Documentation and Guides",
+          "resources": [
+            {
+              "title": "MDN: Using Promises",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises",
+              "description": "The authoritative guide to using Promises on the Mozilla Developer Network.",
+              "type": "doc"
+            },
+            {
+              "title": "JavaScript Visualized: Promises & Async/Await",
+              "url": "https://dev.to/lydiahallie/javascript-visualized-promises-async-await-5gke",
+              "description": "An intuitive explanation of the JavaScript event loop and async mechanisms using animations.",
+              "type": "article"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

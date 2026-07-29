@@ -1,0 +1,60 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-non-linear",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-non-linear",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": ["header", "navigator", "content-area"]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "🎨 CSS Grid Layout System Guide"
+        },
+        {
+          "id": "navigator",
+          "component": "SectionNavigator",
+          "title": "Select a chapter to learn:",
+          "activeSectionId": "intro",
+          "onSectionClick": { "name": "navigate_section", "context": {} },
+          "sections": [
+            { "id": "intro", "title": "Grid Basics", "description": "What are grid containers, lines, and tracks", "icon": "📐", "status": "completed" },
+            { "id": "template", "title": "Defining Grid Templates", "description": "Learn to use grid-template-columns and related properties", "icon": "📏", "status": "available" },
+            { "id": "placement", "title": "Placing Grid Items", "description": "Advanced layout techniques spanning rows and columns", "icon": "🧩", "status": "available" },
+            { "id": "challenge", "title": "Ultimate Practical Challenge", "description": "Using Grid to recreate complex dashboard UIs", "icon": "⚔️", "status": "locked" }
+          ]
+        },
+        {
+          "id": "content-area",
+          "component": "Column",
+          "children": ["content-title", "concept"]
+        },
+        {
+          "id": "content-title",
+          "component": "Text",
+          "variant": "h2",
+          "text": "Chapter 1: Grid Basic Concepts"
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "Grid Container",
+          "tags": ["CSS", "Layout"],
+          "definition": "By setting an element's <code>display</code> property to <code>grid</code> or <code>inline-grid</code>, it becomes a grid container. All its direct children become grid items.",
+          "example": "<pre><code>.container {\n  display: grid;\n}</code></pre>"
+        }
+      ]
+    }
+  }
+]

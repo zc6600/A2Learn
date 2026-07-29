@@ -1,0 +1,85 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-conversational",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-conversational",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": ["header", "main-content"]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "💬 Mentor 1-on-1: Understanding Closures"
+        },
+        {
+          "id": "main-content",
+          "component": "Row",
+          "weight": 1,
+          "children": ["dialog-area", "content-area"]
+        },
+        {
+          "id": "dialog-area",
+          "component": "Column",
+          "weight": 2,
+          "children": ["mentor-dialog"]
+        },
+        {
+          "id": "content-area",
+          "component": "Column",
+          "weight": 3,
+          "children": ["concept", "sandbox"]
+        },
+        {
+          "id": "mentor-dialog",
+          "component": "ScenarioDialogue",
+          "topic": "Closure Learning Dialogue",
+          "characters": {
+            "mentor": {
+              "name": "A2Learn Tutor",
+              "avatar": "🧑‍🏫",
+              "alignment": "left"
+            },
+            "student": {
+              "name": "Learner",
+              "avatar": "🧑‍🎓",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            { "characterId": "mentor", "content": "Hello! Today we are going to learn one of the most confusing concepts for beginners in JavaScript: <b>Closures</b>.", "delayMs": 300 },
+            { "characterId": "student", "content": "I often struggle to distinguish the difference between a closure and regular function scope.", "delayMs": 500 },
+            { "characterId": "mentor", "content": "No problem. Take a look at the definition and code examples on the right first, and then we'll break down the execution process together.", "delayMs": 500 }
+          ]
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "Closures",
+          "tags": ["JavaScript", "Scope", "Functions"],
+          "definition": "A closure is a function that has access to its <b>free variables</b>. In other words, a closure gives you access to an outer function's scope from an inner function.",
+          "example": "<pre><code>function makeFunc() {\n  var name = 'Mozilla';\n  function displayName() {\n    alert(name);\n  }\n  return displayName;\n}\n\nvar myFunc = makeFunc();\nmyFunc();</code></pre>"
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "Closure Trap: Classic Interview Question",
+          "description": "Run this code and see what the output is.",
+          "language": "javascript",
+          "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(function() {\n    console.log(i);\n  }, 1000);\n}",
+          "runLocally": true
+        }
+      ]
+    }
+  }
+]

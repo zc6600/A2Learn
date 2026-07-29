@@ -1,0 +1,174 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-agent-react",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-agent-react",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "background-analogy",
+            "scenario-chat",
+            "mental-model-react",
+            "concept-synergy",
+            "detailed-implementation-from-scratch",
+            "quiz-comprehension",
+            "summary-and-terms"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "大模型 Agent 核心范式：从头实现 ReAct 协同推理闭环"
+        },
+        {
+          "id": "background-analogy",
+          "component": "AnalogyCard",
+          "title": "LLM 决策困境：静态推理与盲目调用的两难",
+          "analogy": "<b>研究背景</b>：在学术界探索如何提高大模型复杂问题解决能力时，技术演进分化为两大流派：纯思维链（CoT）与纯行动（Act-Only）。<br><br><b>核心瓶颈</b>：在 HotpotQA 等多跳问答（Multi-hop QA）实验中，纯 CoT 无法获取模型权重之外的最新外部知识，导致严重的<b>幻觉（Hallucination）</b>；而纯 Act-Only 盲目调用外部 API 缺少全局规划与逻辑推理，极其容易在复杂的探查中迷失陷入死循环。如何让 LLM 既具备大脑的推理规划，又具备双手的工具调用能力？"
+        },
+        {
+          "id": "scenario-chat",
+          "component": "ScenarioDialogue",
+          "topic": "💬 AI 实验室研讨：探究 CoT 与 Act-Only 在复杂问答上的失控现象",
+          "characters": {
+            "alex": {
+              "name": "Alex (AI 系统研究员)",
+              "avatar": "👨‍🔬",
+              "alignment": "left"
+            },
+            "elena": {
+              "name": "Elena (大模型负责人)",
+              "avatar": "👩‍💻",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alex",
+              "content": "Elena，我们在 HotpotQA 上跑评测，发现哪怕用了 CoT 思维链，模型在做多步推导时也经常在第二步就开始编造数据了。你觉得根因是什么？"
+            },
+            {
+              "characterId": "elena",
+              "content": "因为 CoT 完全是模型内部静态参数的自我推理啊。它没有外部观测反馈，一旦中间步骤对知识记错了，后面全是在错误假设上做自嗨推导。"
+            },
+            {
+              "characterId": "alex",
+              "content": "那如果我们直接给它挂载 Wikipedia 搜索 API，让它不用记忆、只做工具调用（Act-Only）呢？"
+            },
+            {
+              "characterId": "elena",
+              "content": "我们试过纯 Act 模式，效果反而更差！搜索返回了万字文本后，模型因为缺乏显式的思考步骤，根本不知道如何从结果中提炼下一个搜索词，结果一直在胡乱搜同一个词，陷入死循环了。"
+            },
+            {
+              "characterId": "alex",
+              "content": "这就拉扯出矛盾了：只思考不行动会产生幻觉，只行动不思考又会盲目死循环。要是我们在每一轮行动前，强迫模型先输出一段显式的思考痕迹呢？"
+            },
+            {
+              "characterId": "elena",
+              "content": "这正好构成了闭环！让模型先生成 <dfn title=\"在行动前输出的自主逻辑与步骤规划\">Thought</dfn> 规划动作，再输出 <dfn title=\"模型触发外部API或工具的具体指令\">Action</dfn> 调 API，最后把 <dfn title=\"外部环境或 API 返回的真实观测\">Observation</dfn> 重新喂回 Prompt，这样每一步就都能基于物理事实动态纠偏了！"
+            }
+          ]
+        },
+        {
+          "id": "mental-model-react",
+          "component": "MentalModel",
+          "title": "ReAct 运行机制与状态机模型",
+          "description": "ReAct 并非改变 LLM 的底层神经网络权重，而是通过 Prompt 协议强行约束 LLM 的输出格式，在物理上建立一个包含推理、执行与环境反馈的控制循环（Control Loop）。",
+          "icon": "🧠",
+          "diagramTitle": "📊 ReAct 状态机循环节点演推",
+          "diagram": "输入 Task ➔ LLM 生成 Thought (推理逻辑) ➔ LLM 输出 Action (提取工具指令)\n➔ 宿主环境拦截 Action 并执行工具 ➔ 获得 Observation (环境反馈数据)\n➔ 将 Observation 拼接回 Prompt ➔ 触发下一轮 Thought ➔ ... ➔ 输出 Final Answer",
+          "pillarsTitle": "三要素协同架构",
+          "pillars": [
+            {
+              "title": "Reasoning Trace (Thought)",
+              "description": "模型在输出动作前生成的自主思考与步骤拆解，使复杂决策可解释，并大幅降低幻觉概率。",
+              "icon": "💡"
+            },
+            {
+              "title": "Action Space (Action)",
+              "description": "严格格式化的工具调用指令（如 Search[query] 或 Finish[answer]），由宿主系统正则解析并执行。",
+              "icon": "🛠️"
+            },
+            {
+              "title": "Observation Space (Observation)",
+              "description": "外部工具或环境返回的真实数据（如网页切片或 API 返回值），作为上下文重新喂回模型进行动态纠偏。",
+              "icon": "🔄"
+            }
+          ],
+          "analogyTitle": "💡 从头实现（From Scratch）核心心智模型",
+          "analogy": "从代码实现角度看，ReAct 的底层本质就是一个 <b>while(true) 循环 + 状态解析器</b>：<br>1. <b>Prompt 协议</b>：注入 Few-shot 示例，告诉模型只能输出 `Thought:`、`Action:` 或 `Final Answer:`；<br>2. <b>正则拦截器</b>：当捕获到 `Action: tool_name[arg]` 时，暂停 LLM 生成，转而调用本地 Python 函数；<br>3. <b>上下文拼接器</b>：将工具结果包装为 `Observation: ...` 拼接在历史对话末尾，重新驱动 LLM。"
+        },
+        {
+          "id": "concept-synergy",
+          "component": "ConceptCard",
+          "title": "ReAct 范式协同机制",
+          "tags": [
+            "AI Agent",
+            "ReAct",
+            "Prompt Infrastructure",
+            "Multi-hop Reasoning"
+          ],
+          "definition": "<b>ReAct (Reasoning and Acting)</b> 是 Agent 领域的基础架构。它通过在 Prompt 中显式定义 <code>Thought / Action / Observation</code> 范式，实现了大语言模型<b>内部隐性推理能力</b>与<b>外部物理世界工具执行力</b>的深度协同。",
+          "example": "<pre><code>// ReAct 规范交替追踪 (Tracing) 示例：\nTask: 查阅科罗拉多高原东区所覆盖区域的海拔范围\nThought 1: 我需要先搜索科罗拉多高原，找到其 Eastern Sector 包含的具体地理区域名称。\nAction 1: Search[Colorado plateau]\nObservation 1: 科罗拉多高原位于四角地区，其 Eastern Sector 延伸至圣路易斯山谷...\nThought 2: 网页提及了圣路易斯山谷，我需要继续搜索圣路易斯山谷的海拔范围。\nAction 2: Search[San Luis Valley elevation]\nObservation 2: 圣路易斯山谷的平均海拔约在 2,300 米至 2,700 米之间。\nThought 3: 我已经获取了确切的海拔数据，可以给出最终结论。\nAction 3: Finish[2,300m - 2,700m]</code></pre>",
+          "relatedConcepts": [
+            "Chain-of-Thought (CoT)",
+            "Tool Calling",
+            "Reflexion",
+            "Prompt Engineering"
+          ]
+        },
+        {
+          "id": "detailed-implementation-from-scratch",
+          "component": "DetailedExplanation",
+          "title": "架构解析：从零手写 (From Scratch) 一个 ReAct Agent 引擎",
+          "icon": "⚙️",
+          "estimatedReadTime": "5 分钟硬核架构拆解",
+          "content": "要从零实现一个工业级的 ReAct Agent，不需要依赖 LangChain 等重型框架，核心只需要构建以下四大基础设施组件：\n\n1. **<dfn title=\"包含系统指令与Few-Shot交替格式示例的提示词构造器\">Prompt Synthesizer (提示词构造器)</dfn>**：负责为 LLM 注入强约束指令。规范输出必须遵循 `Thought -> Action -> Observation` 结构，并列出可用的工具列表（如 `Search[query]`, `Calculate[expr]`）。\n2. **<dfn title=\"通过正则表达式捕获Action指令并提取工具名与参数的提取器\">Action Parser & Dispatcher (动作解析与调度器)</dfn>**：使用正则表达式 `r\"Action:\\s*(\\w+)\\[(.*?)\\]\"` 实时拦截 LLM 的文本输出。一旦匹配到 Action 指令，立即暂停文本生成，提取工具名与参数并分发至本地 Python 挂载函数。\n3. **<dfn title=\"维护历史对话并在末尾追加 Observation 反馈的上下文管理器\">Context Accumulator (上下文累加器)</dfn>**：将本地函数返回的结果格式化为 `Observation: <result>`，拼接在 Prompt 上下文末尾，重新触发 LLM 的下一次 `invoke()` 调用。\n4. **<dfn title=\"解析 Finish 指令并打破 while 循环的终止状态判别器\">Loop Termination Gate (循环终止判别器)</dfn>**：检测到 `Action: Finish[answer]` 或达到最大迭代轮数 (`max_iterations = 10`) 时打破循环，向用户返回最终答案。\n\n> 💡 **架构结论**：ReAct 的本质不是新的模型权重，而是一种利用结构化 Prompt 协议将 LLM 转化为**图灵完备控制循环**的软件工程架构。"
+        },
+        {
+          "id": "quiz-comprehension",
+          "component": "QuizCard",
+          "title": "🧠 ReAct 架构与从头实现理解",
+          "question": "在从头实现 (From Scratch) ReAct 引擎时，当 Action Parser 正则捕获到模型输出了 `Action: Search['Python']`，系统底层应该执行什么操作？",
+          "options": [
+            {
+              "id": "opt1",
+              "text": "A. 直接将 `Search['Python']` 原样打印给终端用户并终止程序"
+            },
+            {
+              "id": "opt2",
+              "text": "B. 暂停 LLM 文本生成，调用本地 search 函数获取结果，包装为 Observation 拼接回上下文"
+            },
+            {
+              "id": "opt3",
+              "text": "C. 清空所有历史上下文并重新发起请求"
+            },
+            {
+              "id": "opt4",
+              "text": "D. 让 LLM 自己去连接物理互联网"
+            }
+          ],
+          "correctOptionId": "opt2",
+          "explanation": "ReAct 引擎捕获到 Action 后，会暂停 LLM 生成，在宿主环境（Python/JS）中调用对应工具获取返回值，再包装为 `Observation:` 拼接回上下文供 LLM 进下一轮 Thought。"
+        },
+        {
+          "id": "summary-and-terms",
+          "component": "AnalogyCard",
+          "title": "总结：ReAct 范式的本质与工程落地",
+          "analogy": "ReAct 不是黑盒魔术，而是一套用 Prompt 协议约束 LLM 格式、用宿主代码拦截 Action 并追加 Observation 的通用控制循环机制。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>在 AI Agent 架构中，<dfn title=\"结合 Reasoning 思考与 Acting 行动的 LLM 协同闭环范式\"><strong>ReAct 范式</strong></dfn> 解决了传统 <dfn title=\"只在模型内部隐式推理容易产生知识幻觉的技巧\"><strong>CoT 思维链</strong></dfn> 的静态幻觉问题。通过显式拆解 <dfn title=\"模型在行动前生成的自主逻辑与步骤规划\"><strong>推理迹 (Thought)</strong></dfn> 与 <dfn title=\"模型输出的结构化工具调用指令\"><strong>动作空间 (Action)</strong></dfn>，并在宿主环境捕获执行后追加 <dfn title=\"外部工具或 API 返回给模型的真实物理观测\"><strong>观察反馈 (Observation)</strong></dfn>，彻底把大模型转化为了具备工具使用能力的动态自主系统。</p></div>"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,172 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-paper-attention",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-paper-attention",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "paper-abstract",
+            "prerequisite-timeline",
+            "literature-reference-seq2seq",
+            "attention-formula",
+            "attention-quiz",
+            "resources"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "Academic Paper Deep Dive: Attention Is All You Need"
+        },
+        {
+          "id": "paper-abstract",
+          "component": "PaperAbstract",
+          "title": "Attention Is All You Need",
+          "authors": [
+            "Ashish Vaswani",
+            "Noam Shazeer",
+            "Niki Parmar",
+            "Jakob Uszkoreit",
+            "Llion Jones",
+            "Aidan N. Gomez",
+            "Łukasz Kaiser",
+            "Illia Polosukhin"
+          ],
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "year": 2017,
+          "abstract": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train.",
+          "tldr": "提出了全新的 Transformer 架构，完全摒弃了传统的循环神经网络（RNN）与卷积神经网络（CNN），仅依赖自注意力机制（Self-Attention）实现并行计算，在机器翻译任务上取得了 SOTA 的效果且大幅缩短训练时间。",
+          "pdfUrl": "https://arxiv.org/pdf/1706.03762.pdf",
+          "sourceUrl": "https://arxiv.org/abs/1706.03762"
+        },
+        {
+          "id": "prerequisite-timeline",
+          "component": "Timeline",
+          "orientation": "vertical",
+          "events": [
+            {
+              "id": "rnn-seq2seq",
+              "time": "2014年",
+              "title": "RNN Sequence-to-Sequence 出现",
+              "description": "Sutskever 等人提出 Seq2Seq 架构，使用循环神经网络处理变长序列。缺陷是难以并行化且容易发生梯度消失。"
+            },
+            {
+              "id": "bahdanau-attention",
+              "time": "2015年",
+              "title": "Bahdanau 局部注意力机制引入",
+              "description": "首次在 Seq2Seq 中引入对齐和注意力计算，使得解码器在翻译每个词时能重点关注编码器的不同部分。"
+            },
+            {
+              "id": "transformer-era",
+              "time": "2017年",
+              "title": "Transformer 诞生",
+              "description": "Vaswani 等人发表本项目论文，宣告自注意力机制彻底取代循环网络，开启大模型时代。"
+            }
+          ]
+        },
+        {
+          "id": "literature-reference-seq2seq",
+          "component": "LiteratureReference",
+          "citation": "Sutskever et al., 2014",
+          "title": "Sequence to Sequence Learning with Neural Networks",
+          "authors": [
+            "Ilya Sutskever",
+            "Oriol Vinyals",
+            "Quoc V. Le"
+          ],
+          "url": "https://arxiv.org/abs/1409.3215",
+          "highlightQuote": "Our method uses a multilayered Long Short-Term Memory (LSTM) to map the input sequence to a vector of a fixed dimensionality, and then another LSTM to decode the target sequence from the vector.",
+          "onReferenceClick": {
+            "name": "explain_seq2seq_reference",
+            "context": {}
+          }
+        },
+        {
+          "id": "attention-formula",
+          "component": "InteractiveFormula",
+          "latex": "Attention(Q, K, V) = softmax(\\frac{QK^T}{\\sqrt{d_k}})V",
+          "description": "Scaled Dot-Product Attention（缩放点积注意力）是 Transformer 架构的最核心公式。它计算 Query 和 Key 的点积，并除以缩放因子进行数值稳定，再通过 Softmax 归一化分配给 Value 的权重。",
+          "variables": {
+            "Q": "Query 向量矩阵，代表当前要查询/聚焦的单词特征",
+            "K": "Key 向量矩阵，代表被查询的所有单词的键特征",
+            "V": "Value 向量矩阵，代表被查询单词的实际内容信息",
+            "d_k": "Key 向量的维度大小，用于公式底部的缩放因子 \\sqrt{d_k}",
+            "softmax": "归一化激活函数，使所有计算出的权重值在 (0, 1) 区间且总和为 1"
+          },
+          "derivationSteps": [
+            {
+              "step": "第一步：点积相似度计算",
+              "latex": "S = QK^T",
+              "explanation": "计算每个 Query 与所有 Key 的相似度矩阵 S。点积值越高，说明两个词的相关性或关注度越大。"
+            },
+            {
+              "step": "第二步：数值缩放防梯度消失",
+              "latex": "S_{scaled} = \\frac{QK^T}{\\sqrt{d_k}}",
+              "explanation": "除以维度的平方根进行缩放，防止在维度 d_k 很大时点积值过大，导致进入 Softmax 饱和区而产生梯度消失问题。"
+            },
+            {
+              "step": "第三步：归一化概率分配",
+              "latex": "W = softmax(\\frac{QK^T}{\\sqrt{d_k}})",
+              "explanation": "对每一行相似度执行 Softmax 操作，转化为概率分布，代表 Query 对各个 Value 的注意力权重分布。"
+            },
+            {
+              "step": "第四步：加权求解输出",
+              "latex": "Output = WV",
+              "explanation": "将计算出的权重分布乘以 Value 矩阵进行加权求和，得到最终融合了上下文语义特征的输出向量。"
+            }
+          ]
+        },
+        {
+          "id": "attention-quiz",
+          "component": "QuizCard",
+          "title": "Attention Principle Concept Check",
+          "questions": [
+            {
+              "id": "scaling-factor-purpose",
+              "question": "在 Transformer 自注意力机制公式中，为什么要在点积后除以 \\sqrt{d_k} 进行缩放？",
+              "options": [
+                "为了使注意力权重和为1",
+                "防止在维度较大时点积数值过大，导致 Softmax 激活函数进入饱和区而发生梯度消失",
+                "为了加快矩阵乘法的计算速度",
+                "用于隐藏由于隐私保护带来的噪音"
+              ],
+              "correctIndex": 1,
+              "explanation": "<b>解析：</b><br>当维度 d_k 非常大时，点积结果容易变得非常大，这会将 Softmax 函数推向极小梯度的区域（饱和区）。除以 \\sqrt{d_k} 进行缩放能够有效抑制这种效应，使模型正常训练。"
+            }
+          ]
+        },
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "Related Transformer Resources",
+          "resources": [
+            {
+              "title": "The Illustrated Transformer",
+              "url": "https://jalammar.github.io/illustrated-transformer/",
+              "description": "A visual guide to understanding the inner workings of the Transformer model.",
+              "type": "article"
+            },
+            {
+              "title": "Harvard NLP: The Annotated Transformer",
+              "url": "https://nlp.seas.harvard.edu/2018/04/03/attention.html",
+              "description": "Line-by-line PyTorch implementation and walkthrough of the original Transformer paper.",
+              "type": "github"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

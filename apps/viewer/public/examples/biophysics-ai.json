@@ -1,0 +1,540 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-aibio-biophysics",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-aibio-biophysics",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "intro-text",
+            "knowledge-tree",
+            "section-nav",
+            "learning-path",
+            "analogy-card",
+            "concept-alphafold2",
+            "timeline-milestones",
+            "scenario-dialogue",
+            "concept-plm",
+            "concept-alphafold3",
+            "detailed-explanation-alphafold3",
+            "drag-match-methods",
+            "mental-model-alphafold-pipeline",
+            "cloze-test",
+            "quiz",
+            "deep-dive",
+            "resources"
+          ]
+        },
+
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "🧬 AI 驱动的生物物理学革命：从 AlphaFold 到 AI 药物发现"
+        },
+
+        {
+          "id": "intro-text",
+          "component": "Text",
+          "text": "2021 年，DeepMind 的 <b>AlphaFold2</b> 在 <i>Nature</i> 发表，一举解决了困扰生物学界 50 年的「蛋白质折叠问题」。这不仅是 AI 史上的里程碑，更开启了计算生物物理学的新纪元。如今，AI 已深度渗透蛋白质结构预测、药物设计、冷冻电镜解析和分子动力学模拟等核心领域，正在重塑现代生命科学研究范式。"
+        },
+
+        {
+          "id": "knowledge-tree",
+          "component": "KnowledgeTree",
+          "title": "AI + 生物物理知识体系",
+          "path": [
+            { "id": "biophysics", "label": "计算生物物理学" },
+            { "id": "ai-bio", "label": "AI 驱动的生物物理" }
+          ],
+          "currentNode": {
+            "id": "structure-prediction",
+            "label": "蛋白质结构预测",
+            "description": "当前聚焦：AI 如何从氨基酸序列预测三维蛋白质结构"
+          },
+          "childrenNodes": [
+            { "id": "drug-discovery", "label": "AI 药物发现", "hasChildren": true },
+            { "id": "cryo-em", "label": "冷冻电镜 + AI", "hasChildren": true },
+            { "id": "md-sim", "label": "AI 分子动力学", "hasChildren": true },
+            { "id": "single-cell", "label": "单细胞组学 + AI", "hasChildren": false }
+          ],
+          "onNodeNavigate": { "name": "knowledge_tree_navigate", "context": {} }
+        },
+
+        {
+          "id": "section-nav",
+          "component": "SectionNavigator",
+          "activeSectionId": "alphafold",
+          "onSectionClick": { "name": "navigate_section", "context": {} },
+          "sections": [
+            {
+              "id": "alphafold",
+              "title": "AlphaFold 与结构预测",
+              "description": "从 AlphaFold2 到 AlphaFold3：蛋白质折叠问题的终结",
+              "icon": "🔵",
+              "status": "current"
+            },
+            {
+              "id": "plm",
+              "title": "蛋白质语言模型",
+              "description": "ESMFold、OmegaFold 等单序列预测新范式",
+              "icon": "🟣",
+              "status": "available"
+            },
+            {
+              "id": "drug",
+              "title": "AI 药物发现",
+              "description": "分子生成、虚拟筛选与靶点识别",
+              "icon": "🟢",
+              "status": "available"
+            },
+            {
+              "id": "cryoem-ai",
+              "title": "冷冻电镜 + AI",
+              "description": "DeepEMhancer、ModelAngelo 加速结构解析",
+              "icon": "🟡",
+              "status": "available"
+            },
+            {
+              "id": "md-ai",
+              "title": "AI 分子动力学",
+              "description": "神经网络势函数与增强采样新方法",
+              "icon": "🔴",
+              "status": "locked"
+            }
+          ]
+        },
+
+        {
+          "id": "learning-path",
+          "component": "LearningPath",
+          "title": "AI 生物物理学习路径",
+          "activeStepId": "4",
+          "steps": [
+            {
+              "id": "1",
+              "title": "蛋白质折叠问题的提出",
+              "description": "Anfinsen 定理：序列决定结构（1972 Nobel Prize）"
+            },
+            {
+              "id": "2",
+              "title": "传统计算方法",
+              "description": "分子动力学、Rosetta 能量最小化、同源建模"
+            },
+            {
+              "id": "3",
+              "title": "CASP 竞赛与 AlphaFold1",
+              "description": "2018 年 CASP13：AI 首次大幅领先传统方法"
+            },
+            {
+              "id": "4",
+              "title": "AlphaFold2 的革命",
+              "description": "2020 年 CASP14：GDT=92.4，实验级精度首次实现"
+            },
+            {
+              "id": "5",
+              "title": "蛋白质语言模型崛起",
+              "description": "ESMFold、OmegaFold：无需 MSA 的单序列快速预测"
+            },
+            {
+              "id": "6",
+              "title": "AlphaFold3 与复合物预测",
+              "description": "2024 年：蛋白质-DNA-RNA-小分子全复合物预测"
+            },
+            {
+              "id": "7",
+              "title": "AI 药物发现落地",
+              "description": "首个 AI 设计药物进入临床三期，生物制药新纪元"
+            }
+          ],
+          "onStepSelect": { "name": "learning_path_select", "context": {} }
+        },
+
+        {
+          "id": "analogy-card",
+          "component": "AnalogyCard",
+          "title": "一个比喻理解蛋白质折叠 🦢",
+          "icon": "💡",
+          "analogy": "把蛋白质折叠想象成**折纸艺术**：给你一张纸（氨基酸序列，约 200-1000 个字母），按照自然界的物理规律折叠，最终得到一个精确的三维形状（功能性蛋白质）。\n\n传统方法就像**暴力枚举**——试图模拟每一步折叠过程，计算量高达 10^300 种可能（Levinthal 悖论）。\n\n**AlphaFold 则像一位学过数百万个折纸案例的大师**——它从进化数据库中学习哪些残基倾向于靠近（协同进化），直接「感觉」出最终结构，跳过了逐步折叠的过程。"
+        },
+
+        {
+          "id": "concept-alphafold2",
+          "component": "ConceptCard",
+          "title": "AlphaFold2",
+          "tags": ["结构生物学", "Transformer", "等变神经网络", "CASP14"],
+          "definition": "<b>AlphaFold2</b> 是 DeepMind 于 2021 年发表在 <i>Nature</i> 的蛋白质结构预测系统。其核心架构包含两大模块：<br><br><b>① Evoformer</b>：基于多头注意力机制，同时处理「多序列比对（MSA）矩阵」和「残基对（Pair）特征矩阵」，捕获进化保守性和协同突变信息。<br><br><b>② Structure Module</b>：使用 SE(3) 等变神经网络，将 Evoformer 输出的特征映射为三维原子坐标（backbone N-Cα-C 骨架），并通过 Violation Loss 约束键长键角满足物理化学规则。<br><br>在 CASP14 竞赛中，AlphaFold2 的平均 GDT_TS 分数达 <b>92.4</b>，中位 Cα RMSD 约 <b>0.96 Å</b>，首次达到实验级精度，被 <i>Science</i> 评为 2021 年「年度突破」。",
+          "example": "<b>预测实例：</b><br>输入人类 p53 抑癌蛋白的 DNA 结合域残基序列，AlphaFold2 在数秒内即可输出高置信度（pLDDT > 90）的三维晶体结构模型，这与通过冷冻电镜或 X 射线晶体学耗时数月测得的实验结构几乎完全重合（Cα RMSD < 1 Å）。",
+          "relatedConcepts": ["Evoformer", "SE(3) 等变网络", "多序列比对（MSA）", "AlphaFold3", "ESMFold"],
+          "onConceptClick": { "name": "concept_click", "context": {} }
+        },
+
+        {
+          "id": "timeline-milestones",
+          "component": "Timeline",
+          "orientation": "vertical",
+          "events": [
+            {
+              "id": "e1",
+              "time": "1972 年",
+              "title": "Anfinsen 定理确立",
+              "description": "Christian Anfinsen 获诺贝尔化学奖，证明蛋白质的氨基酸序列完全决定其三维结构，奠定了蛋白质折叠问题的理论基础。"
+            },
+            {
+              "id": "e2",
+              "time": "1994 年",
+              "title": "CASP 竞赛启动",
+              "description": "蛋白质结构预测关键评估（CASP）竞赛正式开始，成为领域内最权威的盲测基准，每两年举办一次。"
+            },
+            {
+              "id": "e3",
+              "time": "2018 年 · CASP13",
+              "title": "AlphaFold1 震惊业界",
+              "description": "DeepMind 首次参赛，AlphaFold1 在 Free Modeling 类别中以大幅优势夺冠，引发生物学界广泛关注。"
+            },
+            {
+              "id": "e4",
+              "time": "2020 年 · CASP14",
+              "title": "AlphaFold2 宣告胜利",
+              "description": "AlphaFold2 GDT_TS 均分 92.4，远超第二名（约 50 分），被竞赛组织者称为「近乎完美的解决方案」。"
+            },
+            {
+              "id": "e5",
+              "time": "2021 年 7 月",
+              "title": "Nature 论文 + 数据库公开",
+              "description": "AlphaFold2 算法细节发表于 Nature，同日 AlphaFold 蛋白质结构数据库（AFDB）上线，收录近 100 万个结构，后扩展至超 2 亿条记录，覆盖已知蛋白质组。"
+            },
+            {
+              "id": "e6",
+              "time": "2022 年",
+              "title": "ESMFold & RoseTTAFold 发布",
+              "description": "Meta AI 发布 ESMFold（基于 650亿参数蛋白质语言模型 ESM-2），可在无 MSA 的情况下单序列预测，速度提升 60 倍；RoseTTAFold All-Atom 开源支持小分子共建模。"
+            },
+            {
+              "id": "e7",
+              "time": "2024 年 5 月",
+              "title": "AlphaFold3：全复合物预测",
+              "description": "DeepMind 在 Nature 发表 AlphaFold3，采用 Diffusion 架构，首次统一预测蛋白质-DNA-RNA-小分子-离子复合物结构，在蛋白质-配体对接精度上超过传统对接软件 50%。"
+            },
+            {
+              "id": "e8",
+              "time": "2024 年 10 月",
+              "title": "Nobel Prize 致敬 AI 结构生物学",
+              "description": "David Baker（蛋白质设计）与 Demis Hassabis、John Jumper（AlphaFold）共同获得 2024 年诺贝尔化学奖，标志着 AI 生物物理学正式被科学界最高荣誉认可。"
+            }
+          ],
+          "onEventSelect": { "name": "timeline_event_select", "context": {} }
+        },
+
+        {
+          "id": "scenario-dialogue",
+          "component": "ScenarioDialogue",
+          "topic": "🎙️ 对话：AlphaFold 到底改变了什么？",
+          "characters": {
+            "student": {
+              "name": "小明（生物系研究生）",
+              "avatar": "🧑‍🎓",
+              "alignment": "left"
+            },
+            "expert": {
+              "name": "李教授（结构生物物理学家）",
+              "avatar": "👩‍🔬",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "student",
+              "content": "李教授，我听说 AlphaFold2 「解决」了蛋白质折叠问题，这是真的吗？它到底改变了什么？",
+              "delayMs": 200
+            },
+            {
+              "characterId": "expert",
+              "content": "基本上是的！在 AlphaFold2 之前，解析一个蛋白质结构可能需要数年时间、数百万美元——用 X 射线晶体学、核磁共振或冷冻电镜。AlphaFold2 把这个过程缩短到了**几秒钟，几乎免费**。",
+              "delayMs": 500
+            },
+            {
+              "characterId": "student",
+              "content": "它是怎么做到的？感觉挺神奇的……",
+              "delayMs": 400
+            },
+            {
+              "characterId": "expert",
+              "content": "关键在于「进化是最好的老师」这个思想。进化过程中，如果两个残基在空间上靠近，它们通常会**协同突变**以保持相互作用。AlphaFold2 的 Evoformer 模块通过分析数以千计的同源序列（MSA），精确识别这些协同突变信号，再用等变神经网络把信号转化为三维坐标。",
+              "delayMs": 600
+            },
+            {
+              "characterId": "student",
+              "content": "那 AlphaFold3 又有什么新突破？",
+              "delayMs": 300
+            },
+            {
+              "characterId": "expert",
+              "content": "AlphaFold3 最大的突破是**不再局限于蛋白质**！它用 Diffusion 模型统一处理蛋白质、DNA、RNA、小分子配体和金属离子，可以预测整个大分子复合物的结构。这对药物发现意义巨大——我们终于可以直接预测候选药物分子与靶点蛋白的结合姿态了。",
+              "delayMs": 700
+            },
+            {
+              "characterId": "student",
+              "content": "哇，那岂不是可以大大加速新药研发？",
+              "delayMs": 300
+            },
+            {
+              "characterId": "expert",
+              "content": "正是！传统新药从发现到上市需要 10-15 年、约 20 亿美元。现在，像 Insilico Medicine 这样的公司已经用 AI 设计的药物进入了临床三期试验，时间压缩到 4 年、成本降低了 10 倍。这是真正意义上的范式转变。",
+              "delayMs": 500
+            }
+          ]
+        },
+
+        {
+          "id": "concept-plm",
+          "component": "ConceptCard",
+          "title": "蛋白质语言模型（Protein Language Models）",
+          "tags": ["ESMFold", "OmegaFold", "自监督学习", "大语言模型"],
+          "definition": "蛋白质语言模型（PLM）将蛋白质序列视为一种「语言」——氨基酸是「词汇」，蛋白质结构和功能规则是「语法」。通过在数十亿蛋白质序列上进行 <b>BERT 风格的 Masked Language Modeling</b> 自监督预训练，模型可以在无监督条件下学习序列中蕴含的进化信息和结构倾向。<br><br><b>ESMFold（Meta，2022）</b>：基于 650 亿参数的 ESM-2 语言模型，无需 MSA 即可从单条序列预测结构，速度比 AlphaFold2 快约 60 倍，已用于生成超 7.72 亿条宏基因组蛋白质结构预测。<br><br><b>ProGen2（2023）</b>：基于语言模型的蛋白质序列生成，生成的蛋白质在实验验证中显示出自然蛋白质级别的热稳定性，开创了 AI 从头设计功能蛋白质的新时代。",
+          "example": "<b>应用实例：</b><br>使用 ESMFold，科研人员在不需要计算同源 MSA 的情况下，直接输入海洋宏基因组未知序列，仅需几毫秒就预测出未知的降解塑料酶结构，速度比 AlphaFold2 提升了 60 倍，非常适合大规模宏基因组结构高通量筛选。",
+          "relatedConcepts": ["AlphaFold2", "Transformer", "自监督学习", "蛋白质设计", "ProGen2"],
+          "onConceptClick": { "name": "concept_click", "context": {} }
+        },
+
+        {
+          "id": "concept-alphafold3",
+          "component": "ConceptCard",
+          "title": "AlphaFold3 与 Diffusion 架构",
+          "tags": ["Diffusion Model", "复合物预测", "药物发现", "AlphaFold3"],
+          "definition": "AlphaFold3（DeepMind，2024）放弃了 AlphaFold2 的 Structure Module，转而采用 <b>去噪扩散概率模型（DDPM）</b> 直接在原子坐标空间生成结构。其架构核心是 <b>Pairformer</b>（Evoformer 的进化版本），结合了来自 AlphaFold2 的进化信息处理能力。<br><br><b>主要突破：</b><br>• 支持预测含蛋白质、DNA、RNA、小分子配体、共价修饰和金属离子的混合复合物<br>• 蛋白质-小分子对接精度（PoseBusters 基准）超越传统对接软件 Glide/Vina 约 50%<br>• 蛋白质-核酸复合物预测精度提升 2 倍<br><br>目前 AlphaFold Server 提供免费在线预测，AlphaFold3 完整权重在非商业研究中开源。",
+          "example": "<b>应用实例：</b><br>在抗癌药物设计中，AlphaFold3 联合预测 EGFR 靶点蛋白与小分子靶向药厄洛替尼（Erlotinib）以及附带镁离子的三维复合物结构，其配体对接摆放姿态与实验结构一致，误差在 1.5 Å 以内，大幅缩减了前期虚拟药物筛选的耗时。",
+          "relatedConcepts": ["Diffusion Model", "虚拟药物筛选", "Boltz-1", "RoseTTAFold All-Atom"],
+          "onConceptClick": { "name": "concept_click", "context": {} }
+        },
+
+        {
+          "id": "detailed-explanation-alphafold3",
+          "component": "DetailedExplanation",
+          "title": "深入探讨：从 Transformer 到 Diffusion 去噪扩散生成三维坐标",
+          "icon": "📝",
+          "estimatedReadTime": "4 分钟深度阅读",
+          "content": "在 AlphaFold2 中，三维坐标是由一个被称为 **Structure Module** 的等变网络，采用气体动力学中的刚体变换（Rigidity Transform）以自回归方式生成的。这种设计在处理蛋白质-蛋白质结合等刚性结构时表现极佳，但在处理 DNA/RNA 链的柔性运动、或者小分子配体的化学键自由度时，容易发生局部拓扑畸变或无法收敛。\n\n**AlphaFold3 的革新：**\nAlphaFold3 彻底弃用了 Structure Module，转而采用了**去噪扩散概率模型 (DDPM)**。其执行过程如下：\n- **第一步 (加噪)**：将真实的分子复合物结构（所有原子的 x, y, z 坐标）在训练中逐步添加高斯噪声，直至完全变成混沌的白噪声分布。\n- **第二步 (特征融合)**：由 Pairformer 提取残基对与核苷酸对的进化与协同特征，与包含噪声的 3D 坐标特征进行多模态交叉融合。\n- **第三步 (去噪生成)**：以 Pairformer 的输出作为条件引导，扩散模型在三维欧氏空间里执行 200 步的迭代去噪，逐步『凝聚』出清晰、平滑、满足物理力学和化学约束的全原子三维坐标复合物。\n\n> 💡 这一转变让模型无需为每种生物分子设计特定的刚体运动输出头，只需在统一的原子坐标空间中进行概率生成即可，这也是其能够统一预测蛋白质、核酸、糖类、小分子、化学修饰的根本技术所在。"
+        },
+
+        {
+          "id": "drag-match-methods",
+          "component": "DragAndDropMatch",
+          "leftItems": [
+            { "id": "evoformer", "content": "Evoformer" },
+            { "id": "se3", "content": "SE(3) 等变网络" },
+            { "id": "diffusion", "content": "扩散模型（Diffusion）" },
+            { "id": "gnn", "content": "图神经网络（GNN）" },
+            { "id": "mlp", "content": "神经网络力场（NNP）" }
+          ],
+          "rightItems": [
+            { "id": "r4", "content": "⚡ 分子动力学势能面拟合，替代昂贵的量化计算" },
+            { "id": "r2", "content": "🔄 确保旋转/平移不变性，直接建模三维原子坐标" },
+            { "id": "r1", "content": "📊 同时处理 MSA 矩阵与残基配对特征，提取协同进化信号" },
+            { "id": "r3", "content": "🎲 在原子坐标空间去噪生成多模态复合物结构" },
+            { "id": "r5", "content": "🕸️ 将分子表示为图结构，建模原子间相互作用网络" }
+          ],
+          "correctMatches": {
+            "evoformer": "r1",
+            "se3": "r2",
+            "diffusion": "r3",
+            "gnn": "r5",
+            "mlp": "r4"
+          },
+          "onMatchComplete": { "name": "drag_match_complete", "context": {} }
+        },
+
+        {
+          "id": "mental-model-alphafold-pipeline",
+          "component": "MentalModel",
+          "title": "AlphaFold 3D 结构预测流水线",
+          "description": "AlphaFold2 从氨基酸序列到最终三维原子坐标的整体推理流水线。该系统不再把蛋白质折叠看作纯粹的热力学动态折叠过程，而是将其抽象为进化信息的端到端几何学习任务。",
+          "icon": "🧬",
+          "analogy": "把结构预测想象成**「拼图游戏」与「3D雕刻」**的结合。Evoformer 负责通过协同进化线索找出哪些拼图块应该相邻；Structure Module 负责用三维雕刻机把拼图块摆放到具体的三维欧氏空间并微调成完美形状。",
+          "diagram": "[输入氨基酸序列] ──> [搜索同源序列库并生成 MSA 进化矩阵] ───┐\n                                                           ├──> [Evoformer 提取协同进化几何特征] ──> [Structure Module 3D 空间坐标优化] ──> [最终 3D 原子坐标]\n[输入氨基酸序列] ──> [搜索同源结构模板 (Templates)] ───────┘",
+          "pillars": [
+            {
+              "title": "多序列比对 (MSA)",
+              "description": "通过同源进化序列捕捉协同突变残基对，由于物理空间靠近的残基倾向于协同进化，这提供了极强的空间约束信息。",
+              "icon": "📊"
+            },
+            {
+              "title": "Evoformer 注意力",
+              "description": "交替进行 MSA 信息与残基对（Pair）信息的注意力更新，将进化线索转化为几何特征。",
+              "icon": "🔄"
+            },
+            {
+              "title": "Structure Module",
+              "description": "使用 SE(3) 等变神经网络和 Invariant Point Attention，直接对残基的局部坐标系旋转和平移进行 3D 优化。",
+              "icon": "📐"
+            }
+          ]
+        },
+
+        {
+          "id": "cloze-test",
+          "component": "ClozeTest",
+          "text": "AlphaFold2 采用 ___ 模块来同时处理多序列比对（MSA）和残基配对特征，提取协同进化信号；随后通过 ___ 模块将特征映射为满足物理约束的三维原子坐标。2024 年发布的 AlphaFold3 改用 ___ 架构，首次实现对蛋白质-DNA-RNA-小分子混合复合物的统一预测。同年，Hassabis 和 Jumper 因此荣获 ___。",
+          "correctAnswers": ["Evoformer", "Structure Module", "扩散模型（Diffusion）", "诺贝尔化学奖"],
+          "explanation": "**解析：**\n- **Evoformer**：AlphaFold2 的核心注意力网络，同时在「行」（序列维度）和「列」（同一位置的进化变异）方向进行注意力计算，捕获 MSA 中的协同突变。\n- **Structure Module**：接收 Evoformer 输出，使用 Invariant Point Attention（IPA）在三维空间中迭代更新每个残基的刚体变换（旋转 + 平移），最终输出所有原子坐标。\n- **扩散模型（Diffusion）**：AlphaFold3 的生成骨干网络，从噪声中逐步去噪生成原子坐标，天然支持多分子类型的联合预测。\n- **诺贝尔化学奖**：2024 年授予 David Baker、Demis Hassabis 和 John Jumper，表彰他们在计算蛋白质设计和结构预测方面的革命性贡献。",
+          "onSubmit": { "name": "cloze_submit", "context": {} }
+        },
+
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "🧠 AI 生物物理核心概念测验",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "AlphaFold2 中，**pLDDT（predicted Local Distance Difference Test）**分数的含义是？",
+              "options": [
+                "蛋白质与配体的结合亲和力预测值（kcal/mol）",
+                "模型对每个残基位置预测的局部置信度（0-100 分）",
+                "序列与最近同源蛋白的序列一致性百分比",
+                "结构优化中势能函数的收敛指标"
+              ],
+              "correctIndex": 1,
+              "explanation": "<b>pLDDT</b> 是 AlphaFold 对<b>每个残基</b>预测准确性的自评分（0-100）：<br>• ≥90：非常高置信度，结构可靠<br>• 70-90：高置信度，骨架基本准确<br>• 50-70：低置信度，可能存在灵活区域<br>• <50：极低，通常为内在无序区（IDR）<br><br>pLDDT 在 PDB 文件中存储在 B-factor 列，可在 PyMOL 等软件中可视化为颜色渐变。"
+            },
+            {
+              "id": "q2",
+              "question": "AlphaFold3 相比 AlphaFold2 的**最核心架构变化**是什么？",
+              "options": [
+                "Transformer 层数从 48 层增加到 96 层",
+                "将 Structure Module 替换为去噪扩散概率模型（DDPM）",
+                "使用强化学习替代了监督训练",
+                "引入了多模态图像编码器处理冷冻电镜数据"
+              ],
+              "correctIndex": 1,
+              "explanation": "AlphaFold3 最关键的架构革新是<b>用 Diffusion 模型替代了 Structure Module</b>。扩散模型直接在原子坐标的三维欧几里德空间中工作，通过从高斯噪声逐步去噪生成原子坐标，天然支持蛋白质、DNA、RNA、小分子等多种分子类型的<b>联合建模</b>，无需为每种分子类型设计特定的结构输出头。"
+            },
+            {
+              "id": "q3",
+              "question": "ESMFold 相比 AlphaFold2 最显著的**优势场景**是什么？",
+              "options": [
+                "对有大量同源序列的蛋白质家族预测精度更高",
+                "更准确地预测蛋白质-蛋白质相互作用界面",
+                "对孤儿蛋白（无 MSA 可用）进行大规模快速预测",
+                "支持预测膜蛋白的跨膜区拓扑"
+              ],
+              "correctIndex": 2,
+              "explanation": "ESMFold 的核心优势在于<b>无需 MSA</b>，仅需单条序列即可预测结构，速度比 AlphaFold2 快约 60 倍。这使其特别适合：<br>• <b>宏基因组</b>大规模蛋白质组注释（Meta 已预测 7.72 亿条序列）<br>• <b>孤儿蛋白</b>（缺乏同源序列的进化孤立蛋白）<br>• 需要<b>高通量</b>筛选的药物发现管线<br><br>代价是当有高质量 MSA 时，精度略低于 AlphaFold2。"
+            },
+            {
+              "id": "q4",
+              "question": "神经网络力场（Neural Network Potentials, NNP）在分子动力学中的主要作用是？",
+              "options": [
+                "替代分子力场中的静电计算（RESP 电荷拟合）",
+                "以 DFT 级别精度、力场级别速度近似势能面，实现大体系 AI-MD",
+                "自动优化 MD 模拟的积分步长和系综设置",
+                "通过强化学习自动发现反应过渡态"
+              ],
+              "correctIndex": 1,
+              "explanation": "<b>神经网络力场（NNP）</b>的核心价值在于打破「精度-速度」的权衡：<br>• 传统 MM 力场：速度快（纳秒/天），但精度有限，无法描述化学键的断裂/形成<br>• DFT 量子化学：精度高，但对 100+ 原子体系的模拟几乎不可行<br>• <b>NNP（如 ANI、MACE、NequIP）</b>：学习 DFT 势能面，在约 DFT 精度的同时速度提升 10^4-10^6 倍，可模拟数千原子体系的反应动力学"
+            }
+          ]
+        },
+
+        {
+          "id": "deep-dive",
+          "component": "DeepDivePrompt",
+          "prompts": [
+            {
+              "id": "dp1",
+              "label": "AlphaFold3 如何处理小分子配体预测？",
+              "icon": "💊"
+            },
+            {
+              "id": "dp2",
+              "label": "冷冻电镜 + AI 如何协同提升分辨率？",
+              "icon": "🔬"
+            },
+            {
+              "id": "dp3",
+              "label": "AI 分子生成（如 DiffSBDD、RFDiffusion）怎么工作？",
+              "icon": "⚗️"
+            },
+            {
+              "id": "dp4",
+              "label": "蛋白质从头设计（De Novo Design）的最新突破？",
+              "icon": "🧬"
+            },
+            {
+              "id": "dp5",
+              "label": "为什么 AI 预测结构仍需实验验证？",
+              "icon": "🔍"
+            }
+          ],
+          "onPromptSelect": { "name": "deep_dive_select", "context": {} }
+        },
+
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "📚 核心文献与工具资源",
+          "resources": [
+            {
+              "title": "AlphaFold2 原始论文（Nature, 2021）",
+              "url": "https://www.nature.com/articles/s41586-021-03819-2",
+              "description": "Jumper et al. 发表于 Nature 的 AlphaFold2 完整技术论文，详述 Evoformer 与 Structure Module 架构设计。",
+              "type": "article"
+            },
+            {
+              "title": "AlphaFold3 论文（Nature, 2024）",
+              "url": "https://www.nature.com/articles/s41586-024-07487-w",
+              "description": "Abramson et al. 发表的 AlphaFold3，采用 Diffusion 框架统一预测蛋白质-DNA-RNA-小分子复合物。",
+              "type": "article"
+            },
+            {
+              "title": "AlphaFold 蛋白质结构数据库（AFDB）",
+              "url": "https://alphafold.ebi.ac.uk/",
+              "description": "免费查询超 2 亿个蛋白质的 AlphaFold 预测结构，支持序列搜索和结构下载。",
+              "type": "wiki"
+            },
+            {
+              "title": "ESMFold / ESM-2 开源代码",
+              "url": "https://github.com/facebookresearch/esm",
+              "description": "Meta AI 开源的蛋白质语言模型（ESM-2，650亿参数）和 ESMFold 单序列结构预测代码。",
+              "type": "github"
+            },
+            {
+              "title": "ColabFold：快速 AlphaFold2 在线预测",
+              "url": "https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/AlphaFold2.ipynb",
+              "description": "无需安装、免费在 Google Colab 上运行 AlphaFold2（使用 MMseqs2 加速 MSA 搜索）。",
+              "type": "doc"
+            },
+            {
+              "title": "RoseTTAFold All-Atom（RFAA）",
+              "url": "https://github.com/baker-laboratory/RoseTTAFold-All-Atom",
+              "description": "David Baker 团队开源的全原子结构预测模型，支持共价修饰小分子、金属辅因子等复杂体系。",
+              "type": "github"
+            },
+            {
+              "title": "Boltz-1：开源 AlphaFold3 替代方案",
+              "url": "https://github.com/jwohlwend/boltz",
+              "description": "MIT 开源的生物分子复合物结构预测模型，性能媲美 AlphaFold3，完全开源可商用。",
+              "type": "github"
+            },
+            {
+              "title": "生物物理学 AI 综述（Nature Methods, 2023）",
+              "url": "https://www.nature.com/articles/s41592-023-01793-7",
+              "description": "系统综述 AI 在蛋白质结构预测、设计、动力学模拟和冷冻电镜中的最新进展。",
+              "type": "article"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
