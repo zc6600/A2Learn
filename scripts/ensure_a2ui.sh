@@ -10,8 +10,12 @@ A2UI_LOCK_FILE="${A2UI_LOCK_FILE:-.a2ui-ref.lock}"
 A2UI_REF_VALUE="${A2UI_REF:-}"
 
 mkdir -p "$(dirname "$A2UI_DIR")"
-if [ ! -d "$A2UI_DIR" ]; then
+if [ ! -d "$A2UI_DIR/.git" ]; then
+  echo "[A2Learn] Cloning A2UI into $A2UI_DIR ..."
+  rm -rf "$A2UI_DIR"
   git clone https://github.com/google/A2UI "$A2UI_DIR"
+else
+  echo "[A2Learn] $A2UI_DIR already present (has .git), skipping clone."
 fi
 
 # Keep npm file: dependencies stable (apps/viewer expects third_party/A2UI).

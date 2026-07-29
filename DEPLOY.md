@@ -59,6 +59,39 @@ Re-upload the new `apps/viewer/dist/` output. The "⚡ 实时生成 Showcase" bu
 
 ---
 
+## Path C — Kamal + Aliyun ECS + Cloudflare Tunnel
+
+If you'd rather deploy the backend to your own server with zero-downtime rolling deploys and rollback instead of manual `docker run`, use [Kamal](https://kamal-deploy.org). Config lives in this repo:
+
+- `config/deploy.yml` — Aliyun ECS (`114.212.247.110`), ACR registry
+- `.kamal/secrets` — reads `KAMAL_REGISTRY_PASSWORD` from your local `.env` (never commit the raw value)
+
+**Before deploying:**
+
+1. `gem install kamal` locally (this is a Python project, so there's no `bin/kamal` bundler binstub — use the plain `kamal` CLI).
+2. Add `KAMAL_REGISTRY_PASSWORD=<your ACR access token>` to your local `.env`.
+3. Edit `config/deploy.yml`: replace the `proxy.host` placeholder with your real API domain, and set `A2LEARN_ALLOWED_ORIGINS` to your real homepage domain(s).
+
+**Deploy:**
+
+```bash
+kamal setup    # first time only
+kamal deploy   # every deploy after that
+```
+
+**Public access via Cloudflare Tunnel:** since `proxy.ssl: false` in the config, Cloudflare — not kamal-proxy — terminates TLS. Install `cloudflared` on the ECS box and point its tunnel ingress at the Docker bridge gateway, not `localhost` (`cloudflared` runs outside Docker's network namespace):
+
+```yaml
+ingress:
+  - hostname: api.a2learn.zc6600.wiki
+    service: http://172.17.0.1:80   # kamal-proxy listens on :80 inside Docker
+  - service: http_status:404
+```
+
+This backend has no database and holds no OpenRouter key server-side (BYOK), so there are no `accessories:` or secret env vars beyond the registry password — don't copy Rails/Postgres boilerplate from other Kamal projects into these files.
+
+---
+
 ## Notes
 
 - There's no built-in rate limiting or abuse protection on the API. Since every request uses the visitor's own key, you're not on the hook for OpenRouter costs, but a scripted flood of requests still costs you server compute/bandwidth. If that's a concern, put the backend behind a reverse proxy with basic rate limiting (e.g. Caddy/Nginx/Cloudflare).

@@ -1,0 +1,46 @@
+# Kamal production deploy config for the A2Learn BYOK backend (apps/api).
+#
+# Target: Aliyun ECS production server, image pushed to Aliyun ACR.
+# TLS is terminated by Cloudflare (Tunnel or proxied DNS) in front of this
+# box, so kamal-proxy runs with ssl: false and only speaks plain HTTP.
+#
+# This backend is stateless (BYOK: every request carries the visitor's own
+# OpenRouter key, nothing persisted server-side) — no database, no volumes,
+# no Rails-style secrets needed. Only the registry password is required.
+
+service: a2learn-api
+
+image: zc6600/a2learn-api
+
+servers:
+  web:
+    - &main_server 39.105.9.33
+
+registry:
+  server: crpi-srr1i7ks3j0knvyv.cn-hangzhou.personal.cr.aliyuncs.com
+  username: zc6600
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+ssh:
+  user: root
+
+proxy:
+  ssl: false                             # Cloudflare handles HTTPS at the edge
+  host: api.a2learn.zc6600.wiki
+  app_port: 8008
+  healthcheck:
+    path: /healthz
+    interval: 3
+    timeout: 5
+
+env:
+  clear:
+    A2LEARN_ALLOWED_ORIGINS: https://a2learn.zc6600.wiki
+
+aliases:
+  logs: app logs -f
+  shell: app exec --interactive --reuse "bash"
+
+builder:
+  arch: amd64
