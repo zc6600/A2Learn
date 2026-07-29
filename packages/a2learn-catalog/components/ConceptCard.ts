@@ -127,6 +127,94 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       font-family: inherit;
       font-size: inherit;
     }
+    .example-box-flow {
+      margin-bottom: var(--a2ui-spacing-xl);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .visual-flow-line {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
+    }
+    .visual-flow-line:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    .visual-flow-line.variant-warn {
+      background: color-mix(in oklab, #fef2f2 85%, #ffffff);
+      border-color: #fca5a5;
+    }
+    .visual-flow-line.variant-success {
+      background: color-mix(in oklab, #f0fdf4 85%, #ffffff);
+      border-color: #86efac;
+    }
+    .visual-flow-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .flow-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: sans-serif;
+    }
+    .variant-warn .flow-badge {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .variant-success .flow-badge {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .variant-info .flow-badge {
+      background: #e0f2fe;
+      color: #075985;
+    }
+    .visual-flow-nodes {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .flow-node {
+      display: inline-flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 13px;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-weight: 600;
+      color: #1e293b;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    .flow-separator {
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .example-text-line {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #374151;
+      padding: 4px 0;
+    }
     .related-accordion {
       border-top: 1px dashed var(--a2ui-color-border, #e5e7eb);
       margin-top: 16px;
@@ -215,6 +303,71 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
     );
   }
 
+  private renderExample(exampleStr: string) {
+    if (!exampleStr) return nothing;
+
+    const lines = exampleStr.trim().split("\n");
+    const hasArrows = lines.some((line) => line.includes("->") || line.includes("➔") || line.includes("=>"));
+
+    if (hasArrows) {
+      return html`
+        <div class="example-box-flow">
+          ${lines.map((line) => {
+            const cleanLine = line.replace(/^\/\/\s*/, "").replace(/^#\s*/, "").trim();
+            if (!cleanLine) return nothing;
+
+            const hasArrow = cleanLine.includes("->") || cleanLine.includes("➔") || cleanLine.includes("=>");
+            if (hasArrow) {
+              let title = "";
+              let flowContent = cleanLine;
+
+              const colonIdx = cleanLine.indexOf(":");
+              if (colonIdx !== -1 && colonIdx < cleanLine.search(/->|➔|=>/)) {
+                title = cleanLine.substring(0, colonIdx).trim();
+                flowContent = cleanLine.substring(colonIdx + 1).trim();
+              }
+
+              const isWarn = /传统|搜索|遍历|线性|慢|O\(N\)|警告|瓶颈/i.test(cleanLine);
+              const isSuccess = /哈希|计算|常数|突破|快|O\(1\)|一步|直接/i.test(cleanLine);
+              const variantClass = isWarn ? 'variant-warn' : isSuccess ? 'variant-success' : 'variant-info';
+              const icon = isWarn ? '🐢' : isSuccess ? '⚡' : '🔄';
+
+              const rawNodes = flowContent.split(/->|➔|=>/).map((s) => s.trim()).filter(Boolean);
+
+              return html`
+                <div class="visual-flow-line ${variantClass}">
+                  ${title
+                    ? html`
+                        <div class="visual-flow-header">
+                          <span class="flow-badge">${icon} ${title}</span>
+                        </div>
+                      `
+                    : nothing}
+                  <div class="visual-flow-nodes">
+                    ${rawNodes.map(
+                      (node, i) => html`
+                        ${i > 0 ? html`<span class="flow-separator">➔</span>` : nothing}
+                        <div class="flow-node">${node}</div>
+                      `
+                    )}
+                  </div>
+                </div>
+              `;
+            }
+
+            return html`<div class="example-text-line">${unsafeHTML(sanitizeHtml(line))}</div>`;
+          })}
+        </div>
+      `;
+    }
+
+    return html`
+      <div class="example-box">
+        ${unsafeHTML(sanitizeHtml(exampleStr))}
+      </div>
+    `;
+  }
+
   render() {
     const props = this.controller?.props;
     if (!props) return nothing;
@@ -242,9 +395,7 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
 
           ${example ? html`
             <h3 class="section-title">代码与案例</h3>
-            <div class="example-box">
-              ${unsafeHTML(sanitizeHtml(example))}
-            </div>
+            ${this.renderExample(example)}
           ` : nothing}
 
           ${relatedConcepts.length > 0 ? html`

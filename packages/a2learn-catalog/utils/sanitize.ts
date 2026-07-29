@@ -90,12 +90,14 @@ export const tooltipStyles = css`
     transform: translateX(-50%) translateY(0);
   }
   .a2learn-term-tooltip .tooltip-title {
+    display: block !important;
     font-size: 14px;
     font-weight: 800;
     color: #0d9488 !important;
-    margin: 0;
+    margin: 0 0 2px 0;
   }
   .a2learn-term-tooltip .tooltip-desc {
+    display: block !important;
     font-size: 12.5px;
     line-height: 1.5;
     color: #374151 !important;
@@ -133,7 +135,7 @@ export function parseTermTooltips(htmlInput: string): string {
     (_, title, term) => {
       const annotation = (title || "生僻概念注解").trim();
       const cleanTerm = term.trim();
-      return `<span class="a2learn-term-tooltip" tabindex="0" data-term="${cleanTerm}"><span class="term-text">${cleanTerm}</span><span class="term-badge">💬</span><span class="tooltip-popup"><strong class="tooltip-title">${cleanTerm}</strong><p class="tooltip-desc">${annotation}</p><button type="button" class="tooltip-explore-btn" data-term="${cleanTerm}">深入探索此概念 →</button></span></span>`;
+      return `<span class="a2learn-term-tooltip" tabindex="0" data-term="${cleanTerm}"><span class="term-text">${cleanTerm}</span><span class="term-badge">💬</span><span class="tooltip-popup"><span class="tooltip-title">${cleanTerm}</span><span class="tooltip-desc">${annotation}</span><button type="button" class="tooltip-explore-btn" data-term="${cleanTerm}">深入探索此概念 →</button></span></span>`;
     }
   );
 
@@ -143,7 +145,7 @@ export function parseTermTooltips(htmlInput: string): string {
     (_, term, annotation) => {
       const cleanTerm = term.trim();
       const cleanAnnotation = annotation.trim();
-      return `<span class="a2learn-term-tooltip" tabindex="0" data-term="${cleanTerm}"><span class="term-text">${cleanTerm}</span><span class="term-badge">💬</span><span class="tooltip-popup"><strong class="tooltip-title">${cleanTerm}</strong><p class="tooltip-desc">${cleanAnnotation}</p><button type="button" class="tooltip-explore-btn" data-term="${cleanTerm}">深入探索此概念 →</button></span></span>`;
+      return `<span class="a2learn-term-tooltip" tabindex="0" data-term="${cleanTerm}"><span class="term-text">${cleanTerm}</span><span class="term-badge">💬</span><span class="tooltip-popup"><span class="tooltip-title">${cleanTerm}</span><span class="tooltip-desc">${cleanAnnotation}</span><button type="button" class="tooltip-explore-btn" data-term="${cleanTerm}">深入探索此概念 →</button></span></span>`;
     }
   );
 
