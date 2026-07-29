@@ -1,0 +1,484 @@
+import json
+from pathlib import Path
+
+messages = [
+    # MODULE 1: 痛点与破局
+    {
+        "version": "v0.9",
+        "createSurface": {
+            "surfaceId": "surface-module-1",
+            "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+        }
+    },
+    {
+        "version": "v0.9",
+        "updateComponents": {
+            "surfaceId": "surface-module-1",
+            "components": [
+                {
+                    "id": "root",
+                    "component": "Column",
+                    "children": [
+                        "header-1",
+                        "learning-path-1",
+                        "chat-1",
+                        "analogy-1",
+                        "concept-1",
+                        "mental-model-1",
+                        "explanation-1",
+                        "sandbox-1"
+                    ]
+                },
+                {
+                    "id": "header-1",
+                    "component": "Text",
+                    "variant": "h1",
+                    "text": "关卡 1 ❓ 痛点与破局：智能快递柜如何秒取包裹？"
+                },
+                {
+                    "id": "learning-path-1",
+                    "component": "LearningPath",
+                    "title": "哈希表四阶深度通关路径（统一快递柜视角）",
+                    "activeStepId": "1",
+                    "steps": [
+                        {"id": "1", "title": "关卡 1: 秒级取件直觉 (O(1)映射)"},
+                        {"id": "2", "title": "关卡 2: 柜门重号应对 (碰撞解决)"},
+                        {"id": "3", "title": "关卡 3: 扩建双倍新柜 (负载因子与Rehash)"},
+                        {"id": "4", "title": "关卡 4: 工业安全防御 (HashDoS与红黑树)"}
+                    ]
+                },
+                {
+                    "id": "chat-1",
+                    "component": "ScenarioDialogue",
+                    "topic": "💬 微信技术群：为什么我的代码在 100 万条数据里搜得这么慢？",
+                    "characters": {
+                        "alice": {"name": "小白程序员 (Alice)", "avatar": "👩‍💻", "alignment": "left"},
+                        "boss_zhang": {"name": "架构师老张", "avatar": "👨‍💼", "alignment": "right"}
+                    },
+                    "messages": [
+                        {
+                            "characterId": "alice",
+                            "content": "张老大！我写了个用户查询，在 100 万条数据里用数组遍历找人，CPU 直接飙到 100%，耗时 800 毫秒！怎么才能像秒杀一样快啊？"
+                        },
+                        {
+                            "characterId": "boss_zhang",
+                            "content": "哈哈，你这是在用 <dfn title=\"按顺序一个个比对数据的线性查找方式\">顺序查找 O(N)</dfn>！就像去未整理的堆件房里，100 万件包裹你要挨个翻看 100 万次。"
+                        },
+                        {
+                            "characterId": "alice",
+                            "content": "对啊！那智能快递柜是怎么做到秒取的？输入取件码，对应的柜门就直接弹开了！"
+                        },
+                        {
+                            "characterId": "boss_zhang",
+                            "content": "这就是哈希表（Hash Map）的核心！凭取件码直接‘算’出柜门编号，查找时间直接降到 O(1)，根本不用翻看其他包裹！"
+                        }
+                    ]
+                },
+                {
+                    "id": "analogy-1",
+                    "component": "AnalogyCard",
+                    "title": "场景痛点：为什么盲目翻寻包裹会让人抓狂？",
+                    "analogy": "想象你在一个装有 <b>100 万件包裹</b> 的巨型快递站里找自己的包裹。如果包裹随手乱放，你必须一件一件比对名字（<dfn title=\"按顺序一个个比对数据的线性查找方式\">顺序查找 O(N)</dfn>），最坏情况要翻 100 万次，眼睛看瞎也得花好几天！<br><br><b>智能快递柜的破局思路</b>：我不去挨个找包裹，我让快递员入库时通过系统计算，直接把包裹放进 <b>5 号柜门</b>。取件时凭手机号再算一次，5 号柜门直接弹开！"
+                },
+                {
+                    "id": "concept-1",
+                    "component": "ConceptCard",
+                    "title": "核心概念：哈希表 (Hash Table) 与 哈希函数",
+                    "tags": ["快递柜模型", "直觉映射", "O(1)查找"],
+                    "definition": "<b>哈希表</b> 的本质就是<b>“智能快递柜系统”</b>。<br>通过一个计算法则（<dfn title=\"将任意长度的输入Key转换为固定范围整数索引的算法\">哈希函数</dfn>），把要存的数据名称（Key，如手机号）直接算出一个唯一的柜门编号（Array Index），一步到位，无需挨个比对！",
+                    "example": "<pre><code>// 手机号 (Key) -> 算出的柜门编号 (Index)\n'13800000001' -> 计算得出 index = 3  (直接存入 3号柜)\n'13800000002' -> 计算得出 index = 7  (直接存入 7号柜)\n\n// 取件时：用手机号再算一次 index，3号柜门自动弹开！</code></pre>",
+                    "relatedConcepts": ["哈希函数", "O(1)复杂度", "哈希碰撞"]
+                },
+                {
+                    "id": "mental-model-1",
+                    "component": "MentalModel",
+                    "title": "心智模型：智能超市/快递储物柜",
+                    "description": "哈希表就像超市门口的智能储物柜。你按下存包键，系统根据内部算法生成一个专属的柜子编号，你把物品放入该号柜。取包时只需扫描条形码，对应的柜门就会自动弹开！",
+                    "icon": "📦",
+                    "analogy": "<b>手机号 (Key) -> 算法 (Hash Func) -> 柜门 (Index)</b>：你不需要知道柜子里还有哪些别人的包裹，也不用逐个试柜门。手机号通过系统算法直接驱动目标柜门弹开！",
+                    "diagram": "手机号 ('13800000001')\n      │\n      ▼\n[ 柜门算法转换器 ]  ───> 算得编号 3\n      │\n      ▼\n快递柜阵列 [ ... | 3号柜: 你的包裹 | ... ]  ==> 秒开！",
+                    "pillars": [
+                        {"title": "存取标识 (Key)", "description": "你要存取的数据标识（如手机号、身份证、用户名）。", "icon": "🔑"},
+                        {"title": "柜门算法 (Hash Func)", "description": "把任意字符串转换为固定范围数字编号的计算法则。", "icon": "⚡"},
+                        {"title": "柜门槽位 (Bucket Array)", "description": "按数字编号排列的连续内存空间，直接存放真实数据。", "icon": "🗄️"}
+                    ]
+                },
+                {
+                    "id": "explanation-1",
+                    "component": "DetailedExplanation",
+                    "title": "深入剖析：为什么哈希表能实现 O(1) 极速查找？",
+                    "icon": "⚡",
+                    "estimatedReadTime": "2 分钟阅读",
+                    "content": "传统数据结构（如普通列表、链表）查找数据时，必须依靠**逐个比对**：\n- 10 个包裹要比对 10 次\n- 1,000,000 个包裹要比对 1,000,000 次！\n\n**哈希表的突破**：\n它放弃了“比对”，改用**“计算”**！只要计算公式足够快，无论存储 10 个还是 1,000,000 个包裹，得出编号的时间几乎都完全相同（即 <dfn title=\"执行时间与数据总量无关，常数级开销\">常数时间复杂度 O(1)</dfn>）。\n\n> 💡 总结：不要去找数据，让数据的名字直接算出它藏在哪！"
+                },
+                {
+                    "id": "sandbox-1",
+                    "component": "InteractiveSandbox",
+                    "title": "动手体验：手机号是如何算出柜门号的？",
+                    "description": "点击运行代码，观察手机号经过简单哈希算法后，如何被直接映射到 0~9 号柜门！",
+                    "language": "javascript",
+                    "code": "function calculateLockerNumber(phone, totalLockers = 10) {\n  let sum = 0;\n  for (let i = 0; i < phone.length; i++) {\n    sum += phone.charCodeAt(i);\n  }\n  return sum % totalLockers;\n}\n\nconsole.log(\"手机号 13800001111 分配到的柜子:\", calculateLockerNumber('13800001111'));\nconsole.log(\"手机号 13999992222 分配到的柜子:\", calculateLockerNumber('13999992222'));\nconsole.log(\"手机号 15888883333 分配到的柜子:\", calculateLockerNumber('15888883333'));",
+                    "runLocally": True
+                }
+            ]
+        }
+    },
+
+    # MODULE 2: 柜门重号与冲突解决
+    {
+        "version": "v0.9",
+        "createSurface": {
+            "surfaceId": "surface-module-2",
+            "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+        }
+    },
+    {
+        "version": "v0.9",
+        "updateComponents": {
+            "surfaceId": "surface-module-2",
+            "components": [
+                {
+                    "id": "root",
+                    "component": "Column",
+                    "children": [
+                        "header-2",
+                        "learning-path-2",
+                        "chat-2",
+                        "concept-2",
+                        "mental-model-2",
+                        "explanation-2",
+                        "quiz-2"
+                    ]
+                },
+                {
+                    "id": "header-2",
+                    "component": "Text",
+                    "variant": "h1",
+                    "text": "关卡 2 🔀 柜门重号：当两个人抽到同一个柜门号？"
+                },
+                {
+                    "id": "learning-path-2",
+                    "component": "LearningPath",
+                    "title": "哈希表四阶深度通关路径（统一快递柜视角）",
+                    "activeStepId": "2",
+                    "steps": [
+                        {"id": "1", "title": "关卡 1: 秒级取件直觉 (O(1)映射)"},
+                        {"id": "2", "title": "关卡 2: 柜门重号应对 (碰撞解决)"},
+                        {"id": "3", "title": "关卡 3: 扩建双倍新柜 (负载因子与Rehash)"},
+                        {"id": "4", "title": "关卡 4: 工业安全防御 (HashDoS与红黑树)"}
+                    ]
+                },
+                {
+                    "id": "chat-2",
+                    "component": "ScenarioDialogue",
+                    "topic": "💬 微信技术群：惨了！两个人居然算出了同一个柜门号！",
+                    "characters": {
+                        "alice": {"name": "小白程序员 (Alice)", "avatar": "👩‍💻", "alignment": "left"},
+                        "boss_zhang": {"name": "架构师老张", "avatar": "👨‍💼", "alignment": "right"}
+                    },
+                    "messages": [
+                        {
+                            "characterId": "alice",
+                            "content": "老大！我试了下算柜门号，结果 'Alice' 和 'David' 的包裹居然算出了完全相同的 5 号柜！后存的把前面的覆盖掉了，这不就丢数据了吗？😱"
+                        },
+                        {
+                            "characterId": "boss_zhang",
+                            "content": "别慌！这就是必然会发生的“哈希碰撞”。你想想，如果快递柜 5 号门被占了，你有两种解决办法：要么在 5 号柜门里挂一个多层抽屉（链地址法），把新包裹挂在后面；要么去看看 6 号门空不空（开放寻址法）。"
+                        },
+                        {
+                            "characterId": "alice",
+                            "content": "懂了！挂抽屉就是链表，找邻居就是开隔壁柜子！那 Java 和 Python 都是怎么选的呀？"
+                        },
+                        {
+                            "characterId": "boss_zhang",
+                            "content": "Java 的 HashMap 选了挂链表；而 Python 的 dict 选了找隔壁空柜子——因为隔壁柜子在内存里连续挨着，CPU 读起来像飞一样快！"
+                        }
+                    ]
+                },
+                {
+                    "id": "concept-2",
+                    "component": "ConceptCard",
+                    "title": "衍生难题：哈希碰撞 (Hash Collision)",
+                    "tags": ["异常处理", "链地址法", "开放寻址法"],
+                    "definition": "<b>哈希碰撞</b> 指两个不同的名字（如 'Alice' 和 'David'），经过算法计算后居然得出了<b>完全相同的柜子编号</b>！<br>因为柜子数量是有限的，而名字组合是无限的，碰撞必然发生。如果不解决，后存入的数据就会覆盖掉前面的数据！",
+                    "example": "<pre><code>// 碰撞发生：\ncalculateLockerNumber('Alice') -> 得出 5 号柜子\ncalculateLockerNumber('David') -> 居然也得出 5 号柜子！\n\n// 怎么办？不能直接把 Alice 的包裹扔掉！</code></pre>",
+                    "relatedConcepts": ["链地址法", "开放寻址法", "CPU缓存局部性"]
+                },
+                {
+                    "id": "mental-model-2",
+                    "component": "MentalModel",
+                    "title": "心智模型：柜门重号时的两大解决流派",
+                    "description": "当 5 号柜门打开，发现里面已经放了别人的包裹时，业界有两种主流解决方案：",
+                    "icon": "🚪",
+                    "analogy": "<b>流派 A：在 5 号柜子里加挂链式挂钩 (链地址法)</b><br>直接在这个柜子里挂一个长链条，后来的包裹顺延挂在第一个包裹后面。<br><br><b>流派 B：去查看隔壁 6 号柜子空不空 (开放寻址法)</b><br>如果 5 号被占了，就看 6 号；6 号还被占，就看 7 号，直到找到空柜存入。",
+                    "diagram": "流派 A (链地址法)：\n5号柜门 ──> [ 包裹A ] ──> [ 包裹B ] ──> [ 包裹C ]\n\n流派 B (开放寻址法)：\n5号柜门 [被占!] ──看6号──> [被占!] ──看7号──> [空柜! 存入]",
+                    "pillars": [
+                        {"title": "链地址法 (Separate Chaining)", "description": "每个柜门挂一条链表，冲突元素追加在末尾。简单容错高，Java HashMap 采用此法。", "icon": "⛓️"},
+                        {"title": "开放寻址法 (Open Addressing)", "description": "不建立额外链表，按探测规则检查邻居柜门。内存连续性极佳，Python dict 采用此法。", "icon": "➡️"}
+                    ]
+                },
+                {
+                    "id": "explanation-2",
+                    "component": "DetailedExplanation",
+                    "title": "深度对比：链地址法 vs 开放寻址法及 CPU 缓存效应",
+                    "icon": "⚖️",
+                    "estimatedReadTime": "4 分钟阅读",
+                    "content": "**链地址法（柜门内挂链表）**：\n- 优点：永远不会装满，哪怕包裹数量超过柜门总数也能继续挂下去。\n- 缺点：需要指针开销，且链表节点在内存中不连续，<dfn title=\"CPU预取连续内存数据的硬件加速机制\">CPU 缓存局部性</dfn> 较差。\n\n**开放寻址法（去隔壁找空柜）**：\n- 优点：所有包裹紧密挨在数组里，充分利用 CPU 缓存线（Cache Line），读取速度极快！\n- 缺点：当柜子快装满时，找空柜的效率会剧减，必须做扩容。\n\n> 💡 总结：追求简单高容错选链地址法 (Java)；追求极致内存与 CPU 缓存性能选开放寻址法 (Python)。"
+                },
+                {
+                    "id": "quiz-2",
+                    "component": "QuizCard",
+                    "title": "🧠 快速测验：冲突处理抉择",
+                    "question": "当哈希表中发生碰撞，且希望所有数据都紧密挨在连续内存中、获得最佳 CPU 缓存效率时，应该优先选择哪种方案？",
+                    "options": [
+                        {"id": "opt1", "text": "A. 链地址法 (Separate Chaining)"},
+                        {"id": "opt2", "text": "B. 开放寻址法 (Open Addressing)"},
+                        {"id": "opt3", "text": "C. 放弃存储"},
+                        {"id": "opt4", "text": "D. 重新排序数组"}
+                    ],
+                    "correctOptionId": "opt2",
+                    "explanation": "开放寻址法将所有数据直接连续存放在数组中，没有链表指针开销，因此具有极佳的 CPU 缓存局部性。"
+                }
+            ]
+        }
+    },
+
+    # MODULE 3: 容量危机与动态扩容
+    {
+        "version": "v0.9",
+        "createSurface": {
+            "surfaceId": "surface-module-3",
+            "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+        }
+    },
+    {
+        "version": "v0.9",
+        "updateComponents": {
+            "surfaceId": "surface-module-3",
+            "components": [
+                {
+                    "id": "root",
+                    "component": "Column",
+                    "children": [
+                        "header-3",
+                        "learning-path-3",
+                        "chat-3",
+                        "concept-3",
+                        "mental-model-3",
+                        "explanation-3",
+                        "cloze-3"
+                    ]
+                },
+                {
+                    "id": "header-3",
+                    "component": "Text",
+                    "variant": "h1",
+                    "text": "关卡 3 📈 容量危机：快递站快满了怎么办？(负载因子与Rehash)"
+                },
+                {
+                    "id": "learning-path-3",
+                    "component": "LearningPath",
+                    "title": "哈希表四阶深度通关路径（统一快递柜视角）",
+                    "activeStepId": "3",
+                    "steps": [
+                        {"id": "1", "title": "关卡 1: 秒级取件直觉 (O(1)映射)"},
+                        {"id": "2", "title": "关卡 2: 柜门重号应对 (碰撞解决)"},
+                        {"id": "3", "title": "关卡 3: 扩建双倍新柜 (负载因子与Rehash)"},
+                        {"id": "4", "title": "关卡 4: 工业安全防御 (HashDoS与红黑树)"}
+                    ]
+                },
+                {
+                    "id": "chat-3",
+                    "component": "ScenarioDialogue",
+                    "topic": "💬 微信技术群：柜子用了 75%，存取速度开始变慢了！",
+                    "characters": {
+                        "alice": {"name": "小白程序员 (Alice)", "avatar": "👩‍💻", "alignment": "left"},
+                        "boss_zhang": {"name": "架构师老张", "avatar": "👨‍💼", "alignment": "right"}
+                    },
+                    "messages": [
+                        {
+                            "characterId": "alice",
+                            "content": "张老大！我们的快递柜一共 100 个门，现在已经放了 75 件包裹，我发现后来的包裹存取变慢了，这是为什么呀？"
+                        },
+                        {
+                            "characterId": "boss_zhang",
+                            "content": "因为你的 <dfn title=\"已用柜子数量与总柜子容量的比值 (size / capacity)\">负载因子 (Load Factor)</dfn> 达到 0.75 了！当柜子快装满时，抽到相同号或者找空柜的概率剧增，碰撞率就会飙升。"
+                        },
+                        {
+                            "characterId": "alice",
+                            "content": "那怎么办？要直接把柜子扩建一倍吗？"
+                        },
+                        {
+                            "characterId": "boss_zhang",
+                            "content": "对！这就叫 <dfn title=\"分配双倍大小的新数组，并将旧包裹重新计算索引放入新柜\">动态扩容与 Rehash</dfn>！通常容量翻倍为 200 个门，所有包裹重新计算位置，碰撞率瞬间大降！"
+                        }
+                    ]
+                },
+                {
+                    "id": "concept-3",
+                    "component": "ConceptCard",
+                    "title": "核心指标：负载因子 (Load Factor) 与 动态扩容",
+                    "tags": ["容量管理", "负载因子", "Rehash"],
+                    "definition": "<b>负载因子 (Load Factor)</b> = `已存包裹数 / 总柜门容量`。<br>它是衡量哈希表拥挤程度的指标。当负载因子超过阈值（如 Java HashMap 默认的 <b>0.75</b>），系统就会触发<b>动态扩容 (Rehash)</b>，申请一个双倍容量的新柜子阵列，并重新分配所有包裹！",
+                    "example": "<pre><code>// 假设当前容量 capacity = 16， threshold = 16 * 0.75 = 12\n// 当存入第 13 个数据时：\n1. 申请新数组容量 = 32\n2. 遍历旧数组中的每一个包裹，重新计算在 32 容量下的新位置 (Rehash)\n3. 释放旧数组内存</code></pre>",
+                    "relatedConcepts": ["负载因子", "Rehash", "渐进式扩容"]
+                },
+                {
+                    "id": "mental-model-3",
+                    "component": "MentalModel",
+                    "title": "心智模型：扩建双倍新快递站与搬迁",
+                    "description": "当旧快递站的柜子不够用时，直接在旁边建立一座两倍大小的新快递站，并把包裹迁移过去：",
+                    "icon": "🏗️",
+                    "analogy": "<b>一次性扩建 vs 渐进式搬迁 (Redis)</b><br>如果包裹太多，一次性把 100 万个包裹搬到新站会让系统卡顿（卡死几百毫秒）。Redis 等高性能缓存采用了 <b>渐进式 Rehash</b>：每次存取包裹时顺便搬迁 1 个柜子，平摊搬迁开销！",
+                    "diagram": "旧快递站 (容量 100) ──负载达到 75%──> 触发扩容！\n      │\n      ▼\n建新快递站 (容量 200) ──> 重新计算取件码 ──> 依次搬迁包裹",
+                    "pillars": [
+                        {"title": "负载因子 0.75", "description": "空间利用率与时间性能的最佳平衡折中点。", "icon": "⚖️"},
+                        {"title": "容量翻倍 (x2)", "description": "保持容量为 2 的幂，可用位运算 `hash & (capacity-1)` 替代取模。", "icon": "🔢"},
+                        {"title": "渐进式 Rehash", "description": "将大规模搬迁平摊到每次读写操作中，避免系统高延时卡顿。", "icon": "⏱️"}
+                    ]
+                },
+                {
+                    "id": "explanation-3",
+                    "component": "DetailedExplanation",
+                    "title": "工程深度：为什么容量总是取 2 的幂？位运算优化秘密",
+                    "icon": "🚀",
+                    "estimatedReadTime": "3 分钟阅读",
+                    "content": "在很多高效哈希表实现中，柜门总容量总是保持为 2 的幂（如 16, 32, 64, 128...）。这隐藏着一个极强的性能优化：\n\n**取模运算的替代**：\n通常求柜门号是用取模 `index = hash % capacity`，但 CPU 处理除法和取模指令非常慢！\n当 `capacity` 是 2 的幂时，数学上 `hash % capacity` 完全等价于按位与运算：\n`<dfn title=\"用按位与代替取模的底层硬件加速\">index = hash & (capacity - 1)</dfn>`！\n\n> 💡 硬件真相：位运算只需 1 个 CPU 时钟周期，比取模除法快了整整一个数量级！"
+                },
+                {
+                    "id": "cloze-3",
+                    "component": "ClozeTest",
+                    "title": "小试牛刀：扩容机制巩固",
+                    "instruction": "根据刚学到的知识，补全句子：",
+                    "passage": "哈希表用 [blank1] 来表示拥挤程度。当已存元素比例超过阈值时会触发 [blank2]。为了用极速的位运算替代昂贵的取模，哈希表的容量通常保持为 [blank3]。",
+                    "options": ["负载因子", "动态扩容 (Rehash)", "2 的幂", "二分查找"],
+                    "correctAnswers": {"blank1": "负载因子", "blank2": "动态扩容 (Rehash)", "blank3": "2 的幂"}
+                }
+            ]
+        }
+    },
+
+    # MODULE 4: 工业安全与极限退化
+    {
+        "version": "v0.9",
+        "createSurface": {
+            "surfaceId": "surface-module-4",
+            "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+        }
+    },
+    {
+        "version": "v0.9",
+        "updateComponents": {
+            "surfaceId": "surface-module-4",
+            "components": [
+                {
+                    "id": "root",
+                    "component": "Column",
+                    "children": [
+                        "header-4",
+                        "learning-path-4",
+                        "chat-4",
+                        "concept-4",
+                        "mental-model-4",
+                        "explanation-4",
+                        "quiz-4"
+                    ]
+                },
+                {
+                    "id": "header-4",
+                    "component": "Text",
+                    "variant": "h1",
+                    "text": "关卡 4 🛡️ 工业安全：当黑客故意制造哈希碰撞 (HashDoS与红黑树)"
+                },
+                {
+                    "id": "learning-path-4",
+                    "component": "LearningPath",
+                    "title": "哈希表四阶深度通关路径（统一快递柜视角）",
+                    "activeStepId": "4",
+                    "steps": [
+                        {"id": "1", "title": "关卡 1: 秒级取件直觉 (O(1)映射)"},
+                        {"id": "2", "title": "关卡 2: 柜门重号应对 (碰撞解决)"},
+                        {"id": "3", "title": "关卡 3: 扩建双倍新柜 (负载因子与Rehash)"},
+                        {"id": "4", "title": "关卡 4: 工业安全防御 (HashDoS与红黑树)"}
+                    ]
+                },
+                {
+                    "id": "chat-4",
+                    "component": "ScenarioDialogue",
+                    "topic": "💬 微信技术群：预警！有人利用哈希碰撞攻击了我们的服务器！",
+                    "characters": {
+                        "alice": {"name": "小白程序员 (Alice)", "avatar": "👩‍💻", "alignment": "left"},
+                        "boss_zhang": {"name": "架构师老张", "avatar": "👨‍💼", "alignment": "right"}
+                    },
+                    "messages": [
+                        {
+                            "characterId": "alice",
+                            "content": "老张！不好了！刚才接口突然收到了几万个精心构造的请求，结果服务器 5 号柜门下面挂的链表长达 1 万个节点，O(1) 变成了 O(N)，整个服务被卡死了！"
+                        },
+                        {
+                            "characterId": "boss_zhang",
+                            "content": "这是经典的 <dfn title=\"黑客故意发送大量同哈希值的Key使哈希表退化为链表以瘫痪服务器的攻击\">HashDoS 攻击</dfn>！黑客事先算好了几万个会产生相同柜门号的 Key，把你的哈希表硬生生打退化成了一条超长链表。"
+                        },
+                        {
+                            "characterId": "alice",
+                            "content": "太阴险了！那工业界是怎么防御这种恶性碰撞的？"
+                        },
+                        {
+                            "characterId": "boss_zhang",
+                            "content": "两大杀招：第一，Java 8 规定当单个柜门挂钩超过 8 个节点时，自动把链表升级为 <dfn title=\"一种自平衡二叉查找树，可保证最坏查找时间为 O(log N)\">红黑树</dfn>！第二，Python/Rust 采用了加随机种子的 <dfn title=\"防碰撞安全哈希算法\">SipHash</dfn>，让黑客根本无法预测柜门号！"
+                        }
+                    ]
+                },
+                {
+                    "id": "concept-4",
+                    "component": "ConceptCard",
+                    "title": "极限退化：HashDoS 攻击与红黑树树化 (Treeify)",
+                    "tags": ["工业级安全", "HashDoS", "红黑树树化"],
+                    "definition": "<b>哈希退化</b> 指在最坏情况下，大量数据碰撞在同一个槽位，导致哈希表退化为普通链表，查找效率从 O(1) 暴跌为 O(N)。<br>Java 8+ 的 HashMap 引入了 <b>树化机制 (Treeify)</b>：当链表长度 ≥ 8 且容量 ≥ 64 时，链表会自动转换为<b>自平衡红黑树</b>，将最坏查找时间强行锁定在 <b>O(log N)</b>！",
+                    "example": "<pre><code>// Java 8 HashMap 内部机制：\nstatic final int TREEIFY_THRESHOLD = 8;\n\nif (binCount >= TREEIFY_THRESHOLD - 1) {\n    treeifyBin(tab, hash); // 链表转换为红黑树！\n}</code></pre>",
+                    "relatedConcepts": ["HashDoS攻击", "红黑树树化", "SipHash算法"]
+                },
+                {
+                    "id": "mental-model-4",
+                    "component": "MentalModel",
+                    "title": "心智模型：单个柜门过载时的自动防御升级",
+                    "description": "当某个柜门下面挂的包裹实在太多时，系统启动自动防御升级：",
+                    "icon": "🛡️",
+                    "analogy": "<b>链表 (单排挂钩) ──升级──> 红黑树 (多层自平衡货架)</b><br>当挂钩上的包裹不超过 8 个时，链表查找足够快；一旦超过 8 个，系统自动将挂钩改装为多层自平衡货架。即使黑客挂上 10 万个包裹，在货架上查找也只需要 log(100000) ≈ 16 次操作！",
+                    "diagram": "碰撞 <= 8 个包裹：[5号柜] ──> 包裹1 ──> 包裹2 ──> 包裹3 (链表模式)\n                                  │\n                       若达到 8 个包裹 (自动触发树化！)\n                                  ▼\n                         [ 5号柜: 自平衡红黑树货架 ]\n                                     (根节点)\n                                     /      \\\n                                 (节点)    (节点)\n                   最坏查找步数锁定在 O(log N)！",
+                    "pillars": [
+                        {"title": "阈值 8 树化", "description": "根据泊松分布，正常随机数据下同一个槽位达到 8 个节点的概率低于千万分之一。", "icon": "🌳"},
+                        {"title": "阈值 6 拆树", "description": "扩容或删除使节点减少至 6 个时，红黑树自动退化回普通链表以节省内存。", "icon": "🍃"},
+                        {"title": "SipHash 随机加盐", "description": "Python/Rust 每次启动随机生成哈希种子，使外部黑客无法构造碰撞 Key。", "icon": "🔒"}
+                    ]
+                },
+                {
+                    "id": "explanation-4",
+                    "component": "DetailedExplanation",
+                    "title": "工业级安全：SipHash 算法与防攻击全景图",
+                    "icon": "🔒",
+                    "estimatedReadTime": "4 分钟阅读",
+                    "content": "哈希表不仅是一个数据结构，更是Web服务器（如 Django, Spring, Node.js）解析 HTTP POST 请求参数的核心。\n\n**HashDoS 攻击原理**：\n黑客向服务器发送一个包含 100,000 个精心构造参数的 POST 请求，这些参数的 Key 经过哈希计算后全都会撞在同一个槽位。服务器在处理该请求时，CPU 瞬间飙到 100%，整个网站被瞬间击瘫！\n\n**工业界防御双雄**：\n1. **语言级安全哈希 (SipHash)**：Python 3.4+ 和 Rust 默认使用 SipHash。服务器每次启动都会随机生成一个安全密钥（Seed），同一个 Key 在不同机器/不同进程算出的哈希值完全不同，黑客再也无法预先算好攻击 Key！\n2. **数据结构级保底 (Java 8 红黑树)**：即使由于极罕见概率发生了超长碰撞，红黑树能保证哪怕挂了 1,000,000 个节点，查找也只需要取 20 次即可完成，彻底封死了 CPU 爆满的死穴。\n\n> 💡 总结：统一的比喻、坚固的算法、加上自适应的数据结构，构成了工业级哈希表完整的技术全景！"
+                },
+                {
+                    "id": "quiz-4",
+                    "component": "QuizCard",
+                    "title": "🧠 终极测验：工业级哈希表理解",
+                    "question": "Java 8 HashMap 为什么选择在单个槽位链表长度达到 8 时将其转换为红黑树？",
+                    "options": [
+                        {"id": "opt1", "text": "A. 因为 8 是幸运数字"},
+                        {"id": "opt2", "text": "B. 防止 HashDoS 攻击或极罕见碰撞导致查找退化为 O(N)"},
+                        {"id": "opt3", "text": "C. 为了节省内存"},
+                        {"id": "opt4", "text": "D. 红黑树占用的空间比链表更小"}
+                    ],
+                    "correctOptionId": "opt2",
+                    "explanation": "当碰撞节点过多时，链表查找复杂度为 O(N)。转换为红黑树能将最坏查找复杂度锁定在 O(log N)，有效防止性能剧烈退化和 HashDoS 攻击。"
+                }
+            ]
+        }
+    }
+]
+
+out_path = Path("apps/viewer/public/generated/site_messages.json")
+out_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
+print("SUCCESSFULLY_GENERATED_4MODULE_DEEP_CURRICULUM")

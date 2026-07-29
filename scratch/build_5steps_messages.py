@@ -1082,4 +1082,4 @@ console.log("Key 'Bob'   calculated slot index:", simpleHash('Bob'));""",
 Path("apps/viewer/public/generated/site_messages.json").write_text(json.dumps(messages_zh, ensure_ascii=False, indent=2), encoding="utf-8")
 Path("apps/viewer/public/generated/site_messages_en.json").write_text(json.dumps(messages_en, ensure_ascii=False, indent=2), encoding="utf-8")
 
-print("SUCCESSFULLY_GENERATED_FULL_4MODULES_BILINGUAL_ENRICHED_SITE_MESSAGES")
+print("SUCCESSFULLY_GENERATED_5STEPS_BILINGUAL_SITE_MESSAGES")
