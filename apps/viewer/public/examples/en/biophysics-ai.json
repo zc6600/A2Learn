@@ -17,7 +17,6 @@
           "children": [
             "header",
             "intro-text",
-            "knowledge-tree",
             "section-nav",
             "learning-path",
             "analogy-card",
@@ -46,30 +45,6 @@
           "id": "intro-text",
           "component": "Text",
           "text": "In 2021, DeepMind's **AlphaFold2** was published in *Nature*, solving the \"protein folding problem\" that had puzzled biologists for 50 years in one stroke. This wasn't just a milestone in AI history — it opened a new era for computational biophysics. Today, AI has deeply penetrated core fields like protein structure prediction, drug design, cryo-EM reconstruction, and molecular dynamics simulation, reshaping the paradigm of modern life-science research."
-        },
-        {
-          "id": "knowledge-tree",
-          "component": "KnowledgeTree",
-          "title": "AI + Biophysics Knowledge Map",
-          "path": [
-            {
-              "id": "biophysics",
-              "label": "Computational Biophysics"
-            },
-            {
-              "id": "ai-bio",
-              "label": "AI-Driven Biophysics"
-            }
-          ],
-          "currentNode": {
-            "id": "structure-prediction",
-            "label": "Protein Structure Prediction",
-            "description": "Current focus: how AI predicts 3D protein structure from an amino-acid sequence"
-          },
-          "onNodeNavigate": {
-            "name": "knowledge_tree_navigate",
-            "context": {}
-          }
         },
         {
           "id": "section-nav",
