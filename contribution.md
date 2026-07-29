@@ -126,3 +126,89 @@ If you want to add a new intermediate step (e.g., "extract key vocabulary" befor
    graph.add_edge("load_resource", "extract_vocab")
    graph.add_edge("extract_vocab", "plan_curriculum")
    ```
+
+---
+
+## 📖 Contributing a New Example to the Catalog
+
+The `skill/references/examples/` directory contains the canonical reference examples. All new examples must follow the **5-Step Problem-Driven Teaching Framework**.
+
+### Step 1: Design the Pedagogical Flow
+
+Before writing any JSON, sketch the 5 steps for your topic:
+
+1. **Pain Point** (`AnalogyCard` + `ScenarioDialogue`): What real engineering or research problem does this topic solve? Who are the two expert characters exploring it together?
+2. **Mental Model** (`MentalModel` + `ConceptCard`): What real-world analogy captures the core intuition? What are the 2–3 structural pillars?
+3. **Deep Implementation** (`DetailedExplanation`): What clean, runnable code or formula demonstrates the mechanism? Use `python` or `javascript` code blocks with direct library calls or minimal pseudocode.
+4. **Self-Assessment** (`QuizCard` or `ClozeTest`): What non-trivial question tests genuine understanding (not just recall)?
+5. **Summary** (`AnalogyCard` in summary mode): One-paragraph plain recap + `📌 术语总结` glossary with `<dfn title="...">` hover annotations on all key terms.
+
+### Step 2: Create the JSON File
+
+Create `skill/references/examples/your-topic.json`. The minimal structure is:
+
+```json
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-your-topic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-your-topic",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header", "background-pain", "scenario-chat",
+            "mental-model", "concept-card", "detailed-explanation",
+            "quiz", "summary-and-terms"
+          ]
+        },
+        { "id": "header", "component": "Text", "variant": "h1", "text": "..." },
+        { "id": "background-pain", "component": "AnalogyCard", "title": "...", "analogy": "..." },
+        { "id": "scenario-chat", "component": "ScenarioDialogue", "topic": "...", "characters": {...}, "messages": [...] },
+        ...
+      ]
+    }
+  }
+]
+```
+
+### Step 3: Sync to All Locations
+
+After saving the canonical source, run:
+```bash
+python scratch/sync_public_examples.py
+```
+
+This copies the file to:
+- `packages/a2learn-catalog/examples/Website/your-topic.json`
+- `apps/viewer/public/examples/your-topic.json`
+
+### Step 4: Preview in Viewer
+
+```bash
+npm run viewer:dev
+# Then open:
+# http://localhost:5173/?messagesUrl=/examples/your-topic.json
+```
+
+### Dialogue Style Rules
+
+- Characters must be **peers** (two engineers, a PhD student and advisor) — never a teacher lecturing a student.
+- Characters should surface **failed approaches** and **trade-offs** before arriving at the correct insight.
+- Use `<dfn title="definition">term</dfn>` for first-use of key terms directly in dialogue messages.
+- Avoid filler phrases like "Great question!" or "Exactly!".
+
+### Code Example Rules
+
+- **Always prefer** direct standard library calls: `abs(hash(key)) % capacity`, `Promise.all(promises)`.
+- **Pseudocode** is fine when illustrating algorithms, but must be clearly labeled and syntactically reasonable.
+- **Never** write fake simulations (e.g., a JS snippet that pretends to "run" Python inside a browser sandbox).
+- Code blocks must use proper fenced syntax with language tag: ` ```python ` or ` ```javascript `.
