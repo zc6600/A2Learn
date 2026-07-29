@@ -22,6 +22,7 @@
             "concept-grid-container",
             "mental-model-grid",
             "concept-grid-placement",
+            "detailed-explanation-grid-magic",
             "quiz",
             "summary-and-terms",
             "resources"
@@ -190,6 +191,14 @@
             "span 关键字",
             "auto-placement"
           ]
+        },
+        {
+          "id": "detailed-explanation-grid-magic",
+          "component": "DetailedExplanation",
+          "title": "深入 CSS 代码：自适应响应式网格魔幻公式 (auto-fit + minmax)",
+          "icon": "📐",
+          "estimatedReadTime": "3 分钟 CSS 代码拆解",
+          "content": "在传统媒体查询（Media Queries）中，我们需要为手机、平板、桌面端编写大量 `@media (max-width: 768px)` 调试代码。而 CSS Grid 提供了零媒体查询的响应式卡片网格公式：\n\n```css\n/* 零 Media Query 响应式卡片网格魔幻公式 */\n.card-grid {\n  display: grid;\n  /* auto-fit 自动填充 + minmax 设定列宽上下限 */\n  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\n  gap: 20px;\n}\n```\n\n> 💡 **公式机制拆解**：\n> 1. **`minmax(280px, 1fr)`**：规定每一列卡片最小宽度不低于 `280px`，空间充足时等分拉伸（`1fr`）；\n> 2. **`auto-fit`**：当屏幕变窄容不下更多 280px 的列时，自动将空列收缩并促使下方卡片换行；\n> 3. **结果**：从 320px 的 iPhone 到 4K 显示器，网格卡片自动无缝响应折叠，无需一行 `@media` 条件句！"
         },
         {
           "id": "quiz",

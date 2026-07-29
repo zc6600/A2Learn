@@ -20,6 +20,7 @@
             "scenario-chat",
             "concept",
             "mental-model-closure",
+            "detailed-explanation-closure-pattern",
             "quiz",
             "summary-and-terms",
             "resources"
@@ -128,6 +129,14 @@
               "icon": "🛡️"
             }
           ]
+        },
+        {
+          "id": "detailed-explanation-closure-pattern",
+          "component": "DetailedExplanation",
+          "title": "深入代码实现：手写闭包模块模式 (Module Pattern) 与私有变量",
+          "icon": "🔒",
+          "estimatedReadTime": "3 分钟 JS 代码拆解",
+          "content": "在 JavaScript 原生引入 `#private` 私有字段之前，社区长期使用闭包来实现封装与私有状态保护（如 Redux store、防抖函数 `debounce` 等）：\n\n```javascript\n// 手写闭包模块模式 (Module Pattern)\nconst UserStore = (function() {\n  // 私有变量，保存在闭包词法环境中，外部无法直接访问\n  let _token = \"secret_bearer_token_999\";\n  let _user = { name: \"Alice\", role: \"admin\" };\n\n  return {\n    // 仅暴露安全的 Getter 和 Setter 接口\n    getUser() {\n      return { ..._user }; // 返回浅拷贝防止引用污染\n    },\n    setToken(newToken) {\n      if (typeof newToken === \"string\") _token = newToken;\n    }\n  };\n})();\n\nconsole.log(UserStore.getUser()); // { name: \"Alice\", role: \"admin\" }\nconsole.log(UserStore._token);     // undefined (私有变量安全保护)\n```\n\n> 💡 **架构意义**：防抖 (Debounce)、节流 (Throttle) 以及现代框架 Hooks (如 React `useState`) 的底层原理完全建立在这一闭包模式之上！"
         },
         {
           "id": "quiz",

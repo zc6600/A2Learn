@@ -20,6 +20,7 @@
             "scenario-chat",
             "concept",
             "mental-model-event-loop",
+            "detailed-explanation-promise-all",
             "quiz",
             "summary-and-terms",
             "resources"
@@ -135,6 +136,14 @@
               "icon": "📬"
             }
           ]
+        },
+        {
+          "id": "detailed-explanation-promise-all",
+          "component": "DetailedExplanation",
+          "title": "深入代码实现：手写 Promise.all 核心逻辑与微任务链",
+          "icon": "📝",
+          "estimatedReadTime": "3 分钟代码实现拆解",
+          "content": "要彻底弄懂 Promise 的协同并发与链式调用，最直观的方法就是亲自手写一个 `Promise.all` 伪代码实现：\n\n```javascript\n// 极简手写 Promise.all 代码实现\nfunction promiseAll(promises) {\n  return new Promise((resolve, reject) => {\n    let results = [];\n    let completedCount = 0;\n    \n    promises.forEach((p, index) => {\n      // 保证传入的每一个项都被包裹为 Promise\n      Promise.resolve(p).then(res => {\n        results[index] = res; // 保持原始数组顺序\n        completedCount++;\n        if (completedCount === promises.length) {\n          resolve(results);   # 全部成功才触发 resolve\n        }\n      }).catch(reject);       # 只要有一个失败立即 reject\n    });\n  });\n}\n```\n\n> 💡 **核心注意点**：`Promise.all` 在并行发送网络请求时极其高效，但要注意它的「短路特性」——任何一个 Promise 抛出错误都会立即触发整体的 `reject`。理解其内部计数器与结果索引绑定机制是前端面试与异步调优的基本功。"
         },
         {
           "id": "quiz",
