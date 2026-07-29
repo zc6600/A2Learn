@@ -149,27 +149,20 @@
           "id": "quiz",
           "component": "QuizCard",
           "title": "🧠 Promise 与 Event Loop 核心概念自测",
-          "question": "下面代码的输出顺序是什么？\n<pre><code>console.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');</code></pre>",
-          "options": [
+          "questions": [
             {
-              "id": "opt1",
-              "text": "A, B, C, D"
-            },
-            {
-              "id": "opt2",
-              "text": "A, D, B, C"
-            },
-            {
-              "id": "opt3",
-              "text": "A, D, C, B"
-            },
-            {
-              "id": "opt4",
-              "text": "A, C, D, B"
+              "id": "q1",
+              "question": "下面代码的输出顺序是什么？\n<pre><code>console.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');</code></pre>",
+              "options": [
+                "A, B, C, D",
+                "A, D, B, C",
+                "A, D, C, B",
+                "A, C, D, B"
+              ],
+              "correctIndex": 2,
+              "explanation": "<b>解析：</b><br>1. <code>console.log('A')</code>：同步，立即执行 → 输出 A<br>2. <code>setTimeout</code>：宏任务，放入宏任务队列<br>3. <code>Promise.resolve().then</code>：微任务，放入微任务队列<br>4. <code>console.log('D')</code>：同步，立即执行 → 输出 D<br>5. 执行栈空，清空微任务队列 → 输出 C<br>6. 取一个宏任务执行 → 输出 B<br>因此顺序：<b>A → D → C → B</b>"
             }
-          ],
-          "correctOptionId": "opt3",
-          "explanation": "<b>解析：</b><br>1. <code>console.log('A')</code>：同步，立即执行 → 输出 A<br>2. <code>setTimeout</code>：宏任务，放入宏任务队列<br>3. <code>Promise.resolve().then</code>：微任务，放入微任务队列<br>4. <code>console.log('D')</code>：同步，立即执行 → 输出 D<br>5. 执行栈空，清空微任务队列 → 输出 C<br>6. 取一个宏任务执行 → 输出 B<br>因此顺序：<b>A → D → C → B</b>"
+          ]
         },
         {
           "id": "summary-and-terms",

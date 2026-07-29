@@ -36,41 +36,37 @@
         },
         {
           "id": "navigator",
-          "component": "SectionNavigator",
-          "title": "章节导航：",
-          "activeSectionId": "intro",
-          "onSectionClick": {
-            "name": "navigate_section",
+          "component": "LearningPath",
+          "title": "CSS Grid 学习路径",
+          "activeStepId": "intro",
+          "onStepSelect": {
+            "name": "learning_path_select",
             "context": {}
           },
-          "sections": [
+          "steps": [
             {
               "id": "intro",
               "title": "Grid 基础概念",
               "description": "容器、网格线与轨道",
-              "icon": "📐",
-              "status": "current"
+              "targetComponentId": "concept-grid-container"
             },
             {
               "id": "template",
               "title": "定义网格模板",
               "description": "grid-template-columns/rows 属性",
-              "icon": "📏",
-              "status": "available"
+              "targetComponentId": "mental-model-grid"
             },
             {
               "id": "placement",
               "title": "元素放置技巧",
               "description": "跨行跨列的高级布局",
-              "icon": "🧩",
-              "status": "available"
+              "targetComponentId": "concept-grid-placement"
             },
             {
               "id": "challenge",
-              "title": "实战综合挑战",
-              "description": "用 Grid 还原复杂仪表盘 UI",
-              "icon": "⚔️",
-              "status": "locked"
+              "title": "实战自测挑战",
+              "description": "检验你的 Grid 布局掌握程度",
+              "targetComponentId": "quiz"
             }
           ]
         },
@@ -204,27 +200,20 @@
           "id": "quiz",
           "component": "QuizCard",
           "title": "🧠 CSS Grid 核心概念自测",
-          "question": "以下 CSS Grid 代码中，<code>.item { grid-column: 1 / -1; }</code> 的效果是什么？\n<pre><code>.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}</code></pre>",
-          "options": [
+          "questions": [
             {
-              "id": "opt1",
-              "text": "元素只占第 1 列"
-            },
-            {
-              "id": "opt2",
-              "text": "元素从第 1 列线延伸到最后一条列线，横跨全部 4 列"
-            },
-            {
-              "id": "opt3",
-              "text": "元素从倒数第 1 列线延伸到第 1 列线（反向）"
-            },
-            {
-              "id": "opt4",
-              "text": "语法错误，-1 不是合法的网格线编号"
+              "id": "q1",
+              "question": "以下 CSS Grid 代码中，<code>.item { grid-column: 1 / -1; }</code> 的效果是什么？\n<pre><code>.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}</code></pre>",
+              "options": [
+                "元素只占第 1 列",
+                "元素从第 1 列线延伸到最后一条列线，横跨全部 4 列",
+                "元素从倒数第 1 列线延伸到第 1 列线（反向）",
+                "语法错误，-1 不是合法的网格线编号"
+              ],
+              "correctIndex": 1,
+              "explanation": "<b>解析：</b><br>在 CSS Grid 中，<code>-1</code> 是一个合法的<b>负数网格线编号</b>，代表从最后一条隐式网格线往前数第 1 条，即网格的最后一条列线。<br>因此 <code>grid-column: 1 / -1</code> 表示从第 1 条列线延伸到最后一条列线，效果是让元素<b>横跨所有列（full-width）</b>。这是实现「footer 横跨全宽」的标准写法，无需硬编码列数。"
             }
-          ],
-          "correctOptionId": "opt2",
-          "explanation": "<b>解析：</b><br>在 CSS Grid 中，<code>-1</code> 是一个合法的<b>负数网格线编号</b>，代表从最后一条隐式网格线往前数第 1 条，即网格的最后一条列线。<br>因此 <code>grid-column: 1 / -1</code> 表示从第 1 条列线延伸到最后一条列线，效果是让元素<b>横跨所有列（full-width）</b>。这是实现「footer 横跨全宽」的标准写法，无需硬编码列数。"
+          ]
         },
         {
           "id": "summary-and-terms",

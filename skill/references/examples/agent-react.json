@@ -140,27 +140,20 @@
           "id": "quiz-comprehension",
           "component": "QuizCard",
           "title": "🧠 ReAct 架构与从头实现理解",
-          "question": "在从头实现 (From Scratch) ReAct 引擎时，当 Action Parser 正则捕获到模型输出了 `Action: Search['Python']`，系统底层应该执行什么操作？",
-          "options": [
+          "questions": [
             {
-              "id": "opt1",
-              "text": "A. 直接将 `Search['Python']` 原样打印给终端用户并终止程序"
-            },
-            {
-              "id": "opt2",
-              "text": "B. 暂停 LLM 文本生成，调用本地 search 函数获取结果，包装为 Observation 拼接回上下文"
-            },
-            {
-              "id": "opt3",
-              "text": "C. 清空所有历史上下文并重新发起请求"
-            },
-            {
-              "id": "opt4",
-              "text": "D. 让 LLM 自己去连接物理互联网"
+              "id": "q1",
+              "question": "在从头实现 (From Scratch) ReAct 引擎时，当 Action Parser 正则捕获到模型输出了 `Action: Search['Python']`，系统底层应该执行什么操作？",
+              "options": [
+                "A. 直接将 `Search['Python']` 原样打印给终端用户并终止程序",
+                "B. 暂停 LLM 文本生成，调用本地 search 函数获取结果，包装为 Observation 拼接回上下文",
+                "C. 清空所有历史上下文并重新发起请求",
+                "D. 让 LLM 自己去连接物理互联网"
+              ],
+              "correctIndex": 1,
+              "explanation": "ReAct 引擎捕获到 Action 后，会暂停 LLM 生成，在宿主环境（Python/JS）中调用对应工具获取返回值，再包装为 `Observation:` 拼接回上下文供 LLM 进下一轮 Thought。"
             }
-          ],
-          "correctOptionId": "opt2",
-          "explanation": "ReAct 引擎捕获到 Action 后，会暂停 LLM 生成，在宿主环境（Python/JS）中调用对应工具获取返回值，再包装为 `Observation:` 拼接回上下文供 LLM 进下一轮 Thought。"
+          ]
         },
         {
           "id": "summary-and-terms",

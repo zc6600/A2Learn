@@ -1,0 +1,11 @@
+third_party/
+node_modules/
+apps/viewer/node_modules/
+apps/viewer/dist/
+outputs/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+.git/

@@ -156,6 +156,32 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
     return true;
   }
 
+  // Every catalog component (including this one) renders into its own
+  // shadow root, and a2ui-surface itself is shadow-DOM too. document.getElementById /
+  // document.querySelector can never cross a shadow boundary, so a plain
+  // top-level lookup silently finds nothing. Walk the whole tree by hand,
+  // descending into every node's shadowRoot, matching either a real id or
+  // the data-component-id A2UI stamps on render.
+  private findTargetElement(targetId: string): Element | null {
+    const matches = (el: Element): boolean =>
+      el.id === targetId || el.getAttribute("data-component-id") === targetId;
+
+    const search = (root: ParentNode): Element | null => {
+      const nodes = root.querySelectorAll("*");
+      for (const node of Array.from(nodes)) {
+        if (matches(node)) return node;
+        const shadow = (node as any).shadowRoot as ShadowRoot | null | undefined;
+        if (shadow) {
+          const found = search(shadow);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    return search(document.body);
+  }
+
   private handleStepClick(step: any, status: 'completed' | 'current' | 'locked') {
     const props = (this as any).controller?.props;
 
@@ -172,8 +198,7 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
     const targetSectionId = step.targetSectionId || step.targetComponentId;
     if (targetSectionId) {
       setTimeout(() => {
-        const targetEl = document.getElementById(targetSectionId) ||
-          document.querySelector(`[data-component-id="${targetSectionId}"]`);
+        const targetEl = this.findTargetElement(targetSectionId);
         if (targetEl) {
           targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
         }

@@ -142,27 +142,20 @@
           "id": "quiz",
           "component": "QuizCard",
           "title": "🧠 闭包核心原理自测",
-          "question": "下面代码的输出是什么？\n<pre><code>function outer() {\n  let x = 10;\n  function inner() {\n    x += 5;\n    return x;\n  }\n  return inner;\n}\nconst fn = outer();\nconsole.log(fn()); // 第一次调用\nconsole.log(fn()); // 第二次调用</code></pre>",
-          "options": [
+          "questions": [
             {
-              "id": "opt1",
-              "text": "15, 15（每次调用都重新读取 x = 10）"
-            },
-            {
-              "id": "opt2",
-              "text": "15, 20（x 被持续修改，闭包共享同一个词法环境）"
-            },
-            {
-              "id": "opt3",
-              "text": "10, 10（outer() 返回后 x 被销毁，inner 无法访问）"
-            },
-            {
-              "id": "opt4",
-              "text": "undefined, undefined"
+              "id": "q1",
+              "question": "下面代码的输出是什么？\n<pre><code>function outer() {\n  let x = 10;\n  function inner() {\n    x += 5;\n    return x;\n  }\n  return inner;\n}\nconst fn = outer();\nconsole.log(fn()); // 第一次调用\nconsole.log(fn()); // 第二次调用</code></pre>",
+              "options": [
+                "15, 15（每次调用都重新读取 x = 10）",
+                "15, 20（x 被持续修改，闭包共享同一个词法环境）",
+                "10, 10（outer() 返回后 x 被销毁，inner 无法访问）",
+                "undefined, undefined"
+              ],
+              "correctIndex": 1,
+              "explanation": "<b>解析：</b><br>outer() 执行并返回 inner 函数，同时创建了词法环境 { x: 10 }。<br>fn 是 inner 函数 + 词法环境的闭包组合体。<br>• 第一次 fn()：x 从 10 → 15，返回 15；<br>• 第二次 fn()：x 从 15 → 20，返回 20。<br>关键：inner 捕获的是 x 的<b>引用</b>而非值的副本，所以每次修改都是持久化的。"
             }
-          ],
-          "correctOptionId": "opt2",
-          "explanation": "<b>解析：</b><br>outer() 执行并返回 inner 函数，同时创建了词法环境 { x: 10 }。<br>fn 是 inner 函数 + 词法环境的闭包组合体。<br>• 第一次 fn()：x 从 10 → 15，返回 15；<br>• 第二次 fn()：x 从 15 → 20，返回 20。<br>关键：inner 捕获的是 x 的<b>引用</b>而非值的副本，所以每次修改都是持久化的。"
+          ]
         },
         {
           "id": "summary-and-terms",

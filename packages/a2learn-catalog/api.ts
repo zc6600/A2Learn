@@ -50,7 +50,8 @@ export const LearningPathApi = {
             id: z.string(),
             title: DynamicStringSchema.describe("节点名称，例如 '认识 JSX'"),
             description: DynamicStringSchema.optional().describe("节点简短描述"),
-            targetSurfaceId: z.string().optional().describe("点击该节点后要滚动到的 surface ID，与 createSurface.surfaceId 对应"),
+            targetSurfaceId: z.string().optional().describe("点击该节点后要跳转到的另一个 surface ID，与 createSurface.surfaceId 对应"),
+            targetComponentId: z.string().optional().describe("点击该节点后要在当前页面内平滑滚动到的组件 id（同一 surface 内跳转，无需切换 surface 时使用）"),
           })
         )
         .describe("学习路径的有序节点列表，按照先后顺序排列"),

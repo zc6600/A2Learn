@@ -1,0 +1,252 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-non-linear",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-non-linear",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "navigator",
+            "background-pain",
+            "scenario-chat",
+            "concept-grid-container",
+            "mental-model-grid",
+            "concept-grid-placement",
+            "detailed-explanation-grid-magic",
+            "quiz",
+            "summary-and-terms",
+            "resources"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "CSS Grid Layout, End to End: From One-Dimensional to Two-Dimensional Layout Thinking"
+        },
+        {
+          "id": "navigator",
+          "component": "LearningPath",
+          "title": "CSS Grid Learning Path",
+          "activeStepId": "intro",
+          "onStepSelect": {
+            "name": "learning_path_select",
+            "context": {}
+          },
+          "steps": [
+            {
+              "id": "intro",
+              "title": "Grid Fundamentals",
+              "description": "Containers, grid lines, and tracks",
+              "targetComponentId": "concept-grid-container"
+            },
+            {
+              "id": "template",
+              "title": "Defining the Grid Template",
+              "description": "The grid-template-columns/rows properties",
+              "targetComponentId": "mental-model-grid"
+            },
+            {
+              "id": "placement",
+              "title": "Element Placement Techniques",
+              "description": "Advanced layout with row/column spans",
+              "targetComponentId": "concept-grid-placement"
+            },
+            {
+              "id": "challenge",
+              "title": "Hands-On Self Check",
+              "description": "Test how well you've mastered CSS Grid",
+              "targetComponentId": "quiz"
+            }
+          ]
+        },
+        {
+          "id": "background-pain",
+          "component": "AnalogyCard",
+          "title": "Why Do We Need CSS Grid? Isn't Flexbox Enough?",
+          "analogy": "Before CSS Grid, frontend engineers built complex pages with <code>float</code>, <code>position: absolute</code>, or even <code>table</code> layouts — fragile code that was hard to maintain. Even once Flexbox arrived and greatly improved one-dimensional (row or column) layout, real product pages often need to control <b>both rows and columns at once</b>:\n<pre><code>/* Goal: a fixed sidebar + a two-column content area + a footer spanning the full width */\n/* The Flexbox approach: nest several layers of flex containers, logic scattered and hard to maintain */</code></pre>\nCSS Grid is purpose-built for <b>two-dimensional layout</b>, letting developers define both row and column structure in a single declaration, so the intent of a complex layout is obvious right in the code."
+        },
+        {
+          "id": "scenario-chat",
+          "component": "ScenarioDialogue",
+          "topic": "💬 UI Design Roundtable: Flexbox's Limits, and Grid's Breakthrough Into Two Dimensions",
+          "characters": {
+            "leo": {
+              "name": "Leo (Frontend Engineer)",
+              "avatar": "👨‍🎨",
+              "alignment": "left"
+            },
+            "nina": {
+              "name": "Nina (CSS Architect)",
+              "avatar": "👩‍💻",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "leo",
+              "content": "Nina, I'm building a dashboard page — a fixed sidebar on the left, a 3-column card area on the right, and a status bar spanning the full width at the bottom. I've nested Flexbox several layers deep and the code is getting messier and messier. Is there a better way?"
+            },
+            {
+              "characterId": "nina",
+              "content": "That's exactly the use case CSS Grid was built for! Flexbox is a one-dimensional layout tool — it can only control rows or columns at a time. Grid is two-dimensional: you can define row and column structure on a single container, and place children precisely into any grid area."
+            },
+            {
+              "characterId": "leo",
+              "content": "Sounds powerful. So how do you define the grid structure for this layout?"
+            },
+            {
+              "characterId": "nina",
+              "content": "With <code>grid-template-columns</code> and <code>grid-template-rows</code>. For your case: <code>grid-template-columns: 240px 1fr 1fr 1fr</code> gives you a fixed 240px sidebar plus three equal content columns on the right. For the footer, use <code>grid-column: 1 / -1</code> so it stretches from the first grid line to the last, automatically spanning the full width."
+            },
+            {
+              "characterId": "leo",
+              "content": "That's it, just a few lines of CSS? So much more elegant than nested Flexbox! So the core idea of Grid is to declare the whole 2D blueprint on the parent container first, then let children position themselves within it?"
+            },
+            {
+              "characterId": "nina",
+              "content": "Exactly! That's the <dfn title=\"CSS Grid's core design philosophy: the parent container declares the page's entire 2D grid structure, and children position themselves precisely using grid line numbers or named areas\">Grid layout philosophy</dfn> — \"define the spatial structure first, then fill in the content.\" That complements Flexbox's \"content determines space\" — combining both is the ultimate modern CSS layout strategy."
+            }
+          ]
+        },
+        {
+          "id": "concept-grid-container",
+          "component": "ConceptCard",
+          "title": "The Grid Container & Grid Tracks",
+          "tags": [
+            "CSS",
+            "Grid",
+            "Layout",
+            "2D Layout"
+          ],
+          "definition": "Setting an element's <code>display</code> to <code>grid</code> or <code>inline-grid</code> creates a <b>Grid container</b>. Every direct child of that container automatically becomes a <b>Grid item</b>. Grid's 2D space is divided by <b>grid lines</b> into <b>row tracks</b> and <b>column tracks</b>, which intersect to form <b>grid cells</b>.",
+          "example": "<pre><code>.dashboard {\n  display: grid;\n  /* 240px sidebar + three equal content columns */\n  grid-template-columns: 240px 1fr 1fr 1fr;\n  /* 80px top nav + auto-filling middle content + 60px bottom status bar */\n  grid-template-rows: 80px auto 60px;\n  gap: 16px;  /* grid gap */\n}\n\n/* footer spans all 4 columns (-1 refers to the last grid line) */\n.footer {\n  grid-column: 1 / -1;\n}</code></pre>",
+          "relatedConcepts": [
+            "Flexbox",
+            "the fr unit",
+            "grid-template-areas",
+            "gap",
+            "grid line numbers"
+          ]
+        },
+        {
+          "id": "mental-model-grid",
+          "component": "MentalModel",
+          "title": "Mental Model for CSS Grid: A City Planning Blueprint",
+          "description": "CSS Grid's design mindset is to first draw the road grid for an entire city (the parent container declares the structure), then decide which plot each building occupies (child element placement). This is fundamentally different from Flexbox's \"content dynamically claims space.\"",
+          "icon": "🏙️",
+          "analogyTitle": "🏙️ The City Planning Analogy",
+          "analogy": "<b>Flexbox is like stacking blocks</b>: you pile blocks up along one direction, and the overall arrangement is determined by each block's size;<br><b>Grid is like city planning</b>: you first draw the road grid on a blueprint (the row and column plan), then label what each plot of land is for — this building takes up 1x2 cells, that park spans 3 columns, everything is laid out clearly on the blueprint, independent of any element's own size.",
+          "diagramTitle": "📊 Grid's 2D Coordinate System",
+          "diagram": "        col-line1  col-line2  col-line3  col-line4  col-line5\nrow-line1  |  sidebar  |  card1  |  card2  |  card3  |\nrow-line2  |  sidebar  |  card4  |  card5  |  card6  |\nrow-line3  |      Footer (grid-column: 1 / -1)      |",
+          "pillarsTitle": "Three Core Properties",
+          "pillars": [
+            {
+              "title": "grid-template-columns/rows",
+              "description": "Defines the size blueprint for the grid's columns and rows. Supports flexible units like <code>px</code>, <code>%</code>, <code>fr</code> (a share of remaining space), <code>auto</code>, and <code>minmax()</code>.",
+              "icon": "📐"
+            },
+            {
+              "title": "grid-column / grid-row",
+              "description": "Positions a child precisely using grid line numbers, spanning multiple tracks: <code>grid-column: 2 / 4</code> means from the 2nd column line to the 4th, spanning 2 columns.",
+              "icon": "📍"
+            },
+            {
+              "title": "grid-template-areas",
+              "description": "Defines a layout blueprint with named areas, making CSS self-documenting: <code>\"header header\" \"sidebar main\" \"footer footer\"</code> — highly visual.",
+              "icon": "🗺️"
+            }
+          ]
+        },
+        {
+          "id": "concept-grid-placement",
+          "component": "ConceptCard",
+          "title": "Precise Grid Placement & Named Areas",
+          "tags": [
+            "CSS",
+            "Grid",
+            "grid-area",
+            "grid-template-areas"
+          ],
+          "definition": "CSS Grid offers two main ways to place elements:<br><b>① Grid line numbers</b>: use <code>grid-column: start-line / end-line</code> to precisely control which columns an element spans;<br><b>② Named areas (grid-template-areas)</b>: \"draw\" the layout with strings on the parent, and have children declare their own name via <code>grid-area</code> — extremely readable code.",
+          "example": "<pre><code>/* Approach 2: named areas (more intuitive) */\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-rows: 60px auto 40px;\n  grid-template-areas:\n    \"header  header\"\n    \"sidebar main  \"\n    \"footer  footer\";\n}\n.header  { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main    { grid-area: main; }\n.footer  { grid-area: footer; }</code></pre>",
+          "relatedConcepts": [
+            "grid-column",
+            "grid-row",
+            "grid-area",
+            "the span keyword",
+            "auto-placement"
+          ]
+        },
+        {
+          "id": "detailed-explanation-grid-magic",
+          "component": "DetailedExplanation",
+          "title": "CSS Deep Dive: The Responsive Grid Magic Formula (auto-fit + minmax)",
+          "icon": "📐",
+          "estimatedReadTime": "3-minute CSS code breakdown",
+          "content": "With traditional media queries, you end up writing a pile of `@media (max-width: 768px)` breakpoints for phones, tablets, and desktops. CSS Grid offers a responsive card-grid formula that needs zero media queries:\n\n```css\n/* The zero-media-query responsive card grid magic formula */\n.card-grid {\n  display: grid;\n  /* auto-fit fills available space + minmax sets column width bounds */\n  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\n  gap: 20px;\n}\n```\n\n> 💡 **Breaking down the formula**:\n> 1. **`minmax(280px, 1fr)`**: each card column is never narrower than `280px`, and stretches evenly (`1fr`) when there's extra space;\n> 2. **`auto-fit`**: when the screen gets too narrow to fit another 280px column, empty columns automatically collapse, pushing the cards below to wrap;\n> 3. **The result**: from a 320px iPhone to a 4K display, the card grid responds and wraps seamlessly — with not a single line of `@media`!"
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "🧠 CSS Grid Fundamentals Self-Check",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "In the following CSS Grid code, what does <code>.item { grid-column: 1 / -1; }</code> do?\n<pre><code>.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}</code></pre>",
+              "options": [
+                "The element only occupies column 1",
+                "The element stretches from the 1st column line to the last column line, spanning all 4 columns",
+                "The element stretches from the last column line backward to the 1st (in reverse)",
+                "It's a syntax error — -1 isn't a valid grid line number"
+              ],
+              "correctIndex": 1,
+              "explanation": "<b>Explanation:</b><br>In CSS Grid, <code>-1</code> is a valid <b>negative grid line number</b> — it refers to the 1st line counting backward from the last implicit grid line, i.e. the grid's last column line.<br>So <code>grid-column: 1 / -1</code> stretches from the 1st column line to the last, making the element span <b>all columns (full-width)</b>. This is the standard way to make a footer span the full width, without hard-coding the number of columns."
+            }
+          ]
+        },
+        {
+          "id": "summary-and-terms",
+          "component": "AnalogyCard",
+          "title": "Summary: Grid and Flexbox Complement Each Other",
+          "analogy": "CSS Grid is the ultimate tool for two-dimensional layout, and Flexbox is the best choice for one-dimensional content arrangement. The modern frontend best practice is: use Grid to define a page's macro structure (the row/column blueprint), and Flexbox to handle content alignment inside individual components.<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Glossary</h5><p>A <dfn title=\"A two-dimensional layout container created by setting display to grid, defining the row/column space blueprint for all its children\"><strong>Grid container</strong></dfn> declares its 2D space blueprint via <code>grid-template-columns/rows</code>, where the <dfn title=\"A flexible proportional unit unique to CSS Grid — 1fr means one share of the remaining available space\"><strong>fr unit</strong></dfn> flexibly distributes leftover space. <dfn title=\"Virtual reference lines dividing a CSS Grid's rows and columns, numbered left-to-right/top-to-bottom with positive integers, or in reverse from the end with negative integers\"><strong>Grid lines</strong></dfn> are used to position children precisely, with negative numbers (like <code>-1</code>) counting backward from the end. <dfn title=\"A way of describing layout structure with string diagrams on the parent, letting children declare their position by name\"><strong>grid-template-areas</strong></dfn> offers a highly readable, named-area approach to layout.</p></div>"
+        },
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "Recommended Further Reading",
+          "resources": [
+            {
+              "title": "CSS-Tricks: A Complete Guide to CSS Grid",
+              "url": "https://css-tricks.com/snippets/css/complete-guide-grid/",
+              "description": "The industry's most authoritative complete reference guide to CSS Grid, with a visual breakdown of every property.",
+              "type": "doc"
+            },
+            {
+              "title": "Grid Garden — An Interactive Learning Game",
+              "url": "https://cssgridgarden.com/",
+              "description": "Learn every core CSS Grid property interactively through a gardening game — fun and effective.",
+              "type": "article"
+            },
+            {
+              "title": "MDN: CSS Grid Layout",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout",
+              "description": "The authoritative MDN documentation for CSS Grid.",
+              "type": "doc"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

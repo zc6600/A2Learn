@@ -1,0 +1,696 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface-module-1",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface-module-1",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-1",
+            "learning-path-1",
+            "step1-background",
+            "step1-chat",
+            "step2-naive",
+            "step3-mindset",
+            "step4-implementation",
+            "step4-sandbox",
+            "step5-summary"
+          ]
+        },
+        {
+          "id": "header-1",
+          "component": "Text",
+          "variant": "h1",
+          "text": "How Do You Achieve O(1) Instant Lookup Over Massive Data?"
+        },
+        {
+          "id": "learning-path-1",
+          "component": "LearningPath",
+          "title": "Hash Table: A Four-Stage Learning Path",
+          "activeStepId": "1",
+          "steps": [
+            {
+              "id": "1",
+              "title": "1. The Lookup-Efficiency Crisis (O(1) Computation)",
+              "targetSurfaceId": "surface-module-1"
+            },
+            {
+              "id": "2",
+              "title": "2. The Hash Collision Dilemma (Conflict Resolution)",
+              "targetSurfaceId": "surface-module-2"
+            },
+            {
+              "id": "3",
+              "title": "3. The Space/Performance Trade-off (Load Factor / Rehashing)",
+              "targetSurfaceId": "surface-module-3"
+            },
+            {
+              "id": "4",
+              "title": "4. Industrial-Grade Defense (HashDoS / Red-Black Trees)",
+              "targetSurfaceId": "surface-module-4"
+            }
+          ]
+        },
+        {
+          "id": "step1-background",
+          "component": "AnalogyCard",
+          "title": "The Throughput Bottleneck of Searching Massive Data",
+          "analogy": "<b>Real-world context</b>: in modern distributed systems, high-concurrency web frameworks, or database internals, data lookup is one of the most frequent operations. Whether it's validating a user by a token, looking up a key in a cache, or routing an HTTP request, all of these face enormous throughput pressure.<br><br><b>The core pain point</b>: once the data in memory grows to a million or even a hundred million records, the efficiency of traditional lookup approaches degrades drastically. If every query has to scan through thousands of data nodes, the server's CPU quickly fills up with meaningless comparison instructions, and response times can balloon to hundreds of milliseconds — or the system locks up entirely. How can you achieve millisecond-level lookups that stay fast no matter how much data you have?"
+        },
+        {
+          "id": "step1-chat",
+          "component": "ScenarioDialogue",
+          "topic": "💬 The Team Chat: Why Does Scanning a Million Records Bring the Server to Its Knees?",
+          "characters": {
+            "alice": {
+              "name": "Alice (Junior Engineer)",
+              "avatar": "👩‍💻",
+              "alignment": "left"
+            },
+            "boss_zhang": {
+              "name": "Zhang (Principal Architect)",
+              "avatar": "👨‍💼",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alice",
+              "content": "Zhang! I wrote a user lookup feature that loops through a million-item array in memory comparing usernames. It's plenty fast with a few hundred records, but the moment we hit a traffic spike today, CPU shot to 100% and a single lookup took 800ms!"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "That's a textbook case of <dfn title=\"A linear search that compares data one by one in order, needing up to N comparisons in the worst case\">sequential search, O(N)</dfn>! When the data size N grows 1000x, your number of comparisons — and CPU instructions — grows 1000x right along with it. At scale, you have to abandon the 'compare one by one' instinct entirely!"
+            },
+            {
+              "characterId": "alice",
+              "content": "What if I sort the array alphabetically first and use binary search, O(log N)? A lookup would only need 20 comparisons — wouldn't that solve it?"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "Binary search is fast to query, but keeping the array sorted in memory is extremely expensive! Every time a new user registers and gets inserted, you'd have to physically shift hundreds of thousands of subsequent nodes in memory — write performance would collapse. What we need is a whole new paradigm that's fast at both reads and writes, at O(1)!"
+            }
+          ]
+        },
+        {
+          "id": "step2-naive",
+          "component": "MentalModel",
+          "title": "How Physical Memory Actually Works, and the Cost of Shifting Nodes",
+          "description": "At the hardware level, a computer's physical memory (RAM) is essentially a contiguous array of bytes. RAM hardware is naturally built to read any memory address in constant time, given a numeric physical offset. Every higher-level data structure's access pattern ultimately rests on this hardware property.",
+          "icon": "🧠",
+          "diagramTitle": "📊 Tracing How Physical Memory Shifts on Insert",
+          "diagram": "Initial memory: [0:10 | 1:20 | 2:30 | 3:50 | 4:60]\nGoal: insert 25 at its sorted position (index 2)\nStep 1, shift right: 60->index5, 50->index4, 30->index3  ==> [0:10 | 1:20 | 2:empty | 3:30 | 4:50 | 5:60]\nStep 2, write: write 25 into the now-empty index 2      ==> [0:10 | 1:20 | 2:25 | 3:30 | 4:50 | 5:60]",
+          "pillarsTitle": "Hardware Properties & Traditional Approaches' Flaws",
+          "pillars": [
+            {
+              "title": "Hardware Access Properties",
+              "description": "RAM's physical bus naturally supports O(1) random access by numeric index — the time cost depends only on the electrical signal transfer, not the total amount of data.",
+              "icon": "⚡"
+            },
+            {
+              "title": "The Unsorted Array's Flaw",
+              "description": "A sequential scan needs up to N comparisons in the worst case — cost grows linearly, and dramatically, with data size.",
+              "icon": "❌"
+            },
+            {
+              "title": "The Sorted Array's Flaw",
+              "description": "Lookups only need O(log N), but insertion and deletion require shifting a large number of subsequent memory nodes — a memory-bus cost of O(N).",
+              "icon": "⚠️"
+            }
+          ],
+          "analogyTitle": "💡 Tracing the Real Cost of Shifting Data, Step by Step",
+          "analogy": "<b>Tracing the memory operations for inserting 25 into the sorted array [ 10, 20, 30, 50, 60 ]:</b><br><br>1. <b>Locate the slot</b>: after comparing, 25 should be inserted between 20 and 30 (target index 2);<br>2. <b>Shift memory</b>: since a physical array's memory must be contiguous, to make room for 25, nodes 60, 50, and 30 must all physically shift right by 1 position (60 moves to index 5, 50 to 4, 30 to 3);<br>3. <b>Write the data</b>: write 25 into the now-vacated physical index 2.<br><br>💥 <b>The pain, laid bare</b>: inserting just 1 number forced 3 elements in memory to move! If the array held 1 million entries, a single insert could shift half a million nodes across the physical memory bus — devastatingly slow!"
+        },
+        {
+          "id": "step3-mindset",
+          "component": "ConceptCard",
+          "title": "A Paradigm Shift: Computing a Memory Index Directly From a Key's Name",
+          "tags": [
+            "Compute Instead of Compare",
+            "O(1) Addressing",
+            "Paradigm Shift"
+          ],
+          "definition": "<b>The core breakthrough mindset</b>: entirely abandon the old idea of 'scan through and compare every key one by one,' and shift toward the new paradigm of <b>'compute the physical memory address directly'</b>!<br><br>Instead of scanning memory and asking where the data is hiding, design an efficient mathematical formula: feed in the key's name (like a user ID), and the formula directly computes which physical index in the array that data should live at!",
+          "example": "<pre><code>// The traditional search paradigm (scan and compare): looking up 'Alice' -> compare up to 1,000,000 times\n// The hashing paradigm (compute directly): compute 'Alice' -> the algorithm directly yields index 5 -> read arr[5] in one step</code></pre>",
+          "relatedConcepts": [
+            "Hash Function",
+            "O(1) Complexity",
+            "Hash Mapping"
+          ]
+        },
+        {
+          "id": "step4-implementation",
+          "component": "DetailedExplanation",
+          "title": "Hash Functions & Bucket Arrays in Practice (With Python Pseudocode)",
+          "icon": "⚙️",
+          "estimatedReadTime": "4-minute deep dive",
+          "content": "To turn the \"compute instead of compare\" mindset into real engineering practice, data structures introduce two core pieces of infrastructure:\n\n1. **<dfn title=\"A mathematical algorithm that maps an arbitrary-length input key to a fixed-range unsigned integer\">Hash Function</dfn>**: takes a key of any format (a string, an ID number, an object reference) and computes an unsigned integer from it. For example, `hash('Alice') = 154829`.\n2. **<dfn title=\"A contiguous storage array allocated in physical memory\">Bucket Array (Hash Table)</dfn>**: allocates a physical array of size `capacity`, and takes the computed hash value modulo the capacity to get a physical index: `index = hash(key) % capacity`.\n\n🐍 **Python library call & pseudocode example**:\n```python\n# Approach A: call Python's built-in hash() and take the modulo directly\nkey = \"Alice\"\ncapacity = 10\nslot_index = abs(hash(key)) % capacity  # yields a slot number between 0 and 9\n\n# Approach B: a minimal hand-written hash function (summing character codes)\ndef simple_hash(key: str, capacity: int = 10) -> int:\n    return sum(ord(char) for char in key) % capacity\n```\n\n**The physical guarantee behind constant time, O(1)**:\nWhether the array currently holds 10 records or 1,000,000, as long as the hash function itself computes quickly, the total time to locate a given key's memory address stays fixed! That's the physical origin of **<dfn title=\"An extreme performance bound where execution time is completely independent of the total amount of data\">constant time complexity, O(1)</dfn>**."
+        },
+        {
+          "id": "step4-sandbox",
+          "component": "InteractiveSandbox",
+          "title": "Code Demo: Memory Shifting vs. Direct Hash Addressing",
+          "description": "Click Run to compare the cost of inserting into a sorted array (which needs to shift subsequent memory) against computing a hash address directly:",
+          "language": "javascript",
+          "code": "// Demo 1: inserting the number 25 into the sorted array [10, 20, 30, 50, 60]\nlet arr = [10, 20, 30, 50, 60];\nlet insertVal = 25;\nlet shiftCount = 0;\n\n// Simulate physically shifting memory: move elements from the back forward\narr.push(undefined);\nfor (let i = arr.length - 1; i > 2; i--) {\n  arr[i] = arr[i - 1];\n  shiftCount++;\n}\narr[2] = insertVal;\n\nconsole.log(\"Array after insert:\", arr);\nconsole.log(\"Number of memory blocks forced to shift:\", shiftCount, \"time(s)\");\nconsole.log(\"------------------------------------------\");\n\n// Demo 2: a hash function computing a memory index directly (O(1) addressing)\nfunction simpleHash(key, capacity = 10) {\n  let hash = 0;\n  for (let i = 0; i < key.length; i++) {\n    hash = (hash * 31 + key.charCodeAt(i)) % capacity;\n  }\n  return hash;\n}\n\nconsole.log(\"Slot directly computed for key 'Alice':\", simpleHash('Alice'));\nconsole.log(\"Slot directly computed for key 'Bob':  \", simpleHash('Bob'));",
+          "runLocally": true
+        },
+        {
+          "id": "step5-summary",
+          "component": "AnalogyCard",
+          "title": "Summary: From Searching & Comparing to Computing a Formula",
+          "analogy": "The key to achieving O(1) lookups is exploiting the hardware property that physical memory can be accessed directly by numeric index, replacing <b>'search and compare one by one'</b> with <b>'compute directly with a formula.'</b><hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Glossary</h5><p>Fully solving the efficiency crisis of searching massive datasets comes down to shifting from traditional <dfn title=\"A baseline approach that compares elements one by one in order — time cost scales linearly with data size\"><strong>sequential search, O(N)</strong></dfn>, to a computational mindset. With a carefully designed <dfn title=\"A hashing formula that maps a key of any format directly to a fixed-range integer index\"><strong>hash function</strong></dfn>, any key can be converted directly into a memory index, pushing data-access performance to <dfn title=\"An extreme level of performance where data-lookup time is completely independent of the total amount of data\"><strong>constant time complexity, O(1)</strong></dfn> — entirely independent of scale.</p></div>"
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface-module-2",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface-module-2",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-2",
+            "learning-path-2",
+            "step1-background-2",
+            "step1-chat-2",
+            "step2-naive-2",
+            "step3-mindset-2",
+            "step4-implementation-2",
+            "step5-summary-2",
+            "quiz-2"
+          ]
+        },
+        {
+          "id": "header-2",
+          "component": "Text",
+          "variant": "h1",
+          "text": "What Happens When Different Keys Produce the Same Index?"
+        },
+        {
+          "id": "learning-path-2",
+          "component": "LearningPath",
+          "title": "Hash Table: A Four-Stage Learning Path",
+          "activeStepId": "2",
+          "steps": [
+            {
+              "id": "1",
+              "title": "1. The Lookup-Efficiency Crisis (O(1) Computation)",
+              "targetSurfaceId": "surface-module-1"
+            },
+            {
+              "id": "2",
+              "title": "2. The Hash Collision Dilemma (Conflict Resolution)",
+              "targetSurfaceId": "surface-module-2"
+            },
+            {
+              "id": "3",
+              "title": "3. The Space/Performance Trade-off (Load Factor / Rehashing)",
+              "targetSurfaceId": "surface-module-3"
+            },
+            {
+              "id": "4",
+              "title": "4. Industrial-Grade Defense (HashDoS / Red-Black Trees)",
+              "targetSurfaceId": "surface-module-4"
+            }
+          ]
+        },
+        {
+          "id": "step1-background-2",
+          "component": "AnalogyCard",
+          "title": "The Data-Overwrite Crisis Caused by Colliding Hashes",
+          "analogy": "<b>A new problem emerges</b>: in Module 1, we used a hash function to compute array indices. But in real applications, the space of possible input keys is unlimited (think of every possible user name), while the array of slots we allocate is always finite.<br><br><b>The overwrite disaster</b>: once a system stores several different keys (say, 'Alice' and 'David'), the hash function is bound to eventually compute <b>the exact same physical index, 5</b>, for two of them! If the data is written directly into slot 5, whichever key comes later — David — will completely overwrite and erase Alice's data, causing a catastrophic data-loss bug!"
+        },
+        {
+          "id": "step1-chat-2",
+          "component": "ScenarioDialogue",
+          "topic": "💬 The Team Chat: Boss! Two Users Computed the Same Index, and One's Data Got Overwritten!",
+          "characters": {
+            "alice": {
+              "name": "Alice (Junior Engineer)",
+              "avatar": "👩‍💻",
+              "alignment": "left"
+            },
+            "boss_zhang": {
+              "name": "Zhang (Principal Architect)",
+              "avatar": "👨‍💼",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alice",
+              "content": "Zhang! Something's wrong! When users 'Alice' and 'David' were both stored, the hash function computed the exact same index, 5! David's data completely overwrote Alice's — we've got a serious data-overwrite bug in production!"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "That's a 'hash collision,' and it's inevitable! The set of output array slots is finite, but the set of possible input keys is infinite. It's been proven mathematically that collisions can never be completely avoided."
+            },
+            {
+              "characterId": "alice",
+              "content": "So can't we just design a perfect hash function that never collides?"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "Impossible! The pigeonhole principle tells us: as long as there are more apples than drawers, at least two apples must end up crammed into the same drawer. In practice, you have to learn to 'tolerate collisions' and build a conflict-resolution mechanism!"
+            }
+          ]
+        },
+        {
+          "id": "step2-naive-2",
+          "component": "MentalModel",
+          "title": "The Pigeonhole Principle & Schools of Collision Resolution",
+          "description": "By the mathematical pigeonhole principle, whenever the space of possible key values far exceeds the array's `capacity`, at least two different keys are guaranteed to map to the same physical index. This is a mathematical fact, not a code bug.",
+          "icon": "🐦",
+          "diagramTitle": "📊 Tracing an Input Collision and an Overwritten Node",
+          "diagram": "Alice maps to: [0:empty | 1:empty | 5:Alice | 6:empty]\nDavid collides: [0:empty | 1:empty | 5:collision! | 6:empty]\n\nDirect overwrite: Alice's data at slot 5 is lost! ❌",
+          "pillarsTitle": "Math vs. Approach Comparison",
+          "pillars": [
+            {
+              "title": "The Pigeonhole Principle",
+              "description": "Mapping infinite inputs onto finite slots — hash collisions are logically, mathematically unavoidable.",
+              "icon": "📐"
+            },
+            {
+              "title": "The Flaw of Direct Overwriting",
+              "description": "Overwriting old data leads to catastrophic data corruption and business-critical failures.",
+              "icon": "💥"
+            }
+          ],
+          "analogyTitle": "💡 Dissecting the Disaster of Overwriting After a Collision",
+          "analogy": "When two keys map to the same index, if the simple logic of \"overwrite the old value with the new one\" is used, whatever was stored first vanishes entirely. A user logging into Alice's account would end up seeing David's information instead!"
+        },
+        {
+          "id": "step3-mindset-2",
+          "component": "ConceptCard",
+          "title": "Attaching Multiple Nodes, and Probing to the Next Slot",
+          "tags": [
+            "Tolerating Collisions",
+            "Multi-Dimensional Storage",
+            "Decoupling Space"
+          ],
+          "definition": "<b>The core breakthrough mindset</b>: accept that collisions are inevitable, and stop insisting that 'a slot can only ever hold one element.'<br><br><b>Two main schools of thought</b>:<br>1. <b>Chaining vertically</b>: build a linked list of multiple nodes inside each slot, letting one slot hold several colliding entries!<br>2. <b>Probing horizontally (Open Addressing)</b>: when a slot is occupied, let new data follow a predetermined probing rule to find a nearby free slot!",
+          "example": "<pre><code>// Idea 1 (Separate Chaining): slot 5 holds a linked list -> [Alice] -> [David]\n// Idea 2 (Open Addressing): slot 5 is occupied -> probe slot 6 next -> store there if it's free</code></pre>",
+          "relatedConcepts": [
+            "Separate Chaining",
+            "Open Addressing",
+            "Collision Resolution"
+          ]
+        },
+        {
+          "id": "step4-implementation-2",
+          "component": "DetailedExplanation",
+          "title": "Separate Chaining vs. Open Addressing, With a Python dict Example",
+          "icon": "⚙️",
+          "estimatedReadTime": "4-minute deep dive",
+          "content": "Two mainstream approaches have emerged in engineering practice for handling collisions:\n\n1. **<dfn title=\"Each slot maintains its own singly linked list; colliding nodes are appended to the end of that list\">Separate Chaining</dfn>**: this is what Java's HashMap uses. Each array slot points to a singly linked list. When a collision occurs, the new node is appended to the end of that list. The downside: linked-list nodes are scattered randomly across physical memory, so <dfn title=\"A hardware speedup mechanism where the CPU prefetches contiguous memory\">CPU cache locality</dfn> suffers.\n2. **<dfn title=\"No linked list is used; on collision, the array's adjacent free slots are checked following a linear or quadratic probing rule\">Open Addressing</dfn>**: this is what Python's dict uses. All data sits tightly packed in one contiguous array. When a collision occurs, it searches for the next free slot.\n\n🐍 **Python's native dict, O(1), library call & pseudocode example**:\n```python\n# Approach 1: use Python's native dict directly (collisions and resizing are handled internally)\nuser_scores = {}\nuser_scores[\"Alice\"] = 95  # internally finds a slot via hash(\"Alice\") automatically\nprint(user_scores[\"Alice\"])  # blazing-fast O(1) lookup\n\n# Approach 2: open-addressing probe pseudocode\ndef get_with_probe(buckets, key, capacity):\n    index = abs(hash(key)) % capacity\n    while buckets[index] is not None and buckets[index][0] != key:\n        index = (index + 1) % capacity  # on collision, smoothly probe the next slot\n    return buckets[index]\n```\n\n> 💡 An industry trade-off: Java's HashMap picks separate chaining for high fault tolerance; Python's dict picks open addressing to squeeze out the best possible physical memory and CPU cache performance."
+        },
+        {
+          "id": "step5-summary-2",
+          "component": "AnalogyCard",
+          "title": "Summary: A Vertical Linked List vs. Horizontal, Contiguous Slots",
+          "analogy": "Collisions can't be eliminated. Separate chaining resolves them by extending a linked list vertically; open addressing resolves them by searching horizontally for a free, contiguous slot.<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Glossary</h5><p>With a finite number of slots, different keys mapping to the same index — a <dfn title=\"The inevitable phenomenon of different keys mapping to the exact same array index\"><strong>hash collision</strong></dfn> — is mathematically unavoidable. In practice, Java uses <dfn title=\"A technique that attaches a singly linked list behind each slot to hold multiple colliding nodes\"><strong>separate chaining</strong></dfn>, attaching a singly linked list behind each slot to absorb colliding nodes; Python's dict instead uses <dfn title=\"A cache-friendly technique that probes for a free slot within a contiguous array\"><strong>open addressing</strong></dfn>, using a tightly packed, contiguous memory layout to take full advantage of the hardware's <dfn title=\"A performance property where a contiguous memory layout triggers hardware cache-line prefetching\"><strong>CPU cache locality</strong></dfn>.</p></div>"
+        },
+        {
+          "id": "quiz-2",
+          "component": "QuizCard",
+          "title": "🧠 Choosing a Collision-Resolution Strategy",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "If you want all your data packed tightly in contiguous memory for the best possible CPU cache efficiency, which approach should you prefer?",
+              "options": [
+                "A. Separate Chaining",
+                "B. Open Addressing",
+                "C. Give up on storing the data",
+                "D. Re-sort the array"
+              ],
+              "correctIndex": 1,
+              "explanation": "Open addressing stores all data directly and contiguously in the array, with no linked-list pointer overhead — giving it excellent CPU cache locality."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface-module-3",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface-module-3",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-3",
+            "learning-path-3",
+            "step1-background-3",
+            "step1-chat-3",
+            "step2-naive-3",
+            "step3-mindset-3",
+            "step4-implementation-3",
+            "step5-summary-3",
+            "cloze-3"
+          ]
+        },
+        {
+          "id": "header-3",
+          "component": "Text",
+          "variant": "h1",
+          "text": "Load Factor & Dynamic Rehashing"
+        },
+        {
+          "id": "learning-path-3",
+          "component": "LearningPath",
+          "title": "Hash Table: A Four-Stage Learning Path",
+          "activeStepId": "3",
+          "steps": [
+            {
+              "id": "1",
+              "title": "1. The Lookup-Efficiency Crisis (O(1) Computation)",
+              "targetSurfaceId": "surface-module-1"
+            },
+            {
+              "id": "2",
+              "title": "2. The Hash Collision Dilemma (Conflict Resolution)",
+              "targetSurfaceId": "surface-module-2"
+            },
+            {
+              "id": "3",
+              "title": "3. The Space/Performance Trade-off (Load Factor / Rehashing)",
+              "targetSurfaceId": "surface-module-3"
+            },
+            {
+              "id": "4",
+              "title": "4. Industrial-Grade Defense (HashDoS / Red-Black Trees)",
+              "targetSurfaceId": "surface-module-4"
+            }
+          ]
+        },
+        {
+          "id": "step1-background-3",
+          "component": "AnalogyCard",
+          "title": "Performance Collapse When the Table Fills Up",
+          "analogy": "<b>A new problem emerges</b>: in Module 2, we resolved collisions using separate chaining and open addressing. But as the system keeps running, more and more data gets stored, and the physical array's utilization gradually approaches 100%.<br><br><b>The performance collapse crisis</b>: once slots are nearly full, separate chaining's linked lists grow longer and longer, degrading lookups into a full list scan; open addressing struggles to find any free slot, and the number of probing steps skyrockets! The O(1) performance a hash table was supposed to guarantee collapses fast."
+        },
+        {
+          "id": "step1-chat-3",
+          "component": "ScenarioDialogue",
+          "topic": "💬 The Team Chat: The Array Is Full, and Lookups Are Slow Again!",
+          "characters": {
+            "alice": {
+              "name": "Alice (Junior Engineer)",
+              "avatar": "👩‍💻",
+              "alignment": "left"
+            },
+            "boss_zhang": {
+              "name": "Zhang (Principal Architect)",
+              "avatar": "👨‍💼",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alice",
+              "content": "Zhang! We set our hash table's initial capacity to 100. Now that we've stored 90 elements, every read and write hits frequent collisions and everything's crawling again!"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "That's because your load factor is too high! A hash table is like a parking lot — the fewer empty spots, the longer it takes to find one. You need to monitor how crowded it's getting and resize dynamically!"
+            }
+          ]
+        },
+        {
+          "id": "step2-naive-3",
+          "component": "MentalModel",
+          "title": "How Crowding Affects the Collision Rate Exponentially",
+          "description": "A hash table's collision probability is inversely related to the proportion of free slots. To keep collisions low and maintain O(1) lookups, you have to keep enough of the table free.",
+          "icon": "📈",
+          "diagramTitle": "📊 Tracing a Full Table and a Capacity-Doubling Rehash",
+          "diagram": "90% full: [0:occupied | 1:occupied | 2:occupied | 3:occupied | 4:free]\nCapacity doubles: [0:occupied | 1:free | 2:occupied | 3:free | ... | 9:free]",
+          "pillarsTitle": "Core Principles",
+          "pillars": [
+            {
+              "title": "Crowding as a First Principle",
+              "description": "The fewer free slots, the more the collision probability rises — exponentially. You must dynamically maintain a safe margin.",
+              "icon": "📊"
+            },
+            {
+              "title": "The Flaw of Pre-Allocating a Huge Table",
+              "description": "Requesting a huge chunk of physical memory up front wastes an enormous amount of memory resources.",
+              "icon": "⚠️"
+            }
+          ],
+          "analogyTitle": "💡 Analyzing Statically Pre-Allocating a Huge Table",
+          "analogy": "Requesting a massive block of memory up front (say, 100 GB) badly wastes memory resources, and there's no way to predict how much data an application will actually need to store."
+        },
+        {
+          "id": "step3-mindset-3",
+          "component": "ConceptCard",
+          "title": "On-Demand Monitoring & Doubling Capacity via Rehashing",
+          "tags": [
+            "Dynamic Balance",
+            "On-Demand Resizing",
+            "Space Leverage"
+          ],
+          "definition": "<b>The core breakthrough mindset</b>: don't statically lock in a fixed amount of memory — instead, set a <b>crowding monitor metric</b>.<br><br>Keep the memory footprint small most of the time, and the instant crowding exceeds a set safety threshold, immediately <b>allocate a new array at double the size, and recompute the index for every existing entry</b>!",
+          "example": "<pre><code>// Monitor the crowding metric: size / capacity > 0.75\n// Once it's exceeded: capacity = capacity * 2, and redistribute every entry</code></pre>",
+          "relatedConcepts": [
+            "Load Factor",
+            "Rehashing",
+            "Dynamic Resizing"
+          ]
+        },
+        {
+          "id": "step4-implementation-3",
+          "component": "DetailedExplanation",
+          "title": "The 0.75 Load Factor, Bitwise Speedups, and Incremental Rehashing",
+          "icon": "⚙️",
+          "estimatedReadTime": "4-minute deep dive",
+          "content": "Three clever design decisions behind dynamic resizing in practice:\n\n1. **<dfn title=\"The ratio of the number of stored elements to the current array capacity (size / capacity)\">Load Factor</dfn>**: the metric being monitored. Java's HashMap defaults to a threshold of `0.75` (the best mathematical trade-off between space utilization and time performance).\n2. **<dfn title=\"Keeping capacity as a power of 2 so a bitwise AND can replace a slow modulo\">Bitwise optimization</dfn>**: capacity is always kept as a power of 2 (like 16, 32, 64), so the modulo `hash % capacity` gets replaced by the blazing-fast hardware instruction `<dfn title=\"A bitwise operation replacing a modulo, accelerated by hardware\">hash & (capacity - 1)</dfn>`!\n3. **<dfn title=\"A high-concurrency optimization that spreads a large-scale data move out across ordinary reads and writes\">Incremental Rehashing</dfn>**: Redis uses this approach, maintaining two hash tables, `ht[0]` and `ht[1]`, to avoid a single massive move of millions of entries that would freeze the whole system momentarily."
+        },
+        {
+          "id": "step5-summary-3",
+          "component": "AnalogyCard",
+          "title": "Summary: Monitoring Crowding & Amortizing the Move",
+          "analogy": "The load factor is the metric you monitor, dynamic rehashing is how you resize, and bitwise operations are your performance accelerator.<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Glossary</h5><p>As an array gradually fills up, a system evaluates how crowded it is by monitoring the <dfn title=\"The ratio of the number of stored elements to the current capacity (size / capacity)\"><strong>Load Factor</strong></dfn>. Once it crosses a set threshold, that triggers <dfn title=\"The process of allocating new capacity and recomputing every entry's new index\"><strong>Rehashing</strong></dfn> — doubling the capacity and remapping everything. To prevent a huge move from freezing a high-concurrency system, industrial-grade implementations often combine this with <dfn title=\"A high-concurrency optimization technique that spreads a large-scale resize out across many ordinary reads and writes\"><strong>Incremental Rehashing</strong></dfn>, amortizing the cost of the move across everyday reads and writes.</p></div>"
+        },
+        {
+          "id": "cloze-3",
+          "component": "ClozeTest",
+          "title": "Reinforcing Dynamic Resizing",
+          "instruction": "Fill in the blanks using what you just learned:",
+          "passage": "A hash table uses the [blank1] to represent how crowded it is. When the proportion of stored elements exceeds a threshold, that triggers [blank2]. To use a fast bitwise operation instead of an expensive modulo, a hash table's capacity is usually kept as a [blank3].",
+          "options": [
+            "load factor",
+            "dynamic rehashing",
+            "power of 2",
+            "binary search"
+          ],
+          "correctAnswers": {
+            "blank1": "load factor",
+            "blank2": "dynamic rehashing",
+            "blank3": "power of 2"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface-module-4",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface-module-4",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-4",
+            "learning-path-4",
+            "step1-background-4",
+            "step1-chat-4",
+            "step2-naive-4",
+            "step3-mindset-4",
+            "step4-implementation-4",
+            "step5-summary-4",
+            "quiz-4"
+          ]
+        },
+        {
+          "id": "header-4",
+          "component": "Text",
+          "variant": "h1",
+          "text": "HashDoS Attacks & Red-Black Tree Treeification"
+        },
+        {
+          "id": "learning-path-4",
+          "component": "LearningPath",
+          "title": "Hash Table: A Four-Stage Learning Path",
+          "activeStepId": "4",
+          "steps": [
+            {
+              "id": "1",
+              "title": "1. The Lookup-Efficiency Crisis (O(1) Computation)",
+              "targetSurfaceId": "surface-module-1"
+            },
+            {
+              "id": "2",
+              "title": "2. The Hash Collision Dilemma (Conflict Resolution)",
+              "targetSurfaceId": "surface-module-2"
+            },
+            {
+              "id": "3",
+              "title": "3. The Space/Performance Trade-off (Load Factor / Rehashing)",
+              "targetSurfaceId": "surface-module-3"
+            },
+            {
+              "id": "4",
+              "title": "4. Industrial-Grade Defense (HashDoS / Red-Black Trees)",
+              "targetSurfaceId": "surface-module-4"
+            }
+          ]
+        },
+        {
+          "id": "step1-background-4",
+          "component": "AnalogyCard",
+          "title": "Worst-Case Hash Distributions & Security Attacks",
+          "analogy": "<b>An extreme edge case emerges</b>: across Modules 1-3, we built a fully functional dynamic hash table.<br><br><b>The worst-case crisis</b>: but an attacker can maliciously exploit the fact that a hash function's rules are public and deterministic — precomputing tens of thousands of keys offline that all produce the exact same hash value, then sending them to the server all at once! Every key crams into the same slot, the linked list balloons to tens of thousands of nodes, O(1) collapses into O(N), and the production server's CPU pegs at 100% and grinds to a halt!"
+        },
+        {
+          "id": "step1-chat-4",
+          "component": "ScenarioDialogue",
+          "topic": "💬 The Team Chat: Alert! Someone Just Hit Our Server With a Hash Collision Attack!",
+          "characters": {
+            "alice": {
+              "name": "Alice (Junior Engineer)",
+              "avatar": "👩‍💻",
+              "alignment": "left"
+            },
+            "boss_zhang": {
+              "name": "Zhang (Principal Architect)",
+              "avatar": "👨‍💼",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alice",
+              "content": "Zhang! Something's very wrong! Our production API just got hit with tens of thousands of carefully crafted requests, and the linked list under slot 5 ended up with 10,000 nodes hanging off it — O(1) turned into O(N) and the whole service locked up!"
+            },
+            {
+              "characterId": "boss_zhang",
+              "content": "That's a textbook <dfn title=\"An attack where a malicious actor sends a large volume of keys that share the same hash, degrading a hash table into a linked list to bring down a server\">HashDoS attack</dfn>! We need to defend on two fronts: randomizing the hash algorithm, and hardening the underlying data structure!"
+            }
+          ]
+        },
+        {
+          "id": "step2-naive-4",
+          "component": "MentalModel",
+          "title": "Complexity Degradation in the Worst Case",
+          "description": "A hash table's O(1) performance relies on the assumption that \"input is randomly distributed.\" When that input distribution is deliberately manipulated, its performance bound faces a genuine worst-case test.",
+          "icon": "⚠️",
+          "diagramTitle": "📊 Tracing a Malicious, Skewed Hash Distribution",
+          "diagram": "Uniform distribution: [0:Node | 1:Node | 2:Node | 3:Node]\nDegraded, skewed:      [0:Node->Node->Node...10,000 of them! | 1:empty | 2:empty | 3:empty]",
+          "pillarsTitle": "Performance Bounds",
+          "pillars": [
+            {
+              "title": "Worst-Case Complexity",
+              "description": "Algorithm design has to account for its asymptotic performance bound under the worst case, not just the average case.",
+              "icon": "📉"
+            },
+            {
+              "title": "The Risk of Blind Trust",
+              "description": "Blindly assuming inputs will be uniformly distributed leaves a system dangerously exposed to denial-of-service attacks.",
+              "icon": "❌"
+            }
+          ],
+          "analogyTitle": "💡 The Risk of Blindly Trusting Input Randomness",
+          "analogy": "An attacker can precompute tens of thousands of keys offline that all share the same hash value (HashDoS), and take down your defenses in a single second."
+        },
+        {
+          "id": "step3-mindset-4",
+          "component": "ConceptCard",
+          "title": "Algorithmic Randomization & Upgrading the Underlying Structure",
+          "tags": [
+            "SipHash Randomization",
+            "Worst-Case Guarantee",
+            "Security Defense"
+          ],
+          "definition": "<b>The core breakthrough mindset</b>: a double safety net!<br><br>1. <b>Randomize the entry point</b>: use a hashing algorithm with a random seed, so an attacker can't predict the production hash values offline!<br>2. <b>Upgrade the underlying structure</b>: when a single slot's node count grows too large, automatically upgrade its linked list into a balanced tree, forcibly capping the worst-case lookup complexity!",
+          "example": "<pre><code>// Defense 1 (algorithmic randomization): inject a random seed at process startup, SipHash(Key, Seed)\n// Defense 2 (structural upgrade): once a linked list's length >= 8, list -> self-balancing red-black tree (worst case O(log N))</code></pre>",
+          "relatedConcepts": [
+            "HashDoS",
+            "Red-Black Tree Treeification",
+            "SipHash"
+          ]
+        },
+        {
+          "id": "step4-implementation-4",
+          "component": "DetailedExplanation",
+          "title": "Java 8's Red-Black Tree Treeification & SipHash Random Seeds",
+          "icon": "⚙️",
+          "estimatedReadTime": "4-minute deep dive",
+          "content": "Two lines of defense in an industrial-grade hash table:\n\n1. **<dfn title=\"A mechanism that automatically upgrades a linked list into a self-balancing binary search tree once its length crosses a threshold of 8\">Red-Black Tree Treeification</dfn>**: Java 8+'s HashMap specifies that once a single slot's linked list reaches a length of ≥ 8 and the table's capacity is ≥ 64, that list automatically converts into a red-black tree. Even with 1,000,000 colliding nodes hanging off one slot, the worst-case lookup only needs about log(1,000,000) ≈ 20 steps — locked in at **O(log N)**!\n2. **<dfn title=\"An industrial-grade secure hashing algorithm that uses a random key to prevent prediction\">SipHash Random Salting</dfn>**: Python 3.4+ and Rust both default to SipHash, randomly generating a hash seed on every process startup, so an outside attacker has no way to predict which keys will collide.\n\n> 💡 The industry's approach in summary: treeification solves the extreme worst-case degradation; a randomized SipHash seed defeats attacker prediction."
+        },
+        {
+          "id": "step5-summary-4",
+          "component": "AnalogyCard",
+          "title": "Summary: Algorithmic Randomization & Adaptive Safety Nets",
+          "analogy": "Industrial-grade hash tables use algorithmic randomization combined with an adaptive, structural safety net to fully close off both attacker exploitation and worst-case degradation.<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Glossary</h5><p>Against a <dfn title=\"An attack where a malicious actor deliberately constructs keys that share the same hash, degrading a hash table into a linked list to bring down a server\"><strong>HashDoS attack</strong></dfn>, industrial-grade systems build two hard lines of defense: at the entry point, a <dfn title=\"An industrial-grade secure hashing algorithm that uses a per-process random seed to prevent outsiders from predicting hash values\"><strong>SipHash algorithm</strong></dfn> with a random seed blocks attacker prediction; at the data-structure level, a <dfn title=\"A safety net that upgrades a single slot's linked list into a self-balancing red-black tree once its length crosses a threshold of 8\"><strong>treeification mechanism</strong></dfn> automatically upgrades an overloaded linked list into a self-balancing red-black tree, forcibly capping the worst-case lookup complexity at O(log N).</p></div>"
+        },
+        {
+          "id": "quiz-4",
+          "component": "QuizCard",
+          "title": "🧠 Understanding Industrial-Grade Hash Table Security",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Why does Java 8's HashMap convert a slot's linked list into a red-black tree once its length reaches 8?",
+              "options": [
+                "A. Because 8 is a lucky number",
+                "B. To prevent HashDoS attacks or extremely rare collisions from degrading lookups to O(N)",
+                "C. To save memory",
+                "D. A red-black tree takes up less space than a linked list"
+              ],
+              "correctIndex": 1,
+              "explanation": "When too many nodes collide, a linked list's lookup complexity is O(N). Converting it to a red-black tree caps the worst-case lookup complexity at O(log N), effectively preventing catastrophic performance degradation and HashDoS attacks."
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

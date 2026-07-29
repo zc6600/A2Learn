@@ -123,3 +123,21 @@ Preview all A2UI components in isolation — useful for debugging component UI w
 ```bash
 PYTHONPATH=. .venv/bin/pytest tests
 ```
+
+---
+
+## 🚀 Deploying to a Personal Homepage
+
+`npm run viewer:build` produces a static site (`apps/viewer/dist/`) that already includes a "📚 案例陈列" picker for the 7 examples above plus a BYOK ("Bring Your Own Key") panel — visitors paste their own OpenRouter key to generate new showcases live. The static build needs no backend and no key of yours at all.
+
+If you also want the live-generation button to work, deploy the `apps/api` FastAPI backend (a `Dockerfile` is provided) — it's BYOK-only and never touches your own OpenRouter credits.
+
+See **[DEPLOY.md](DEPLOY.md)** for the full walkthrough.
+
+---
+
+## 📄 License
+
+The original A2Learn code in this repository (`agent/`, `apps/`, `packages/a2learn-catalog/`, `packages/embed/`, `packages/viewer-kit/`) is licensed under the [MIT License](LICENSE).
+
+This project depends on Google's [A2UI](https://github.com/google/A2UI) framework, fetched into `third_party/A2UI/` at setup time. A2UI is licensed separately under Apache License 2.0 — see `third_party/A2UI/LICENSE`.

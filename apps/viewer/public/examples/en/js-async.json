@@ -1,0 +1,201 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-js-async",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-js-async",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "background-pain",
+            "scenario-chat",
+            "concept",
+            "mental-model-event-loop",
+            "detailed-explanation-promise-all",
+            "quiz",
+            "summary-and-terms",
+            "resources"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "JavaScript Async Programming, End to End: From Callback Hell to Promises and the Event Loop"
+        },
+        {
+          "id": "background-pain",
+          "component": "AnalogyCard",
+          "title": "Callback Hell: Why Async Code Used to Drive Developers Crazy",
+          "analogy": "<b>JavaScript is a single-threaded language</b>, but browsers and Node.js still need to handle slow I/O like network requests and file reads. If you wrote that synchronously and blocking, the whole page would freeze! The early solution was the \"callback\" — package up what to do once a task finishes into a function and pass it in.<br><br>But once business logic gets complex:<pre><code>fetchUser(id, function(user) {\n  fetchOrders(user.id, function(orders) {\n    fetchShipment(orders[0].id, function(ship) {\n      // a fourth level... a fifth level...\n    });\n  });\n});</code></pre>\nDevelopers call this nested structure <b>\"Callback Hell\"</b> — hard to read, maintain, and debug. <b>How do you make async code read as elegantly as synchronous code?</b>"
+        },
+        {
+          "id": "scenario-chat",
+          "component": "ScenarioDialogue",
+          "topic": "💬 Frontend Roundtable: How Promises Ended Callback Hell, and How the Event Loop Works",
+          "characters": {
+            "sam": {
+              "name": "Sam (Frontend Engineer)",
+              "avatar": "👨‍💻",
+              "alignment": "left"
+            },
+            "mei": {
+              "name": "Mei (Node.js Architect)",
+              "avatar": "👩‍🔧",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "sam",
+              "content": "Mei, I've got a question — why is JavaScript single-threaded, yet the browser can handle UI rendering, network requests, and timers all at once without blocking each other?"
+            },
+            {
+              "characterId": "mei",
+              "content": "The key is that JavaScript itself only handles logic on the main thread, but the host environment (the browser's Web APIs) is multi-threaded! Things like network requests and setTimeout get \"delegated\" to the browser's own C++ threads to run — the main thread never waits for them."
+            },
+            {
+              "characterId": "sam",
+              "content": "So how does the JS main thread get notified once an async task finishes? It's not just sitting there waiting..."
+            },
+            {
+              "characterId": "mei",
+              "content": "That's exactly the job of the <dfn title=\"A scheduling loop that continuously checks whether the call stack is empty, and if so, pulls a callback off the task queue to run\">Event Loop</dfn>! Once an async task finishes, its callback gets placed in a task queue. The Event Loop keeps checking: is the call stack empty? If so, it pulls the next callback off the queue and runs it."
+            },
+            {
+              "characterId": "sam",
+              "content": "Got it! So how do Promises actually improve on this? Our old nested callbacks were genuinely hard to maintain."
+            },
+            {
+              "characterId": "mei",
+              "content": "A Promise wraps up \"a value that will exist at some point in the future\" as an object. Its state can only move from pending to either fulfilled or rejected, and never back. Then chained <code>.then()</code> calls replace nesting, unrolling async logic into a linear pipeline — that's the core of how it ends callback hell!"
+            },
+            {
+              "characterId": "sam",
+              "content": "And a Promise's `.then` callback is a microtask, with higher priority than setTimeout's macrotask — so every time the call stack empties, all microtasks get drained first?"
+            },
+            {
+              "characterId": "mei",
+              "content": "Exactly right! The microtask queue is always drained completely before the macrotask queue gets touched. So a Promise chain can run precisely right after the current macrotask finishes, giving much snappier responsiveness."
+            }
+          ]
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "Promise: The \"Promise\" Object for Async Operations",
+          "tags": [
+            "JavaScript",
+            "Async",
+            "ES6",
+            "Promise"
+          ],
+          "definition": "A <b>Promise</b> object represents the result of an async operation <b>at some point in the future</b> (either a success value or a failure reason). It has exactly three states: <code>pending</code>, <code>fulfilled</code>, and <code>rejected</code>. Once its state is settled, it's <b>irreversible</b>, and follow-up logic can be chained via <code>.then()</code> / <code>.catch()</code>.",
+          "example": "<pre><code>// Promise basics: from nesting to chaining\nfetchUser(id)\n  .then(user => fetchOrders(user.id))\n  .then(orders => fetchShipment(orders[0].id))\n  .then(ship => console.log('Package status:', ship.status))\n  .catch(err => console.error('Something went wrong:', err));\n\n// Promise.all: wait for several async tasks to finish in parallel\nconst [user, config] = await Promise.all([\n  fetchUser(id),\n  fetchConfig()\n]);</code></pre>",
+          "relatedConcepts": [
+            "async / await",
+            "Event Loop",
+            "Microtask Queue",
+            "Callback Hell"
+          ]
+        },
+        {
+          "id": "mental-model-event-loop",
+          "component": "MentalModel",
+          "title": "Mental Model for the Event Loop: How a Single Thread Handles Concurrency",
+          "description": "JavaScript's non-blocking async ability comes from the multi-threaded Web APIs provided by its host environment (the browser/Node.js), combined with the Event Loop's careful scheduling of the call stack and task queues.",
+          "icon": "⚙️",
+          "analogyTitle": "🍽️ The Restaurant Host Analogy",
+          "analogy": "The main thread is like a restaurant's only <b>\"host\"</b>, whose job is just to take orders and serve dishes quickly. When a slow \"cooking\" task comes in (a network request/timer), the host hands the ticket to the kitchen (the Web APIs' host threads) and immediately moves on to the next customer. Once the kitchen finishes a dish, it places it on the conveyor belt (the task queue), and the host picks dishes up in order whenever free — this \"host repeatedly checking the conveyor belt\" process is exactly the <dfn title=\"A scheduling loop that continuously checks whether the call stack is empty, and if so, pulls a callback off the task queue to run\">Event Loop</dfn>.",
+          "diagramTitle": "📊 Event Loop Execution Flow",
+          "diagram": "[Call Stack (synchronous code)] ──(stack empties)──> [drain the Microtask Queue first]\n      │                                            ↑\n (hits an async API call)                    (pull one more Macrotask)\n      ↓                                            ↑\n[Web APIs host thread] ──(task completes)──> [Task Queue / Microtask Queue]",
+          "pillarsTitle": "Three Runtime Components",
+          "pillars": [
+            {
+              "title": "Call Stack",
+              "description": "Where single-threaded synchronous code runs, following last-in-first-out (LIFO) order. Synchronous calls push onto the stack layer by layer, and pop off once each function returns.",
+              "icon": "🥞"
+            },
+            {
+              "title": "Microtask Queue",
+              "description": "Holds callbacks from Promise.then/catch/finally and queueMicrotask. Once the call stack empties, <b>all microtasks are drained first</b>, before any macrotask runs.",
+              "icon": "⚡"
+            },
+            {
+              "title": "Macrotask Queue",
+              "description": "Holds callbacks for setTimeout, setInterval, I/O, UI rendering, and other macrotasks. Each Event Loop cycle pulls and runs exactly one macrotask.",
+              "icon": "📬"
+            }
+          ]
+        },
+        {
+          "id": "detailed-explanation-promise-all",
+          "component": "DetailedExplanation",
+          "title": "Code Deep Dive: Implementing Promise.all's Core Logic and the Microtask Chain",
+          "icon": "📝",
+          "estimatedReadTime": "3-minute code walkthrough",
+          "content": "The most direct way to fully understand Promise concurrency and chaining is to hand-write a `Promise.all` implementation yourself:\n\n```javascript\n// A minimal hand-written Promise.all implementation\nfunction promiseAll(promises) {\n  return new Promise((resolve, reject) => {\n    let results = [];\n    let completedCount = 0;\n    \n    promises.forEach((p, index) => {\n      // Make sure every item passed in is wrapped as a Promise\n      Promise.resolve(p).then(res => {\n        results[index] = res; // keep the original array order\n        completedCount++;\n        if (completedCount === promises.length) {\n          resolve(results);   // only resolve once everything has succeeded\n        }\n      }).catch(reject);       // reject immediately if even one fails\n    });\n  });\n}\n```\n\n> 💡 **Key thing to notice**: `Promise.all` is extremely efficient for firing off parallel network requests, but be aware of its \"short-circuit\" behavior — if any single Promise throws, the whole thing immediately rejects. Understanding its internal counter and result-index binding is a fundamental skill for frontend interviews and async performance tuning."
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "🧠 Promises & the Event Loop: A Self-Check",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "What order does the following code log its output in?\n<pre><code>console.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');</code></pre>",
+              "options": [
+                "A, B, C, D",
+                "A, D, B, C",
+                "A, D, C, B",
+                "A, C, D, B"
+              ],
+              "correctIndex": 2,
+              "explanation": "<b>Explanation:</b><br>1. <code>console.log('A')</code>: synchronous, runs immediately → logs A<br>2. <code>setTimeout</code>: a macrotask, placed in the macrotask queue<br>3. <code>Promise.resolve().then</code>: a microtask, placed in the microtask queue<br>4. <code>console.log('D')</code>: synchronous, runs immediately → logs D<br>5. Call stack is empty, drain the microtask queue → logs C<br>6. Pull one macrotask and run it → logs B<br>So the order is: <b>A → D → C → B</b>"
+            }
+          ]
+        },
+        {
+          "id": "summary-and-terms",
+          "component": "AnalogyCard",
+          "title": "Summary: The Core Design Wisdom of JavaScript's Async Model",
+          "analogy": "JavaScript achieves efficient concurrent I/O — without introducing multi-threaded race conditions — through a layered design: \"single-threaded main logic + host-side multi-threaded delegation + Event Loop scheduling.\"<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Glossary</h5><p>In JavaScript's async system, <dfn title=\"An object representing the future result of an async operation, with a state of pending/fulfilled/rejected that is never reversed\"><strong>Promise</strong></dfn> uses chained <code>.then()</code> calls to entirely replace <dfn title=\"An anti-pattern where deeply nested function calls make code sharply harder to read\"><strong>Callback Hell</strong></dfn>. Underneath, it's all orchestrated by the <dfn title=\"A scheduling loop that continuously checks whether the call stack is empty, and if so, pulls a callback off the task queue to run\"><strong>Event Loop</strong></dfn>: the <dfn title=\"Holds callbacks like Promise.then; fully drained first whenever the call stack is empty\"><strong>Microtask Queue</strong></dfn> is always drained before the <dfn title=\"Holds callbacks like setTimeout and I/O; one is pulled and run per Event Loop cycle\"><strong>Macrotask Queue</strong></dfn>, guaranteeing that Promise chains run with high priority and continuity. The <code>async/await</code> syntactic sugar lets async code read in a synchronous style, but it's fundamentally just a wrapper around Promises.</p></div>"
+        },
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "Recommended Further Reading",
+          "resources": [
+            {
+              "title": "MDN: Using Promises",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises",
+              "description": "The authoritative MDN guide to Promises.",
+              "type": "doc"
+            },
+            {
+              "title": "JavaScript Visualized: Promises & Async/Await",
+              "url": "https://dev.to/lydiahallie/javascript-visualized-promises-async-await-5gke",
+              "description": "Lydia Hallie's classic animated walkthrough of the Event Loop and async mechanics.",
+              "type": "article"
+            },
+            {
+              "title": "Jake Archibald: Tasks, microtasks, queues and schedules",
+              "url": "https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/",
+              "description": "A classic deep-dive blog post on macrotask/microtask execution order, with interactive demos.",
+              "type": "article"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

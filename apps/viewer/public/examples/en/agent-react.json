@@ -1,0 +1,167 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-agent-react",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-agent-react",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "background-analogy",
+            "scenario-chat",
+            "mental-model-react",
+            "concept-synergy",
+            "detailed-implementation-from-scratch",
+            "quiz-comprehension",
+            "summary-and-terms"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "The Core LLM Agent Paradigm: Building a ReAct Reasoning-Acting Loop From Scratch"
+        },
+        {
+          "id": "background-analogy",
+          "component": "AnalogyCard",
+          "title": "The LLM Decision Dilemma: Static Reasoning vs. Blind Tool Calls",
+          "analogy": "<b>Background</b>: As academia explored how to improve LLMs' ability to solve complex problems, the field split into two camps: pure Chain-of-Thought (CoT) and pure action (Act-Only).<br><br><b>Core bottleneck</b>: in multi-hop QA benchmarks like HotpotQA, pure CoT can't access up-to-date external knowledge beyond the model's weights, leading to serious <b>hallucination</b>. Pure Act-Only, meanwhile, blindly calls external APIs without global planning or logical reasoning, and easily gets lost in a loop during complex investigation. How can an LLM have both a brain for reasoning and planning, and hands for calling tools?"
+        },
+        {
+          "id": "scenario-chat",
+          "component": "ScenarioDialogue",
+          "topic": "💬 AI Lab Roundtable: Why CoT and Act-Only Both Break Down on Complex QA",
+          "characters": {
+            "alex": {
+              "name": "Alex (AI Systems Researcher)",
+              "avatar": "👨‍🔬",
+              "alignment": "left"
+            },
+            "elena": {
+              "name": "Elena (Large Model Lead)",
+              "avatar": "👩‍💻",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alex",
+              "content": "Elena, we ran an eval on HotpotQA and found that even with Chain-of-Thought, the model often starts fabricating facts by the second reasoning step in a multi-hop question. What do you think the root cause is?"
+            },
+            {
+              "characterId": "elena",
+              "content": "Because CoT is purely the model reasoning with itself, over its own static parameters. There's no external feedback — once it misremembers a fact mid-way, everything after that is just confidently building on a wrong assumption."
+            },
+            {
+              "characterId": "alex",
+              "content": "So what if we just plug in a Wikipedia search API directly, and have it skip its own memory and only call tools (Act-Only)?"
+            },
+            {
+              "characterId": "elena",
+              "content": "We tried pure Act mode too — it actually did worse! Once the search returned a wall of text, the model had no explicit thinking step to distill the next search query from it, so it kept re-searching the same term and got stuck in a loop."
+            },
+            {
+              "characterId": "alex",
+              "content": "So there's a real tension: thinking without acting causes hallucination, and acting without thinking causes blind loops. What if, before every action, we forced the model to first output an explicit trace of its thinking?"
+            },
+            {
+              "characterId": "elena",
+              "content": "That's exactly the closed loop! Have the model first generate a <dfn title=\"The explicit reasoning and step planning output before an action\">Thought</dfn> to plan the move, then output an <dfn title=\"The concrete instruction the model uses to trigger an external API or tool\">Action</dfn> to call an API, and finally feed the resulting <dfn title=\"The real observation returned by the external environment or API\">Observation</dfn> back into the prompt — that way every step can be dynamically corrected against physical facts!"
+            }
+          ]
+        },
+        {
+          "id": "mental-model-react",
+          "component": "MentalModel",
+          "title": "How ReAct Works: A State Machine Model",
+          "description": "ReAct doesn't change the LLM's underlying neural network weights at all — it uses a prompt protocol to strictly constrain the LLM's output format, physically establishing a control loop that includes reasoning, execution, and environment feedback.",
+          "icon": "🧠",
+          "diagramTitle": "📊 Tracing the ReAct State Machine Loop",
+          "diagram": "Input Task ➔ LLM generates Thought (reasoning logic) ➔ LLM outputs Action (extracted tool instruction)\n➔ Host environment intercepts the Action and executes the tool ➔ Gets an Observation (environment feedback data)\n➔ Observation is appended back into the prompt ➔ Triggers the next Thought ➔ ... ➔ Outputs the Final Answer",
+          "pillarsTitle": "Three Components Working Together",
+          "pillars": [
+            {
+              "title": "Reasoning Trace (Thought)",
+              "description": "The model's own thinking and step breakdown before it outputs an action — making complex decisions explainable and dramatically reducing the chance of hallucination.",
+              "icon": "💡"
+            },
+            {
+              "title": "Action Space (Action)",
+              "description": "A strictly formatted tool-call instruction (e.g. Search[query] or Finish[answer]), parsed by regex and executed by the host system.",
+              "icon": "🛠️"
+            },
+            {
+              "title": "Observation Space (Observation)",
+              "description": "Real data returned by an external tool or environment (e.g. a web page excerpt or an API response), fed back into the model as context for dynamic correction.",
+              "icon": "🔄"
+            }
+          ],
+          "analogyTitle": "💡 The Core Mental Model, Built From Scratch",
+          "analogy": "From an implementation standpoint, ReAct is fundamentally just a <b>while(true) loop + a state parser</b>:<br>1. <b>Prompt protocol</b>: inject few-shot examples telling the model it may only output `Thought:`, `Action:`, or `Final Answer:`;<br>2. <b>Regex interceptor</b>: when it captures `Action: tool_name[arg]`, pause LLM generation and call a local Python function instead;<br>3. <b>Context appender</b>: wrap the tool's result as `Observation: ...` and append it to the end of the conversation history, then drive the LLM again."
+        },
+        {
+          "id": "concept-synergy",
+          "component": "ConceptCard",
+          "title": "The ReAct Synergy Mechanism",
+          "tags": [
+            "AI Agent",
+            "ReAct",
+            "Prompt Infrastructure",
+            "Multi-hop Reasoning"
+          ],
+          "definition": "<b>ReAct (Reasoning and Acting)</b> is a foundational architecture in the agent field. By explicitly defining a <code>Thought / Action / Observation</code> pattern in the prompt, it deeply combines an LLM's <b>internal implicit reasoning ability</b> with <b>the ability to act on the external physical world through tools</b>.",
+          "example": "<pre><code>// Example of a ReAct-style interleaved trace:\nTask: Find the elevation range covered by the eastern sector of the Colorado Plateau\nThought 1: I first need to search for the Colorado Plateau to find the specific geographic areas its Eastern Sector covers.\nAction 1: Search[Colorado plateau]\nObservation 1: The Colorado Plateau sits in the Four Corners region; its Eastern Sector extends into the San Luis Valley...\nThought 2: The page mentions the San Luis Valley — I need to search for its elevation range next.\nAction 2: Search[San Luis Valley elevation]\nObservation 2: The San Luis Valley's average elevation is roughly 2,300 to 2,700 meters.\nThought 3: I now have the exact elevation data, so I can give the final answer.\nAction 3: Finish[2,300m - 2,700m]</code></pre>",
+          "relatedConcepts": [
+            "Chain-of-Thought (CoT)",
+            "Tool Calling",
+            "Reflexion",
+            "Prompt Engineering"
+          ]
+        },
+        {
+          "id": "detailed-implementation-from-scratch",
+          "component": "DetailedExplanation",
+          "title": "Architecture Deep Dive: Writing a ReAct Agent Engine From Scratch",
+          "icon": "⚙️",
+          "estimatedReadTime": "5-minute hardcore architecture breakdown",
+          "content": "Building an industrial-grade ReAct agent from scratch doesn't require a heavy framework — at its core it's just a **while loop + a regex-based state parser**:\n\n```python\n# Minimal ReAct agent control loop (From Scratch Python pseudocode)\nimport re\n\ndef run_react_agent(prompt_history, tools, max_steps=5):\n    for step in range(max_steps):\n        # 1. Call the LLM to generate the current thought and action\n        response = llm.generate(prompt_history)\n        \n        # 2. Check whether the Finish termination condition was reached\n        if \"Action: Finish\" in response:\n            return extract_answer(response)\n            \n        # 3. Regex-parse to capture Action: tool_name[arg]\n        match = re.search(r\"Action:\\s*(\\w+)\\[(.*?)\\]\", response)\n        if match:\n            tool_name, tool_arg = match.groups()\n            # 4. Execute the locally registered function to get a real Observation\n            obs = tools[tool_name](tool_arg)\n            # 5. Append the physical feedback, driving the next round\n            prompt_history += f\"\\nObservation: {obs}\\n\"\n```\n\n**Four core infrastructure components:**\n1. **<dfn title=\"A prompt builder containing system instructions and interleaved few-shot format examples\">Prompt Synthesizer</dfn>**: injects the format spec, constraining output to a `Thought -> Action -> Observation` structure.\n2. **<dfn title=\"An extractor that uses a regular expression to capture the Action instruction and pull out the tool name and argument\">Action Parser & Dispatcher</dfn>**: captures `Action: tool[arg]` and dispatches it to a local Python function.\n3. **<dfn title=\"A context manager that maintains conversation history and appends Observation feedback at the end\">Context Accumulator</dfn>**: appends `Observation:` to the end of the conversation history.\n4. **<dfn title=\"A termination-state detector that parses the Finish instruction and breaks the while loop\">Loop Termination Gate</dfn>**: breaks the loop and returns the answer once it detects `Action: Finish[answer]`."
+        },
+        {
+          "id": "quiz-comprehension",
+          "component": "QuizCard",
+          "title": "🧠 Understanding ReAct: Architecture & From-Scratch Implementation",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "When building a ReAct engine from scratch, if the Action Parser's regex captures the model output `Action: Search['Python']`, what should the system do at the infrastructure level?",
+              "options": [
+                "A. Print `Search['Python']` verbatim to the terminal and terminate the program",
+                "B. Pause LLM text generation, call the local search function to get a result, wrap it as an Observation, and append it back into the context",
+                "C. Clear all conversation history and start a brand-new request",
+                "D. Let the LLM connect to the physical internet itself"
+              ],
+              "correctIndex": 1,
+              "explanation": "Once the ReAct engine captures an Action, it pauses LLM generation, calls the corresponding tool in the host environment (Python/JS) to get a return value, then wraps it as `Observation:` and appends it to the context for the LLM's next round of Thought."
+            }
+          ]
+        },
+        {
+          "id": "summary-and-terms",
+          "component": "AnalogyCard",
+          "title": "Summary: What ReAct Really Is, and How to Build It",
+          "analogy": "ReAct isn't a black-box trick — it's a general-purpose control loop that uses a prompt protocol to constrain the LLM's format, and host-side code to intercept Actions and append Observations.<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Glossary</h5><p>In AI agent architecture, the <dfn title=\"An LLM synergy loop that combines Reasoning (thinking) and Acting\"><strong>ReAct paradigm</strong></dfn> solves the static-hallucination problem of traditional <dfn title=\"A technique where the model reasons implicitly inside itself, prone to producing knowledge hallucinations\"><strong>Chain-of-Thought (CoT)</strong></dfn>. By explicitly separating the <dfn title=\"The model's own reasoning and step planning generated before it acts\"><strong>Reasoning Trace (Thought)</strong></dfn> from the <dfn title=\"The structured tool-call instruction the model outputs\"><strong>Action Space (Action)</strong></dfn>, and appending the <dfn title=\"The real physical observation returned to the model by an external tool or API\"><strong>Observation feedback</strong></dfn> after the host environment executes it, ReAct fully transforms an LLM into a dynamic, autonomous system capable of using tools.</p></div>"
+        }
+      ]
+    }
+  }
+]

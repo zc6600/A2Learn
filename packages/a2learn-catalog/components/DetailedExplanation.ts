@@ -94,7 +94,8 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       margin-bottom: 0;
     }
     .content-body code {
-      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-family: ui-monospace, "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "Courier New", monospace;
       padding: 2px 6px;
       border-radius: 4px;
       background: #f3f4f6;
@@ -104,7 +105,7 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
     }
     .content-body pre {
       background: #0f172a;
-      color: #38bdf8;
+      color: #e2e8f0;
       padding: 16px;
       border-radius: 8px;
       overflow-x: auto;
@@ -115,6 +116,55 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       border: none;
       color: inherit;
       padding: 0;
+      font-size: 0.92em;
+    }
+    .code-block {
+      margin: 18px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #1e293b;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+    }
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px 6px 14px;
+      background: #1e293b;
+      border-bottom: 1px solid #2d3b52;
+    }
+    .code-block-lang {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #7dd3fc;
+    }
+    .code-copy-btn {
+      background: none;
+      border: 1px solid #3c4a63;
+      color: #94a3b8;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .code-copy-btn:hover {
+      color: #e2e8f0;
+      border-color: #60a5fa;
+    }
+    .code-copy-btn.copied {
+      color: #34d399;
+      border-color: #34d399;
+    }
+    .code-block pre {
+      margin: 0;
+      border-radius: 0;
+      font-family: ui-monospace, "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "Courier New", monospace;
+      line-height: 1.6;
     }
     .content-body blockquote {
       margin: 12px 0;
@@ -129,6 +179,31 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
 
   protected createController() {
     return new A2uiController(this, DetailedExplanationApi);
+  }
+
+  // Code-block copy buttons live inside unsafeHTML-rendered markdown, so they
+  // aren't Lit templates and can't take a @click binding directly. Delegate
+  // from the wrapping .content-body div instead, which Lit does control.
+  private async handleContentClick(e: Event) {
+    const target = e.target as HTMLElement;
+    const btn = target.closest(".code-copy-btn") as HTMLButtonElement | null;
+    if (!btn) return;
+
+    const codeEl = btn.closest(".code-block")?.querySelector("code");
+    if (!codeEl) return;
+
+    try {
+      await navigator.clipboard.writeText(codeEl.textContent || "");
+      const original = btn.textContent;
+      btn.textContent = "已复制";
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.textContent = original || "复制";
+        btn.classList.remove("copied");
+      }, 1500);
+    } catch {
+      // Clipboard API unavailable (e.g. insecure context) — fail silently.
+    }
   }
 
   private resolveString(value: unknown): string {
@@ -151,8 +226,20 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       .replace(/<b>/gi, "<strong>")
       .replace(/<\/b>/gi, "</strong>");
 
-    // 1) Replace code blocks
-    htmlContent = htmlContent.replace(/```(?:[a-zA-Z0-9]+)?\n([\s\S]+?)\n```/g, "<pre><code>$1</code></pre>");
+    // 1) Replace code blocks with a labeled card (language badge + copy
+    // button) instead of a bare <pre>. The code text is escaped here since
+    // it's being spliced into raw HTML before markdown/sanitization run.
+    htmlContent = htmlContent.replace(
+      /```([a-zA-Z0-9]*)\n([\s\S]+?)\n```/g,
+      (_match, lang: string, code: string) => {
+        const langLabel = (lang || "text").toLowerCase();
+        const escapedCode = code
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        return `<div class="code-block"><div class="code-block-header"><span class="code-block-lang">${langLabel}</span><button type="button" class="code-copy-btn">复制</button></div><pre><code class="language-${langLabel}">${escapedCode}</code></pre></div>`;
+      },
+    );
 
     // 2) Replace inline code
     htmlContent = htmlContent.replace(/`([^`]+)`/g, "<code>$1</code>");
@@ -204,7 +291,12 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       .split(/\n{2,}/)
       .map(p => {
         const trimmed = p.trim();
-        if (trimmed.startsWith("<ul>") || trimmed.startsWith("<pre>") || trimmed.startsWith("<blockquote>")) {
+        if (
+          trimmed.startsWith("<ul>") ||
+          trimmed.startsWith("<pre>") ||
+          trimmed.startsWith("<blockquote>") ||
+          trimmed.startsWith('<div class="code-block"')
+        ) {
           return trimmed;
         }
         return `<p>${trimmed.replace(/\n/g, "<br/>")}</p>`;
@@ -245,7 +337,7 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
             `
           : nothing}
 
-        <div class="content-body">
+        <div class="content-body" @click=${this.handleContentClick}>
           ${unsafeHTML(sanitizeHtml(parsedContent))}
         </div>
       </div>

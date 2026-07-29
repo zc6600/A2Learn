@@ -268,6 +268,49 @@ export function injectBaseTheme(): void {
       transform: scale(1.04);
     }
 
+    /* Example Showcase Strip (static, no API key required) */
+    .examples-strip {
+      margin-bottom: 20px;
+    }
+    .examples-strip-title {
+      margin: 0 0 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--app-muted);
+    }
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .example-card {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: left;
+      background: var(--a2ui-color-surface);
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .example-card:hover {
+      border-color: var(--a2ui-color-primary);
+      box-shadow: 0 6px 18px color-mix(in oklab, var(--a2ui-color-primary) 14%, transparent);
+      transform: translateY(-1px);
+    }
+    .example-card-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--app-text);
+    }
+    .example-card-desc {
+      font-size: 12px;
+      color: var(--app-muted);
+      line-height: 1.4;
+    }
+
     /* Modal Overlay */
     .app-modal-backdrop {
       position: fixed;
@@ -580,12 +623,63 @@ export function injectBaseTheme(): void {
   document.head.appendChild(style);
 }
 
+export type AppLang = "zh" | "en";
+
+export interface AppPreset {
+  label: string;
+  prompt: string;
+}
+
+export interface AppChromeStrings {
+  promptPlaceholder: string;
+  submitLabel: string;
+  presetsLabel: string;
+  presets: AppPreset[];
+  settingsBtnLabel: string;
+  settingsBtnTitle: string;
+  keyPillMissingLabel: string;
+  modalTitle: string;
+  modalBodyIntroHtml: string;
+  modalBodyFooter: string;
+  modalClearLabel: string;
+  modalSaveLabel: string;
+}
+
+const DEFAULT_CHROME_ZH: AppChromeStrings = {
+  promptPlaceholder: "输入你想学习的知识主题（例如：解释 Hash Map 机制...）",
+  submitLabel: "⚡ 实时生成 Showcase",
+  presetsLabel: "热门推荐：",
+  presets: [
+    { label: "Hash Map 原理", prompt: "Explain how a Hash Map works step by step in detail with visual mental model and code example" },
+    { label: "Transformer 架构", prompt: "Explain the Transformer architecture and attention mechanism in deep learning" },
+    { label: "HTTP/3 协议", prompt: "Explain HTTP/3 protocol QUIC features and advantages over HTTP/2" },
+    { label: "三体星系天体物理", prompt: "Explain the Three Body Problem orbital dynamics in astrophysics" },
+  ],
+  settingsBtnLabel: "⚙️ API Key",
+  settingsBtnTitle: "设置 OpenRouter API Key",
+  keyPillMissingLabel: "🔑 API Key 待配置",
+  modalTitle: "⚙️ 配置 API Key (BYOK 模式)",
+  modalBodyIntroHtml:
+    "输入你的 <strong>OpenRouter API Key</strong>。你的 Key 将仅保存在浏览器本地（<code>localStorage</code>），每次交互时透传给后端，绝不上交服务器保存。",
+  modalBodyFooter: "无 API Key？你也可以直接点击主页顶部的热门推荐，预览预置的精美 Showcase。",
+  modalClearLabel: "清空 Key",
+  modalSaveLabel: "保存配置",
+};
+
 export function renderAppFrame(
   root: HTMLElement,
   title: string,
   subtitle: string,
   contentHtml: string,
+  options?: { lang?: AppLang; chrome?: AppChromeStrings },
 ): void {
+  const lang = options?.lang ?? "zh";
+  const chrome = options?.chrome ?? DEFAULT_CHROME_ZH;
+
+  const presetChips = chrome.presets
+    .map((p) => `<button class="app-preset-chip" data-preset="${p.prompt.replace(/"/g, "&quot;")}">${p.label}</button>`)
+    .join("");
+
   root.innerHTML = `
     <header class="app-header">
       <div class="app-header-top">
@@ -595,14 +689,14 @@ export function renderAppFrame(
         </div>
         <div class="app-actions">
           <div id="app-lang-switcher" class="lang-switch-group">
-            <button id="lang-zh-btn" class="lang-btn active">中文</button>
-            <button id="lang-en-btn" class="lang-btn">English</button>
+            <button id="lang-zh-btn" class="lang-btn${lang === "zh" ? " active" : ""}">中文</button>
+            <button id="lang-en-btn" class="lang-btn${lang === "en" ? " active" : ""}">English</button>
           </div>
           <span id="app-key-pill" class="app-key-pill missing">
-            🔑 API Key 待配置
+            ${chrome.keyPillMissingLabel}
           </span>
-          <button id="app-settings-btn" class="app-btn-icon" title="设置 OpenRouter API Key">
-            ⚙️ API Key
+          <button id="app-settings-btn" class="app-btn-icon" title="${chrome.settingsBtnTitle}">
+            ${chrome.settingsBtnLabel}
           </button>
         </div>
       </div>
@@ -613,19 +707,16 @@ export function renderAppFrame(
             id="app-prompt-input"
             type="text"
             class="app-prompt-input"
-            placeholder="输入你想学习的知识主题（例如：解释 Hash Map 机制...）"
+            placeholder="${chrome.promptPlaceholder}"
             autocomplete="off"
           />
           <button id="app-prompt-submit" type="submit" class="app-submit-btn">
-            ⚡ 实时生成 Showcase
+            ${chrome.submitLabel}
           </button>
         </form>
         <div class="app-presets">
-          <span>热门推荐：</span>
-          <button class="app-preset-chip" data-preset="Explain how a Hash Map works step by step in detail with visual mental model and code example">Hash Map 原理</button>
-          <button class="app-preset-chip" data-preset="Explain the Transformer architecture and attention mechanism in deep learning">Transformer 架构</button>
-          <button class="app-preset-chip" data-preset="Explain HTTP/3 protocol QUIC features and advantages over HTTP/2">HTTP/3 协议</button>
-          <button class="app-preset-chip" data-preset="Explain the Three Body Problem orbital dynamics in astrophysics">三体星系天体物理</button>
+          <span>${chrome.presetsLabel}</span>
+          ${presetChips}
         </div>
       </div>
     </header>
@@ -634,13 +725,11 @@ export function renderAppFrame(
     <div id="app-settings-modal" class="app-modal-backdrop hidden">
       <div class="app-modal">
         <div class="app-modal-header">
-          <h3 class="app-modal-title">⚙️ 配置 API Key (BYOK 模式)</h3>
+          <h3 class="app-modal-title">${chrome.modalTitle}</h3>
           <button id="app-modal-close" class="app-modal-close">✕</button>
         </div>
         <div class="app-modal-body">
-          <p>
-            输入你的 <strong>OpenRouter API Key</strong>。你的 Key 将仅保存在浏览器本地（<code>localStorage</code>），每次交互时透传给后端，绝不上交服务器保存。
-          </p>
+          <p>${chrome.modalBodyIntroHtml}</p>
           <input
             id="app-api-key-input"
             type="password"
@@ -649,18 +738,42 @@ export function renderAppFrame(
             autocomplete="off"
           />
           <p style="font-size: 12px; color: var(--app-muted);">
-            无 API Key？你也可以直接点击主页顶部的热门推荐，预览预置的精美 Showcase。
+            ${chrome.modalBodyFooter}
           </p>
         </div>
         <div class="app-modal-footer">
-          <button id="app-modal-clear" class="app-btn-secondary">清空 Key</button>
-          <button id="app-modal-save" class="app-btn-primary">保存配置</button>
+          <button id="app-modal-clear" class="app-btn-secondary">${chrome.modalClearLabel}</button>
+          <button id="app-modal-save" class="app-btn-primary">${chrome.modalSaveLabel}</button>
         </div>
       </div>
     </div>
 
     <main class="viewer-main">${contentHtml}</main>
   `;
+}
+
+export interface ExampleCardItem {
+  id: string;
+  title: string;
+  description: string;
+  messagesUrl: string;
+}
+
+export function renderExamplesStrip(title: string, items: ExampleCardItem[]): string {
+  const cards = items
+    .map(
+      (item) => `
+      <button class="example-card" type="button" data-example-id="${item.id}" data-messages-url="${item.messagesUrl}">
+        <span class="example-card-title">${item.title}</span>
+        <span class="example-card-desc">${item.description}</span>
+      </button>`,
+    )
+    .join("");
+  return `
+    <section class="examples-strip" aria-label="${title}">
+      <p class="examples-strip-title">${title}</p>
+      <div class="examples-grid" id="examples-grid">${cards}</div>
+    </section>`;
 }
 
 export function showState(

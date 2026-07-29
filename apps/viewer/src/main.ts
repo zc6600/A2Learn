@@ -5,7 +5,10 @@ import "@a2learn/viewer-kit/markdown-surface";
 import {
   injectBaseTheme,
   renderAppFrame,
+  renderExamplesStrip,
   showState,
+  type AppChromeStrings,
+  type ExampleCardItem,
 } from "@a2learn/viewer-kit/page-shell";
 import { bootstrapGallery } from "@a2learn/viewer-kit/gallery/gallery-ui";
 
@@ -205,6 +208,116 @@ function buildHeaders(extra?: Record<string, string>): Record<string, string> {
   return headers;
 }
 
+type Lang = "zh" | "en";
+
+const LANG_STORAGE_KEY = "a2learn_lang";
+
+function getLang(): Lang {
+  try {
+    return localStorage.getItem(LANG_STORAGE_KEY) === "zh" ? "zh" : "en";
+  } catch {
+    return "en";
+  }
+}
+
+function setLang(lang: Lang): void {
+  try {
+    localStorage.setItem(LANG_STORAGE_KEY, lang);
+  } catch {
+    // ignore
+  }
+}
+
+const T: Record<
+  Lang,
+  {
+    subtitle: string;
+    examplesStripTitle: string;
+    pickExamplePrompt: string;
+    loadingShowcase: string;
+    agentPlanning: string;
+    onlineFailedPrefix: string;
+    onlineFailedFallback: string;
+    noBackendConfigured: string;
+    needApiKeyExplore: string;
+    needApiKeyPreset: string;
+    staticTreeLeafNote: string;
+  }
+> = {
+  zh: {
+    subtitle: "AI 驱动的动态教学 Showcase 引擎 · 自动规划课程大纲并实时生成 A2UI 界面",
+    examplesStripTitle: "📚 案例陈列（无需 API Key，静态预生成示例）",
+    pickExamplePrompt: "👋 从下方选择一个案例查看效果，或点击右上角配置 API Key 后输入你自己的学习主题实时生成。",
+    loadingShowcase: "正在加载 A2UI Showcase 界面，请稍候...",
+    agentPlanning: "🧠 AI Agent 正在规划大纲与生成 A2UI 组件，请稍候...",
+    onlineFailedPrefix: "Online 交互生成失败（可能缺少有效的 API Key 或 API 服务未连通）。",
+    onlineFailedFallback: "降级到 Offline 预设视图展示。",
+    noBackendConfigured:
+      "尚未配置在线生成后端（VITE_A2LEARN_API_URL）。当前部署仅支持浏览左上方的静态案例陈列；如需 BYOK 实时生成，请先部署后端并在构建前端时设置该环境变量，详见 DEPLOY.md。",
+    needApiKeyExplore: "请先点击右上角配置你的 OpenRouter API Key 以调用 AI 引擎。",
+    needApiKeyPreset: "请先配置你的 OpenRouter API Key 以开始生成流程！",
+    staticTreeLeafNote: "静态案例陈列仅展示到这一层；连接 BYOK 在线后端后可继续深入生成完整内容。",
+  },
+  en: {
+    subtitle: "An AI-driven dynamic teaching showcase engine · auto-plans a curriculum outline and generates the A2UI interface live",
+    examplesStripTitle: "📚 Example Gallery (no API key needed — static pre-generated demos)",
+    pickExamplePrompt:
+      "👋 Pick an example below to see it in action, or configure your API key in the top right and enter your own topic to generate one live.",
+    loadingShowcase: "Loading the A2UI showcase interface, please wait...",
+    agentPlanning: "🧠 The AI agent is planning the outline and generating A2UI components, please wait...",
+    onlineFailedPrefix: "Live generation failed (invalid API key, or the API service is unreachable).",
+    onlineFailedFallback: "Falling back to the offline preset view.",
+    noBackendConfigured:
+      "No live-generation backend is configured (VITE_A2LEARN_API_URL). This deployment only supports browsing the static example gallery above; to enable BYOK live generation, deploy the backend and set that environment variable when building the frontend — see DEPLOY.md.",
+    needApiKeyExplore: "Please configure your OpenRouter API Key in the top right before using the AI engine.",
+    needApiKeyPreset: "Please configure your OpenRouter API Key first to start generating!",
+    staticTreeLeafNote: "This static example only goes this deep; connect a BYOK online backend to keep generating deeper content.",
+  },
+};
+
+const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
+  zh: {
+    promptPlaceholder: "输入你想学习的知识主题（例如：解释 Hash Map 机制...）",
+    submitLabel: "⚡ 实时生成 Showcase",
+    presetsLabel: "热门推荐：",
+    presets: [
+      { label: "Hash Map 原理", prompt: "Explain how a Hash Map works step by step in detail with visual mental model and code example" },
+      { label: "Transformer 架构", prompt: "Explain the Transformer architecture and attention mechanism in deep learning" },
+      { label: "HTTP/3 协议", prompt: "Explain HTTP/3 protocol QUIC features and advantages over HTTP/2" },
+      { label: "三体星系天体物理", prompt: "Explain the Three Body Problem orbital dynamics in astrophysics" },
+    ],
+    settingsBtnLabel: "⚙️ API Key",
+    settingsBtnTitle: "设置 OpenRouter API Key",
+    keyPillMissingLabel: "🔑 API Key 待配置",
+    modalTitle: "⚙️ 配置 API Key (BYOK 模式)",
+    modalBodyIntroHtml:
+      "输入你的 <strong>OpenRouter API Key</strong>。你的 Key 将仅保存在浏览器本地（<code>localStorage</code>），每次交互时透传给后端，绝不上交服务器保存。",
+    modalBodyFooter: "无 API Key？你也可以直接点击主页顶部的热门推荐，预览预置的精美 Showcase。",
+    modalClearLabel: "清空 Key",
+    modalSaveLabel: "保存配置",
+  },
+  en: {
+    promptPlaceholder: "Enter a topic you want to learn (e.g., Explain how Hash Maps work...)",
+    submitLabel: "⚡ Generate Showcase Live",
+    presetsLabel: "Popular picks:",
+    presets: [
+      { label: "Hash Map Internals", prompt: "Explain how a Hash Map works step by step in detail with visual mental model and code example" },
+      { label: "Transformer Architecture", prompt: "Explain the Transformer architecture and attention mechanism in deep learning" },
+      { label: "HTTP/3 Protocol", prompt: "Explain HTTP/3 protocol QUIC features and advantages over HTTP/2" },
+      { label: "Three-Body Problem Physics", prompt: "Explain the Three Body Problem orbital dynamics in astrophysics" },
+    ],
+    settingsBtnLabel: "⚙️ API Key",
+    settingsBtnTitle: "Configure OpenRouter API Key",
+    keyPillMissingLabel: "🔑 API Key not set",
+    modalTitle: "⚙️ Configure API Key (BYOK mode)",
+    modalBodyIntroHtml:
+      "Enter your <strong>OpenRouter API Key</strong>. It's stored only in your browser (<code>localStorage</code>) and passed through to the backend on each request — it is never saved on our servers.",
+    modalBodyFooter: "No API key? You can still click the popular picks above, or browse the pre-generated example gallery below.",
+    modalClearLabel: "Clear Key",
+    modalSaveLabel: "Save",
+  },
+};
+
 function setupRoot(): HTMLElement | null {
   const root = document.getElementById("app");
   if (!root) {
@@ -226,6 +339,37 @@ function extractLastCreatedSurfaceId(messages: A2uiMessage[]): string | null {
     }
   }
   return null;
+}
+
+function extractFirstCreatedSurfaceId(messages: A2uiMessage[]): string | null {
+  for (const msg of messages) {
+    if (msg && typeof msg === "object" && "createSurface" in msg) {
+      const surfaceId = (msg as any).createSurface?.surfaceId;
+      if (typeof surfaceId === "string") {
+        return surfaceId;
+      }
+    }
+  }
+  return null;
+}
+
+// Collects every surfaceId a set of messages ever creates, so a valid deep
+// link (e.g. #/surface-module-1) can be told apart from a stale/missing hash.
+function extractAllSurfaceIds(messages: A2uiMessage[]): Set<string> {
+  const ids = new Set<string>();
+  for (const msg of messages) {
+    if (msg && typeof msg === "object" && "createSurface" in msg) {
+      const surfaceId = (msg as any).createSurface?.surfaceId;
+      if (typeof surfaceId === "string") {
+        ids.add(surfaceId);
+      }
+    }
+  }
+  return ids;
+}
+
+function readCurrentSurfaceHash(): string {
+  return window.location.hash.startsWith("#/") ? window.location.hash.slice(2) : "";
 }
 
 function injectRoutingTheme(): void {
@@ -311,12 +455,22 @@ function getSurfaceTitle(surface: any): string {
   }
   
   const rawId = (surface.id || "Page").toLowerCase();
-  if (rawId.includes("main") || rawId.includes("concept")) return "💡 核心概念";
-  if (rawId.includes("analogy")) return "💡 直觉类比";
-  if (rawId.includes("quiz") || rawId.includes("test")) return "✍️ 自测练习";
-  if (rawId.includes("outline")) return "📚 课程大纲";
-  if (rawId.includes("detail") || rawId.includes("explain")) return "📖 详细讲解";
-  if (rawId.includes("mode") || rawId.includes("mental")) return "🧠 心智模型";
+  const lang = getLang();
+  const fallbackLabels: Record<string, [string, string]> = {
+    concept: ["💡 核心概念", "💡 Core Concept"],
+    analogy: ["💡 直觉类比", "💡 Intuitive Analogy"],
+    quiz: ["✍️ 自测练习", "✍️ Self Check"],
+    outline: ["📚 课程大纲", "📚 Course Outline"],
+    detail: ["📖 详细讲解", "📖 Deep Dive"],
+    mental: ["🧠 心智模型", "🧠 Mental Model"],
+  };
+  const pickLabel = (key: string) => fallbackLabels[key][lang === "zh" ? 0 : 1];
+  if (rawId.includes("main") || rawId.includes("concept")) return pickLabel("concept");
+  if (rawId.includes("analogy")) return pickLabel("analogy");
+  if (rawId.includes("quiz") || rawId.includes("test")) return pickLabel("quiz");
+  if (rawId.includes("outline")) return pickLabel("outline");
+  if (rawId.includes("detail") || rawId.includes("explain")) return pickLabel("detail");
+  if (rawId.includes("mode") || rawId.includes("mental")) return pickLabel("mental");
 
   const cleanId = rawId
     .replace(/^site-/, "")
@@ -324,7 +478,7 @@ function getSurfaceTitle(surface: any): string {
     .replace(/[-_]/g, " ")
     .replace(/\b\w/g, (c: string) => c.toUpperCase());
 
-  return cleanId || "学习页面";
+  return cleanId || (lang === "zh" ? "学习页面" : "Learning Page");
 }
 
 function renderSurfaces(
@@ -395,6 +549,32 @@ function renderSurfaces(
     el.setAttribute("data-surface-id", activeSurface.id ?? "");
     container.appendChild(el);
   }
+
+  // A2UI's own component ids aren't reflected as DOM attributes anywhere, so
+  // components like LearningPath that want to scroll to "targetComponentId"
+  // have nothing to query for. Stamp data-component-id after Lit's initial
+  // render settles (macrotask, so it runs after Lit's microtask-based
+  // update cycle) so those lookups can actually find their target.
+  setTimeout(() => stampComponentIds(container), 0);
+}
+
+// Catalog components (ConceptCard, LearningPath, etc.) are Lit elements that
+// render into their own shadow roots, and a2ui-surface itself is shadow-DOM
+// too — so a plain container.querySelectorAll("*") never reaches most of the
+// tree. Recurse into every node's shadowRoot as well.
+function stampComponentIds(root: ParentNode): void {
+  const nodes = root.querySelectorAll<HTMLElement>("*");
+  nodes.forEach((node) => {
+    const ctx = (node as any).context;
+    const id = ctx?.componentModel?.id;
+    if (typeof id === "string" && id && !node.hasAttribute("data-component-id")) {
+      node.setAttribute("data-component-id", id);
+    }
+    const shadow = (node as any).shadowRoot as ShadowRoot | null | undefined;
+    if (shadow) {
+      stampComponentIds(shadow);
+    }
+  });
 }
 
 // Register window hashchange listener once
@@ -549,6 +729,122 @@ async function bootstrapOnline(
   return true;
 }
 
+// Static offline previews have no backend to ask for new content, but a few
+// components (SectionNavigator, KnowledgeTree) dispatch an action on every
+// click regardless of mode. Without a handler those actions silently went
+// nowhere — cards looked clickable but did nothing. This gives them a real,
+// honest local behavior: SectionNavigator switches which card is highlighted
+// as current; KnowledgeTree steps into a child using the data it already has
+// (there's no deeper content to fetch in a static demo, so descending shows
+// the tree's own "leaf node" empty state instead of pretending to load more).
+function extractInitialComponentSnapshots(messages: unknown): Map<string, Record<string, unknown>> {
+  const snapshot = new Map<string, Record<string, unknown>>();
+  if (!Array.isArray(messages)) return snapshot;
+  for (const msg of messages) {
+    const update = (msg as any)?.updateComponents;
+    if (!update || !Array.isArray(update.components)) continue;
+    for (const comp of update.components) {
+      if (comp && typeof comp.id === "string" && !snapshot.has(comp.id)) {
+        snapshot.set(comp.id, comp);
+      }
+    }
+  }
+  return snapshot;
+}
+
+function applyStaticNavigation(
+  processor: MessageProcessor<any>,
+  container: HTMLElement,
+  action: any,
+  initialSnapshots: Map<string, Record<string, unknown>>,
+): void {
+  if (!action || typeof action.name !== "string") return;
+  const surfaceId = action.surfaceId;
+  const sourceComponentId = action.sourceComponentId;
+  const ctx = action.context || {};
+  if (!surfaceId || !sourceComponentId) return;
+
+  if (action.name === "navigate_section" && typeof ctx.sectionId === "string") {
+    // SectionNavigator treats a card as "active" if EITHER activeSectionId
+    // matches OR the card's own status is "current" (source content usually
+    // hardcodes one section as "current"). Updating activeSectionId alone
+    // left the original card permanently highlighted too, so it looked like
+    // clicks did nothing. Also flip each section's own status field.
+    const current = (processor.model as any)?.getComponent?.(surfaceId, sourceComponentId);
+    const currentProps: any = current?.props ?? initialSnapshots.get(sourceComponentId) ?? {};
+    const sections: any[] = Array.isArray(currentProps.sections) ? currentProps.sections : [];
+    const updatedSections = sections.map((sec) => {
+      if (!sec || typeof sec !== "object") return sec;
+      if (sec.id === ctx.sectionId) {
+        return sec.status === "locked" ? sec : { ...sec, status: "current" };
+      }
+      return sec.status === "current" ? { ...sec, status: "available" } : sec;
+    });
+
+    processor.processMessages([
+      {
+        version: "v0.9",
+        updateComponents: {
+          surfaceId,
+          components: [
+            {
+              id: sourceComponentId,
+              component: "SectionNavigator",
+              activeSectionId: ctx.sectionId,
+              sections: updatedSections,
+            },
+          ],
+        },
+      },
+    ]);
+    renderSurfaces(container, processor);
+    return;
+  }
+
+  if (action.name === "knowledge_tree_navigate" && typeof ctx.nodeId === "string") {
+    const original = initialSnapshots.get(sourceComponentId);
+    if (!original) return;
+
+    const current = (processor.model as any)?.getComponent?.(surfaceId, sourceComponentId);
+    const currentProps: any = current?.props ?? original;
+    const children: any[] = Array.isArray(currentProps.childrenNodes) ? currentProps.childrenNodes : [];
+    const target = children.find((c) => c && c.id === ctx.nodeId);
+
+    if (ctx.nodeId === "root" || !target) {
+      // Breadcrumb entries above the current level, or "root", aren't
+      // reconstructible without the full tree — reset to the initial state.
+      processor.processMessages([{ version: "v0.9", updateComponents: { surfaceId, components: [original] } }]);
+      renderSurfaces(container, processor);
+      return;
+    }
+
+    const prevCurrent: any = currentProps.currentNode;
+    const prevPath: any[] = Array.isArray(currentProps.path) ? currentProps.path : [];
+    processor.processMessages([
+      {
+        version: "v0.9",
+        updateComponents: {
+          surfaceId,
+          components: [
+            {
+              id: sourceComponentId,
+              component: "KnowledgeTree",
+              path: prevCurrent ? [...prevPath, { id: prevCurrent.id, label: prevCurrent.label }] : prevPath,
+              currentNode: {
+                id: target.id,
+                label: target.label,
+                description: T[getLang()].staticTreeLeafNote,
+              },
+              childrenNodes: [],
+            },
+          ],
+        },
+      },
+    ]);
+    renderSurfaces(container, processor);
+  }
+}
+
 async function bootstrapOffline(container: HTMLElement, source: ViewerSourceOffline): Promise<void> {
   const configuredUrl = source.messagesUrl || "/generated/site_messages.json";
   const separator = configuredUrl.includes("?") ? "&" : "?";
@@ -558,8 +854,12 @@ async function bootstrapOffline(container: HTMLElement, source: ViewerSourceOffl
     return;
   }
   const messages = await res.json();
+  const initialSnapshots = extractInitialComponentSnapshots(messages);
 
-  const processor = new MessageProcessor([a2learnCatalog]);
+  let processor: MessageProcessor<any>;
+  processor = new MessageProcessor([a2learnCatalog], (action: any) =>
+    applyStaticNavigation(processor, container, action, initialSnapshots),
+  );
   try {
     processor.processMessages(messages);
   } catch (err) {
@@ -573,11 +873,67 @@ async function bootstrapOffline(container: HTMLElement, source: ViewerSourceOffl
     modeHint: "Offline mode: Previewing message file only, no interaction callbacks.",
   };
 
-  const lastCreatedId = extractLastCreatedSurfaceId(messages);
-  if (lastCreatedId) {
-    window.location.hash = `#/${lastCreatedId}`;
+  const allSurfaceIds = extractAllSurfaceIds(messages);
+  const currentHashId = readCurrentSurfaceHash();
+  if (!currentHashId || !allSurfaceIds.has(currentHashId)) {
+    // No hash yet (fresh load of "/") or an unrecognized hash: land on the
+    // first surface in the file, not the last — the file is read top to
+    // bottom as a lesson, so module 1 is the natural starting point.
+    const firstCreatedId = extractFirstCreatedSurfaceId(messages);
+    if (firstCreatedId) {
+      window.location.hash = `#/${firstCreatedId}`;
+    }
   }
   renderSurfaces(container, processor, "Offline mode: Previewing message file only, no interaction callbacks.");
+}
+
+// Static reference examples bundled at apps/viewer/public/examples/ — viewable
+// offline with no API key, so they render even when no backend is deployed.
+const EXAMPLE_META: Array<{ id: string; zh: { title: string; description: string }; en: { title: string; description: string } }> = [
+  {
+    id: "hash-table",
+    zh: { title: "Hash Table 哈希表", description: "哈希冲突与开放寻址法" },
+    en: { title: "Hash Table", description: "Hash collisions and open addressing" },
+  },
+  {
+    id: "agent-react",
+    zh: { title: "ReAct Agent 架构", description: "手写 ReAct 循环引擎" },
+    en: { title: "ReAct Agent Architecture", description: "Hand-building a ReAct loop engine" },
+  },
+  {
+    id: "js-async",
+    zh: { title: "JS 异步与事件循环", description: "手写 Promise.all 实现" },
+    en: { title: "JS Async & the Event Loop", description: "Implementing Promise.all from scratch" },
+  },
+  {
+    id: "conversational",
+    zh: { title: "JS 闭包与作用域", description: "闭包模块模式与私有变量" },
+    en: { title: "JS Closures & Scope", description: "The module pattern and private variables via closures" },
+  },
+  {
+    id: "non-linear",
+    zh: { title: "CSS Grid 二维布局", description: "零媒体查询的响应式网格" },
+    en: { title: "CSS Grid 2D Layout", description: "Responsive grids with zero media queries" },
+  },
+  {
+    id: "paper-attention",
+    zh: { title: "Transformer 注意力机制", description: "缩放点积注意力四步推导" },
+    en: { title: "Transformer Attention", description: "Deriving scaled dot-product attention in four steps" },
+  },
+  {
+    id: "biophysics-ai",
+    zh: { title: "AI 驱动生物物理 (AlphaFold)", description: "AlphaFold3 扩散模块解析" },
+    en: { title: "AI-Driven Biophysics (AlphaFold)", description: "Breaking down AlphaFold3's diffusion module" },
+  },
+];
+
+function getExampleItems(lang: Lang): ExampleCardItem[] {
+  return EXAMPLE_META.map((m) => ({
+    id: m.id,
+    title: m[lang].title,
+    description: m[lang].description,
+    messagesUrl: lang === "en" ? `/examples/en/${m.id}.json` : `/examples/${m.id}.json`,
+  }));
 }
 
 const LOCAL_STORAGE_KEY = "a2learn_user_api_key";
@@ -606,16 +962,42 @@ function updateKeyPillStatus(): void {
   const pill = document.getElementById("app-key-pill");
   if (!pill) return;
   const key = getStoredApiKey();
+  const lang = getLang();
   if (key) {
     pill.className = "app-key-pill active";
-    pill.textContent = "🔑 API Key 已配置";
+    pill.textContent = lang === "zh" ? "🔑 API Key 已配置" : "🔑 API Key configured";
   } else {
     pill.className = "app-key-pill missing";
-    pill.textContent = "🔑 API Key 待配置";
+    pill.textContent = CHROME_STRINGS[lang].keyPillMissingLabel;
   }
 }
 
-function initAppControls(onGenerate: (promptText: string) => void): void {
+// The settings modal is torn down and rebuilt every time the shell re-renders
+// (language switch), so these always re-query the live DOM rather than
+// closing over elements that may already be detached.
+function openSettingsModal(): void {
+  const modal = document.getElementById("app-settings-modal");
+  const keyInput = document.getElementById("app-api-key-input") as HTMLInputElement | null;
+  if (keyInput) keyInput.value = getStoredApiKey();
+  modal?.classList.remove("hidden");
+}
+
+function closeSettingsModal(): void {
+  document.getElementById("app-settings-modal")?.classList.add("hidden");
+}
+
+// Rebindable per-render controls: the settings modal, prompt form, preset
+// chips, language buttons, and example gallery. All of these live inside the
+// markup renderAppFrame() regenerates on every language switch, so this must
+// be called again after every re-render (the previous DOM nodes — and their
+// listeners — are discarded together, so this never double-binds).
+function bindShellControls(
+  onGenerate: (promptText: string) => void,
+  onSwitchLang: (lang: Lang) => void,
+  onSelectExample: (id: string) => void,
+): void {
+  updateKeyPillStatus();
+
   const settingsBtn = document.getElementById("app-settings-btn");
   const modal = document.getElementById("app-settings-modal");
   const closeBtn = document.getElementById("app-modal-close");
@@ -625,21 +1007,10 @@ function initAppControls(onGenerate: (promptText: string) => void): void {
   const form = document.getElementById("app-prompt-form") as HTMLFormElement | null;
   const promptInput = document.getElementById("app-prompt-input") as HTMLInputElement | null;
 
-  updateKeyPillStatus();
-
-  const openModal = () => {
-    if (keyInput) keyInput.value = getStoredApiKey();
-    modal?.classList.remove("hidden");
-  };
-
-  const closeModal = () => {
-    modal?.classList.add("hidden");
-  };
-
-  settingsBtn?.addEventListener("click", openModal);
-  closeBtn?.addEventListener("click", closeModal);
+  settingsBtn?.addEventListener("click", openSettingsModal);
+  closeBtn?.addEventListener("click", closeSettingsModal);
   modal?.addEventListener("click", (e) => {
-    if (e.target === modal) closeModal();
+    if (e.target === modal) closeSettingsModal();
   });
 
   saveBtn?.addEventListener("click", () => {
@@ -647,14 +1018,14 @@ function initAppControls(onGenerate: (promptText: string) => void): void {
       setStoredApiKey(keyInput.value);
       updateKeyPillStatus();
     }
-    closeModal();
+    closeSettingsModal();
   });
 
   clearBtn?.addEventListener("click", () => {
     setStoredApiKey("");
     if (keyInput) keyInput.value = "";
     updateKeyPillStatus();
-    closeModal();
+    closeSettingsModal();
   });
 
   form?.addEventListener("submit", (e) => {
@@ -662,25 +1033,22 @@ function initAppControls(onGenerate: (promptText: string) => void): void {
     const promptText = (promptInput?.value || "").trim();
     if (!promptText) return;
 
-    const key = getStoredApiKey();
-    if (!key) {
-      openModal();
-      alert("请先点击右上角配置你的 OpenRouter API Key 以调用 AI 引擎。");
+    if (!getStoredApiKey()) {
+      openSettingsModal();
+      alert(T[getLang()].needApiKeyExplore);
       return;
     }
     onGenerate(promptText);
   });
 
-  const chips = document.querySelectorAll(".app-preset-chip");
-  chips.forEach((chip) => {
+  document.querySelectorAll(".app-preset-chip").forEach((chip) => {
     chip.addEventListener("click", () => {
       const preset = chip.getAttribute("data-preset");
       if (preset) {
         if (promptInput) promptInput.value = preset;
-        const key = getStoredApiKey();
-        if (!key) {
-          openModal();
-          alert("请先配置你的 OpenRouter API Key 以开始生成流程！");
+        if (!getStoredApiKey()) {
+          openSettingsModal();
+          alert(T[getLang()].needApiKeyPreset);
           return;
         }
         onGenerate(preset);
@@ -688,16 +1056,39 @@ function initAppControls(onGenerate: (promptText: string) => void): void {
     });
   });
 
+  const zhBtn = document.getElementById("lang-zh-btn");
+  const enBtn = document.getElementById("lang-en-btn");
+  zhBtn?.addEventListener("click", () => onSwitchLang("zh"));
+  enBtn?.addEventListener("click", () => onSwitchLang("en"));
+
+  document.getElementById("examples-grid")?.addEventListener("click", (e: MouseEvent) => {
+    const card = (e.target as HTMLElement)?.closest<HTMLElement>(".example-card");
+    const id = card?.dataset.exampleId;
+    if (!id) return;
+    onSelectExample(id);
+  });
+}
+
+// True global listeners: unlike bindShellControls(), these don't touch any
+// DOM that gets torn down on a language switch (composedPath delegation, or
+// re-querying #app-prompt-input fresh each time it fires) — so they're bound
+// exactly once for the page's lifetime instead of once per render.
+let globalListenersBound = false;
+function bindGlobalListenersOnce(onGenerate: (promptText: string) => void): void {
+  if (globalListenersBound) return;
+  globalListenersBound = true;
+
   window.addEventListener("a2learn-explore-concept", (e: Event) => {
     const concept = (e as CustomEvent).detail?.concept;
     if (!concept) return;
-    const promptText = `详细解释 ${concept}`;
+    const lang = getLang();
+    const promptText = lang === "zh" ? `详细解释 ${concept}` : `Explain ${concept} in detail`;
+    const promptInput = document.getElementById("app-prompt-input") as HTMLInputElement | null;
     if (promptInput) promptInput.value = promptText;
 
-    const key = getStoredApiKey();
-    if (!key) {
-      openModal();
-      alert("请先点击右上角配置你的 OpenRouter API Key 以调用 AI 引擎。");
+    if (!getStoredApiKey()) {
+      openSettingsModal();
+      alert(T[lang].needApiKeyExplore);
       return;
     }
     onGenerate(promptText);
@@ -733,32 +1124,57 @@ async function bootstrapViewer() {
   applyEmbedFlag(initialConfig.embed);
   applyThemeVars(initialConfig.source.themeVars);
 
-  const title = initialConfig.embed ? "" : "A2Learn Showcase Generator";
-  const subtitle = initialConfig.embed
-    ? ""
-    : "AI 驱动的动态教学 Showcase 引擎 · 自动规划课程大纲并实时生成 A2UI 界面";
+  // Whether the caller explicitly asked for a particular source (query
+  // params / env vars). If not, the "default" offline config is just a
+  // placeholder that never resolves to a real file in a static deployment —
+  // show a friendly localized picker prompt instead of a scary fetch error.
+  const hasExplicitSource =
+    initialConfig.source.mode === "online" ||
+    (initialConfig.source.mode === "offline" && initialConfig.source.messagesUrl !== "/generated/site_messages.json");
 
-  renderAppFrame(
-    root,
-    title,
-    subtitle,
-    `<section id="surface-container" aria-live="polite">
-      <p class="viewer-state loading">正在加载 A2UI Showcase 界面，请稍候...</p>
-    </section>`,
-  );
+  type ContentState = { kind: "example"; id: string } | { kind: "other" };
+  let currentContent: ContentState = { kind: "other" };
 
-  const container = document.getElementById("surface-container");
+  let container: HTMLElement | null = null;
+  let parentOrigin = "*";
+  let stopResize: () => void = () => {};
+
+  const renderShell = (lang: Lang) => {
+    const title = initialConfig.embed ? "" : "A2Learn Showcase Generator";
+    const subtitle = initialConfig.embed ? "" : T[lang].subtitle;
+
+    const examplesHtml = initialConfig.embed
+      ? ""
+      : renderExamplesStrip(T[lang].examplesStripTitle, getExampleItems(lang));
+
+    renderAppFrame(
+      root,
+      title,
+      subtitle,
+      `${examplesHtml}<section id="surface-container" aria-live="polite">
+        <p class="viewer-state loading">${T[lang].loadingShowcase}</p>
+      </section>`,
+      initialConfig.embed ? undefined : { lang, chrome: CHROME_STRINGS[lang] },
+    );
+    container = document.getElementById("surface-container");
+  };
+
+  renderShell(getLang());
   if (!container) {
     return;
   }
 
-  let parentOrigin = "*";
-  let stopResize = setupAutoResize(container, () => parentOrigin);
+  stopResize = setupAutoResize(container, () => parentOrigin);
   if (initialConfig.embed) {
     postToParent({ type: "a2learn:ready" }, parentOrigin);
   }
 
   const startWithConfig = async (cfg: ViewerRuntimeConfig) => {
+    // Snapshot container for the duration of this call: it's a `let` that
+    // renderShell() can reassign (on a language switch), and it shouldn't
+    // move out from under an in-flight load.
+    const target = container;
+    if (!target) return;
     applyEmbedFlag(cfg.embed);
     applyThemeVars(cfg.source.themeVars);
 
@@ -773,69 +1189,84 @@ async function bootstrapViewer() {
 
     try {
       if (cfg.source.mode === "online") {
-        showState(container, "🧠 AI Agent 正在规划大纲与生成 A2UI 组件，请稍候...", "loading");
-        await bootstrapOnline(container, cfg.source);
+        showState(target, T[getLang()].agentPlanning, "loading");
+        await bootstrapOnline(target, cfg.source);
         stopResize();
-        stopResize = setupAutoResize(container, () => parentOrigin);
+        stopResize = setupAutoResize(target, () => parentOrigin);
         return;
       }
     } catch (err) {
-      showState(
-        container,
-        `Online 交互生成失败（可能缺少有效的 API Key 或 API 服务未连通）。\n错误信息: ${String(err)}\n降级到 Offline 预设视图展示。`,
-        "error",
-      );
+      const tr = T[getLang()];
+      const errorLine = getLang() === "zh" ? `错误信息: ${String(err)}` : `Error: ${String(err)}`;
+      showState(target, `${tr.onlineFailedPrefix}\n${errorLine}\n${tr.onlineFailedFallback}`, "error");
     }
     await bootstrapOffline(
-      container,
+      target,
       cfg.source.mode === "offline"
         ? cfg.source
         : { mode: "offline", messagesUrl: "/generated/site_messages.json" },
     );
     stopResize();
-    stopResize = setupAutoResize(container, () => parentOrigin);
+    stopResize = setupAutoResize(target, () => parentOrigin);
+  };
+
+  const selectExample = async (id: string) => {
+    const item = getExampleItems(getLang()).find((i) => i.id === id);
+    if (!item) return;
+    currentContent = { kind: "example", id };
+    await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } });
+  };
+
+  const onGenerate = (promptText: string) => {
+    const target = container;
+    if (!target) return;
+    currentContent = { kind: "other" };
+    const currentApiUrl =
+      initialConfig.source.mode === "online"
+        ? initialConfig.source.apiBaseUrl
+        : (import.meta.env.VITE_A2LEARN_API_URL || "").trim();
+
+    if (!currentApiUrl) {
+      showState(target, T[getLang()].noBackendConfigured, "error");
+      return;
+    }
+
+    const userKey = getStoredApiKey();
+    const onlineConfig: ViewerRuntimeConfig = {
+      embed: false,
+      source: {
+        mode: "online",
+        apiBaseUrl: normalizeBaseUrl(currentApiUrl),
+        resourceText: promptText,
+        headers: userKey ? { Authorization: `Bearer ${userKey}` } : undefined,
+      },
+    };
+    void startWithConfig(onlineConfig);
+  };
+
+  const switchLanguage = async (newLang: Lang) => {
+    if (newLang === getLang()) return;
+    setLang(newLang);
+    renderShell(newLang);
+    const target = container;
+    if (!target) return;
+    stopResize();
+    stopResize = setupAutoResize(target, () => parentOrigin);
+    bindShellControls(onGenerate, switchLanguage, selectExample);
+
+    if (currentContent.kind === "example") {
+      const item = getExampleItems(newLang).find((i) => i.id === currentContent.id);
+      if (item) {
+        await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } });
+        return;
+      }
+    }
+    showState(target, T[newLang].pickExamplePrompt, "empty");
   };
 
   if (!initialConfig.embed) {
-    const zhBtn = document.getElementById("lang-zh-btn");
-    const enBtn = document.getElementById("lang-en-btn");
-    if (zhBtn && enBtn) {
-      zhBtn.addEventListener("click", () => {
-        zhBtn.classList.add("active");
-        enBtn.classList.remove("active");
-        void startWithConfig({
-          embed: false,
-          source: { mode: "offline", messagesUrl: "/generated/site_messages.json" },
-        });
-      });
-      enBtn.addEventListener("click", () => {
-        enBtn.classList.add("active");
-        zhBtn.classList.remove("active");
-        void startWithConfig({
-          embed: false,
-          source: { mode: "offline", messagesUrl: "/generated/site_messages_en.json" },
-        });
-      });
-    }
-
-    initAppControls((promptText: string) => {
-      const currentApiUrl =
-        initialConfig.source.mode === "online"
-          ? initialConfig.source.apiBaseUrl
-          : (import.meta.env.VITE_A2LEARN_API_URL || "http://127.0.0.1:8008").trim();
-
-      const userKey = getStoredApiKey();
-      const onlineConfig: ViewerRuntimeConfig = {
-        embed: false,
-        source: {
-          mode: "online",
-          apiBaseUrl: normalizeBaseUrl(currentApiUrl),
-          resourceText: promptText,
-          headers: userKey ? { Authorization: `Bearer ${userKey}` } : undefined,
-        },
-      };
-      void startWithConfig(onlineConfig);
-    });
+    bindShellControls(onGenerate, switchLanguage, selectExample);
+    bindGlobalListenersOnce(onGenerate);
   }
 
   const onMessage = (event: MessageEvent) => {
@@ -887,7 +1318,16 @@ async function bootstrapViewer() {
   };
 
   window.addEventListener("message", onMessage);
-  await startWithConfig(initialConfig);
+
+  if (hasExplicitSource || initialConfig.embed) {
+    await startWithConfig(initialConfig);
+  } else if (container) {
+    // Nothing explicit was requested (typical first visit to the static
+    // deployment) — the placeholder "/generated/site_messages.json" would
+    // just 404. Show a friendly, localized nudge toward the example gallery
+    // instead of a fetch-failure error.
+    showState(container, T[getLang()].pickExamplePrompt, "empty");
+  }
 }
 
 async function bootstrap() {

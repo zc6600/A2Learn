@@ -1,0 +1,238 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-paper-attention",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-paper-attention",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "paper-abstract",
+            "background-analogy",
+            "scenario-chat",
+            "prerequisite-timeline",
+            "mental-model-attention",
+            "attention-formula",
+            "quiz-comprehension",
+            "summary-and-terms",
+            "resources"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "Classic Paper Deep Dive: Attention Is All You Need (The Transformer Architecture, End to End)"
+        },
+        {
+          "id": "paper-abstract",
+          "component": "PaperAbstract",
+          "title": "Attention Is All You Need",
+          "authors": [
+            "Ashish Vaswani",
+            "Noam Shazeer",
+            "Niki Parmar",
+            "Jakob Uszkoreit",
+            "Llion Jones",
+            "Aidan N. Gomez",
+            "Łukasz Kaiser",
+            "Illia Polosukhin"
+          ],
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS 2017)",
+          "year": 2017,
+          "abstract": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train.",
+          "tldr": "Introduces the Transformer, a new architecture that entirely abandons traditional recurrent (RNN) and convolutional (CNN) networks, relying solely on self-attention and matrix multiplication for fully parallel computation. It achieved SOTA results on machine translation and NLP tasks and kicked off the large-language-model era.",
+          "pdfUrl": "https://arxiv.org/pdf/1706.03762.pdf",
+          "sourceUrl": "https://arxiv.org/abs/1706.03762"
+        },
+        {
+          "id": "background-analogy",
+          "component": "AnalogyCard",
+          "title": "The Sequence Modeling Bottleneck: RNNs' Serial Chain and Long-Range Forgetting",
+          "analogy": "<b>Background</b>: Before 2017, natural language processing (NLP) was dominated almost entirely by recurrent neural networks (RNN/LSTM).<br><br><b>Core bottleneck</b>: an RNN's update rule is $h_t = f(h_{t-1}, x_t)$ — meaning computing the $t$-th word must wait for the $t-1$-th word to finish! On a cluster of hundreds of GPUs, most hardware sits idle waiting its turn. At the same time, the fixed-length hidden state vector $h_t$ dilutes and forgets information from early words as it's carried across a long sentence. How do you design a new architecture that's fully parallelizable while still preserving long-range global dependencies?"
+        },
+        {
+          "id": "scenario-chat",
+          "component": "ScenarioDialogue",
+          "topic": "💬 AI Lab Roundtable: Why RNN Training Is Slow, and the Breakthrough to Parallelism",
+          "characters": {
+            "alex": {
+              "name": "Alex (AI Systems Researcher)",
+              "avatar": "👨‍🔬",
+              "alignment": "left"
+            },
+            "elena": {
+              "name": "Elena (Large Model Lead)",
+              "avatar": "👩‍💻",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alex",
+              "content": "Elena, we're training an LSTM translation model on an 8-GPU cluster, and monitoring shows GPU utilization is only 15%! I've carefully tuned the parallel code and it still won't go up — why is that?"
+            },
+            {
+              "characterId": "elena",
+              "content": "That's a hardware-level limitation of RNNs! Before you can compute the hidden state at time t, you have to wait for time t-1 to finish. That serial dependency means most of the GPU's thousands of CUDA cores just sit idle most of the time."
+            },
+            {
+              "characterId": "alex",
+              "content": "And translation quality suffers on long sentences too — by the end of the sentence, the subject from the beginning has often been forgotten."
+            },
+            {
+              "characterId": "elena",
+              "content": "So what if we just get rid of the RNN's time-step loop entirely? Let every word in the input sentence compute its pairwise relevance to every other word simultaneously, in one matrix multiplication, right at the first layer!"
+            },
+            {
+              "characterId": "alex",
+              "content": "Drop RNNs entirely and rely only on dot-product attention? Then the whole matrix could be computed fully in parallel on the GPU in one shot! That's the fundamental breakthrough behind the <dfn title=\"A neural network architecture that drops recurrence and convolution entirely, relying solely on self-attention and matrix multiplication for fully parallel computation\">Transformer architecture</dfn>!"
+            }
+          ]
+        },
+        {
+          "id": "prerequisite-timeline",
+          "component": "Timeline",
+          "orientation": "vertical",
+          "events": [
+            {
+              "id": "rnn-seq2seq",
+              "time": "2014",
+              "title": "RNN Sequence-to-Sequence Emerges",
+              "description": "Sutskever et al. propose the Seq2Seq architecture, using recurrent neural networks to process variable-length sequences. Its weaknesses: hard to parallelize, and prone to forgetting long-range information."
+            },
+            {
+              "id": "bahdanau-attention",
+              "time": "2015",
+              "title": "Bahdanau Introduces Local Attention",
+              "description": "Alignment and dynamic weight computation are introduced into Seq2Seq for the first time, letting the decoder focus on different encoder positions."
+            },
+            {
+              "id": "transformer-era",
+              "time": "2017",
+              "title": "The Transformer Is Born (Attention Is All You Need)",
+              "description": "Vaswani et al. publish their NeurIPS paper, declaring that self-attention entirely replaces recurrent networks and ushering in the era of fully parallel large models."
+            }
+          ]
+        },
+        {
+          "id": "mental-model-attention",
+          "component": "MentalModel",
+          "title": "Mental Model: Self-Attention and Fully Parallel Matrix Computation",
+          "description": "Self-attention projects each input word vector into three vectors — Query, Key, and Value — and uses matrix multiplication to directly capture the semantic relationship between any two words in the sequence, in a constant O(1) path length.",
+          "icon": "🧠",
+          "diagramTitle": "📊 Tracing the Transformer's Parallel Matrix Flow",
+          "diagram": "Input token matrix X ➔ linear projections produce Q, K, V matrices ➔ matrix multiply QK^T for a similarity map\n➔ scale and Softmax-normalize the weights ➔ multiply by the V matrix ➔ output a context-fused feature matrix",
+          "pillarsTitle": "Three Vectors Working Together",
+          "pillars": [
+            {
+              "title": "Query (Q)",
+              "description": "Represents the current word's search criteria for finding other relevant words — like the query you type when searching a library catalog.",
+              "icon": "🔍"
+            },
+            {
+              "title": "Key (K)",
+              "description": "Represents the public index/attributes of the word being queried, dot-producted against Query to measure relevance.",
+              "icon": "🔑"
+            },
+            {
+              "title": "Value (V)",
+              "description": "Represents the actual semantic content carried by the queried word, ultimately aggregated by the attention weights into the output.",
+              "icon": "💎"
+            }
+          ],
+          "analogyTitle": "💡 From Serial Chains to Fully Parallel Matrices",
+          "analogy": "<b>The RNN conveyor belt vs. Self-Attention's library-wide lookup</b>:<br>1. <b>RNN mode</b>: like a relay race — information must pass from one runner to the next, and a long chain inevitably loses information and can't be sped up;<br>2. <b>Self-attention mode</b>: every word stands in the spotlight at once, and $QK^T$ computes the pairwise similarity distribution across all words in a single instant — the GPU's parallel matrix multiplication roars at full capacity!"
+        },
+        {
+          "id": "attention-formula",
+          "component": "InteractiveFormula",
+          "latex": "Attention(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V",
+          "description": "Scaled Dot-Product Attention is the single most important formula in the Transformer architecture. It computes the dot-product matrix of Query and Key, divides by a scaling factor for numerical stability, then normalizes with Softmax to distribute weights over Value.",
+          "variables": {
+            "Q": "The Query matrix, representing the features of the word currently being queried/focused on",
+            "K": "The Key matrix, representing the key features of every word being queried against",
+            "V": "The Value matrix, representing the actual content information of the queried words",
+            "d_k": "The dimensionality of the Key vectors, used in the scaling factor \\sqrt{d_k} at the bottom of the formula",
+            "softmax": "A normalizing activation function that maps all computed weights into the (0, 1) range, summing to 1"
+          },
+          "derivationSteps": [
+            {
+              "step": "Step 1: Compute dot-product similarity",
+              "latex": "S = QK^T",
+              "explanation": "Computes the similarity matrix S between every Query and every Key. A higher dot-product value means the two words are more relevant to, or should attend more to, each other."
+            },
+            {
+              "step": "Step 2: Scale to prevent vanishing gradients",
+              "latex": "S_{scaled} = \\frac{QK^T}{\\sqrt{d_k}}",
+              "explanation": "Dividing by the square root of the dimension prevents dot-product values from growing too large when d_k is large, which would push Softmax into its saturated region and cause vanishing gradients."
+            },
+            {
+              "step": "Step 3: Normalize into a probability distribution",
+              "latex": "W = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)",
+              "explanation": "Applies Softmax across each row of similarities, turning them into a probability distribution — representing how much attention each Query pays to each Value."
+            },
+            {
+              "step": "Step 4: Weighted sum for the output",
+              "latex": "Output = WV",
+              "explanation": "Multiplies the computed weight distribution by the Value matrix and sums it up, producing the final output vector, which fuses global contextual semantic features."
+            }
+          ]
+        },
+        {
+          "id": "quiz-comprehension",
+          "component": "QuizCard",
+          "title": "🧠 Attention Fundamentals Self-Check",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "In the Transformer self-attention formula, why divide the dot product by \\sqrt{d_k} before scaling?",
+              "options": [
+                "A. To make the attention weights sum to 1",
+                "B. To prevent dot-product values from growing too large at high dimensions, which would push the Softmax activation into its saturated region and cause vanishing gradients",
+                "C. To speed up the matrix multiplication",
+                "D. To mask noise introduced for privacy protection"
+              ],
+              "correctIndex": 1,
+              "explanation": "When the dimension d_k is very large, dot-product results tend to become very large too, pushing the Softmax function into a region with extremely small gradients (the saturated region). Dividing by \\sqrt{d_k} effectively suppresses this effect, keeping training stable."
+            }
+          ]
+        },
+        {
+          "id": "summary-and-terms",
+          "component": "AnalogyCard",
+          "title": "Summary: The Revolutionary Impact of Self-Attention",
+          "analogy": "By relying purely on self-attention and matrix multiplication, the Transformer eliminated RNNs' serial dependency, unlocking GPU parallelism and laying the foundation for the modern large-model era.<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Glossary</h5><p>The classic paper <i>Attention Is All You Need</i> introduced the <dfn title=\"A modern neural network architecture based on self-attention and fully parallel matrix computation\"><strong>Transformer architecture</strong></dfn>, which drops recurrent networks entirely. Its core <dfn title=\"An attention algorithm that computes the pairwise relevance between any two positions in a sequence via dot products of the Q, K, V matrices\"><strong>Scaled Dot-Product Attention</strong></dfn> establishes the collaboration of three components — <dfn title=\"The vector matrix representing query features\"><strong>Query (Q)</strong></dfn>, <dfn title=\"The vector matrix representing key features\"><strong>Key (K)</strong></dfn>, and <dfn title=\"The vector matrix representing actual semantic content\"><strong>Value (V)</strong></dfn> — solving the engineering dead end that traditional RNNs faced in achieving high-throughput <dfn title=\"A speedup pattern that fully exploits a GPU's thousands of CUDA cores to compute matrices simultaneously\"><strong>matrix parallelization</strong></dfn>.</p></div>"
+        },
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "Recommended Further Reading",
+          "resources": [
+            {
+              "title": "The Illustrated Transformer",
+              "url": "https://jalammar.github.io/illustrated-transformer/",
+              "description": "Jay Alammar's widely acclaimed visual walkthrough of the Transformer architecture.",
+              "type": "article"
+            },
+            {
+              "title": "Harvard NLP: The Annotated Transformer",
+              "url": "https://nlp.seas.harvard.edu/2018/04/03/attention.html",
+              "description": "The Harvard NLP team's line-by-line PyTorch implementation, annotated alongside the original Transformer paper.",
+              "type": "github"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

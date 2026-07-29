@@ -192,27 +192,20 @@
           "id": "quiz-comprehension",
           "component": "QuizCard",
           "title": "🧠 Attention 核心原理概念自测",
-          "question": "在 Transformer 自注意力机制公式中，为什么要在点积后除以 \\sqrt{d_k} 进行缩放？",
-          "options": [
+          "questions": [
             {
-              "id": "opt1",
-              "text": "A. 为了使注意力权重和为 1"
-            },
-            {
-              "id": "opt2",
-              "text": "B. 防止在维度较大时点积数值过大，导致 Softmax 激活函数进入饱和区而发生梯度消失"
-            },
-            {
-              "id": "opt3",
-              "text": "C. 为了加快矩阵乘法的计算速度"
-            },
-            {
-              "id": "opt4",
-              "text": "D. 用于隐藏由于隐私保护带来的噪音"
+              "id": "q1",
+              "question": "在 Transformer 自注意力机制公式中，为什么要在点积后除以 \\sqrt{d_k} 进行缩放？",
+              "options": [
+                "A. 为了使注意力权重和为 1",
+                "B. 防止在维度较大时点积数值过大，导致 Softmax 激活函数进入饱和区而发生梯度消失",
+                "C. 为了加快矩阵乘法的计算速度",
+                "D. 用于隐藏由于隐私保护带来的噪音"
+              ],
+              "correctIndex": 1,
+              "explanation": "当维度 d_k 非常大时，点积结果容易变得非常大，这会将 Softmax 函数推向极小梯度的区域（饱和区）。除以 \\sqrt{d_k} 进行缩放能够有效抑制这种效应，使模型正常训练。"
             }
-          ],
-          "correctOptionId": "opt2",
-          "explanation": "当维度 d_k 非常大时，点积结果容易变得非常大，这会将 Softmax 函数推向极小梯度的区域（饱和区）。除以 \\sqrt{d_k} 进行缩放能够有效抑制这种效应，使模型正常训练。"
+          ]
         },
         {
           "id": "summary-and-terms",

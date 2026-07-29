@@ -40,38 +40,85 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
       color: var(--a2ui-color-on-surface);
     }
     .language-badge {
-      background: var(--a2ui-color-primary);
-      color: white;
+      background: var(--badge-bg, var(--a2ui-color-primary));
+      color: var(--badge-fg, white);
       font-size: 10px;
-      padding: 2px 6px;
+      padding: 3px 7px;
       border-radius: 4px;
       text-transform: uppercase;
-      font-weight: bold;
+      font-weight: 700;
+      letter-spacing: 0.4px;
     }
     .run-btn {
-      background: #34a853;
+      background: linear-gradient(135deg, #34a853, #2d8a46);
       color: white;
       border: none;
-      padding: 6px 16px;
-      border-radius: 4px;
+      padding: 7px 18px;
+      border-radius: 6px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
-      transition: background 0.2s;
+      gap: 7px;
+      box-shadow: 0 2px 6px rgba(52, 168, 83, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s;
     }
     .run-btn:hover:not(:disabled) {
-      background: #2d8a46;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(52, 168, 83, 0.45);
+    }
+    .run-btn:active:not(:disabled) {
+      transform: translateY(0);
     }
     .run-btn:disabled {
       background: #a5d6a7;
+      box-shadow: none;
       cursor: not-allowed;
     }
     .run-btn::before {
       content: "▶";
       font-size: 10px;
+    }
+    .run-btn.running::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-top-color: white;
+      animation: sandbox-spin 0.7s linear infinite;
+    }
+    @keyframes sandbox-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .copy-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--app-muted, #888);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+    .copy-btn:hover {
+      color: var(--a2ui-color-on-surface);
+      border-color: var(--a2ui-color-border);
+      background: color-mix(in oklab, var(--a2ui-color-surface) 90%, black);
+    }
+    .copy-btn.copied {
+      color: #34a853;
+      border-color: #34a853;
+    }
+    .copy-btn svg {
+      width: 12px;
+      height: 12px;
     }
     .workspace {
       display: grid;
@@ -89,7 +136,10 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
       background: #1e1e1e;
     }
     .pane-header {
-      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px 6px 12px;
       font-size: 12px;
       font-weight: 600;
       color: var(--app-muted, #888);
@@ -124,13 +174,38 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
     .tab-btn:hover {
       color: white;
     }
+    .code-font {
+      font-family: ui-monospace, "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "Courier New", monospace;
+      font-variant-ligatures: contextual;
+    }
+    .code-editor {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      background: #1e1e1e;
+    }
+    .line-numbers {
+      flex-shrink: 0;
+      padding: 12px 10px 12px 14px;
+      text-align: right;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #5a5a5a;
+      background: #1a1a1a;
+      border-right: 1px solid #2f2f2f;
+      user-select: none;
+      overflow: hidden;
+      white-space: pre;
+    }
     textarea.code-input {
       flex: 1;
       border: none;
-      padding: 12px;
-      font-family: monospace;
+      padding: 12px 14px;
+      font-family: ui-monospace, "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "Courier New", monospace;
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.6;
       resize: none;
       background: #1e1e1e;
       color: #d4d4d4;
@@ -138,6 +213,28 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
       white-space: pre;
       overflow-wrap: normal;
       overflow-x: auto;
+    }
+    .code-editor::-webkit-scrollbar,
+    .console-log::-webkit-scrollbar,
+    textarea.code-input::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    .code-editor::-webkit-scrollbar-track,
+    .console-log::-webkit-scrollbar-track,
+    textarea.code-input::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .code-editor::-webkit-scrollbar-thumb,
+    .console-log::-webkit-scrollbar-thumb,
+    textarea.code-input::-webkit-scrollbar-thumb {
+      background: #3c3c3c;
+      border-radius: 5px;
+    }
+    .code-editor::-webkit-scrollbar-thumb:hover,
+    .console-log::-webkit-scrollbar-thumb:hover,
+    textarea.code-input::-webkit-scrollbar-thumb:hover {
+      background: #4a4a4a;
     }
     .output-content {
       flex: 1;
@@ -175,12 +272,13 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
     .console-log {
       flex: 1;
       margin: 0;
-      padding: 12px;
+      padding: 12px 14px;
       background: #1e1e1e;
       color: #d4d4d4;
-      font-family: monospace;
+      font-family: ui-monospace, "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "Courier New", monospace;
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.6;
       overflow: auto;
       white-space: pre-wrap;
     }
@@ -199,11 +297,12 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
     }
     .testcase-item {
       padding: 10px 14px;
-      border-radius: 6px;
+      border-radius: 8px;
       background: #1e1e1e;
       border: 1px solid #3c3c3c;
       font-size: 13px;
       color: #d4d4d4;
+      transition: background 0.2s, border-color 0.2s;
     }
     .testcase-item.passed {
       border-left: 4px solid #34a853;
@@ -221,9 +320,12 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
     .testcase-badge {
       font-size: 9px;
       font-weight: bold;
-      padding: 2px 6px;
-      border-radius: 4px;
+      padding: 2px 7px;
+      border-radius: 10px;
       text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
     }
     .testcase-badge.pending {
       background: #3c3c3c;
@@ -238,20 +340,23 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
       color: #fce8e6;
     }
     .testcase-input {
-      font-family: monospace;
+      font-family: ui-monospace, "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "Courier New", monospace;
       font-weight: 500;
       color: #9cdcfe;
     }
     .testcase-error {
       margin-top: 6px;
-      font-family: monospace;
+      font-family: ui-monospace, "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "Courier New", monospace;
       color: #f44336;
       white-space: pre-wrap;
       font-size: 12px;
     }
     .testcase-actual {
       margin-top: 4px;
-      font-family: monospace;
+      font-family: ui-monospace, "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "Courier New", monospace;
       color: #4fc1ff;
       font-size: 12px;
     }
@@ -278,12 +383,14 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
   @state() private localStatus: "idle" | "running" | "success" | "error" = "idle";
   @state() private localOutput: string = "";
   @state() private localCode: string = "";
+  @state() private copied: boolean = false;
   @state() private testCaseResults: Array<{ status: 'pending' | 'passed' | 'failed', actual?: string, error?: string }> = [];
   @state() private activeTab: 'console' | 'testcases' = 'console';
 
   private lastPropsCode = "";
   private lastPropsTestCasesJson = "";
-  private iframeUrl = "";
+  private lastPropsStatus: string | undefined = undefined;
+  private lastPropsOutput = "";
   private localObjectUrl: string | null = null;
 
   protected createController() {
@@ -366,16 +473,36 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
       }
       
       const nextOutput = this.resolveString(props.output || "");
-      if (this.localObjectUrl && nextOutput !== this.localObjectUrl) {
+      const nextStatus = props.status as string | undefined;
+
+      // Only discard a locally-created blob when the *code itself* changes
+      // (i.e. this component instance got reused for a different snippet).
+      // syncProps() re-runs on every requestUpdate — including the ones
+      // executeLocally() and handleIframeMessage() trigger while a run is in
+      // flight — so comparing against props.output (which these static
+      // examples never set) would revoke the blob before the iframe even
+      // finished loading it.
+      if (codeChanged && this.localObjectUrl) {
         this.revokeLocalObjectUrl();
       }
-      
-      // Prevent stale parent states from overriding our local active running state
-      if (codeChanged || this.localStatus !== "running" || props.status === "success" || props.status === "error") {
-        this.localStatus = props.status || "idle";
+
+      // Only resync local status/output from props when those prop values
+      // actually changed (a genuine new message from the backend/agent) —
+      // not on every re-render. syncProps() also runs on the requestUpdate()
+      // calls fired by our own local run (executeLocally / handleIframeMessage),
+      // and static examples never populate props.status/props.output at all,
+      // so comparing against "currently running" (the old check) meant the
+      // instant a local run finished and flipped to success/error, the very
+      // next render snapped it straight back to the (blank) props state.
+      const statusChanged = this.lastPropsStatus !== nextStatus;
+      const outputChanged = this.lastPropsOutput !== nextOutput;
+      if (codeChanged || statusChanged || outputChanged) {
+        this.lastPropsStatus = nextStatus;
+        this.lastPropsOutput = nextOutput;
+        this.localStatus = nextStatus || "idle";
         this.localOutput = nextOutput;
       }
-      
+
       const testCases = props.testCases || [];
       const testCasesChanged = this.lastPropsTestCasesJson !== JSON.stringify(testCases);
       if (testCasesChanged) {
@@ -406,6 +533,44 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
   private handleInput(e: Event) {
     const textarea = e.target as HTMLTextAreaElement;
     this.localCode = textarea.value;
+  }
+
+  private handleEditorScroll(e: Event) {
+    const textarea = e.target as HTMLTextAreaElement;
+    const gutter = this.shadowRoot?.querySelector(".line-numbers") as HTMLElement | null;
+    if (gutter) {
+      gutter.scrollTop = textarea.scrollTop;
+    }
+  }
+
+  private computeLineNumbers(code: string): string {
+    const count = Math.max(code.split("\n").length, 1);
+    return Array.from({ length: count }, (_, i) => i + 1).join("\n");
+  }
+
+  private languageBadgeStyle(language: string): string {
+    const palette: Record<string, [string, string]> = {
+      javascript: ["#f7df1e", "#3b3b00"],
+      python: ["#3776ab", "#ffffff"],
+      html: ["#e34c26", "#ffffff"],
+      css: ["#264de4", "#ffffff"],
+    };
+    const [bg, fg] = palette[language] || ["var(--a2ui-color-primary)", "#ffffff"];
+    return `--badge-bg: ${bg}; --badge-fg: ${fg};`;
+  }
+
+  private async handleCopyClick() {
+    try {
+      await navigator.clipboard.writeText(this.localCode);
+      this.copied = true;
+      (this as any).requestUpdate();
+      setTimeout(() => {
+        this.copied = false;
+        (this as any).requestUpdate();
+      }, 1500);
+    } catch {
+      // Clipboard API unavailable (e.g. insecure context) — fail silently.
+    }
   }
 
   private handleRunClick() {
@@ -617,23 +782,31 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
         }
 
         this.revokeLocalObjectUrl();
-        const blob = new Blob([finalHtml], { type: 'text/html' });
+        // Explicit charset is required: without it the browser guesses an
+        // encoding for the blob: document and typically misreads UTF-8
+        // Chinese text as Latin-1, producing garbled output.
+        const blob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
         const blobUrl = URL.createObjectURL(blob);
+        // localObjectUrl always holds the iframe's src: for html/css it's the
+        // visible live preview, for js/python it's a hidden runner iframe that
+        // posts console/testcase/finish messages back via window.postMessage.
         this.localObjectUrl = blobUrl;
-        this.iframeUrl = blobUrl;
-        
+
         if (language === "html" || language === "css") {
           this.localStatus = "success";
-          this.localOutput = blobUrl;
+          this.localOutput = "";
           (this as any).requestUpdate();
-          
+
           if (props && props.onStatusChange) {
             (this as any).context.dispatchAction({
               ...(props.onStatusChange as Record<string, unknown>),
-              context: { status: this.localStatus, output: this.localOutput },
+              context: { status: this.localStatus, output: blobUrl },
             });
           }
         } else {
+          // js/python: the hidden iframe (rendered from localObjectUrl in
+          // renderOutput) executes the code; localOutput is a separate text
+          // accumulator that handleIframeMessage appends console lines to.
           this.localStatus = "running";
           this.localOutput = "";
           (this as any).requestUpdate();
@@ -648,36 +821,41 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
   }
 
   private renderOutput(output: string, status: string, language: string) {
-    if (output.startsWith("blob:") || output.startsWith("data:")) {
+    // Local execution: localObjectUrl is the blob URL created in
+    // executeLocally(). It's the source of truth for the iframe regardless
+    // of what's in `output`, which for js/python is plain console text.
+    const frameSrc = this.localObjectUrl;
+    if (frameSrc) {
       if (language === "html" || language === "css") {
-        return html`<iframe class="preview-frame" sandbox="allow-scripts" referrerpolicy="no-referrer" src="${output}"></iframe>`;
-      } else {
-        return html`
-          <iframe style="display: none;" sandbox="allow-scripts" referrerpolicy="no-referrer" src="${output}"></iframe>
-          <pre class="console-log">${this.escapeHtml(this.localOutput || "Running...")}</pre>
-        `;
+        return html`<iframe class="preview-frame" sandbox="allow-scripts" referrerpolicy="no-referrer" src="${frameSrc}"></iframe>`;
       }
+      // Lit's ${} binding here creates a text node (safe by construction),
+      // so the text is never parsed as HTML — no manual escaping needed.
+      // Escaping it ourselves would turn e.g. "'" into the literal 6
+      // characters "&#039;" on screen, since textContent doesn't decode
+      // entities back out.
+      return html`
+        <iframe style="display: none;" sandbox="allow-scripts" referrerpolicy="no-referrer" src="${frameSrc}"></iframe>
+        <pre class="console-log ${status}">${output || "Running..."}</pre>
+      `;
     }
-    
+
+    // Remote/agent-driven execution (runLocally: false): the backend reports
+    // `output` directly, which may itself be a data:/blob: URL or raw HTML.
+    if (output.startsWith("blob:") || output.startsWith("data:")) {
+      return html`<iframe class="preview-frame" sandbox="allow-scripts" referrerpolicy="no-referrer" src="${output}"></iframe>`;
+    }
+
     if (this.isHtml(output)) {
       return html`<iframe class="preview-frame" sandbox="allow-scripts" referrerpolicy="no-referrer" srcdoc="${output}"></iframe>`;
     }
-    
-    return html`<pre class="console-log ${status}">${this.escapeHtml(output)}</pre>`;
+
+    return html`<pre class="console-log ${status}">${output}</pre>`;
   }
 
   private isHtml(str: string): boolean {
     const trimmed = str.trim();
     return trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || /<[a-z][\s\S]*>/i.test(trimmed);
-  }
-
-  private escapeHtml(str: string): string {
-    return str
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
   }
 
   render() {
@@ -695,54 +873,68 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
     const testCases = props.testCases || [];
     const hasTestCases = testCases.length > 0;
 
+    const lineNumbers = this.computeLineNumbers(code);
+
     return html`
       <div class="sandbox-container">
         <div class="header">
           <div class="title-area">
             <h3 class="title">${title}</h3>
-            <span class="language-badge">${language}</span>
+            <span class="language-badge" style=${this.languageBadgeStyle(language)}>${language}</span>
           </div>
-          <button 
-            class="run-btn" 
-            @click=${this.handleRunClick} 
+          <button
+            class="run-btn ${isRunning ? "running" : ""}"
+            @click=${this.handleRunClick}
             ?disabled=${isRunning}
           >
             ${isRunning ? "Running..." : "Run Code"}
           </button>
         </div>
-        
+
         <div class="workspace">
           <div class="editor-pane">
-            <div class="pane-header">Input Code</div>
-            <textarea 
-              class="code-input" 
-              spellcheck="false"
-              .value=${code}
-              @input=${this.handleInput}
-            ></textarea>
+            <div class="pane-header">
+              <span>Input Code</span>
+              <button class="copy-btn ${this.copied ? "copied" : ""}" @click=${this.handleCopyClick} title="复制代码">
+                ${this.copied
+                  ? html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>已复制`
+                  : html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>复制`}
+              </button>
+            </div>
+            <div class="code-editor code-font">
+              <div class="line-numbers">${lineNumbers}</div>
+              <textarea
+                class="code-input"
+                spellcheck="false"
+                .value=${code}
+                @input=${this.handleInput}
+                @scroll=${this.handleEditorScroll}
+              ></textarea>
+            </div>
           </div>
-          
+
           <div class="output-pane">
             ${hasTestCases ? html`
               <div class="output-pane-header">
                 <button class="tab-btn ${this.activeTab === 'console' ? 'active' : ''}" @click=${() => this.activeTab = 'console'}>Console Log</button>
                 <button class="tab-btn ${this.activeTab === 'testcases' ? 'active' : ''}" @click=${() => this.activeTab = 'testcases'}>Test Cases</button>
               </div>
-            ` : html`<div class="pane-header">Output Result</div>`}
-            
+            ` : html`<div class="pane-header"><span>Output Result</span></div>`}
+
             <div class="output-content ${status} ${language}">
               ${this.activeTab === 'console' || !hasTestCases ? html`
-                ${status === "idle" && !output 
+                ${status === "idle" && !output
                   ? html`<div class="output-content-idle">点击运行按钮查看结果...</div>`
                   : this.renderOutput(output, status, language)}
               ` : html`
                 <div class="testcases-list">
                   ${testCases.map((tc, index) => {
                     const res = this.testCaseResults[index] || { status: 'pending' };
+                    const icon = res.status === 'passed' ? '✓' : res.status === 'failed' ? '✗' : '•';
                     return html`
                       <div class="testcase-item ${res.status}">
                         <div class="testcase-info">
-                          <span class="testcase-badge ${res.status}">${res.status}</span>
+                          <span class="testcase-badge ${res.status}">${icon} ${res.status}</span>
                           <code class="testcase-input">${this.resolveString(tc.input)}</code>
                         </div>
                         ${res.status === 'failed' && res.error ? html`<div class="testcase-error">${res.error}</div>` : nothing}

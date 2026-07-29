@@ -3,6 +3,8 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { InteractiveFormulaApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 
 export class A2learnInteractiveFormulaElement extends A2uiLitElement<typeof InteractiveFormulaApi> {
   static styles = css`
@@ -42,12 +44,19 @@ export class A2learnInteractiveFormulaElement extends A2uiLitElement<typeof Inte
       overflow-x: auto;
       box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
     }
-    .formula-text {
-      font-family: "Courier New", Courier, monospace;
-      font-size: 22px;
-      font-weight: 700;
+    .formula-katex {
+      display: inline-block;
       color: var(--a2ui-color-on-surface, #0f172a);
-      white-space: nowrap;
+    }
+    .formula-display .katex {
+      font-size: 1.25em;
+    }
+    .formula-katex.formula-katex-error {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 18px;
+      font-weight: 700;
+      white-space: pre-wrap;
+      color: #b91c1c;
     }
     .description {
       font-size: 15px;
@@ -137,15 +146,16 @@ export class A2learnInteractiveFormulaElement extends A2uiLitElement<typeof Inte
       display: block;
     }
     .step-latex {
-      font-family: "Courier New", Courier, monospace;
-      font-weight: 700;
-      font-size: 16px;
-      color: var(--a2ui-color-secondary, #6366f1);
       margin-bottom: 8px;
       text-align: center;
       background: #fafafa;
       padding: 8px;
       border-radius: 6px;
+      overflow-x: auto;
+    }
+    .step-latex .katex {
+      color: var(--a2ui-color-secondary, #6366f1);
+      font-size: 1.05em;
     }
     .step-explanation {
       font-size: 13px;
@@ -169,6 +179,21 @@ export class A2learnInteractiveFormulaElement extends A2uiLitElement<typeof Inte
       return typeof literal === "string" ? literal : "";
     }
     return "";
+  }
+
+  private renderLatex(expr: string, displayMode: boolean) {
+    if (!expr) return nothing;
+    try {
+      const rendered = katex.renderToString(expr, {
+        throwOnError: false,
+        trust: false,
+        output: "html",
+        displayMode,
+      });
+      return html`<span class="formula-katex">${unsafeHTML(rendered)}</span>`;
+    } catch {
+      return html`<span class="formula-katex formula-katex-error">${expr}</span>`;
+    }
   }
 
   private _openSteps: Set<number> = new Set();
@@ -210,7 +235,7 @@ export class A2learnInteractiveFormulaElement extends A2uiLitElement<typeof Inte
         </div>
 
         <div class="formula-display">
-          <div class="formula-text">\\[ ${latex} \\]</div>
+          ${this.renderLatex(latex, true)}
         </div>
 
         ${description ? html`<div class="description">${unsafeHTML(sanitizeHtml(description))}</div>` : nothing}
@@ -222,8 +247,8 @@ export class A2learnInteractiveFormulaElement extends A2uiLitElement<typeof Inte
                 ${variables.map(
                   ([symbol, desc]) => html`
                     <div class="variable-item">
-                      <span class="var-symbol">${symbol}</span>
-                      <span class="var-explanation">${desc}</span>
+                      <span class="var-symbol">${this.renderLatex(symbol, false)}</span>
+                      <span class="var-explanation">${unsafeHTML(sanitizeHtml(desc))}</span>
                     </div>
                   `
                 )}
@@ -243,7 +268,7 @@ export class A2learnInteractiveFormulaElement extends A2uiLitElement<typeof Inte
                         <span>${this._openSteps.has(idx) ? "▲" : "▼"}</span>
                       </div>
                       <div class="step-body ${this._openSteps.has(idx) ? 'step-body-open' : ''}">
-                        <div class="step-latex">\\[ ${stepObj.latex} \\]</div>
+                        <div class="step-latex">${this.renderLatex(stepObj.latex, true)}</div>
                         <div class="step-explanation">${unsafeHTML(sanitizeHtml(stepObj.explanation))}</div>
                       </div>
                     </div>

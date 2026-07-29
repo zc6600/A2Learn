@@ -1,5 +1,7 @@
 import createDOMPurify from "dompurify";
 import { css } from "lit";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 
 const FORBID_TAGS = [
   "base",
@@ -126,6 +128,49 @@ export const tooltipStyles = css`
   }
 `;
 
+/**
+ * Renders inline `$...$` and block `$$...$$` LaTeX math to HTML via KaTeX,
+ * before the string is passed to DOMPurify/unsafeHTML. Content authors write
+ * plain LaTeX delimited with dollar signs (as the LLM prompts already
+ * instruct); this is the one place that actually turns it into typeset math
+ * instead of leaving the literal "$...$" text on the page.
+ */
+export function renderMathInHtml(input: string): string {
+  if (!input || input.indexOf("$") === -1) return input;
+
+  // Block math first, so a "$$...$$" pair is never partially consumed by the
+  // inline-math pass below.
+  let out = input.replace(/\$\$([\s\S]+?)\$\$/g, (match, expr) => {
+    try {
+      return katex.renderToString(expr.trim(), {
+        throwOnError: false,
+        trust: false,
+        output: "html",
+        displayMode: true,
+      });
+    } catch {
+      return match;
+    }
+  });
+
+  // Inline math: "$...$" with no leading/trailing whitespace touching the
+  // delimiters (so plain currency like "$5" is left alone).
+  out = out.replace(/\$([^\s$][^$]*?[^\s$]|[^\s$])\$/g, (match, expr) => {
+    try {
+      return katex.renderToString(expr, {
+        throwOnError: false,
+        trust: false,
+        output: "html",
+        displayMode: false,
+      });
+    } catch {
+      return match;
+    }
+  });
+
+  return out;
+}
+
 export function parseTermTooltips(htmlInput: string): string {
   if (!htmlInput) return "";
   
@@ -156,12 +201,15 @@ export function sanitizeHtml(input: string): string {
   if (!input) return "";
   if (typeof window === "undefined") return input;
 
-  const withTooltips = parseTermTooltips(input);
+  const withMath = renderMathInHtml(input);
+  const withTooltips = parseTermTooltips(withMath);
 
   return getPurifier().sanitize(withTooltips, {
-    USE_PROFILES: { html: true },
+    // svg/svgFilters keep KaTeX's rendering intact (some symbols, e.g. wide
+    // accents and radicals, render via inline <svg>).
+    USE_PROFILES: { html: true, svg: true, svgFilters: true },
     FORBID_TAGS,
     ADD_TAGS: ["span", "dfn", "button"],
-    ADD_ATTR: ["data-term", "data-annotation", "tabindex", "type"],
+    ADD_ATTR: ["data-term", "data-annotation", "tabindex", "type", "style"],
   }) as string;
 }

@@ -334,27 +334,20 @@
           "id": "quiz-2",
           "component": "QuizCard",
           "title": "🧠 碰撞处理策略选择",
-          "question": "当希望所有数据都紧密挨在连续内存中、获得最佳 CPU 缓存效率时，应该优先选择哪种方案？",
-          "options": [
+          "questions": [
             {
-              "id": "opt1",
-              "text": "A. 链地址法 (Separate Chaining)"
-            },
-            {
-              "id": "opt2",
-              "text": "B. 开放寻址法 (Open Addressing)"
-            },
-            {
-              "id": "opt3",
-              "text": "C. 放弃存储"
-            },
-            {
-              "id": "opt4",
-              "text": "D. 重新排序数组"
+              "id": "q1",
+              "question": "当希望所有数据都紧密挨在连续内存中、获得最佳 CPU 缓存效率时，应该优先选择哪种方案？",
+              "options": [
+                "A. 链地址法 (Separate Chaining)",
+                "B. 开放寻址法 (Open Addressing)",
+                "C. 放弃存储",
+                "D. 重新排序数组"
+              ],
+              "correctIndex": 1,
+              "explanation": "开放寻址法将所有数据直接连续存放在数组中，没有链表指针开销，因此具有极佳的 CPU 缓存局部性。"
             }
-          ],
-          "correctOptionId": "opt2",
-          "explanation": "开放寻址法将所有数据直接连续存放在数组中，没有链表指针开销，因此具有极佳的 CPU 缓存局部性。"
+          ]
         }
       ]
     }
@@ -682,27 +675,20 @@
           "id": "quiz-4",
           "component": "QuizCard",
           "title": "🧠 工业级哈希表安全理解",
-          "question": "Java 8 HashMap 为什么选择在单个槽位链表长度达到 8 时将其转换为红黑树？",
-          "options": [
+          "questions": [
             {
-              "id": "opt1",
-              "text": "A. 因为 8 是幸运数字"
-            },
-            {
-              "id": "opt2",
-              "text": "B. 防止 HashDoS 攻击或极罕见碰撞导致查找退化为 O(N)"
-            },
-            {
-              "id": "opt3",
-              "text": "C. 为了节省内存"
-            },
-            {
-              "id": "opt4",
-              "text": "D. 红黑树占用的空间比链表更小"
+              "id": "q1",
+              "question": "Java 8 HashMap 为什么选择在单个槽位链表长度达到 8 时将其转换为红黑树？",
+              "options": [
+                "A. 因为 8 是幸运数字",
+                "B. 防止 HashDoS 攻击或极罕见碰撞导致查找退化为 O(N)",
+                "C. 为了节省内存",
+                "D. 红黑树占用的空间比链表更小"
+              ],
+              "correctIndex": 1,
+              "explanation": "当碰撞节点过多时，链表查找复杂度为 O(N)。转换为红黑树能将最坏查找复杂度锁定在 O(log N)，有效防止性能剧烈退化和 HashDoS 攻击。"
             }
-          ],
-          "correctOptionId": "opt2",
-          "explanation": "当碰撞节点过多时，链表查找复杂度为 O(N)。转换为红黑树能将最坏查找复杂度锁定在 O(log N)，有效防止性能剧烈退化和 HashDoS 攻击。"
+          ]
         }
       ]
     }

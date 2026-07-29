@@ -1,0 +1,640 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "site-aibio-biophysics",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "site-aibio-biophysics",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "intro-text",
+            "knowledge-tree",
+            "section-nav",
+            "learning-path",
+            "analogy-card",
+            "concept-alphafold2",
+            "timeline-milestones",
+            "scenario-dialogue",
+            "concept-plm",
+            "concept-alphafold3",
+            "detailed-explanation-alphafold3",
+            "drag-match-methods",
+            "mental-model-alphafold-pipeline",
+            "cloze-test",
+            "quiz",
+            "deep-dive",
+            "summary-and-terms",
+            "resources"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "🧬 The AI-Driven Biophysics Revolution: From AlphaFold to AI Drug Discovery"
+        },
+        {
+          "id": "intro-text",
+          "component": "Text",
+          "text": "In 2021, DeepMind's **AlphaFold2** was published in *Nature*, solving the \"protein folding problem\" that had puzzled biologists for 50 years in one stroke. This wasn't just a milestone in AI history — it opened a new era for computational biophysics. Today, AI has deeply penetrated core fields like protein structure prediction, drug design, cryo-EM reconstruction, and molecular dynamics simulation, reshaping the paradigm of modern life-science research."
+        },
+        {
+          "id": "knowledge-tree",
+          "component": "KnowledgeTree",
+          "title": "AI + Biophysics Knowledge Map",
+          "path": [
+            {
+              "id": "biophysics",
+              "label": "Computational Biophysics"
+            },
+            {
+              "id": "ai-bio",
+              "label": "AI-Driven Biophysics"
+            }
+          ],
+          "currentNode": {
+            "id": "structure-prediction",
+            "label": "Protein Structure Prediction",
+            "description": "Current focus: how AI predicts 3D protein structure from an amino-acid sequence"
+          },
+          "childrenNodes": [
+            {
+              "id": "drug-discovery",
+              "label": "AI Drug Discovery",
+              "hasChildren": true
+            },
+            {
+              "id": "cryo-em",
+              "label": "Cryo-EM + AI",
+              "hasChildren": true
+            },
+            {
+              "id": "md-sim",
+              "label": "AI Molecular Dynamics",
+              "hasChildren": true
+            },
+            {
+              "id": "single-cell",
+              "label": "Single-Cell Omics + AI",
+              "hasChildren": false
+            }
+          ],
+          "onNodeNavigate": {
+            "name": "knowledge_tree_navigate",
+            "context": {}
+          }
+        },
+        {
+          "id": "section-nav",
+          "component": "SectionNavigator",
+          "activeSectionId": "alphafold",
+          "onSectionClick": {
+            "name": "navigate_section",
+            "context": {}
+          },
+          "sections": [
+            {
+              "id": "alphafold",
+              "title": "AlphaFold & Structure Prediction",
+              "description": "From AlphaFold2 to AlphaFold3: the end of the protein-folding problem",
+              "icon": "🔵",
+              "status": "current"
+            },
+            {
+              "id": "plm",
+              "title": "Protein Language Models",
+              "description": "ESMFold, OmegaFold, and the new single-sequence prediction paradigm",
+              "icon": "🟣",
+              "status": "available"
+            },
+            {
+              "id": "drug",
+              "title": "AI Drug Discovery",
+              "description": "Molecule generation, virtual screening, and target identification",
+              "icon": "🟢",
+              "status": "available"
+            },
+            {
+              "id": "cryoem-ai",
+              "title": "Cryo-EM + AI",
+              "description": "DeepEMhancer and ModelAngelo accelerating structure resolution",
+              "icon": "🟡",
+              "status": "available"
+            },
+            {
+              "id": "md-ai",
+              "title": "AI Molecular Dynamics",
+              "description": "Neural-network potentials and new enhanced-sampling methods",
+              "icon": "🔴",
+              "status": "locked"
+            }
+          ]
+        },
+        {
+          "id": "learning-path",
+          "component": "LearningPath",
+          "title": "AI Biophysics Learning Path",
+          "activeStepId": "4",
+          "steps": [
+            {
+              "id": "1",
+              "title": "The Protein-Folding Problem Emerges",
+              "description": "Anfinsen's dogma: sequence determines structure (1972 Nobel Prize)"
+            },
+            {
+              "id": "2",
+              "title": "Traditional Computational Methods",
+              "description": "Molecular dynamics, Rosetta energy minimization, homology modeling"
+            },
+            {
+              "id": "3",
+              "title": "The CASP Competition & AlphaFold1",
+              "description": "CASP13, 2018: AI dramatically outperforms traditional methods for the first time"
+            },
+            {
+              "id": "4",
+              "title": "The AlphaFold2 Revolution",
+              "description": "CASP14, 2020: GDT=92.4, experimental-grade accuracy achieved for the first time"
+            },
+            {
+              "id": "5",
+              "title": "The Rise of Protein Language Models",
+              "description": "ESMFold, OmegaFold: fast single-sequence prediction with no MSA needed"
+            },
+            {
+              "id": "6",
+              "title": "AlphaFold3 & Complex Prediction",
+              "description": "2024: unified prediction of protein-DNA-RNA-small-molecule complexes"
+            },
+            {
+              "id": "7",
+              "title": "AI Drug Discovery Reaches the Clinic",
+              "description": "The first AI-designed drug enters Phase III trials, opening a new era for biopharma"
+            }
+          ],
+          "onStepSelect": {
+            "name": "learning_path_select",
+            "context": {}
+          }
+        },
+        {
+          "id": "analogy-card",
+          "component": "AnalogyCard",
+          "title": "An Analogy for Protein Folding 🦢",
+          "icon": "💡",
+          "analogy": "Imagine protein folding as **origami**: you're given a strip of paper (an amino-acid sequence, roughly 200-1000 letters), and following nature's physical rules, it folds into a precise 3D shape (a functional protein).\n\nTraditional methods are like **brute-force enumeration** — trying to simulate every step of the folding process, with a search space as large as 10^300 possibilities (Levinthal's paradox).\n\n**AlphaFold, by contrast, is like a master who has studied millions of origami examples** — it learns from evolutionary databases which residues tend to sit close together (co-evolution), and directly \"senses\" the final structure, skipping the step-by-step folding process entirely."
+        },
+        {
+          "id": "concept-alphafold2",
+          "component": "ConceptCard",
+          "title": "AlphaFold2",
+          "tags": [
+            "Structural Biology",
+            "Transformer",
+            "Equivariant Neural Networks",
+            "CASP14"
+          ],
+          "definition": "<b>AlphaFold2</b> is DeepMind's protein structure prediction system, published in <i>Nature</i> in 2021. Its core architecture has two main modules: <br><br><b>① Evoformer</b>: uses multi-head attention to jointly process the \"multiple sequence alignment (MSA) matrix\" and the \"residue-pair feature matrix,\" capturing evolutionary conservation and co-mutation signals.<br><br><b>② Structure Module</b>: uses an SE(3)-equivariant neural network to map Evoformer's features onto 3D atomic coordinates (the N-Cα-C backbone), constraining bond lengths and angles to obey physical and chemical rules via a Violation Loss.<br><br>At CASP14, AlphaFold2 achieved an average GDT_TS score of <b>92.4</b>, with a median Cα RMSD of about <b>0.96 Å</b> — reaching experimental-grade accuracy for the first time, and named <i>Science</i>'s 2021 \"Breakthrough of the Year.\"",
+          "example": "<b>Prediction example:</b><br>Given the DNA-binding domain sequence of human tumor-suppressor protein p53, AlphaFold2 outputs a high-confidence (pLDDT > 90) 3D structural model within seconds — nearly identical (Cα RMSD < 1 Å) to structures that took months to determine experimentally via cryo-EM or X-ray crystallography.",
+          "relatedConcepts": [
+            "Evoformer",
+            "SE(3)-Equivariant Networks",
+            "Multiple Sequence Alignment (MSA)",
+            "AlphaFold3",
+            "ESMFold"
+          ],
+          "onConceptClick": {
+            "name": "concept_click",
+            "context": {}
+          }
+        },
+        {
+          "id": "timeline-milestones",
+          "component": "Timeline",
+          "orientation": "vertical",
+          "events": [
+            {
+              "id": "e1",
+              "time": "1972",
+              "title": "Anfinsen's Dogma Established",
+              "description": "Christian Anfinsen wins the Nobel Prize in Chemistry, proving that a protein's amino-acid sequence fully determines its 3D structure — laying the theoretical groundwork for the folding problem."
+            },
+            {
+              "id": "e2",
+              "time": "1994",
+              "title": "CASP Launches",
+              "description": "The Critical Assessment of protein Structure Prediction (CASP) begins, becoming the field's most authoritative blind-test benchmark, held every two years."
+            },
+            {
+              "id": "e3",
+              "time": "2018 · CASP13",
+              "title": "AlphaFold1 Stuns the Field",
+              "description": "DeepMind enters for the first time; AlphaFold1 wins the Free Modeling category by a wide margin, drawing broad attention from biologists."
+            },
+            {
+              "id": "e4",
+              "time": "2020 · CASP14",
+              "title": "AlphaFold2 Declares Victory",
+              "description": "AlphaFold2 scores an average GDT_TS of 92.4, far ahead of the runner-up (around 50) — organizers call it a \"near-complete solution.\""
+            },
+            {
+              "id": "e5",
+              "time": "July 2021",
+              "title": "Nature Paper + Public Database",
+              "description": "AlphaFold2's algorithm details are published in Nature, and the AlphaFold Protein Structure Database (AFDB) launches the same day with nearly 1 million structures — later expanding to over 200 million, covering the known proteome."
+            },
+            {
+              "id": "e6",
+              "time": "2022",
+              "title": "ESMFold & RoseTTAFold Released",
+              "description": "Meta AI releases ESMFold (built on the 65-billion-parameter protein language model ESM-2), predicting structure from a single sequence with no MSA at 60x the speed; RoseTTAFold All-Atom open-sources support for co-modeling small molecules."
+            },
+            {
+              "id": "e7",
+              "time": "May 2024",
+              "title": "AlphaFold3: Full-Complex Prediction",
+              "description": "DeepMind publishes AlphaFold3 in Nature, using a Diffusion architecture to unify prediction of protein-DNA-RNA-small-molecule-ion complexes for the first time, exceeding traditional docking software by roughly 50% in protein-ligand docking accuracy."
+            },
+            {
+              "id": "e8",
+              "time": "October 2024",
+              "title": "A Nobel Prize for AI Structural Biology",
+              "description": "David Baker (protein design) and Demis Hassabis & John Jumper (AlphaFold) jointly win the 2024 Nobel Prize in Chemistry — the field's highest honor formally recognizing AI biophysics."
+            }
+          ],
+          "onEventSelect": {
+            "name": "timeline_event_select",
+            "context": {}
+          }
+        },
+        {
+          "id": "scenario-dialogue",
+          "component": "ScenarioDialogue",
+          "topic": "🔬 AI Structural Biology Roundtable: AlphaFold's Engineering Breakthroughs and Scientific Impact",
+          "characters": {
+            "wei": {
+              "name": "Wei (Computational Biology PhD Student)",
+              "avatar": "🧑‍🔬",
+              "alignment": "left"
+            },
+            "chen": {
+              "name": "Dr. Chen (Structural Biophysicist)",
+              "avatar": "👩‍🔬",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "wei",
+              "content": "Dr. Chen, in what sense did AlphaFold2 actually \"solve\" the protein-folding problem? I worry that phrase gets over-read — does it actually simulate the folding process at a physical level?"
+            },
+            {
+              "characterId": "chen",
+              "content": "Good question. To be precise, AlphaFold2 doesn't simulate the folding dynamics at all — it sidesteps that problem entirely. Its core insight is that \"evolution is the best physics simulator\": by analyzing co-mutation patterns across thousands of homologous sequences, it directly learns which residue pairs end up close together in 3D space, then uses an equivariant neural network to map those constraints onto atomic coordinates."
+            },
+            {
+              "characterId": "wei",
+              "content": "So it essentially reframes protein folding as a problem of \"statistically learning co-evolution signals,\" rather than solving thermodynamic equations?"
+            },
+            {
+              "characterId": "chen",
+              "content": "Exactly. And that reframing is remarkably effective — an average GDT_TS of 92.4 and a median Cα RMSD of about 0.96 Å at CASP14, reaching experimental-grade accuracy on most proteins. What used to take years and millions of dollars to resolve now takes seconds, almost for free."
+            },
+            {
+              "characterId": "wei",
+              "content": "AlphaFold3 dropped the Structure Module for Diffusion instead — what motivated that architectural choice? What's the natural advantage of diffusion here?"
+            },
+            {
+              "characterId": "chen",
+              "content": "The Structure Module models rigid-body transforms, which works great for protein backbone folding, but struggles once you introduce the chemical bond freedom of small-molecule ligands, the flexibility of RNA, or the coordination geometry of metal ions — a single rigid-body assumption just isn't enough. Diffusion generates directly in the continuous space of atomic coordinates, so it naturally supports arbitrary mixtures of atom types — that's fundamentally why it can unify prediction across protein-DNA-RNA-small-molecule complexes."
+            },
+            {
+              "characterId": "wei",
+              "content": "For drug discovery, that means directly predicting a candidate molecule's binding pose against a target. Traditional virtual screening needs dedicated docking software — can AlphaFold3 handle that now?"
+            },
+            {
+              "characterId": "chen",
+              "content": "On the PoseBusters benchmark, AlphaFold3's ligand docking accuracy already exceeds Glide and AutoDock Vina by roughly 50%. Of course, it predicts a thermodynamic average conformation, so it can't fully replace MD simulation. But as a first pass for virtual screening, the speed and accuracy are already very practical — Insilico Medicine, for instance, has already used AI-predicted structures in its Phase III pipeline."
+            }
+          ]
+        },
+        {
+          "id": "concept-plm",
+          "component": "ConceptCard",
+          "title": "Protein Language Models",
+          "tags": [
+            "ESMFold",
+            "OmegaFold",
+            "Self-Supervised Learning",
+            "Large Language Models"
+          ],
+          "definition": "A protein language model (PLM) treats a protein sequence as a kind of \"language\" — amino acids are the \"vocabulary,\" and structural/functional rules are the \"grammar.\" By pretraining on billions of protein sequences with <b>BERT-style Masked Language Modeling</b>, the model learns the evolutionary information and structural tendencies embedded in sequences without supervision.<br><br><b>ESMFold (Meta, 2022)</b>: built on the 65-billion-parameter ESM-2 language model, it predicts structure from a single sequence with no MSA needed, roughly 60x faster than AlphaFold2, and has been used to generate structure predictions for over 772 million metagenomic proteins.<br><br><b>ProGen2 (2023)</b>: a language-model-based protein sequence generator whose designs show experimentally validated thermal stability on par with natural proteins — opening a new era of AI de novo functional protein design.",
+          "example": "<b>Applied example:</b><br>Using ESMFold, researchers fed an unknown marine metagenomic sequence directly into the model — with no homologous MSA needed — and predicted the structure of an unidentified plastic-degrading enzyme in just milliseconds, roughly 60x faster than AlphaFold2, making it well suited to high-throughput structural screening of metagenomic data.",
+          "relatedConcepts": [
+            "AlphaFold2",
+            "Transformer",
+            "Self-Supervised Learning",
+            "Protein Design",
+            "ProGen2"
+          ],
+          "onConceptClick": {
+            "name": "concept_click",
+            "context": {}
+          }
+        },
+        {
+          "id": "concept-alphafold3",
+          "component": "ConceptCard",
+          "title": "AlphaFold3 & the Diffusion Architecture",
+          "tags": [
+            "Diffusion Model",
+            "Complex Prediction",
+            "Drug Discovery",
+            "AlphaFold3"
+          ],
+          "definition": "AlphaFold3 (DeepMind, 2024) drops AlphaFold2's Structure Module in favor of a <b>Denoising Diffusion Probabilistic Model (DDPM)</b> that generates structure directly in atomic-coordinate space. Its architectural core is <b>Pairformer</b> (an evolved version of Evoformer), combined with the evolutionary-information processing inherited from AlphaFold2.<br><br><b>Key breakthroughs:</b><br>• Predicts mixed complexes containing proteins, DNA, RNA, small-molecule ligands, covalent modifications, and metal ions<br>• Protein-small-molecule docking accuracy (PoseBusters benchmark) exceeds traditional docking software Glide/Vina by roughly 50%<br>• Protein-nucleic-acid complex prediction accuracy improves 2x<br><br>AlphaFold Server currently offers free online prediction, and AlphaFold3's full weights are open for non-commercial research.",
+          "example": "<b>Applied example:</b><br>In anticancer drug design, AlphaFold3 jointly predicted the 3D complex of the EGFR target protein, the small-molecule targeted drug erlotinib, and an accompanying magnesium ion. The predicted ligand binding pose matched the experimental structure within 1.5 Å of error, greatly cutting down the time needed for early-stage virtual drug screening.",
+          "relatedConcepts": [
+            "Diffusion Model",
+            "Virtual Drug Screening",
+            "Boltz-1",
+            "RoseTTAFold All-Atom"
+          ],
+          "onConceptClick": {
+            "name": "concept_click",
+            "context": {}
+          }
+        },
+        {
+          "id": "detailed-explanation-alphafold3",
+          "component": "DetailedExplanation",
+          "title": "Deep Dive: From Transformer to Diffusion — Denoising Your Way to 3D Coordinates",
+          "icon": "📝",
+          "estimatedReadTime": "4-minute deep dive",
+          "content": "In AlphaFold2, 3D coordinates are generated autoregressively by an equivariant network called the **Structure Module**, using rigid-body transforms borrowed from classical mechanics. This design excels at rigid structures like protein-protein binding, but struggles with the flexible motion of DNA/RNA chains or the chemical bond freedom of small-molecule ligands, often producing local topological distortions or failing to converge.\n\n**AlphaFold3's innovation:**\nAlphaFold3 drops the Structure Module entirely in favor of a **Denoising Diffusion Probabilistic Model (DDPM)**. The process works like this:\n- **Step 1 (adding noise)**: during training, Gaussian noise is progressively added to the real molecular complex's structure (the x, y, z coordinates of every atom) until it becomes pure chaotic white noise.\n- **Step 2 (feature fusion)**: Pairformer extracts evolutionary and co-evolutionary features for residue pairs and nucleotide pairs, then cross-fuses them with the noisy 3D coordinate features in a multimodal way.\n- **Step 3 (denoising generation)**: conditioned on Pairformer's output, the diffusion model runs 200 iterative denoising steps in 3D Euclidean space, gradually \"condensing\" a clear, smooth, physically and chemically valid all-atom 3D coordinate complex.\n\n> 💡 This shift means the model no longer needs a dedicated rigid-body output head for every type of biomolecule — it only needs to generate probabilistically in a unified atomic-coordinate space. That's the core technical reason it can unify prediction across proteins, nucleic acids, sugars, small molecules, and chemical modifications."
+        },
+        {
+          "id": "drag-match-methods",
+          "component": "DragAndDropMatch",
+          "leftItems": [
+            {
+              "id": "evoformer",
+              "content": "Evoformer"
+            },
+            {
+              "id": "se3",
+              "content": "SE(3)-Equivariant Networks"
+            },
+            {
+              "id": "diffusion",
+              "content": "Diffusion Models"
+            },
+            {
+              "id": "gnn",
+              "content": "Graph Neural Networks (GNN)"
+            },
+            {
+              "id": "mlp",
+              "content": "Neural Network Potentials (NNP)"
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "r4",
+              "content": "⚡ Fits molecular dynamics potential energy surfaces, replacing costly quantum chemistry calculations"
+            },
+            {
+              "id": "r2",
+              "content": "🔄 Guarantees rotation/translation invariance, modeling 3D atomic coordinates directly"
+            },
+            {
+              "id": "r1",
+              "content": "📊 Jointly processes the MSA matrix and residue-pair features to extract co-evolution signals"
+            },
+            {
+              "id": "r3",
+              "content": "🎲 Denoises in atomic-coordinate space to generate multimodal complex structures"
+            },
+            {
+              "id": "r5",
+              "content": "🕸️ Represents molecules as graphs, modeling the network of interactions between atoms"
+            }
+          ],
+          "correctMatches": {
+            "evoformer": "r1",
+            "se3": "r2",
+            "diffusion": "r3",
+            "gnn": "r5",
+            "mlp": "r4"
+          },
+          "onMatchComplete": {
+            "name": "drag_match_complete",
+            "context": {}
+          }
+        },
+        {
+          "id": "mental-model-alphafold-pipeline",
+          "component": "MentalModel",
+          "title": "The AlphaFold 3D Structure Prediction Pipeline",
+          "description": "AlphaFold2's overall inference pipeline, from an amino-acid sequence to final 3D atomic coordinates. The system no longer treats protein folding as a purely thermodynamic dynamic process — instead, it's abstracted into an end-to-end geometric learning task over evolutionary information.",
+          "icon": "🧬",
+          "analogy": "Think of structure prediction as a mix of a **\"jigsaw puzzle\" and \"3D sculpting.\"** Evoformer works out which puzzle pieces should sit next to each other using co-evolution clues; the Structure Module then uses a 3D sculpting tool to place those pieces in actual Euclidean space and fine-tune them into the perfect shape.",
+          "diagram": "[Input amino-acid sequence] ──> [Search homologous sequence databases, build MSA evolution matrix] ───┐\n                                                           ├──> [Evoformer extracts co-evolution geometric features] ──> [Structure Module optimizes 3D coordinates] ──> [Final 3D atomic coordinates]\n[Input amino-acid sequence] ──> [Search homologous structure templates] ───────┘",
+          "pillars": [
+            {
+              "title": "Multiple Sequence Alignment (MSA)",
+              "description": "Captures co-mutating residue pairs from homologous evolutionary sequences — since residues close together in physical space tend to co-evolve, this provides extremely strong spatial constraint information.",
+              "icon": "📊"
+            },
+            {
+              "title": "Evoformer Attention",
+              "description": "Alternates attention updates between MSA information and residue-pair (Pair) information, turning evolutionary clues into geometric features.",
+              "icon": "🔄"
+            },
+            {
+              "title": "Structure Module",
+              "description": "Uses an SE(3)-equivariant neural network and Invariant Point Attention to directly optimize each residue's local coordinate frame — rotation and translation — in 3D.",
+              "icon": "📐"
+            }
+          ]
+        },
+        {
+          "id": "cloze-test",
+          "component": "ClozeTest",
+          "text": "AlphaFold2 uses the ___ module to jointly process the multiple sequence alignment (MSA) and residue-pair features, extracting co-evolution signals; it then uses the ___ module to map those features onto 3D atomic coordinates that satisfy physical constraints. The 2024 release, AlphaFold3, switched to a ___ architecture, achieving unified prediction of protein-DNA-RNA-small-molecule complexes for the first time. That same year, Hassabis and Jumper were awarded the ___ for this work.",
+          "correctAnswers": [
+            "Evoformer",
+            "Structure Module",
+            "Diffusion",
+            "Nobel Prize in Chemistry"
+          ],
+          "explanation": "**Explanation:**\n- **Evoformer**: AlphaFold2's core attention network, alternating attention computation across \"rows\" (the sequence dimension) and \"columns\" (evolutionary variation at the same position) to capture co-mutations in the MSA.\n- **Structure Module**: takes Evoformer's output and uses Invariant Point Attention (IPA) to iteratively update each residue's rigid-body transform (rotation + translation) in 3D space, ultimately outputting all atomic coordinates.\n- **Diffusion Model**: AlphaFold3's generative backbone, progressively denoising from noise to generate atomic coordinates, naturally supporting joint prediction across multiple molecule types.\n- **Nobel Prize in Chemistry**: awarded in 2024 to David Baker, Demis Hassabis, and John Jumper for their revolutionary contributions to computational protein design and structure prediction.",
+          "onSubmit": {
+            "name": "cloze_submit",
+            "context": {}
+          }
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "🧠 AI Biophysics Core Concepts Quiz",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "In AlphaFold2, what does the **pLDDT (predicted Local Distance Difference Test)** score represent?",
+              "options": [
+                "The predicted binding affinity between a protein and a ligand (kcal/mol)",
+                "The model's per-residue local confidence in its own prediction (0-100)",
+                "The percentage sequence identity to the nearest homologous protein",
+                "A convergence metric for the potential energy function during structure optimization"
+              ],
+              "correctIndex": 1,
+              "explanation": "<b>pLDDT</b> is AlphaFold's self-assessed confidence (0-100) for <b>each residue</b>:<br>• ≥90: very high confidence, structure reliable<br>• 70-90: high confidence, backbone largely accurate<br>• 50-70: low confidence, possibly a flexible region<br>• <50: very low, usually an intrinsically disordered region (IDR)<br><br>pLDDT is stored in the B-factor column of PDB files and can be visualized as a color gradient in software like PyMOL."
+            },
+            {
+              "id": "q2",
+              "question": "What is the **single most important architectural change** in AlphaFold3 compared to AlphaFold2?",
+              "options": [
+                "The number of Transformer layers increased from 48 to 96",
+                "The Structure Module was replaced with a Denoising Diffusion Probabilistic Model (DDPM)",
+                "Reinforcement learning replaced supervised training",
+                "A multimodal image encoder was introduced to process cryo-EM data"
+              ],
+              "correctIndex": 1,
+              "explanation": "AlphaFold3's most critical architectural shift is <b>replacing the Structure Module with a Diffusion model</b>. The diffusion model works directly in the 3D Euclidean space of atomic coordinates, generating them by progressively denoising from Gaussian noise. This naturally supports <b>joint modeling</b> of proteins, DNA, RNA, small molecules, and more, without needing a dedicated structure output head for each molecule type."
+            },
+            {
+              "id": "q3",
+              "question": "What is ESMFold's most notable **advantage scenario** compared to AlphaFold2?",
+              "options": [
+                "Higher prediction accuracy for protein families with abundant homologous sequences",
+                "More accurate prediction of protein-protein interaction interfaces",
+                "Large-scale, fast prediction for orphan proteins (no MSA available)",
+                "Support for predicting the transmembrane topology of membrane proteins"
+              ],
+              "correctIndex": 2,
+              "explanation": "ESMFold's core advantage is that it needs <b>no MSA</b> — a single sequence is enough to predict structure, roughly 60x faster than AlphaFold2. That makes it especially well suited to:<br>• Large-scale <b>metagenomic</b> proteome annotation (Meta has predicted structures for 772 million sequences)<br>• <b>Orphan proteins</b> (evolutionarily isolated proteins lacking homologs)<br>• Drug-discovery pipelines that need <b>high-throughput</b> screening<br><br>The trade-off is slightly lower accuracy than AlphaFold2 when a high-quality MSA is available."
+            },
+            {
+              "id": "q4",
+              "question": "What is the main role of Neural Network Potentials (NNPs) in molecular dynamics?",
+              "options": [
+                "Replacing electrostatics calculations (RESP charge fitting) in molecular force fields",
+                "Approximating the potential energy surface at DFT-level accuracy with force-field-level speed, enabling large-scale AI-MD",
+                "Automatically optimizing the integration step size and ensemble settings for MD simulations",
+                "Automatically discovering reaction transition states via reinforcement learning"
+              ],
+              "correctIndex": 1,
+              "explanation": "The core value of a <b>Neural Network Potential (NNP)</b> is breaking the \"accuracy vs. speed\" trade-off:<br>• Traditional MM force fields: fast (nanoseconds/day), but limited accuracy, and can't describe bond breaking/forming<br>• DFT quantum chemistry: highly accurate, but nearly infeasible for systems with 100+ atoms<br>• <b>NNPs (e.g., ANI, MACE, NequIP)</b>: learn the DFT potential energy surface, achieving near-DFT accuracy at 10^4-10^6x the speed, enabling reaction dynamics simulation for systems with thousands of atoms"
+            }
+          ]
+        },
+        {
+          "id": "deep-dive",
+          "component": "DeepDivePrompt",
+          "prompts": [
+            {
+              "id": "dp1",
+              "label": "How does AlphaFold3 handle small-molecule ligand prediction?",
+              "icon": "💊"
+            },
+            {
+              "id": "dp2",
+              "label": "How do cryo-EM and AI work together to improve resolution?",
+              "icon": "🔬"
+            },
+            {
+              "id": "dp3",
+              "label": "How does AI molecule generation (e.g. DiffSBDD, RFDiffusion) work?",
+              "icon": "⚗️"
+            },
+            {
+              "id": "dp4",
+              "label": "What are the latest breakthroughs in de novo protein design?",
+              "icon": "🧬"
+            },
+            {
+              "id": "dp5",
+              "label": "Why do AI-predicted structures still need experimental validation?",
+              "icon": "🔍"
+            }
+          ],
+          "onPromptSelect": {
+            "name": "deep_dive_select",
+            "context": {}
+          }
+        },
+        {
+          "id": "summary-and-terms",
+          "component": "AnalogyCard",
+          "title": "Summary: The AI-Driven Structural Biology Revolution",
+          "analogy": "The AlphaFold family compressed protein structure determination from \"years of experiments\" down to \"seconds of computation,\" fundamentally transforming structural biology, drug discovery, and synthetic biology. The 2024 Nobel Prize in Chemistry marks the field's highest recognition of AI biophysics.<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 Glossary</h5><p>The modern AI structural biology stack is built around <dfn title=\"A protein structure prediction system published by DeepMind in 2021, using Evoformer to extract co-evolution signals and an SE(3)-equivariant network to generate atomic coordinates\"><strong>AlphaFold2</strong></dfn>, whose <dfn title=\"AlphaFold2's core attention network, alternating attention computation across the MSA matrix and the residue-pair matrix to capture co-evolutionary geometric features\"><strong>Evoformer</strong></dfn> processes <dfn title=\"An alignment matrix of multiple homologous protein sequences from a database — co-mutation signals provide strong 3D spatial constraints\"><strong>Multiple Sequence Alignment (MSA)</strong></dfn> signals. The 2024 <dfn title=\"Uses a denoising diffusion probabilistic model to generate structure directly in atomic-coordinate space, unifying prediction of protein-DNA-RNA-small-molecule complexes\"><strong>AlphaFold3</strong></dfn> replaces the Structure Module with a <dfn title=\"A generative model that progressively denoises from noise to data; in AlphaFold3 it generates multi-molecule complex structures directly in 3D atomic-coordinate space\"><strong>Diffusion model</strong></dfn>, achieving unified prediction of multimodal complexes. The protein language model <dfn title=\"A structure-prediction system built by Meta AI on the 65-billion-parameter ESM-2 language model — predicts from a single sequence with no MSA needed, 60x faster than AlphaFold2\"><strong>ESMFold</strong></dfn> drives large-scale metagenomic structure annotation at dozens of sequences per second.</p></div>"
+        },
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "📚 Core Papers & Tools",
+          "resources": [
+            {
+              "title": "The original AlphaFold2 paper (Nature, 2021)",
+              "url": "https://www.nature.com/articles/s41586-021-03819-2",
+              "description": "Jumper et al.'s full technical paper on AlphaFold2 in Nature, detailing the Evoformer and Structure Module architecture.",
+              "type": "article"
+            },
+            {
+              "title": "The AlphaFold3 paper (Nature, 2024)",
+              "url": "https://www.nature.com/articles/s41586-024-07487-w",
+              "description": "Abramson et al.'s AlphaFold3 paper, using a Diffusion framework to unify prediction of protein-DNA-RNA-small-molecule complexes.",
+              "type": "article"
+            },
+            {
+              "title": "AlphaFold Protein Structure Database (AFDB)",
+              "url": "https://alphafold.ebi.ac.uk/",
+              "description": "Freely query AlphaFold-predicted structures for over 200 million proteins, with sequence search and structure download.",
+              "type": "wiki"
+            },
+            {
+              "title": "ESMFold / ESM-2 source code",
+              "url": "https://github.com/facebookresearch/esm",
+              "description": "Meta AI's open-source protein language model (ESM-2, 65B parameters) and ESMFold single-sequence structure prediction code.",
+              "type": "github"
+            },
+            {
+              "title": "ColabFold: fast AlphaFold2 predictions online",
+              "url": "https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/AlphaFold2.ipynb",
+              "description": "Run AlphaFold2 for free on Google Colab with no installation required (uses MMseqs2 to speed up MSA search).",
+              "type": "doc"
+            },
+            {
+              "title": "RoseTTAFold All-Atom (RFAA)",
+              "url": "https://github.com/baker-laboratory/RoseTTAFold-All-Atom",
+              "description": "An open-source all-atom structure prediction model from the Baker Lab, supporting covalently modified small molecules, metal cofactors, and other complex systems.",
+              "type": "github"
+            },
+            {
+              "title": "Boltz-1: an open-source AlphaFold3 alternative",
+              "url": "https://github.com/jwohlwend/boltz",
+              "description": "An MIT-licensed open-source biomolecular complex structure prediction model, matching AlphaFold3's performance and fully open for commercial use.",
+              "type": "github"
+            },
+            {
+              "title": "AI in Biophysics: A Review (Nature Methods, 2023)",
+              "url": "https://www.nature.com/articles/s41592-023-01793-7",
+              "description": "A systematic review of the latest advances in AI for protein structure prediction, design, dynamics simulation, and cryo-EM.",
+              "type": "article"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

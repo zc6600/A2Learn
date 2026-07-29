@@ -460,7 +460,7 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
                             ${pIcon ? html`<span class="pillar-icon">${pIcon}</span>` : nothing}
                             <h4 class="pillar-title">${pTitle}</h4>
                           </div>
-                          <p class="pillar-desc">${pDesc}</p>
+                          <p class="pillar-desc">${unsafeHTML(sanitizeHtml(this.renderInlineMarkdown(pDesc)))}</p>
                         </div>
                       `;
                     })}
