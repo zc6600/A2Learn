@@ -1,4 +1,7 @@
-[
+import json
+from pathlib import Path
+
+content = [
   {
     "version": "v0.9",
     "createSurface": {
@@ -243,3 +246,15 @@
     }
   }
 ]
+
+paths = [
+    Path("packages/a2learn-catalog/examples/Website/paper-attention.json"),
+    Path("skill/references/examples/paper-attention.json"),
+    Path("apps/viewer/public/examples/paper-attention.json")
+]
+
+for p in paths:
+    p.write_text(json.dumps(content, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"UPDATED_PAPER_ATTENTION: {p}")
+
+print("ALL_PAPER_ATTENTION_UPDATES_SUCCESS")

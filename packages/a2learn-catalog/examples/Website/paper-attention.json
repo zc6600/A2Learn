@@ -17,10 +17,13 @@
           "children": [
             "header",
             "paper-abstract",
+            "background-analogy",
+            "scenario-chat",
             "prerequisite-timeline",
-            "literature-reference-seq2seq",
+            "mental-model-attention",
             "attention-formula",
-            "attention-quiz",
+            "quiz-comprehension",
+            "summary-and-terms",
             "resources"
           ]
         },
@@ -28,7 +31,7 @@
           "id": "header",
           "component": "Text",
           "variant": "h1",
-          "text": "Academic Paper Deep Dive: Attention Is All You Need"
+          "text": "经典论文深度拆解：Attention Is All You Need (Transformer 架构全景解析)"
         },
         {
           "id": "paper-abstract",
@@ -44,12 +47,57 @@
             "Łukasz Kaiser",
             "Illia Polosukhin"
           ],
-          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS 2017)",
           "year": 2017,
           "abstract": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train.",
-          "tldr": "提出了全新的 Transformer 架构，完全摒弃了传统的循环神经网络（RNN）与卷积神经网络（CNN），仅依赖自注意力机制（Self-Attention）实现并行计算，在机器翻译任务上取得了 SOTA 的效果且大幅缩短训练时间。",
+          "tldr": "提出了全新的 Transformer 架构，完全摒弃了传统的循环神经网络（RNN）与卷积神经网络（CNN），仅依赖自注意力机制（Self-Attention）与矩阵乘法实现全并行计算，在机器翻译与 NLP 任务上取得了 SOTA 的效果并开启了大语言模型时代。",
           "pdfUrl": "https://arxiv.org/pdf/1706.03762.pdf",
           "sourceUrl": "https://arxiv.org/abs/1706.03762"
+        },
+        {
+          "id": "background-analogy",
+          "component": "AnalogyCard",
+          "title": "序列建模困境：RNN 的串行瓶颈与长距离遗忘",
+          "analogy": "<b>研究背景</b>：在 2017 年之前，自然语言处理（NLP）领域几乎被循环神经网络（RNN/LSTM）统治。<br><br><b>核心瓶颈</b>：RNN 的计算公式为 $h_t = f(h_{t-1}, x_t)$，这意味着计算第 $t$ 个词必须等待第 $t-1$ 个词计算完毕！在由几百张 GPU 构成的计算集群中，硬件算力大量闲置等待；同时，固定长度的隐状态向量 $h_t$ 在传递长句子时，早期词的信息会被严重稀释遗忘。如何设计一种能彻底并行化并保持全局长距离依赖的新架构？"
+        },
+        {
+          "id": "scenario-chat",
+          "component": "ScenarioDialogue",
+          "topic": "💬 AI 实验室研讨：探究 RNN 串行训练低下与并行化突破",
+          "characters": {
+            "alex": {
+              "name": "Alex (AI 系统研究员)",
+              "avatar": "👨‍🔬",
+              "alignment": "left"
+            },
+            "elena": {
+              "name": "Elena (大模型负责人)",
+              "avatar": "👩‍💻",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alex",
+              "content": "Elena，我们在 8 卡 GPU 集群上训练 LSTM 翻译模型，监控发现 GPU 利用率只有 15%！仔细调优了并行代码还是上不去，这是为什么？"
+            },
+            {
+              "characterId": "elena",
+              "content": "因为 RNN 硬件物理特性的限制啊！在计算时刻 t 的隐藏状态前，必须先等待时刻 t-1 计算完成。串行的循环依赖导致 GPU 几千个 CUDA 核心大部分时间都在空转等待。"
+            },
+            {
+              "characterId": "alex",
+              "content": "而且长句子的翻译效果很差，句尾往往把句首的主语给遗忘了。"
+            },
+            {
+              "characterId": "elena",
+              "content": "那如果我们彻底把 RNN 的时间步循环丢掉呢？直接让输入句子的所有词在第一层就通过矩阵乘法同时计算两两之间的关联度！"
+            },
+            {
+              "characterId": "alex",
+              "content": "完全抛弃 RNN，只靠点积注意力？这样整张矩阵就能在 GPU 上一次性全并行算完！这就是 <dfn title=\"完全抛弃循环与卷积、仅依赖自注意力机制与矩阵乘法实现全并行计算的神经网络架构\">Transformer 架构</dfn> 的根本突破！"
+            }
+          ]
         },
         {
           "id": "prerequisite-timeline",
@@ -60,44 +108,56 @@
               "id": "rnn-seq2seq",
               "time": "2014年",
               "title": "RNN Sequence-to-Sequence 出现",
-              "description": "Sutskever 等人提出 Seq2Seq 架构，使用循环神经网络处理变长序列。缺陷是难以并行化且容易发生梯度消失。"
+              "description": "Sutskever 等人提出 Seq2Seq 架构，使用循环神经网络处理变长序列。缺陷是难以并行化且存在长距离信息遗忘。"
             },
             {
               "id": "bahdanau-attention",
               "time": "2015年",
               "title": "Bahdanau 局部注意力机制引入",
-              "description": "首次在 Seq2Seq 中引入对齐和注意力计算，使得解码器在翻译每个词时能重点关注编码器的不同部分。"
+              "description": "首次在 Seq2Seq 中引入对齐与动态权重计算，解码时能重点关注编码器的不同节点。"
             },
             {
               "id": "transformer-era",
               "time": "2017年",
-              "title": "Transformer 诞生",
-              "description": "Vaswani 等人发表本项目论文，宣告自注意力机制彻底取代循环网络，开启大模型时代。"
+              "title": "Transformer 诞生 (Attention Is All You Need)",
+              "description": "Vaswani 等人发表 NeurIPS 论文，宣告自注意力机制彻底取代循环网络，开创全并行的大模型时代。"
             }
           ]
         },
         {
-          "id": "literature-reference-seq2seq",
-          "component": "LiteratureReference",
-          "citation": "Sutskever et al., 2014",
-          "title": "Sequence to Sequence Learning with Neural Networks",
-          "authors": [
-            "Ilya Sutskever",
-            "Oriol Vinyals",
-            "Quoc V. Le"
+          "id": "mental-model-attention",
+          "component": "MentalModel",
+          "title": "自注意力机制与全并行矩阵计算心智模型",
+          "description": "Self-Attention 将输入的每一个词向量映射为 Query、Key、Value 三个投影向量，通过矩阵乘法在常数 O(1) 路径长度内直接捕捉序列中任意两个词之间的语义关联。",
+          "icon": "🧠",
+          "diagramTitle": "📊 Transformer 矩阵并行流动演推",
+          "diagram": "输入 Token 矩阵 X ➔ 线性变换生成 Q, K, V 矩阵 ➔ 矩阵乘法 QK^T 算相似度图\n➔ 缩放与 Softmax 归一化权重 ➔ 乘以 V 矩阵 ➔ 得到输出融合上下文特征矩阵",
+          "pillarsTitle": "三向量协同架构",
+          "pillars": [
+            {
+              "title": "Query (查询向量 Q)",
+              "description": "代表当前词寻找其他相关词的检索条件，犹如去图书馆检索书目时发出的查询指令。",
+              "icon": "🔍"
+            },
+            {
+              "title": "Key (键向量 K)",
+              "description": "代表被查询词公开的属性索引，与 Query 进行点积计算以衡量两者之间的相关度。",
+              "icon": "🔑"
+            },
+            {
+              "title": "Value (值向量 V)",
+              "description": "代表被查询词所包含的实际语义内容，最终根据注意力权重加权聚合输出。",
+              "icon": "💎"
+            }
           ],
-          "url": "https://arxiv.org/abs/1409.3215",
-          "highlightQuote": "Our method uses a multilayered Long Short-Term Memory (LSTM) to map the input sequence to a vector of a fixed dimensionality, and then another LSTM to decode the target sequence from the vector.",
-          "onReferenceClick": {
-            "name": "explain_seq2seq_reference",
-            "context": {}
-          }
+          "analogyTitle": "💡 从传统串行到矩阵全平行的思维飞跃",
+          "analogy": "<b>RNN 串行传送带 vs Self-Attention 图书馆全景检索</b>：<br>1. <b>RNN 模式</b>：像接力跑，信息必须一个传一个，链条长了必然丢信息且无法加速；<br>2. <b>Self-Attention 模式</b>：所有单词同时站在聚光灯下，通过 $QK^T$ 一瞬间算出所有词之间的两两相似度分布，GPU 并行矩阵乘法满载轰鸣！"
         },
         {
           "id": "attention-formula",
           "component": "InteractiveFormula",
-          "latex": "Attention(Q, K, V) = softmax(\\frac{QK^T}{\\sqrt{d_k}})V",
-          "description": "Scaled Dot-Product Attention（缩放点积注意力）是 Transformer 架构的最核心公式。它计算 Query 和 Key 的点积，并除以缩放因子进行数值稳定，再通过 Softmax 归一化分配给 Value 的权重。",
+          "latex": "Attention(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V",
+          "description": "Scaled Dot-Product Attention（缩放点积注意力）是 Transformer 架构的最核心公式。它计算 Query 和 Key 的点积矩阵，除以缩放因子进行数值稳定，再通过 Softmax 归一化分配给 Value 的权重。",
           "variables": {
             "Q": "Query 向量矩阵，代表当前要查询/聚焦的单词特征",
             "K": "Key 向量矩阵，代表被查询的所有单词的键特征",
@@ -118,50 +178,63 @@
             },
             {
               "step": "第三步：归一化概率分配",
-              "latex": "W = softmax(\\frac{QK^T}{\\sqrt{d_k}})",
+              "latex": "W = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)",
               "explanation": "对每一行相似度执行 Softmax 操作，转化为概率分布，代表 Query 对各个 Value 的注意力权重分布。"
             },
             {
               "step": "第四步：加权求解输出",
               "latex": "Output = WV",
-              "explanation": "将计算出的权重分布乘以 Value 矩阵进行加权求和，得到最终融合了上下文语义特征的输出向量。"
+              "explanation": "将计算出的权重分布乘以 Value 矩阵进行加权求和，得到最终融合了全局上下文语义特征的输出向量。"
             }
           ]
         },
         {
-          "id": "attention-quiz",
+          "id": "quiz-comprehension",
           "component": "QuizCard",
-          "title": "Attention Principle Concept Check",
-          "questions": [
+          "title": "🧠 Attention 核心原理概念自测",
+          "question": "在 Transformer 自注意力机制公式中，为什么要在点积后除以 \\sqrt{d_k} 进行缩放？",
+          "options": [
             {
-              "id": "scaling-factor-purpose",
-              "question": "在 Transformer 自注意力机制公式中，为什么要在点积后除以 \\sqrt{d_k} 进行缩放？",
-              "options": [
-                "为了使注意力权重和为1",
-                "防止在维度较大时点积数值过大，导致 Softmax 激活函数进入饱和区而发生梯度消失",
-                "为了加快矩阵乘法的计算速度",
-                "用于隐藏由于隐私保护带来的噪音"
-              ],
-              "correctIndex": 1,
-              "explanation": "<b>解析：</b><br>当维度 d_k 非常大时，点积结果容易变得非常大，这会将 Softmax 函数推向极小梯度的区域（饱和区）。除以 \\sqrt{d_k} 进行缩放能够有效抑制这种效应，使模型正常训练。"
+              "id": "opt1",
+              "text": "A. 为了使注意力权重和为 1"
+            },
+            {
+              "id": "opt2",
+              "text": "B. 防止在维度较大时点积数值过大，导致 Softmax 激活函数进入饱和区而发生梯度消失"
+            },
+            {
+              "id": "opt3",
+              "text": "C. 为了加快矩阵乘法的计算速度"
+            },
+            {
+              "id": "opt4",
+              "text": "D. 用于隐藏由于隐私保护带来的噪音"
             }
-          ]
+          ],
+          "correctOptionId": "opt2",
+          "explanation": "当维度 d_k 非常大时，点积结果容易变得非常大，这会将 Softmax 函数推向极小梯度的区域（饱和区）。除以 \\sqrt{d_k} 进行缩放能够有效抑制这种效应，使模型正常训练。"
+        },
+        {
+          "id": "summary-and-terms",
+          "component": "AnalogyCard",
+          "title": "总结：自注意力机制的革命性影响",
+          "analogy": "Transformer 通过纯粹的自注意力与矩阵乘法，消除了 RNN 串行依赖，使 GPU 并行算力得到释放，奠定了现代大模型时代。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>经典论文 <i>Attention Is All You Need</i> 提出了完全摒弃循环网络的 <dfn title=\"基于自注意力机制与矩阵全并行计算的现代神经网络架构\"><strong>Transformer 架构</strong></dfn>。其核心的 <dfn title=\"通过 Q, K, V 矩阵点积计算序列内任意节点两两关联度的注意力算法\"><strong>缩放点积注意力 (Scaled Dot-Product Attention)</strong></dfn> 建立了 <dfn title=\"代表查询特征的向量矩阵\"><strong>Query (Q)</strong></dfn>、<dfn title=\"代表键特征的向量矩阵\"><strong>Key (K)</strong></dfn> 与 <dfn title=\"代表实际语义内容的向量矩阵\"><strong>Value (V)</strong></dfn> 的协同三要素，破解了传统 RNN 无法高并发 <dfn title=\"充分利用 GPU 几千个 CUDA 核心同时计算矩阵的加速模式\"><strong>矩阵并行化 (Parallelization)</strong></dfn> 的工程绝境。</p></div>"
         },
         {
           "id": "resources",
           "component": "ResourceList",
-          "title": "Related Transformer Resources",
+          "title": "推荐扩展研读资源",
           "resources": [
             {
               "title": "The Illustrated Transformer",
               "url": "https://jalammar.github.io/illustrated-transformer/",
-              "description": "A visual guide to understanding the inner workings of the Transformer model.",
+              "description": "Jay Alammar 写的广受赞誉的 Transformer 架构可视化图解教程。",
               "type": "article"
             },
             {
               "title": "Harvard NLP: The Annotated Transformer",
               "url": "https://nlp.seas.harvard.edu/2018/04/03/attention.html",
-              "description": "Line-by-line PyTorch implementation and walkthrough of the original Transformer paper.",
+              "description": "哈佛 NLP 团队逐行 PyTorch 代码实现与 Transformer 原论文对照解析。",
               "type": "github"
             }
           ]
