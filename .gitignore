@@ -4,7 +4,6 @@ __pycache__/
 *.pyc
 .env
 node_modules/
-.a2ui-ref.lock
 apps/viewer/node_modules/
 apps/viewer/dist/
 apps/viewer/.vite/
