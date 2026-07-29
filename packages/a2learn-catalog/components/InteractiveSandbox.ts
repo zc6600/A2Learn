@@ -349,11 +349,9 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
     this.localObjectUrl = null;
   }
 
-  updated(changedProperties: Map<PropertyKey, unknown>) {
-    super.updated(changedProperties);
-    if (changedProperties.has('controller')) {
-      this.syncProps();
-    }
+  willUpdate(changedProperties: Map<PropertyKey, unknown>) {
+    super.willUpdate(changedProperties);
+    this.syncProps();
   }
 
   private syncProps() {
