@@ -85,6 +85,25 @@ export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCard
       color: var(--a2ui-color-primary, #0d9488);
       font-weight: 700;
     }
+    .content hr {
+      border: none;
+      border-top: 1px dashed var(--a2ui-color-border, #cbd5e1);
+      margin: 16px 0;
+    }
+    .terms-section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--a2ui-color-border, #cbd5e1);
+    }
+    .terms-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--a2ui-color-primary, #0d9488);
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
   `
 ];
 

@@ -36,8 +36,7 @@ messages = [
                         "step3-mindset",
                         "step4-implementation",
                         "step4-sandbox",
-                        "step5-summary",
-                        "step6-anchors"
+                        "step5-summary"
                     ]
                 },
                 {
@@ -147,16 +146,7 @@ console.log("'Alice' 直接算出的槽位号:", simpleHash('Alice'));""",
                     "id": "step5-summary",
                     "component": "AnalogyCard",
                     "title": "总结：从搜索比对到公式计算",
-                    "analogy": "实现 O(1) 极速查找的关键，在于利用物理内存可直接按数字下标存取的特性，将<b>‘挨个搜索比对’</b>替换为<b>‘公式直接计算’</b>。"
-                },
-                {
-                    "id": "step6-anchors",
-                    "component": "ConceptCard",
-                    "title": "术语总结",
-                    "tags": ["术语总结"],
-                    "definition": "要彻底破解海量数据检索的效率危机，核心在于从传统的 <dfn title=\"按顺序逐个比对元素的基准方案，耗时随数据量成正比\"><strong>顺序查找 O(N)</strong></dfn> 转向计算思想。通过精心设计的 <dfn title=\"将任意格式Key映射转换为固定范围整数索引的散列计算公式\"><strong>哈希函数 (Hash Function)</strong></dfn>，将任意 Key 直接转换为内存下标，从而将数据存取性能提升至与规模完全无关的 <dfn title=\"数据检索耗时与数据总量规模完全无关的极致性能表现\"><strong>常数时间复杂度 O(1)</strong></dfn>。",
-                    "example": "",
-                    "relatedConcepts": ["顺序查找", "哈希函数", "O(1)复杂度"]
+                    "analogy": "实现 O(1) 极速查找的关键，在于利用物理内存可直接按数字下标存取的特性，将<b>‘挨个搜索比对’</b>替换为<b>‘公式直接计算’</b>。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>要彻底破解海量数据检索的效率危机，核心在于从传统的 <dfn title=\"按顺序逐个比对元素的基准方案，耗时随数据量成正比\"><strong>顺序查找 O(N)</strong></dfn> 转向计算思想。通过精心设计的 <dfn title=\"将任意格式Key映射转换为固定范围整数索引的散列计算公式\"><strong>哈希函数 (Hash Function)</strong></dfn>，将任意 Key 直接转换为内存下标，从而将数据存取性能提升至与规模完全无关的 <dfn title=\"数据检索耗时与数据总量规模完全无关的极致性能表现\"><strong>常数时间复杂度 O(1)</strong></dfn>。</p></div>"
                 }
             ]
         }
@@ -189,7 +179,6 @@ console.log("'Alice' 直接算出的槽位号:", simpleHash('Alice'));""",
                         "step3-mindset-2",
                         "step4-implementation-2",
                         "step5-summary-2",
-                        "step6-anchors-2",
                         "quiz-2"
                     ]
                 },
@@ -268,16 +257,7 @@ console.log("'Alice' 直接算出的槽位号:", simpleHash('Alice'));""",
                     "id": "step5-summary-2",
                     "component": "AnalogyCard",
                     "title": "总结：纵向链表 vs 横向连续槽位",
-                    "analogy": "碰撞不可消除。链地址法通过纵向扩展链表解决冲突，开放寻址法通过横向寻找连续空槽解决冲突。"
-                },
-                {
-                    "id": "step6-anchors-2",
-                    "component": "ConceptCard",
-                    "title": "术语总结",
-                    "tags": ["术语总结"],
-                    "definition": "在有限槽位中，不同 Key 映射到同一下标的 <dfn title=\"不同Key映射到完全相同数组下标的必然现象\"><strong>哈希碰撞 (Hash Collision)</strong></dfn> 在数学上不可避免。工程上，Java 采用在槽位后挂载单链表容纳冲突节点的 <dfn title=\"在槽位后挂载单链表容纳多冲突节点的解决技术\"><strong>链地址法 (Separate Chaining)</strong></dfn>；而 Python 字典则采用 <dfn title=\"在连续数组空间内探测寻找闲置槽位的缓存友好型技术\"><strong>开放寻址法 (Open Addressing)</strong></dfn>，通过紧密连续的内存布局充分触发硬件的 <dfn title=\"连续内存布局触发硬件 Cache Line 预取加速的性能特性\"><strong>CPU 缓存局部性 (Cache Locality)</strong></dfn> 加速。",
-                    "example": "",
-                    "relatedConcepts": ["哈希碰撞", "链地址法", "开放寻址法", "CPU缓存局部性"]
+                    "analogy": "碰撞不可消除。链地址法通过纵向扩展链表解决冲突，开放寻址法通过横向寻找连续空槽解决冲突。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>在有限槽位中，不同 Key 映射到同一下标的 <dfn title=\"不同Key映射到完全相同数组下标的必然现象\"><strong>哈希碰撞 (Hash Collision)</strong></dfn> 在数学上不可避免。工程上，Java 采用在槽位后挂载单链表容纳冲突节点的 <dfn title=\"在槽位后挂载单链表容纳多冲突节点的解决技术\"><strong>链地址法 (Separate Chaining)</strong></dfn>；而 Python 字典则采用 <dfn title=\"在连续数组空间内探测寻找闲置槽位的缓存友好型技术\"><strong>开放寻址法 (Open Addressing)</strong></dfn>，通过紧密连续的内存布局充分触发硬件的 <dfn title=\"连续内存布局触发硬件 Cache Line 预取加速的性能特性\"><strong>CPU 缓存局部性 (Cache Locality)</strong></dfn> 加速。</p></div>"
                 },
                 {
                     "id": "quiz-2",
@@ -324,7 +304,6 @@ console.log("'Alice' 直接算出的槽位号:", simpleHash('Alice'));""",
                         "step3-mindset-3",
                         "step4-implementation-3",
                         "step5-summary-3",
-                        "step6-anchors-3",
                         "cloze-3"
                     ]
                 },
@@ -403,16 +382,7 @@ console.log("'Alice' 直接算出的槽位号:", simpleHash('Alice'));""",
                     "id": "step5-summary-3",
                     "component": "AnalogyCard",
                     "title": "总结：拥挤度监控与平摊搬迁",
-                    "analogy": "负载因子是监控指标，动态 Rehash 是扩容手段，位运算是性能加速器。"
-                },
-                {
-                    "id": "step6-anchors-3",
-                    "component": "ConceptCard",
-                    "title": "术语总结",
-                    "tags": ["术语总结"],
-                    "definition": "当数组逐渐填满，系统通过监控 <dfn title=\"已存元素总数与当前容量的比值 (size / capacity)\"><strong>负载因子 (Load Factor)</strong></dfn> 来评估拥挤程度。一旦超越警戒线，便触发容量翻倍与全量映射的 <dfn title=\"申请新容量空间后重新计算全量数据新下标的映射过程\"><strong>重散列 (Rehash)</strong></dfn>。为了防止高并发下大搬迁导致系统卡死，工业级实现常结合 <dfn title=\"将大规模扩容搬迁分批平摊到日常读写中的高并发优化技术\"><strong>渐进式 Rehash</strong></dfn> 将搬迁开销平摊到每次日常读写中。",
-                    "example": "",
-                    "relatedConcepts": ["负载因子", "重散列", "渐进式 Rehash"]
+                    "analogy": "负载因子是监控指标，动态 Rehash 是扩容手段，位运算是性能加速器。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>当数组逐渐填满，系统通过监控 <dfn title=\"已存元素总数与当前容量的比值 (size / capacity)\"><strong>负载因子 (Load Factor)</strong></dfn> 来评估拥挤程度。一旦超越警戒线，便触发容量翻倍与全量映射的 <dfn title=\"申请新容量空间后重新计算全量数据新下标的映射过程\"><strong>重散列 (Rehash)</strong></dfn>。为了防止高并发下大搬迁导致系统卡死，工业级实现常结合 <dfn title=\"将大规模扩容搬迁分批平摊到日常读写中的高并发优化技术\"><strong>渐进式 Rehash</strong></dfn> 将搬迁开销平摊到每次日常读写中。</p></div>"
                 },
                 {
                     "id": "cloze-3",
@@ -454,7 +424,6 @@ console.log("'Alice' 直接算出的槽位号:", simpleHash('Alice'));""",
                         "step3-mindset-4",
                         "step4-implementation-4",
                         "step5-summary-4",
-                        "step6-anchors-4",
                         "quiz-4"
                     ]
                 },
@@ -533,16 +502,7 @@ console.log("'Alice' 直接算出的槽位号:", simpleHash('Alice'));""",
                     "id": "step5-summary-4",
                     "component": "AnalogyCard",
                     "title": "总结：算法随机化与自适应兜底",
-                    "analogy": "工业级哈希表通过算法随机化和数据结构自适应兜底，彻底封死了黑客攻击与最坏退化的漏洞。"
-                },
-                {
-                    "id": "step6-anchors-4",
-                    "component": "ConceptCard",
-                    "title": "术语总结",
-                    "tags": ["术语总结"],
-                    "definition": "面对黑客故意构造同哈希 Key 瘫痪服务器的 <dfn title=\"黑客构造同哈希Key使哈希表退化为链表以瘫痪服务器的攻击\"><strong>HashDoS 攻击</strong></dfn>，工业级系统构建了两道硬核防线：入口层采用带随机 Seed 的 <dfn title=\"利用进程随机Seed阻止外部预测哈希值的工业级安全散列算法\"><strong>SipHash 算法</strong></dfn> 阻止黑客预测；数据结构层则引入 <dfn title=\"单槽位链表长度达到阈值8时升级为自平衡红黑树的兜底防御\"><strong>树化机制 (Treeify)</strong></dfn>，在冲突过多时将单链表自动升级为自平衡红黑树，强行把最坏查找复杂度锁死在 O(log N)。",
-                    "example": "",
-                    "relatedConcepts": ["HashDoS", "树化机制", "SipHash"]
+                    "analogy": "工业级哈希表通过算法随机化和数据结构自适应兜底，彻底封死了黑客攻击与最坏退化的漏洞。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>面对黑客故意构造同哈希 Key 瘫痪服务器的 <dfn title=\"黑客构造同哈希Key使哈希表退化为链表以瘫痪服务器的攻击\"><strong>HashDoS 攻击</strong></dfn>，工业级系统构建了两道硬核防线：入口层采用带随机 Seed 的 <dfn title=\"利用进程随机Seed阻止外部预测哈希值的工业级安全散列算法\"><strong>SipHash 算法</strong></dfn> 阻止黑客预测；数据结构层则引入 <dfn title=\"单槽位链表长度达到阈值8时升级为自平衡红黑树的兜底防御\"><strong>树化机制 (Treeify)</strong></dfn>，在冲突过多时将单链表自动升级为自平衡红黑树，强行把最坏查找复杂度锁死在 O(log N)。</p></div>"
                 },
                 {
                     "id": "quiz-4",
@@ -565,4 +525,4 @@ console.log("'Alice' 直接算出的槽位号:", simpleHash('Alice'));""",
 
 out_path = Path("apps/viewer/public/generated/site_messages.json")
 out_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
-print("SUCCESSFULLY_UPDATED_VISUAL_MEMORY_DIAGRAM_SITE_MESSAGES")
+print("SUCCESSFULLY_UPDATED_5STEPS_SINGLE_SUMMARY_MESSAGES")
