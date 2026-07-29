@@ -14,45 +14,239 @@
         {
           "id": "root",
           "component": "Column",
-          "children": ["header", "navigator", "content-area"]
+          "children": [
+            "header",
+            "navigator",
+            "background-pain",
+            "scenario-chat",
+            "concept-grid-container",
+            "mental-model-grid",
+            "concept-grid-placement",
+            "quiz",
+            "summary-and-terms",
+            "resources"
+          ]
         },
         {
           "id": "header",
           "component": "Text",
           "variant": "h1",
-          "text": "🎨 CSS Grid Layout System Guide"
+          "text": "CSS Grid 布局全景解析：从一维到二维的布局思维跃迁"
         },
         {
           "id": "navigator",
           "component": "SectionNavigator",
-          "title": "Select a chapter to learn:",
+          "title": "章节导航：",
           "activeSectionId": "intro",
-          "onSectionClick": { "name": "navigate_section", "context": {} },
+          "onSectionClick": {
+            "name": "navigate_section",
+            "context": {}
+          },
           "sections": [
-            { "id": "intro", "title": "Grid Basics", "description": "What are grid containers, lines, and tracks", "icon": "📐", "status": "completed" },
-            { "id": "template", "title": "Defining Grid Templates", "description": "Learn to use grid-template-columns and related properties", "icon": "📏", "status": "available" },
-            { "id": "placement", "title": "Placing Grid Items", "description": "Advanced layout techniques spanning rows and columns", "icon": "🧩", "status": "available" },
-            { "id": "challenge", "title": "Ultimate Practical Challenge", "description": "Using Grid to recreate complex dashboard UIs", "icon": "⚔️", "status": "locked" }
+            {
+              "id": "intro",
+              "title": "Grid 基础概念",
+              "description": "容器、网格线与轨道",
+              "icon": "📐",
+              "status": "current"
+            },
+            {
+              "id": "template",
+              "title": "定义网格模板",
+              "description": "grid-template-columns/rows 属性",
+              "icon": "📏",
+              "status": "available"
+            },
+            {
+              "id": "placement",
+              "title": "元素放置技巧",
+              "description": "跨行跨列的高级布局",
+              "icon": "🧩",
+              "status": "available"
+            },
+            {
+              "id": "challenge",
+              "title": "实战综合挑战",
+              "description": "用 Grid 还原复杂仪表盘 UI",
+              "icon": "⚔️",
+              "status": "locked"
+            }
           ]
         },
         {
-          "id": "content-area",
-          "component": "Column",
-          "children": ["content-title", "concept"]
+          "id": "background-pain",
+          "component": "AnalogyCard",
+          "title": "为什么我们需要 CSS Grid？Flexbox 还不够吗？",
+          "analogy": "在 CSS Grid 出现之前，前端工程师用 <code>float</code>、<code>position: absolute</code> 乃至 <code>table</code> 布局实现复杂页面，代码脆弱且难以维护。即便 Flexbox 的出现大幅改善了一维（行或列）布局，但面对真实的产品页面，我们经常需要同时控制<b>行和列两个维度</b>：\n<pre><code>/* 想实现：左侧边栏 + 右侧两列内容区 + 底部横跨全宽的 footer */\n/* Flexbox 方案：嵌套多层 flex 容器，逻辑分散难以维护 */</code></pre>\nCSS Grid 专为<b>二维布局</b>设计，允许开发者在同一个声明中同时定义行与列的结构，让复杂布局的意图在代码中一目了然。"
         },
         {
-          "id": "content-title",
-          "component": "Text",
-          "variant": "h2",
-          "text": "Chapter 1: Grid Basic Concepts"
+          "id": "scenario-chat",
+          "component": "ScenarioDialogue",
+          "topic": "💬 UI 设计研讨：探究 Flexbox 的边界与 Grid 二维布局的突破",
+          "characters": {
+            "leo": {
+              "name": "Leo (前端工程师)",
+              "avatar": "👨‍🎨",
+              "alignment": "left"
+            },
+            "nina": {
+              "name": "Nina (CSS 架构师)",
+              "avatar": "👩‍💻",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "leo",
+              "content": "Nina，我在做一个仪表盘页面，左边固定侧边栏，右边是 3 列卡片区，底部有一个横跨全宽的状态栏。用 Flexbox 嵌套了好几层，代码越写越乱，有更好的方法吗？"
+            },
+            {
+              "characterId": "nina",
+              "content": "这正是 CSS Grid 诞生的使用场景！Flexbox 是一维布局工具——一次只能控制行或列。Grid 是二维的，可以在一个容器上同时定义行和列的结构，子元素精确摆放到任何网格区域。"
+            },
+            {
+              "characterId": "leo",
+              "content": "听起来很强大，那怎么定义这个布局的网格结构？"
+            },
+            {
+              "characterId": "nina",
+              "content": "用 <code>grid-template-columns</code> 和 <code>grid-template-rows</code>。比如你的需求：<code>grid-template-columns: 240px 1fr 1fr 1fr</code> 就是左边固定 240px 侧边栏 + 右边三等分内容区。底部 footer 用 <code>grid-column: 1 / -1</code> 让它从第一条网格线延伸到最后一条，自动横跨全宽。"
+            },
+            {
+              "characterId": "leo",
+              "content": "只需要这几行 CSS 就实现了？比嵌套 Flexbox 优雅太多了！所以 Grid 的核心是先在父容器声明整个二维空间的蓝图，再让子元素按需定位？"
+            },
+            {
+              "characterId": "nina",
+              "content": "完全正确！这就是 <dfn title=\"CSS Grid 的核心设计哲学：父容器声明整个页面的二维网格结构，子元素根据网格线编号或命名区域精确定位\">Grid 的布局哲学</dfn>——「先定义空间结构，再填充内容」。这与 Flexbox 的「内容决定空间」形成互补，两者结合才是现代 CSS 布局的终极方案。"
+            }
+          ]
         },
         {
-          "id": "concept",
+          "id": "concept-grid-container",
           "component": "ConceptCard",
-          "title": "Grid Container",
-          "tags": ["CSS", "Layout"],
-          "definition": "By setting an element's <code>display</code> property to <code>grid</code> or <code>inline-grid</code>, it becomes a grid container. All its direct children become grid items.",
-          "example": "<pre><code>.container {\n  display: grid;\n}</code></pre>"
+          "title": "Grid 容器与网格轨道",
+          "tags": [
+            "CSS",
+            "Grid",
+            "Layout",
+            "二维布局"
+          ],
+          "definition": "将元素的 <code>display</code> 设为 <code>grid</code> 或 <code>inline-grid</code>，即创建一个 <b>Grid 容器</b>。容器内的所有直接子元素自动成为 <b>Grid 项目（Grid Items）</b>。Grid 的二维空间由<b>网格线（Grid Lines）</b>划分出<b>行轨道（Row Tracks）</b>和<b>列轨道（Column Tracks）</b>，交叉形成<b>网格单元（Grid Cells）</b>。",
+          "example": "<pre><code>.dashboard {\n  display: grid;\n  /* 左侧边栏240px + 右侧三等分内容区 */\n  grid-template-columns: 240px 1fr 1fr 1fr;\n  /* 顶部导航80px + 中间内容区自动填充 + 底部状态栏60px */\n  grid-template-rows: 80px auto 60px;\n  gap: 16px;  /* 网格间距 */\n}\n\n/* footer 横跨全部4列（-1 代表最后一条网格线）*/\n.footer {\n  grid-column: 1 / -1;\n}</code></pre>",
+          "relatedConcepts": [
+            "Flexbox",
+            "fr 单位",
+            "grid-template-areas",
+            "gap",
+            "网格线编号"
+          ]
+        },
+        {
+          "id": "mental-model-grid",
+          "component": "MentalModel",
+          "title": "CSS Grid 心智模型：城市规划蓝图",
+          "description": "CSS Grid 的设计思维是先画好整个城市的道路网格（父容器声明结构），再决定每栋建筑占据哪几个地块（子元素定位）。这与 Flexbox 的「按内容动态分配空间」形成根本差异。",
+          "icon": "🏙️",
+          "analogyTitle": "🏙️ 城市规划类比",
+          "analogy": "<b>Flexbox 像搭积木</b>：把一块块积木沿一个方向堆放，整体排列由积木大小决定；<br><b>Grid 像城市规划</b>：先在图纸上画好道路网格（行与列的蓝图），再标注每块地皮的用途——某栋建筑占 1×2 格，某公园横跨 3 列，一切都在蓝图上一目了然，不依赖元素本身的大小。",
+          "diagramTitle": "📊 Grid 二维空间坐标系",
+          "diagram": "        列线1  列线2  列线3  列线4  列线5\n行线1  |  侧边栏  |  卡片1  |  卡片2  |  卡片3  |\n行线2  |  侧边栏  |  卡片4  |  卡片5  |  卡片6  |\n行线3  |      Footer (grid-column: 1 / -1)      |",
+          "pillarsTitle": "三大核心属性",
+          "pillars": [
+            {
+              "title": "grid-template-columns/rows",
+              "description": "定义网格的列和行的尺寸蓝图。支持 <code>px</code>、<code>%</code>、<code>fr</code>（剩余空间分比）、<code>auto</code>、<code>minmax()</code> 等灵活单位。",
+              "icon": "📐"
+            },
+            {
+              "title": "grid-column / grid-row",
+              "description": "子元素用网格线编号精确定位并跨越多个轨道：<code>grid-column: 2 / 4</code> 表示从第 2 条列线到第 4 条列线，跨越 2 列。",
+              "icon": "📍"
+            },
+            {
+              "title": "grid-template-areas",
+              "description": "用命名区域定义布局蓝图，让 CSS 代码自文档化：<code>\"header header\" \"sidebar main\" \"footer footer\"</code>，可视化程度极高。",
+              "icon": "🗺️"
+            }
+          ]
+        },
+        {
+          "id": "concept-grid-placement",
+          "component": "ConceptCard",
+          "title": "Grid 元素精确放置与命名区域",
+          "tags": [
+            "CSS",
+            "Grid",
+            "grid-area",
+            "grid-template-areas"
+          ],
+          "definition": "CSS Grid 提供两种主流元素放置方式：<br><b>① 网格线编号</b>：用 <code>grid-column: 开始线 / 结束线</code> 精确控制元素跨越哪些列；<br><b>② 命名区域（grid-template-areas）</b>：在父容器用字符串「画出」布局图，子元素用 <code>grid-area</code> 声明自己的名字，代码极具可读性。",
+          "example": "<pre><code>/* 方式二：命名区域（更直观）*/\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-rows: 60px auto 40px;\n  grid-template-areas:\n    \"header  header\"\n    \"sidebar main  \"\n    \"footer  footer\";\n}\n.header  { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main    { grid-area: main; }\n.footer  { grid-area: footer; }</code></pre>",
+          "relatedConcepts": [
+            "grid-column",
+            "grid-row",
+            "grid-area",
+            "span 关键字",
+            "auto-placement"
+          ]
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "🧠 CSS Grid 核心概念自测",
+          "question": "以下 CSS Grid 代码中，<code>.item { grid-column: 1 / -1; }</code> 的效果是什么？\n<pre><code>.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}</code></pre>",
+          "options": [
+            {
+              "id": "opt1",
+              "text": "元素只占第 1 列"
+            },
+            {
+              "id": "opt2",
+              "text": "元素从第 1 列线延伸到最后一条列线，横跨全部 4 列"
+            },
+            {
+              "id": "opt3",
+              "text": "元素从倒数第 1 列线延伸到第 1 列线（反向）"
+            },
+            {
+              "id": "opt4",
+              "text": "语法错误，-1 不是合法的网格线编号"
+            }
+          ],
+          "correctOptionId": "opt2",
+          "explanation": "<b>解析：</b><br>在 CSS Grid 中，<code>-1</code> 是一个合法的<b>负数网格线编号</b>，代表从最后一条隐式网格线往前数第 1 条，即网格的最后一条列线。<br>因此 <code>grid-column: 1 / -1</code> 表示从第 1 条列线延伸到最后一条列线，效果是让元素<b>横跨所有列（full-width）</b>。这是实现「footer 横跨全宽」的标准写法，无需硬编码列数。"
+        },
+        {
+          "id": "summary-and-terms",
+          "component": "AnalogyCard",
+          "title": "总结：Grid 与 Flexbox 的互补关系",
+          "analogy": "CSS Grid 是二维布局的终极工具，Flexbox 是一维内容排列的最佳选择。现代前端开发的最佳实践是：用 Grid 定义页面的宏观结构（行与列的蓝图），用 Flexbox 处理组件内部的内容对齐。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p><dfn title=\"将 display 设为 grid 后创建的二维布局容器，定义所有子元素的行列空间蓝图\"><strong>Grid 容器（Grid Container）</strong></dfn>通过 <code>grid-template-columns/rows</code> 声明二维空间蓝图，其中 <dfn title=\"CSS Grid 专属的弹性比例单位，1fr 代表分配一份剩余可用空间\"><strong>fr 单位</strong></dfn>灵活分配剩余空间。<dfn title=\"CSS Grid 中划分行列的虚拟参考线，用正整数从左到右/从上到下编号，负整数从末尾反向编号\"><strong>网格线（Grid Lines）</strong></dfn>用于子元素精确定位，负数编号（如 <code>-1</code>）从末尾反向计数。<dfn title=\"在父容器用字符串图形描述布局结构，让子元素通过名字声明位置的可视化布局方式\"><strong>grid-template-areas</strong></dfn>提供极具可读性的命名区域布局方案。</p></div>"
+        },
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "推荐扩展阅读资源",
+          "resources": [
+            {
+              "title": "CSS-Tricks: A Complete Guide to CSS Grid",
+              "url": "https://css-tricks.com/snippets/css/complete-guide-grid/",
+              "description": "业界最权威的 CSS Grid 完整参考指南，含所有属性可视化解析。",
+              "type": "doc"
+            },
+            {
+              "title": "Grid Garden — 互动学习游戏",
+              "url": "https://cssgridgarden.com/",
+              "description": "通过种菜游戏互动掌握 CSS Grid 的所有核心属性，寓教于乐。",
+              "type": "article"
+            },
+            {
+              "title": "MDN: CSS Grid Layout",
+              "url": "https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_grid_layout",
+              "description": "Mozilla 开发者网络的 CSS Grid 权威文档（中文版）。",
+              "type": "doc"
+            }
+          ]
         }
       ]
     }

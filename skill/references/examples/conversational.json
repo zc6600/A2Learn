@@ -14,70 +14,171 @@
         {
           "id": "root",
           "component": "Column",
-          "children": ["header", "main-content"]
+          "children": [
+            "header",
+            "background-pain",
+            "scenario-chat",
+            "concept",
+            "mental-model-closure",
+            "quiz",
+            "summary-and-terms",
+            "resources"
+          ]
         },
         {
           "id": "header",
           "component": "Text",
           "variant": "h1",
-          "text": "💬 Mentor 1-on-1: Understanding Closures"
+          "text": "JavaScript 闭包深度解析：作用域、变量持久化与经典陷阱"
         },
         {
-          "id": "main-content",
-          "component": "Row",
-          "weight": 1,
-          "children": ["dialog-area", "content-area"]
+          "id": "background-pain",
+          "component": "AnalogyCard",
+          "title": "当函数「记住」了它不该记住的东西……",
+          "analogy": "JavaScript 面试中最令候选人头疼的经典陷阱之一：\n<pre><code>for (var i = 0; i < 3; i++) {\n  setTimeout(function() {\n    console.log(i);  // 你期待 0, 1, 2 吗？\n  }, 1000);\n}</code></pre>\n实际输出：<code>3, 3, 3</code>！<br><br>为什么三个不同时刻注册的回调函数，最终都打印了同一个值？这是一个关于 <b>变量作用域</b> 与 <b>闭包（Closure）</b> 的核心问题——函数在「定义时」捕获的是变量的引用，而不是值的副本。理解这一机制，是真正掌握 JavaScript 的关键。"
         },
         {
-          "id": "dialog-area",
-          "component": "Column",
-          "weight": 2,
-          "children": ["mentor-dialog"]
-        },
-        {
-          "id": "content-area",
-          "component": "Column",
-          "weight": 3,
-          "children": ["concept", "sandbox"]
-        },
-        {
-          "id": "mentor-dialog",
+          "id": "scenario-chat",
           "component": "ScenarioDialogue",
-          "topic": "Closure Learning Dialogue",
+          "topic": "💬 代码 Review 研讨：探究闭包捕获机制与变量生命周期",
           "characters": {
-            "mentor": {
-              "name": "A2Learn Tutor",
-              "avatar": "🧑‍🏫",
+            "kai": {
+              "name": "Kai (前端工程师)",
+              "avatar": "👨‍💻",
               "alignment": "left"
             },
-            "student": {
-              "name": "Learner",
-              "avatar": "🧑‍🎓",
+            "priya": {
+              "name": "Priya (JavaScript 架构师)",
+              "avatar": "👩‍💼",
               "alignment": "right"
             }
           },
           "messages": [
-            { "characterId": "mentor", "content": "Hello! Today we are going to learn one of the most confusing concepts for beginners in JavaScript: <b>Closures</b>.", "delayMs": 300 },
-            { "characterId": "student", "content": "I often struggle to distinguish the difference between a closure and regular function scope.", "delayMs": 500 },
-            { "characterId": "mentor", "content": "No problem. Take a look at the definition and code examples on the right first, and then we'll break down the execution process together.", "delayMs": 500 }
+            {
+              "characterId": "kai",
+              "content": "Priya，我在做 Code Review，发现同事写了一个 for 循环注册了三个 setTimeout，但最后全都打印出同一个值 3，而不是预期的 0, 1, 2。这是什么原因？"
+            },
+            {
+              "characterId": "priya",
+              "content": "这是经典的闭包陷阱。<code>var</code> 声明的变量没有块级作用域，整个 for 循环共享同一个 <code>i</code> 变量。三个回调函数都「关闭」(close over) 了同一个 <code>i</code> 的引用，等 setTimeout 触发时 for 循环早已结束，i 变成了 3。"
+            },
+            {
+              "characterId": "kai",
+              "content": "所以闭包捕获的是变量本身的引用，而不是当时的值？那如果我想让每个回调记住各自的 i，应该怎么做？"
+            },
+            {
+              "characterId": "priya",
+              "content": "两种主流修法：方案一，把 <code>var</code> 换成 <code>let</code>——let 有块级作用域，每次循环迭代都会创建一个全新的 <code>i</code> 绑定；方案二，用 IIFE（立即执行函数表达式）在每次迭代时创建一个新的局部作用域并把当前 i 值作为参数传入，强制值拷贝。"
+            },
+            {
+              "characterId": "kai",
+              "content": "所以 <code>let</code> 方案的本质，就是让每次循环迭代都产生独立的词法环境（Lexical Environment），每个闭包捕获不同的环境？"
+            },
+            {
+              "characterId": "priya",
+              "content": "完全正确！这正是<dfn title=\"函数在定义时捕获其外部词法作用域的变量引用，即使外部函数已返回，这些变量依然存活在内存中\">闭包（Closure）</dfn>的本质：函数 + 它定义时的词法环境。<code>let</code> 让每次迭代都有独立的词法环境，三个闭包各自独立，自然打印 0, 1, 2。"
+            }
           ]
         },
         {
           "id": "concept",
           "component": "ConceptCard",
-          "title": "Closures",
-          "tags": ["JavaScript", "Scope", "Functions"],
-          "definition": "A closure is a function that has access to its <b>free variables</b>. In other words, a closure gives you access to an outer function's scope from an inner function.",
-          "example": "<pre><code>function makeFunc() {\n  var name = 'Mozilla';\n  function displayName() {\n    alert(name);\n  }\n  return displayName;\n}\n\nvar myFunc = makeFunc();\nmyFunc();</code></pre>"
+          "title": "闭包（Closure）：函数与其词法环境的绑定",
+          "tags": [
+            "JavaScript",
+            "Scope",
+            "Functions",
+            "Closure"
+          ],
+          "definition": "<b>闭包</b>是一个函数以及该函数<b>定义时所处的词法作用域</b>（Lexical Environment）的组合体。即使外部函数已经返回，内部函数仍然可以访问并操作外部函数作用域中的变量——这些变量并不会被垃圾回收，而是被「封存」在闭包中持续存活。",
+          "example": "<pre><code>// 闭包经典用法：工厂函数与私有状态\nfunction makeCounter() {\n  let count = 0;  // count 被封存在闭包中\n  return {\n    increment() { count++; },\n    decrement() { count--; },\n    value()     { return count; }\n  };\n}\nconst counter = makeCounter();\ncounter.increment();\ncounter.increment();\nconsole.log(counter.value()); // 2\n// count 变量从外部无法直接访问，实现了「私有变量」</code></pre>",
+          "relatedConcepts": [
+            "词法作用域 (Lexical Scope)",
+            "作用域链 (Scope Chain)",
+            "IIFE",
+            "垃圾回收 (GC)",
+            "var vs let vs const"
+          ]
         },
         {
-          "id": "sandbox",
-          "component": "InteractiveSandbox",
-          "title": "Closure Trap: Classic Interview Question",
-          "description": "Run this code and see what the output is.",
-          "language": "javascript",
-          "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(function() {\n    console.log(i);\n  }, 1000);\n}",
-          "runLocally": true
+          "id": "mental-model-closure",
+          "component": "MentalModel",
+          "title": "闭包心智模型：背包与词法环境",
+          "description": "理解闭包的关键：函数不只是一段可执行代码，它还携带着一个「背包」——定义时所处的词法环境（Lexical Environment）。这个背包里装着所有外部作用域的变量引用。",
+          "icon": "🎒",
+          "analogyTitle": "🎒 函数的「记忆背包」",
+          "analogy": "把闭包想象成一位带着私人笔记本旅行的探险家：无论这位探险家走到哪里（在哪里被调用），他的笔记本（词法环境）永远随身携带。笔记本上记录的不是「出发时变量的快照」，而是「变量本身的地址」——如果变量被修改了，他下次翻开笔记本看到的是最新的值。",
+          "diagramTitle": "📊 闭包词法环境绑定示意",
+          "diagram": "makeCounter() 被调用\n  └─ 创建新的词法环境 { count: 0 }\n        ├─ increment 函数 → 词法环境引用\n        ├─ decrement 函数 → 词法环境引用  \n        └─ value 函数    → 词法环境引用\n\n← 三个函数共享同一个词法环境中的 count 变量引用",
+          "pillarsTitle": "三大核心机制",
+          "pillars": [
+            {
+              "title": "词法作用域 (Lexical Scope)",
+              "description": "JavaScript 在函数<b>定义时</b>（而非调用时）确定作用域。内部函数能访问外部函数的所有变量，形成作用域链。",
+              "icon": "📍"
+            },
+            {
+              "title": "变量引用持久化",
+              "description": "只要闭包函数存在，它捕获的外部变量就不会被垃圾回收，哪怕外部函数已执行完毕返回。",
+              "icon": "🔒"
+            },
+            {
+              "title": "私有状态封装",
+              "description": "闭包是 JavaScript 实现「私有变量」的核心机制——被封装的变量无法从外部直接访问或修改，只能通过暴露的方法操作。",
+              "icon": "🛡️"
+            }
+          ]
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "🧠 闭包核心原理自测",
+          "question": "下面代码的输出是什么？\n<pre><code>function outer() {\n  let x = 10;\n  function inner() {\n    x += 5;\n    return x;\n  }\n  return inner;\n}\nconst fn = outer();\nconsole.log(fn()); // 第一次调用\nconsole.log(fn()); // 第二次调用</code></pre>",
+          "options": [
+            {
+              "id": "opt1",
+              "text": "15, 15（每次调用都重新读取 x = 10）"
+            },
+            {
+              "id": "opt2",
+              "text": "15, 20（x 被持续修改，闭包共享同一个词法环境）"
+            },
+            {
+              "id": "opt3",
+              "text": "10, 10（outer() 返回后 x 被销毁，inner 无法访问）"
+            },
+            {
+              "id": "opt4",
+              "text": "undefined, undefined"
+            }
+          ],
+          "correctOptionId": "opt2",
+          "explanation": "<b>解析：</b><br>outer() 执行并返回 inner 函数，同时创建了词法环境 { x: 10 }。<br>fn 是 inner 函数 + 词法环境的闭包组合体。<br>• 第一次 fn()：x 从 10 → 15，返回 15；<br>• 第二次 fn()：x 从 15 → 20，返回 20。<br>关键：inner 捕获的是 x 的<b>引用</b>而非值的副本，所以每次修改都是持久化的。"
+        },
+        {
+          "id": "summary-and-terms",
+          "component": "AnalogyCard",
+          "title": "总结：闭包是 JavaScript 函数式编程的基石",
+          "analogy": "闭包是 JavaScript 中实现私有变量、函数工厂、模块化封装的核心机制。理解闭包意味着真正理解了 JavaScript 的词法作用域与函数执行模型。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p><dfn title=\"函数在定义时捕获其外部词法作用域的变量引用，即使外部函数已返回，这些变量依然存活在内存中\"><strong>闭包（Closure）</strong></dfn> 是函数与其 <dfn title=\"在函数定义时确定（而非调用时），由函数嵌套层级决定的变量可见性规则\"><strong>词法作用域（Lexical Scope）</strong></dfn> 的组合。闭包中引用的外部变量不会被 <dfn title=\"JavaScript 引擎自动管理内存，当变量不再被引用时自动释放\"><strong>垃圾回收（GC）</strong></dfn> 清理，从而实现「<dfn title=\"利用闭包将变量封装在函数内部，从外部无法直接访问或修改的封装模式\"><strong>私有变量（Private Variable）</strong></dfn>」。经典陷阱来自 <code>var</code> 的函数作用域与 <code>let</code> 的块级作用域差异——<dfn title=\"Immediately Invoked Function Expression，立即执行函数表达式，常用于在循环中创建独立词法环境\"><strong>IIFE</strong></dfn> 或 <code>let</code> 可强制为每次迭代创建独立的 <dfn title=\"JavaScript 运行时为每个函数调用创建的、记录变量绑定和作用域链的数据结构\"><strong>词法环境（Lexical Environment）</strong></dfn>。</p></div>"
+        },
+        {
+          "id": "resources",
+          "component": "ResourceList",
+          "title": "推荐扩展阅读资源",
+          "resources": [
+            {
+              "title": "MDN: 闭包（Closures）",
+              "url": "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures",
+              "description": "Mozilla 开发者网络的闭包权威指南（中文版），含完整代码示例与应用场景。",
+              "type": "doc"
+            },
+            {
+              "title": "JavaScript.info: 变量作用域与闭包",
+              "url": "https://zh.javascript.info/closure",
+              "description": "深入浅出讲解词法环境、变量捕获与闭包实现细节，含大量可运行示例。",
+              "type": "article"
+            }
+          ]
         }
       ]
     }
