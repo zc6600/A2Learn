@@ -16,12 +16,12 @@
           "component": "Column",
           "children": [
             "header",
-            "learning-path",
-            "intro-text",
+            "background-pain",
+            "scenario-chat",
             "concept",
             "mental-model-event-loop",
-            "sandbox",
             "quiz",
+            "summary-and-terms",
             "resources"
           ]
         },
@@ -29,133 +29,166 @@
           "id": "header",
           "component": "Text",
           "variant": "h1",
-          "text": "JavaScript Async Programming and Promise Core Principles"
+          "text": "JavaScript 异步编程全景解析：从回调地狱到 Promise 与 Event Loop"
         },
         {
-          "id": "learning-path",
-          "component": "LearningPath",
-          "title": "Promise Learning Path",
-          "activeStepId": "1",
-          "steps": [
-            {
-              "id": "1",
-              "title": "Understanding Promises"
+          "id": "background-pain",
+          "component": "AnalogyCard",
+          "title": "回调地狱：为什么异步代码让开发者崩溃？",
+          "analogy": "<b>JavaScript 是单线程语言</b>，但浏览器和 Node.js 环境需要处理网络请求、文件读取等耗时 I/O 操作。如果用同步阻塞方式写，整个页面会被冻结！早期的解决方案是「回调函数」——把任务完成后要做的事情打包成一个函数传进去。<br><br>但一旦业务逻辑复杂起来：<pre><code>fetchUser(id, function(user) {\n  fetchOrders(user.id, function(orders) {\n    fetchShipment(orders[0].id, function(ship) {\n      // 第四层... 第五层...\n    });\n  });\n});</code></pre>\n这种嵌套结构被开发者称为 <b>「回调地狱（Callback Hell）」</b>，难以阅读、维护和调试。<b>如何让异步代码像同步一样优雅？</b>"
+        },
+        {
+          "id": "scenario-chat",
+          "component": "ScenarioDialogue",
+          "topic": "💬 前端技术研讨：探究 Promise 如何终结回调地狱与 Event Loop 机制",
+          "characters": {
+            "sam": {
+              "name": "Sam (前端工程师)",
+              "avatar": "👨‍💻",
+              "alignment": "left"
             },
-            {
-              "id": "2",
-              "title": "Handwriting delay"
-            },
-            {
-              "id": "3",
-              "title": "Unlock Achievements"
+            "mei": {
+              "name": "Mei (Node.js 架构师)",
+              "avatar": "👩‍🔧",
+              "alignment": "right"
             }
-          ],
-          "onStepSelect": {
-            "name": "learning_path_select",
-            "context": {}
-          }
-        },
-        {
-          "id": "intro-text",
-          "component": "Text",
-          "text": "In JavaScript runtimes like the browser and Node.js, asynchronous programming is core to handling I/O-intensive tasks. Traditional async relied on callback functions, leading to \"callback hell.\" The introduction of Promise in ES6 changed this predicament."
+          },
+          "messages": [
+            {
+              "characterId": "sam",
+              "content": "Mei，我有个困惑——为什么 JavaScript 是单线程的，但浏览器又能同时处理 UI 渲染、网络请求和定时器，不会互相阻塞？"
+            },
+            {
+              "characterId": "mei",
+              "content": "关键在于 JavaScript 本身只负责主线程的逻辑，但浏览器的宿主环境（Web APIs）是多线程的！网络请求、setTimeout 这些都被「委托」给了浏览器的 C++ 线程去执行，主线程根本不等待。"
+            },
+            {
+              "characterId": "sam",
+              "content": "那异步任务完成后怎么通知 JS 主线程呢？主线程又没有一直在等着……"
+            },
+            {
+              "characterId": "mei",
+              "content": "这就是 <dfn title=\"持续监视执行栈是否为空，为空时从任务队列取出回调执行的调度循环机制\">Event Loop（事件循环）</dfn> 的职责！异步任务完成后，回调被放入任务队列。Event Loop 持续地检查：执行栈空了吗？空了就把队列里的回调取出来执行。"
+            },
+            {
+              "characterId": "sam",
+              "content": "懂了！那 Promise 又是怎么改善写法的呢？我们之前的嵌套回调真的难以维护。"
+            },
+            {
+              "characterId": "mei",
+              "content": "Promise 把「未来某时刻的值」封装成一个对象，状态只能从 pending 变成 fulfilled 或 rejected，且不可逆转。然后通过链式的 <code>.then()</code> 替代嵌套，把异步逻辑展开成线性的流水线——这就是它终结回调地狱的核心！"
+            },
+            {
+              "characterId": "sam",
+              "content": "而且 Promise.then 的回调属于微任务（Microtask），比 setTimeout 的宏任务优先级更高，每次执行栈清空后会先把所有微任务清光？"
+            },
+            {
+              "characterId": "mei",
+              "content": "完全正确！微任务队列（Microtask Queue）优先于宏任务队列（Macrotask Queue）清空。所以 Promise 链可以精确地在当前宏任务结束后立刻接续执行，响应更及时。"
+            }
+          ]
         },
         {
           "id": "concept",
           "component": "ConceptCard",
-          "title": "Promise",
+          "title": "Promise：异步操作的「承诺」对象",
           "tags": [
             "JavaScript",
             "Async",
-            "ES6"
+            "ES6",
+            "Promise"
           ],
-          "definition": "A <b>Promise</b> object represents the eventual completion of an <dfn title=\"无需等待结果返回即可继续执行后续代码的非阻塞操作\">asynchronous operation</dfn>. It relies on the <dfn title=\"浏览器处理微任务与宏任务调度的单线程事件轮询机制\">Event Loop</dfn> and maintains three states: <code>pending</code>, <code>fulfilled</code>, and <code>rejected</code>.",
-          "example": "<pre><code>const promise = new Promise((resolve, reject) => {\n  setTimeout(() => {\n    resolve('Success!');\n  }, 1000);\n});\n\npromise.then((value) => {\n  console.log(value); // \"Success!\"\n});</code></pre>",
+          "definition": "一个 <b>Promise</b> 对象代表一个异步操作<b>未来某时刻</b>的结果（成功值或失败原因）。它有且仅有三种状态：<code>pending</code>（等待中）、<code>fulfilled</code>（已成功）、<code>rejected</code>（已失败）。状态一旦确定便<b>不可逆转</b>，并可通过 <code>.then()</code> / <code>.catch()</code> 链式注册后续处理逻辑。",
+          "example": "<pre><code>// Promise 基础：从嵌套到链式\nfetchUser(id)\n  .then(user => fetchOrders(user.id))\n  .then(orders => fetchShipment(orders[0].id))\n  .then(ship => console.log('包裹状态:', ship.status))\n  .catch(err => console.error('出错了:', err));\n\n// Promise.all：并行等待多个异步任务全部完成\nconst [user, config] = await Promise.all([\n  fetchUser(id),\n  fetchConfig()\n]);</code></pre>",
           "relatedConcepts": [
             "async / await",
             "Event Loop",
-            "Microtask Queue"
+            "Microtask Queue",
+            "Callback Hell"
           ]
         },
         {
           "id": "mental-model-event-loop",
           "component": "MentalModel",
-          "title": "JS 异步执行环境与事件循环 (Event Loop)",
-          "description": "JavaScript 是单线程的，但通过宿主环境（浏览器/Node.js）提供的多线程 Web APIs 和事件循环机制，实现了非阻塞 of 异步 I/O。",
+          "title": "Event Loop 心智模型：单线程如何驾驭并发",
+          "description": "JavaScript 的非阻塞异步能力来自于宿主环境（浏览器/Node.js）提供的多线程 Web APIs，以及 Event Loop 对执行栈与任务队列的精细调度。",
           "icon": "⚙️",
-          "analogy": "主线程就像是餐厅里唯一的**「前台服务员」**，只负责快速接单。当遇到耗时的做菜任务时，服务员把任务丢给厨房（Web APIs），然后继续接下一个客人的单。当厨房做好菜（异步任务完成），会把菜放到传送带上（任务队列），服务员忙完手头的事就去传送带拿菜上桌（事件循环）。",
-          "diagram": "同步主逻辑: Call Stack 压栈 ➔ 遇异步移交 Web APIs\n异步完成: Web APIs ➔ Microtask / Macrotask 队列\n轮询调度: Event Loop ➔ Stack 清空时清空微任务并取宏任务",
+          "analogyTitle": "🍽️ 餐厅前台类比",
+          "analogy": "主线程就像餐厅唯一的<b>「前台服务员」</b>，只负责快速接单与上菜。当遇到耗时的「烹饪」任务（网络请求/定时器），服务员把任务票传入厨房（Web APIs 宿主线程），立即去接待下一位客人。厨房做好菜后，把盘子放到传送带（任务队列），服务员空闲时按顺序取菜上桌——这个「服务员循环检查传送带」的过程就是 <dfn title=\"持续监视执行栈是否为空，为空时从任务队列取出回调执行的调度循环机制\">Event Loop</dfn>。",
+          "diagramTitle": "📊 Event Loop 执行流程图",
+          "diagram": "[Call Stack (同步代码)] ──(Stack 空闲)──> [优先清空 Microtask Queue]\n      │                                            ↑\n (遇到异步 API 调用)                        (再取一个 Macrotask)\n      ↓                                            ↑\n[Web APIs 宿主线程] ──(任务完成)──> [Task Queue / Microtask Queue]",
+          "pillarsTitle": "三大运行时组件",
           "pillars": [
             {
               "title": "执行栈 (Call Stack)",
-              "description": "单线程主逻辑执行的地方，遵循后进先出 (LIFO) 原则。主线程的同步代码都在栈内运行。",
+              "description": "单线程同步代码执行区域，遵循后进先出（LIFO）原则。同步函数调用逐层压栈，函数返回后弹栈。",
               "icon": "🥞"
             },
             {
-              "title": "任务队列 (Task Queues)",
-              "description": "包含微任务队列 (Microtask Queue, 如 Promise.then) 和宏任务队列 (Macrotask Queue, 如 setTimeout)，用于存放异步回调。",
-              "icon": "📬"
+              "title": "微任务队列 (Microtask Queue)",
+              "description": "存放 Promise.then/catch/finally 和 queueMicrotask 的回调。执行栈清空后<b>优先清空全部微任务</b>，再处理宏任务。",
+              "icon": "⚡"
             },
             {
-              "title": "事件循环 (Event Loop)",
-              "description": "持续监视执行栈是否为空。一旦为空，优先清空所有微任务，然后再取出一个宏任务放入执行栈执行。",
-              "icon": "🔄"
-            }
-          ],
-          "diagramTitle": "📊 JS 单线程与 Event Loop 节点流动演推"
-        },
-        {
-          "id": "sandbox",
-          "component": "InteractiveSandbox",
-          "title": "Try Promise.all Hands-on",
-          "description": "You can run the code below to see how <code>Promise.all</code> waits for all Promises to complete in parallel.",
-          "language": "javascript",
-          "code": "const p1 = Promise.resolve(3);\nconst p2 = 1337;\nconst p3 = new Promise((resolve, reject) => {\n  setTimeout(resolve, 100, 'foo');\n});\n\nPromise.all([p1, p2, p3]).then(values => {\n  console.log(values); \n});",
-          "status": "success",
-          "output": "[ 3, 1337, 'foo' ]",
-          "onRunCode": {
-            "name": "run_sandbox_code",
-            "context": {}
-          },
-          "onStatusChange": {
-            "name": "sandbox_status_change",
-            "context": {}
-          }
-        },
-        {
-          "id": "quiz",
-          "component": "QuizCard",
-          "title": "Promise Quiz",
-          "questions": [
-            {
-              "id": "q1",
-              "question": "What happens once a Promise changes from pending to fulfilled/rejected?",
-              "options": [
-                "The state can switch back and forth",
-                "The state can no longer change",
-                "It can only change back to pending",
-                "It must be reset by setTimeout"
-              ],
-              "correctIndex": 1,
-              "explanation": "The state of a Promise is immutable once settled."
+              "title": "宏任务队列 (Macrotask Queue)",
+              "description": "存放 setTimeout、setInterval、I/O、UI 渲染等宏任务回调。每轮 Event Loop 只取出一个宏任务执行。",
+              "icon": "📬"
             }
           ]
         },
         {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "🧠 Promise 与 Event Loop 核心概念自测",
+          "question": "下面代码的输出顺序是什么？\n<pre><code>console.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');</code></pre>",
+          "options": [
+            {
+              "id": "opt1",
+              "text": "A, B, C, D"
+            },
+            {
+              "id": "opt2",
+              "text": "A, D, B, C"
+            },
+            {
+              "id": "opt3",
+              "text": "A, D, C, B"
+            },
+            {
+              "id": "opt4",
+              "text": "A, C, D, B"
+            }
+          ],
+          "correctOptionId": "opt3",
+          "explanation": "<b>解析：</b><br>1. <code>console.log('A')</code>：同步，立即执行 → 输出 A<br>2. <code>setTimeout</code>：宏任务，放入宏任务队列<br>3. <code>Promise.resolve().then</code>：微任务，放入微任务队列<br>4. <code>console.log('D')</code>：同步，立即执行 → 输出 D<br>5. 执行栈空，清空微任务队列 → 输出 C<br>6. 取一个宏任务执行 → 输出 B<br>因此顺序：<b>A → D → C → B</b>"
+        },
+        {
+          "id": "summary-and-terms",
+          "component": "AnalogyCard",
+          "title": "总结：JavaScript 异步模型的核心设计智慧",
+          "analogy": "JavaScript 通过「单线程主逻辑 + 宿主多线程委托 + Event Loop 调度」的分层设计，在不引入多线程竞态问题的前提下实现了高效的并发 I/O 处理。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>在 JavaScript 的异步体系中，<dfn title=\"代表异步操作未来结果的对象，状态为 pending/fulfilled/rejected 三态之一且不可逆\"><strong>Promise</strong></dfn> 通过链式 <code>.then()</code> 彻底取代了「<dfn title=\"函数嵌套层数过深导致可读性急剧下降的反模式\"><strong>回调地狱 (Callback Hell)</strong></dfn>」。其底层由 <dfn title=\"持续监视执行栈是否为空，为空时从任务队列取出回调执行的调度循环机制\"><strong>Event Loop（事件循环）</strong></dfn> 统筹：<dfn title=\"存放 Promise.then 等回调，执行栈空时优先全量清空\"><strong>微任务队列 (Microtask Queue)</strong></dfn> 优先于 <dfn title=\"存放 setTimeout、I/O 等回调，每轮 Event Loop 取一个执行\"><strong>宏任务队列 (Macrotask Queue)</strong></dfn> 被清空，保证 Promise 链的高优先级连续执行。<code>async/await</code> 语法糖则让异步代码以同步书写风格呈现，本质上是 Promise 的语法封装。</p></div>"
+        },
+        {
           "id": "resources",
           "component": "ResourceList",
-          "title": "Official Documentation and Guides",
+          "title": "推荐扩展阅读资源",
           "resources": [
             {
-              "title": "MDN: Using Promises",
-              "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises",
-              "description": "The authoritative guide to using Promises on the Mozilla Developer Network.",
+              "title": "MDN: 使用 Promises",
+              "url": "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Using_promises",
+              "description": "Mozilla 开发者网络的 Promise 权威指南（中文版）。",
               "type": "doc"
             },
             {
               "title": "JavaScript Visualized: Promises & Async/Await",
               "url": "https://dev.to/lydiahallie/javascript-visualized-promises-async-await-5gke",
-              "description": "An intuitive explanation of the JavaScript event loop and async mechanisms using animations.",
+              "description": "Lydia Hallie 用动画图解直观展示 Event Loop 与异步机制的经典文章。",
+              "type": "article"
+            },
+            {
+              "title": "Jake Archibald: Tasks, microtasks, queues and schedules",
+              "url": "https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/",
+              "description": "深度讲解宏任务与微任务执行顺序的经典博文，附交互式演示。",
               "type": "article"
             }
           ]

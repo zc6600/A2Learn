@@ -1,4 +1,7 @@
-[
+import json
+from pathlib import Path
+
+content = [
   {
     "version": "v0.9",
     "createSurface": {
@@ -92,20 +95,10 @@
           "id": "concept",
           "component": "ConceptCard",
           "title": "Promise：异步操作的「承诺」对象",
-          "tags": [
-            "JavaScript",
-            "Async",
-            "ES6",
-            "Promise"
-          ],
+          "tags": ["JavaScript", "Async", "ES6", "Promise"],
           "definition": "一个 <b>Promise</b> 对象代表一个异步操作<b>未来某时刻</b>的结果（成功值或失败原因）。它有且仅有三种状态：<code>pending</code>（等待中）、<code>fulfilled</code>（已成功）、<code>rejected</code>（已失败）。状态一旦确定便<b>不可逆转</b>，并可通过 <code>.then()</code> / <code>.catch()</code> 链式注册后续处理逻辑。",
           "example": "<pre><code>// Promise 基础：从嵌套到链式\nfetchUser(id)\n  .then(user => fetchOrders(user.id))\n  .then(orders => fetchShipment(orders[0].id))\n  .then(ship => console.log('包裹状态:', ship.status))\n  .catch(err => console.error('出错了:', err));\n\n// Promise.all：并行等待多个异步任务全部完成\nconst [user, config] = await Promise.all([\n  fetchUser(id),\n  fetchConfig()\n]);</code></pre>",
-          "relatedConcepts": [
-            "async / await",
-            "Event Loop",
-            "Microtask Queue",
-            "Callback Hell"
-          ]
+          "relatedConcepts": ["async / await", "Event Loop", "Microtask Queue", "Callback Hell"]
         },
         {
           "id": "mental-model-event-loop",
@@ -197,3 +190,15 @@
     }
   }
 ]
+
+paths = [
+    Path("packages/a2learn-catalog/examples/Website/js-async.json"),
+    Path("skill/references/examples/js-async.json"),
+    Path("apps/viewer/public/examples/js-async.json")
+]
+
+for p in paths:
+    p.write_text(json.dumps(content, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"UPDATED_JS_ASYNC: {p}")
+
+print("ALL_JS_ASYNC_UPDATES_SUCCESS")
