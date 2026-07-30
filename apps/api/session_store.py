@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from agent.engine import run_agent
+from agent.validate import validate_a2ui_messages
 
 
 def _now_iso() -> str:
@@ -47,6 +48,13 @@ class SessionState:
     action_count: int = 0
     created_at: str = field(default_factory=_now_iso)
     updated_at: str = field(default_factory=_now_iso)
+    # "pending" while the background generation thread is still running the
+    # 3-step LLM pipeline (plan_curriculum -> build_site -> generate_a2ui_messages),
+    # which routinely takes well over Cloudflare's ~100s edge timeout for a
+    # single synchronous request. The frontend polls /api/session/{id}/status
+    # until this flips to "ready" (or "error") instead of blocking on /start.
+    status: str = "pending"
+    error: str | None = None
 
     def apply_messages(self, messages: list[dict[str, Any]]) -> None:
         for msg in messages:
@@ -82,27 +90,54 @@ class SessionStore:
         resource_text: str | None = None,
         api_key: str | None = None,
     ) -> SessionState:
-        import os
-        mode = os.getenv("A2LEARN_MODE", "agent")
-        state = run_agent(
-            resource_path=resource_path,
-            resource_text=resource_text,
-            mode=mode,
-            api_key=api_key,
-        )
-        messages = self._extract_messages(state)
         session = SessionState(
             session_id=f"sess_{uuid.uuid4().hex[:12]}",
             resource_path=resource_path or "text-input",
-            messages=messages,
-            surface_ids=extract_surface_ids(messages),
+            messages=[],
+            surface_ids=[],
         )
-        session.apply_messages(messages)
         with self._lock:
             if len(self._sessions) >= self._max_capacity:
                 self._sessions.popitem(last=False)  # Remove the oldest session
             self._sessions[session.session_id] = session
+
+        thread = threading.Thread(
+            target=self._run_generation,
+            args=(session, resource_path, resource_text, api_key),
+            daemon=True,
+        )
+        thread.start()
         return session
+
+    def _run_generation(
+        self,
+        session: SessionState,
+        resource_path: str | None,
+        resource_text: str | None,
+        api_key: str | None,
+    ) -> None:
+        import os
+        try:
+            mode = os.getenv("A2LEARN_MODE", "agent")
+            state = run_agent(
+                resource_path=resource_path,
+                resource_text=resource_text,
+                mode=mode,
+                api_key=api_key,
+            )
+            messages = self._extract_messages(state)
+            validate_a2ui_messages(messages)
+        except Exception as exc:
+            session.status = "error"
+            session.error = str(exc)
+            session.updated_at = _now_iso()
+            return
+
+        session.messages = messages
+        session.surface_ids = extract_surface_ids(messages)
+        session.apply_messages(messages)
+        session.status = "ready"
+        session.updated_at = _now_iso()
 
     def get(self, session_id: str) -> SessionState | None:
         with self._lock:

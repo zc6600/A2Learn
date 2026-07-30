@@ -29,6 +29,11 @@ proxy:
   ssl: false                             # Cloudflare handles HTTPS at the edge
   host: api.a2learn.zc6600.wiki
   app_port: 8008
+  # /api/session/start runs 3 sequential LLM calls (plan_curriculum ->
+  # build_site -> generate_a2ui_messages) synchronously in one request; that
+  # routinely exceeds kamal-proxy's 30s default response_timeout, which was
+  # causing a 504 Gateway Timeout before the agent ever finished.
+  response_timeout: 1200
   healthcheck:
     path: /healthz
     interval: 3

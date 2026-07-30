@@ -22,7 +22,20 @@ class SessionStartRequest(BaseModel):
 class SessionStartResponse(BaseModel):
     session_id: str
     mode: str = "online"
-    messages: list[dict[str, Any]]
+    # "pending" immediately after /start returns — the LLM pipeline keeps
+    # running in a background thread (see SessionStore._run_generation) and
+    # the caller must poll /api/session/{id}/status until this is "ready" or
+    # "error". Kept synchronous+non-empty would routinely blow past
+    # Cloudflare's ~100s edge timeout for a single request.
+    status: str = "pending"
+    messages: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class SessionStatusResponse(BaseModel):
+    session_id: str
+    status: str
+    messages: list[dict[str, Any]] = Field(default_factory=list)
+    error: str | None = None
 
 
 class SessionActionRequest(BaseModel):
@@ -159,12 +172,22 @@ def start_session(
         
     try:
         session = store.create(resource_path=resource_path, resource_text=resource_text, api_key=api_key)
-        validate_a2ui_messages(session.messages)
-        return SessionStartResponse(session_id=session.session_id, messages=session.messages)
+        return SessionStartResponse(session_id=session.session_id, status=session.status, messages=session.messages)
     except HTTPException:
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"SESSION_START_FAILED: {exc}") from exc
+
+
+@app.get("/api/session/{session_id}/status", response_model=SessionStatusResponse)
+def session_status(session_id: str) -> SessionStatusResponse:
+    session = _require_session(session_id)
+    return SessionStatusResponse(
+        session_id=session.session_id,
+        status=session.status,
+        messages=session.messages if session.status == "ready" else [],
+        error=session.error,
+    )
 
 
 @app.post("/api/session/{session_id}/action", response_model=SessionActionResponse)

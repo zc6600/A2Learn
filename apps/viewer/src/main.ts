@@ -19,10 +19,20 @@ let activeRuntime: {
 } | null = null;
 
 
+type SessionStatus = "pending" | "ready" | "error";
+
 type SessionStartResponse = {
   session_id: string;
   mode: "online";
+  status: SessionStatus;
   messages: A2uiMessage[];
+};
+
+type SessionStatusResponse = {
+  session_id: string;
+  status: SessionStatus;
+  messages: A2uiMessage[];
+  error?: string | null;
 };
 
 type SessionActionResponse = {
@@ -642,6 +652,36 @@ function setupAutoResize(container: HTMLElement, getTargetOrigin: () => string):
   };
 }
 
+// /api/session/start returns "pending" immediately — the 3-step LLM pipeline
+// (plan_curriculum -> build_site -> generate_a2ui_messages) keeps running
+// server-side in a background thread, since it routinely takes well over
+// Cloudflare's ~100s edge timeout for a single synchronous request/response.
+// Poll /status until the backend flips it to "ready" (or "error").
+async function pollSessionUntilReady(
+  apiBaseUrl: string,
+  headers: Record<string, string>,
+  sessionId: string,
+): Promise<A2uiMessage[]> {
+  const POLL_INTERVAL_MS = 2500;
+  const MAX_WAIT_MS = 15 * 60 * 1000;
+  const deadline = Date.now() + MAX_WAIT_MS;
+  while (Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+    const res = await fetch(`${apiBaseUrl}/api/session/${sessionId}/status`, { headers });
+    if (!res.ok) {
+      throw new Error(`Session status check failed (${res.status})`);
+    }
+    const data = (await res.json()) as SessionStatusResponse;
+    if (data.status === "ready") {
+      return data.messages;
+    }
+    if (data.status === "error") {
+      throw new Error(data.error || "Generation failed on the server.");
+    }
+  }
+  throw new Error("Timed out waiting for generation to complete.");
+}
+
 async function bootstrapOnline(
   container: HTMLElement,
   source: ViewerSourceOnline,
@@ -660,8 +700,17 @@ async function bootstrapOnline(
   }
   const startData = (await startResponse.json()) as SessionStartResponse;
   const sessionId = startData.session_id;
-  if (!sessionId || !Array.isArray(startData.messages)) {
+  if (!sessionId) {
     throw new Error("Online session response format error.");
+  }
+
+  let initialMessages: A2uiMessage[];
+  if (startData.status === "error") {
+    throw new Error("Generation failed on the server.");
+  } else if (startData.status === "ready" && Array.isArray(startData.messages) && startData.messages.length > 0) {
+    initialMessages = startData.messages;
+  } else {
+    initialMessages = await pollSessionUntilReady(source.apiBaseUrl, buildHeaders(source.headers), sessionId);
   }
 
   let isSendingAction = false;
@@ -727,8 +776,8 @@ async function bootstrapOnline(
     modeHint: "Online mode connected, supporting interaction callbacks and incremental updates.",
   };
 
-  processor.processMessages(startData.messages);
-  const startCreatedId = extractLastCreatedSurfaceId(startData.messages);
+  processor.processMessages(initialMessages);
+  const startCreatedId = extractLastCreatedSurfaceId(initialMessages);
   if (startCreatedId) {
     window.location.hash = `#/${startCreatedId}`;
   }
@@ -1176,7 +1225,16 @@ async function bootstrapViewer() {
     postToParent({ type: "a2learn:ready" }, parentOrigin);
   }
 
-  const startWithConfig = async (cfg: ViewerRuntimeConfig) => {
+  // `fallbackToOffline` controls what happens when an online request throws:
+  // true silently swaps in the static demo (site_messages.json) after showing
+  // the error for a frame — appropriate for a config-driven initial load,
+  // where "something" beats a dead page. But reusing that same fallback for a
+  // user-triggered onGenerate() call was actively misleading: the visitor's
+  // real prompt failed (bad key, CORS, backend down/timed out), yet the error
+  // was immediately overwritten by the offline demo's first surface
+  // ("surface-module-1"), so failures looked like the app silently
+  // redirecting to unrelated content instead of surfacing what went wrong.
+  const startWithConfig = async (cfg: ViewerRuntimeConfig, fallbackToOffline: boolean = true) => {
     // Snapshot container for the duration of this call: it's a `let` that
     // renderShell() can reassign (on a language switch), and it shouldn't
     // move out from under an in-flight load.
@@ -1205,7 +1263,11 @@ async function bootstrapViewer() {
     } catch (err) {
       const tr = T[getLang()];
       const errorLine = getLang() === "zh" ? `错误信息: ${String(err)}` : `Error: ${String(err)}`;
-      showState(target, `${tr.onlineFailedPrefix}\n${errorLine}\n${tr.onlineFailedFallback}`, "error");
+      const fallbackNote = fallbackToOffline ? `\n${tr.onlineFailedFallback}` : "";
+      showState(target, `${tr.onlineFailedPrefix}\n${errorLine}${fallbackNote}`, "error");
+      if (!fallbackToOffline) {
+        return;
+      }
     }
     await bootstrapOffline(
       target,
@@ -1248,7 +1310,10 @@ async function bootstrapViewer() {
         headers: userKey ? { Authorization: `Bearer ${userKey}` } : undefined,
       },
     };
-    void startWithConfig(onlineConfig);
+    // User explicitly asked to generate from their own prompt — on failure,
+    // leave the error on screen instead of silently swapping in the static
+    // demo gallery content (see startWithConfig's fallbackToOffline comment).
+    void startWithConfig(onlineConfig, false);
   };
 
   const switchLanguage = async (newLang: Lang) => {
