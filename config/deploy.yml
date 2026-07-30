@@ -29,10 +29,11 @@ proxy:
   ssl: false                             # Cloudflare handles HTTPS at the edge
   host: api.a2learn.zc6600.wiki
   app_port: 8008
-  # /api/session/start runs 3 sequential LLM calls (plan_curriculum ->
-  # build_site -> generate_a2ui_messages) synchronously in one request; that
-  # routinely exceeds kamal-proxy's 30s default response_timeout, which was
-  # causing a 504 Gateway Timeout before the agent ever finished.
+  # /api/session/start itself now returns immediately (generation runs in a
+  # background thread, polled via /status), but /api/session/{id}/action
+  # still runs a single synchronous LLM call per request and can occasionally
+  # run long — kamal-proxy's 30s default response_timeout was causing a 504
+  # there too.
   response_timeout: 1200
   healthcheck:
     path: /healthz
@@ -42,6 +43,10 @@ proxy:
 env:
   clear:
     A2LEARN_ALLOWED_ORIGINS: https://a2learn.zc6600.wiki
+    # Without this, build_llm() falls back to agent/config.py's DEFAULT_MODEL
+    # (deepseek/deepseek-v4-flash), which is what hit the JSON-parsing
+    # failures diagnosed and fixed in agent/llm.py.
+    OPENROUTER_MODEL: google/gemini-3.5-flash-lite
 
 aliases:
   logs: app logs -f

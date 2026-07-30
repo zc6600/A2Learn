@@ -34,7 +34,11 @@ def build_llm(api_key: str | None = None) -> Any:
 
 
 def _extract_json_array(text: str) -> list[dict[str, Any]]:
-    fenced = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text)
+    # Greedy: components like DetailedExplanation often embed their own
+    # ```code``` blocks inside a JSON string value. A non-greedy match here
+    # would stop at that *inner* fence instead of the real closing fence at
+    # the end of the message, truncating the JSON mid-string.
+    fenced = re.search(r"```(?:json)?\s*([\s\S]*)\s*```", text)
     candidate = (fenced.group(1) if fenced else text).strip()
 
     # 1) Try parse full payload directly.
@@ -67,7 +71,11 @@ def _extract_json_array(text: str) -> list[dict[str, Any]]:
 
 
 def _extract_json_object(text: str) -> dict[str, Any]:
-    fenced = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text)
+    # Greedy: components like DetailedExplanation often embed their own
+    # ```code``` blocks inside a JSON string value. A non-greedy match here
+    # would stop at that *inner* fence instead of the real closing fence at
+    # the end of the message, truncating the JSON mid-string.
+    fenced = re.search(r"```(?:json)?\s*([\s\S]*)\s*```", text)
     candidate = (fenced.group(1) if fenced else text).strip()
 
     try:
@@ -88,6 +96,32 @@ def _extract_json_object(text: str) -> dict[str, Any]:
     raise ValueError("LLM did not return a valid JSON object.")
 
 
+def _invoke_and_parse(
+    llm: Any,
+    messages: list[dict[str, str]],
+    parser: Any,
+    max_attempts: int = 3,
+) -> Any:
+    """Structured-output LLM calls occasionally come back unparseable (a
+    malformed fence, a dropped bracket) even with a correct prompt and
+    fixed extractor — that's an inherent risk of asking a model for exact
+    JSON. Retrying with a fresh sample is cheap relative to failing the
+    whole generation outright."""
+    last_exc: Exception | None = None
+    for _attempt in range(max_attempts):
+        response = llm.invoke(messages)
+        content = getattr(response, "content", "")
+        if isinstance(content, list):
+            content = "".join(str(x) for x in content)
+        try:
+            return parser(str(content))
+        except Exception as exc:  # noqa: BLE001 - deliberately broad, see docstring
+            last_exc = exc
+            continue
+    assert last_exc is not None
+    raise last_exc
+
+
 def plan_curriculum(llm: Any, resource_text: str) -> dict[str, Any]:
     system_prompt = textwrap.dedent(
         """
@@ -102,16 +136,14 @@ def plan_curriculum(llm: Any, resource_text: str) -> dict[str, Any]:
         """
     ).strip()
     user_prompt = f"请基于以下教学资源规划一份课程大纲（curriculum）。\n\nResource text:\n{resource_text}"
-    response = llm.invoke(
+    return _invoke_and_parse(
+        llm,
         [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
-        ]
+        ],
+        _extract_json_object,
     )
-    content = getattr(response, "content", "")
-    if isinstance(content, list):
-        content = "".join(str(x) for x in content)
-    return _extract_json_object(str(content))
 
 
 def build_site_plan(llm: Any, curriculum: dict[str, Any]) -> dict[str, Any]:
@@ -131,16 +163,14 @@ def build_site_plan(llm: Any, curriculum: dict[str, Any]) -> dict[str, Any]:
     user_prompt = "请把下面 curriculum 转成站点结构（site plan），每个 surface 对应一个学习页面。\n\n" + json.dumps(
         curriculum, ensure_ascii=False
     )
-    response = llm.invoke(
+    return _invoke_and_parse(
+        llm,
         [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
-        ]
+        ],
+        _extract_json_object,
     )
-    content = getattr(response, "content", "")
-    if isinstance(content, list):
-        content = "".join(str(x) for x in content)
-    return _extract_json_object(str(content))
 
 
 def generate_a2ui_messages(llm: Any, resource_text: str, target_language: str = "zh") -> list[dict[str, Any]]:
@@ -173,6 +203,15 @@ def generate_a2ui_messages(llm: Any, resource_text: str, target_language: str = 
         {lang_instruction}
 
         Hard requirements:
+        - CRITICAL JSON SAFETY: Triple backtick sequences (```) may appear EXACTLY
+          twice in your entire response — once to open the code fence around your
+          JSON array, once to close it. NEVER use ``` anywhere else, including
+          inside a component's text/content string, even to show example code.
+          (The few-shot examples below wrap themselves in ```json fences purely
+          for illustration when embedded in this prompt — do not imitate that
+          nesting inside your own output.) If a component needs to show code or
+          pseudocode, write it as plain text with literal "\\n" line breaks, or
+          use "<pre><code>...</code></pre>" HTML tags — never markdown fences.
         - Every message MUST include: "version": "v0.9".
         - Must include createSurface and updateComponents.
         - createSurface.catalogId MUST be "{DEFAULT_CATALOG_ID}".
@@ -217,30 +256,26 @@ def generate_a2ui_messages(llm: Any, resource_text: str, target_language: str = 
         f"Resource text:\n{resource_text}"
     )
 
-    response = llm.invoke(
+    return _invoke_and_parse(
+        llm,
         [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
-        ]
+        ],
+        _extract_json_array,
     )
-    content = getattr(response, "content", "")
-    if isinstance(content, list):
-        content = "".join(str(x) for x in content)
-    return _extract_json_array(str(content))
 
 
 def generate_structured_json(llm: Any, resource_text: str, prompt_template: str) -> dict[str, Any]:
     """Generates structured course JSON directly based on the custom prompt template."""
     system_prompt = prompt_template.strip()
     user_prompt = f"请根据以下教学资源生成结构化课程 JSON 对象。\n\nResource text:\n{resource_text}"
-    response = llm.invoke(
+    return _invoke_and_parse(
+        llm,
         [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
-        ]
+        ],
+        _extract_json_object,
     )
-    content = getattr(response, "content", "")
-    if isinstance(content, list):
-        content = "".join(str(x) for x in content)
-    return _extract_json_object(str(content))
 
