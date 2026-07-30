@@ -43,10 +43,13 @@ proxy:
 env:
   clear:
     A2LEARN_ALLOWED_ORIGINS: https://a2learn.zc6600.wiki
-    # Without this, build_llm() falls back to agent/config.py's DEFAULT_MODEL
-    # (deepseek/deepseek-v4-flash), which is what hit the JSON-parsing
-    # failures diagnosed and fixed in agent/llm.py.
-    OPENROUTER_MODEL: google/gemini-3.5-flash-lite
+    # google/gemini-3.5-flash-lite was tried here but OpenRouter returns a
+    # 403 "not available in your region" from this server's location
+    # (Aliyun Hangzhou). Pinned explicitly to deepseek (matches
+    # agent/config.py's DEFAULT_MODEL) since it's reachable from here — the
+    # JSON-parsing failures it used to hit are what agent/llm.py now fixes
+    # (greedy fence matching, prompt guardrail, retry-on-parse-failure).
+    OPENROUTER_MODEL: deepseek/deepseek-v4-flash
 
 aliases:
   logs: app logs -f
