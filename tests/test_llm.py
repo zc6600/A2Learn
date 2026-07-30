@@ -113,7 +113,35 @@ class InvokeAndParseTests(unittest.TestCase):
         with self.assertRaises(ValueError) as ctx:
             _invoke_and_parse(llm, [], parser, max_attempts=1)
         self.assertIn("truncated", str(ctx.exception))
-        self.assertIn("finish_reason=length", str(ctx.exception))
+
+    def test_retries_when_invoke_itself_raises(self) -> None:
+        # Regression test: with JSON mode on, a response cut off at the
+        # token limit can make llm.invoke() raise directly (e.g. "Could not
+        # parse response content as the length limit was reached") instead
+        # of returning an object with truncated .content. That used to be
+        # outside the try/except entirely, so it skipped every retry and
+        # failed on the very first attempt. See agent/llm.py:_invoke_and_parse.
+        calls = {"count": 0}
+
+        def fake_invoke(messages):
+            calls["count"] += 1
+            if calls["count"] < 2:
+                raise RuntimeError("Could not parse response content as the length limit was reached")
+            return SimpleNamespace(content='{"ok": true}')
+
+        llm = SimpleNamespace(invoke=fake_invoke)
+        result = _invoke_and_parse(llm, [], lambda text: {"parsed": text}, max_attempts=3)
+        self.assertEqual(result, {"parsed": '{"ok": true}'})
+        self.assertEqual(calls["count"], 2)
+
+    def test_reports_truncation_clearly_when_invoke_raises_length_error(self) -> None:
+        def always_raises(messages):
+            raise RuntimeError("Could not parse response content as the length limit was reached")
+
+        llm = SimpleNamespace(invoke=always_raises)
+        with self.assertRaises(ValueError) as ctx:
+            _invoke_and_parse(llm, [], lambda text: text, max_attempts=1)
+        self.assertIn("truncated", str(ctx.exception))
 
 
 class GenerateA2uiMessagesPerSurfaceTests(unittest.TestCase):

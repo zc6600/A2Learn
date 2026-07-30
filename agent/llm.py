@@ -30,7 +30,12 @@ def build_llm(api_key: str | None = None) -> Any:
     # mid-JSON and every parse attempt fails (see _invoke_and_parse's
     # finish_reason check, which turns that into an actionable error instead
     # of a bare JSON-decode failure).
-    max_tokens = int(os.getenv("OPENROUTER_MAX_TOKENS", "65536"))
+    # qwen/qwen3.7-flash is a reasoning model: a chunk of its completion
+    # tokens go to a hidden reasoning trace before the final JSON, so it
+    # needs a much bigger budget than the visible output alone suggests —
+    # a real production run hit completion_tokens=67389 (reasoning_tokens
+    # 1849 of that) and still got cut off at the old 65536 ceiling.
+    max_tokens = int(os.getenv("OPENROUTER_MAX_TOKENS", "200000"))
     # Constrains the model to emit raw JSON instead of prose wrapped in a
     # ```json fence. This is the real fix for the whole class of bugs where
     # a regex had to guess where the fence ends (see _extract_json_array/
@@ -125,24 +130,38 @@ def _invoke_and_parse(
     malformed fence, a dropped bracket) even with a correct prompt and
     fixed extractor — that's an inherent risk of asking a model for exact
     JSON. Retrying with a fresh sample is cheap relative to failing the
-    whole generation outright."""
+    whole generation outright.
+
+    llm.invoke() itself is inside the try/except, not just the parser call:
+    with JSON mode enabled, a response cut off at the token limit can make
+    the client raise directly (e.g. "Could not parse response content as
+    the length limit was reached") instead of returning a response object
+    with truncated .content — that used to skip every retry attempt and
+    fail on the very first one."""
     last_exc: Exception | None = None
     for _attempt in range(max_attempts):
-        response = llm.invoke(messages)
-        content = getattr(response, "content", "")
-        if isinstance(content, list):
-            content = "".join(str(x) for x in content)
+        response = None
         try:
+            response = llm.invoke(messages)
+            content = getattr(response, "content", "")
+            if isinstance(content, list):
+                content = "".join(str(x) for x in content)
             return parser(str(content))
         except Exception as exc:  # noqa: BLE001 - deliberately broad, see docstring
-            finish_reason = (getattr(response, "response_metadata", None) or {}).get("finish_reason")
-            if finish_reason == "length":
-                # The model hit max_tokens mid-JSON — no amount of retrying
-                # with the same limit fixes this, so say so plainly instead
-                # of letting a bare "Expecting value: line N column M" bubble
-                # up from json.loads on the final attempt.
+            finish_reason = (
+                (getattr(response, "response_metadata", None) or {}).get("finish_reason")
+                if response is not None
+                else None
+            )
+            truncated = finish_reason == "length" or "length limit was reached" in str(exc)
+            if truncated:
+                # The model hit the token/length limit mid-JSON — no amount
+                # of retrying with the same limit fixes this, so say so
+                # plainly instead of letting a bare "Expecting value: line N
+                # column M" (or the client's own raw error) bubble up on the
+                # final attempt.
                 last_exc = ValueError(
-                    "LLM response was truncated (finish_reason=length) before finishing valid JSON. "
+                    "LLM response was truncated (hit the token/length limit) before finishing valid JSON. "
                     "Raise OPENROUTER_MAX_TOKENS or shorten the request."
                 )
             else:
