@@ -55,16 +55,15 @@ def build_llm(api_key: str | None = None) -> Any:
 
 
 def _extract_json_array(text: str) -> list[dict[str, Any]]:
-    # Greedy: components like DetailedExplanation often embed their own
-    # ```code``` blocks inside a JSON string value. A non-greedy match here
-    # would stop at that *inner* fence instead of the real closing fence at
-    # the end of the message, truncating the JSON mid-string.
-    fenced = re.search(r"```(?:json)?\s*([\s\S]*)\s*```", text)
-    candidate = (fenced.group(1) if fenced else text).strip()
-
-    # 1) Try parse full payload directly.
+    # 1) With JSON mode on (see build_llm), the response IS raw JSON — try
+    #    parsing it as-is FIRST, before ever looking for a ```fence```. A
+    #    component's content can legitimately contain a ```code``` sample as
+    #    plain characters inside a JSON string; if fence-stripping ran first
+    #    and treated that incidental pair of backticks as the "real" outer
+    #    fence, it would slice out and corrupt an otherwise perfectly valid,
+    #    much larger response.
     try:
-        parsed = json.loads(candidate)
+        parsed = json.loads(text.strip())
         if isinstance(parsed, list):
             return parsed
         if isinstance(parsed, dict) and isinstance(parsed.get("a2ui_messages"), list):
@@ -72,8 +71,22 @@ def _extract_json_array(text: str) -> list[dict[str, Any]]:
     except Exception:
         pass
 
-    # 2) Try extracting all JSON arrays and choose one that looks like messages.
-    matches = re.findall(r"\[[\s\S]*?\]", candidate)
+    # 2) Fallback for a model/provider that doesn't fully honor JSON mode and
+    #    still wraps its response in a ```json fence.
+    fenced = re.search(r"```(?:json)?\s*([\s\S]*)\s*```", text)
+    if fenced:
+        candidate = fenced.group(1).strip()
+        try:
+            parsed = json.loads(candidate)
+            if isinstance(parsed, list):
+                return parsed
+            if isinstance(parsed, dict) and isinstance(parsed.get("a2ui_messages"), list):
+                return parsed["a2ui_messages"]
+        except Exception:
+            pass
+
+    # 3) Last resort: extract all JSON arrays and choose one that looks like messages.
+    matches = re.findall(r"\[[\s\S]*?\]", text)
     for raw in matches:
         try:
             parsed = json.loads(raw)
@@ -92,19 +105,26 @@ def _extract_json_array(text: str) -> list[dict[str, Any]]:
 
 
 def _extract_json_object(text: str) -> dict[str, Any]:
-    # Greedy: components like DetailedExplanation often embed their own
-    # ```code``` blocks inside a JSON string value. A non-greedy match here
-    # would stop at that *inner* fence instead of the real closing fence at
-    # the end of the message, truncating the JSON mid-string.
-    fenced = re.search(r"```(?:json)?\s*([\s\S]*)\s*```", text)
-    candidate = (fenced.group(1) if fenced else text).strip()
-
+    # See _extract_json_array: try the raw response as-is first, since JSON
+    # mode means there's normally no ```fence``` at all, and incidental
+    # backticks inside a string value could otherwise be mistaken for one.
     try:
-        parsed = json.loads(candidate)
+        parsed = json.loads(text.strip())
         if isinstance(parsed, dict):
             return parsed
     except Exception:
         pass
+
+    fenced = re.search(r"```(?:json)?\s*([\s\S]*)\s*```", text)
+    candidate = fenced.group(1).strip() if fenced else text.strip()
+
+    if fenced:
+        try:
+            parsed = json.loads(candidate)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception:
+            pass
 
     start = candidate.find("{")
     end = candidate.rfind("}")
@@ -207,6 +227,13 @@ def build_site_plan(llm: Any, curriculum: dict[str, Any]) -> dict[str, Any]:
         - Each surface: surfaceId, title, description, moduleId (optional), recommendedComponents (array).
         - recommendedComponents must be chosen from: LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt,
           ScenarioDialogue, Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.
+        - HARD CAP: at most 4 surfaces total, even for a broad/complex topic.
+          The next generation step writes rich, detailed content for every
+          surface in a single response with a finite token budget — more
+          surfaces here directly risks that response getting cut off before
+          finishing valid JSON. Prefer merging closely related sub-topics into
+          one surface over adding a 5th+ surface.
+        - recommendedComponents per surface: at most 6, for the same reason.
         """
     ).strip()
     user_prompt = "请把下面 curriculum 转成站点结构（site plan），每个 surface 对应一个学习页面。\n\n" + json.dumps(
@@ -264,6 +291,19 @@ def _a2ui_system_prompt(target_language: str, scope_instruction: str) -> str:
         {lang_instruction}
 
         Hard requirements:
+        - TOKEN BUDGET (读完再写，非常重要): this response has a finite token
+          budget. A response that runs out of budget mid-JSON is invalid and
+          the ENTIRE generation fails — a shorter but complete, valid response
+          is always better than a longer one that gets cut off. Be concise and
+          information-dense rather than exhaustive:
+          - Per component, keep any single text/content/description field to
+            roughly 150-400 Chinese characters (a few sentences), not multiple
+            paragraphs.
+          - ScenarioDialogue: at most 4-5 message turns total.
+          - DetailedExplanation: cover the 2-3 most important points, not an
+            exhaustive list.
+          - Do not repeat the same explanation, example, or term definition
+            across multiple components — say it once, well.
         - Your response is parsed as raw JSON (no markdown fence needed or
           wanted). A component's text/content string may contain literal
           backtick characters (e.g. to show code) — that's fine, they're just

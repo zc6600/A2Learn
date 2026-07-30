@@ -60,6 +60,39 @@ class ExtractJsonArrayTests(unittest.TestCase):
         result = _extract_json_array(text)
         self.assertEqual(result, messages)
 
+    def test_survives_incidental_backtick_pair_in_unfenced_json_mode_response(self) -> None:
+        # Regression test: with JSON mode on (see build_llm), the response is
+        # normally raw JSON with no wrapping ```fence``` at all. If a
+        # component's content string happens to contain its own ``` code
+        # sample (two backtick-triples, forming what looks like a fence
+        # pair), fence-stripping used to run *before* trying to parse the
+        # response as-is, so it mistook that incidental pair for the "real"
+        # outer fence and sliced out just the tiny span between them —
+        # corrupting an otherwise perfectly valid, much larger response. See
+        # agent/llm.py:_extract_json_array (this exact shape was reproduced
+        # against a real model response during testing).
+        messages = [
+            {"version": "v0.9", "createSurface": {"surfaceId": "main"}},
+            {
+                "version": "v0.9",
+                "updateComponents": {
+                    "surfaceId": "main",
+                    "components": [
+                        {
+                            "id": "c1",
+                            "component": "DetailedExplanation",
+                            "content": "示例：\n```python\nprint('hi')\n```\n完",
+                        }
+                    ],
+                },
+            },
+            {"version": "v0.9", "createSurface": {"surfaceId": "second"}},
+        ]
+        # No outer ```json fence — this is what a JSON-mode response looks like.
+        text = json.dumps({"a2ui_messages": messages}, ensure_ascii=False)
+        result = _extract_json_array(text)
+        self.assertEqual(result, messages)
+
 
 class InvokeAndParseTests(unittest.TestCase):
     def test_returns_result_on_first_success(self) -> None:
