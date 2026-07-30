@@ -31,12 +31,20 @@ def build_llm(api_key: str | None = None) -> Any:
     # finish_reason check, which turns that into an actionable error instead
     # of a bare JSON-decode failure).
     max_tokens = int(os.getenv("OPENROUTER_MAX_TOKENS", "65536"))
+    # Constrains the model to emit raw JSON instead of prose wrapped in a
+    # ```json fence. This is the real fix for the whole class of bugs where
+    # a regex had to guess where the fence ends (see _extract_json_array/
+    # _extract_json_object) — with this on, there's no fence to mis-parse in
+    # the first place. Both qwen/qwen3.7-flash and deepseek/deepseek-v4-flash
+    # confirmed to support it via OpenRouter. The extractors keep their
+    # fence-stripping fallback for models/providers that ignore this.
     return ChatOpenAI(
         model=model,
         api_key=key,
         base_url="https://openrouter.ai/api/v1",
         temperature=0.2,
         max_tokens=max_tokens,
+        model_kwargs={"response_format": {"type": "json_object"}},
     )
 
 
@@ -195,22 +203,34 @@ def build_site_plan(llm: Any, curriculum: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-def generate_a2ui_messages(llm: Any, resource_text: str, target_language: str = "zh") -> list[dict[str, Any]]:
+def _load_a2ui_examples_text() -> str:
     from pathlib import Path
 
-    examples_text = ""
     examples_dir = Path(__file__).parent.parent / "packages" / "a2learn-catalog" / "examples" / "Website"
-    if examples_dir.exists():
-        examples = []
-        for file_path in sorted(examples_dir.glob("*.json")):
-            try:
-                content = file_path.read_text(encoding="utf-8")
-                examples.append(f"Example ({file_path.name}):\n```json\n{content}\n```")
-            except Exception:
-                continue
-        if examples:
-            examples_text = "\n\nHere are some examples of valid A2UI message arrays:\n" + "\n\n".join(examples)
+    if not examples_dir.exists():
+        return ""
+    examples = []
+    for file_path in sorted(examples_dir.glob("*.json")):
+        try:
+            # Source files are bare arrays (also used by the static example
+            # gallery elsewhere) — wrap each one in the {"a2ui_messages": [...]}
+            # envelope this prompt now asks for, so the shown examples match
+            # the requested output shape.
+            raw_array = json.loads(file_path.read_text(encoding="utf-8"))
+            wrapped = json.dumps({"a2ui_messages": raw_array}, ensure_ascii=False)
+            examples.append(f"Example ({file_path.name}):\n{wrapped}")
+        except Exception:
+            continue
+    if not examples:
+        return ""
+    return "\n\nHere are some examples of valid A2UI message arrays:\n" + "\n\n".join(examples)
 
+
+def _a2ui_system_prompt(target_language: str, scope_instruction: str) -> str:
+    """Shared prompt body for both the single-shot (generate_a2ui_messages)
+    and per-surface (generate_a2ui_messages_per_surface) generators —
+    `scope_instruction` is the only part that differs between them (whole
+    course vs. one surface)."""
     lang_instruction = (
         "TARGET LANGUAGE: CHINESE (简体中文). All generated titles, descriptions, definitions, dialogues, analogies, and tooltips MUST be in clear, engaging, professional Chinese."
         if target_language == "zh" else
@@ -220,20 +240,16 @@ def generate_a2ui_messages(llm: Any, resource_text: str, target_language: str = 
     system_prompt = textwrap.dedent(
         f"""
         You are an A2Learn agent that MUST directly output A2UI v0.9 messages.
-        Return ONLY a JSON array of messages, no explanation.
+        {scope_instruction}
 
         {lang_instruction}
 
         Hard requirements:
-        - CRITICAL JSON SAFETY: Triple backtick sequences (```) may appear EXACTLY
-          twice in your entire response — once to open the code fence around your
-          JSON array, once to close it. NEVER use ``` anywhere else, including
-          inside a component's text/content string, even to show example code.
-          (The few-shot examples below wrap themselves in ```json fences purely
-          for illustration when embedded in this prompt — do not imitate that
-          nesting inside your own output.) If a component needs to show code or
-          pseudocode, write it as plain text with literal "\\n" line breaks, or
-          use "<pre><code>...</code></pre>" HTML tags — never markdown fences.
+        - Your response is parsed as raw JSON (no markdown fence needed or
+          wanted). A component's text/content string may contain literal
+          backtick characters (e.g. to show code) — that's fine, they're just
+          characters inside a JSON string; just make sure the string itself is
+          properly JSON-escaped (e.g. real newlines inside it written as \\n).
         - Every message MUST include: "version": "v0.9".
         - Must include createSurface and updateComponents.
         - createSurface.catalogId MUST be "{DEFAULT_CATALOG_ID}".
@@ -263,16 +279,26 @@ def generate_a2ui_messages(llm: Any, resource_text: str, target_language: str = 
           4. Conclude with real-world impact (e.g., "Inserting 1 element forced 3 RAM moves; 1,000,000 items forces 500,000 RAM moves!").
         - GLOSSARY & TERM ANNOTATION: NEVER output formulaic "请牢记以下..." lists. Weave key terms into a connected paragraph. Always wrap technical terms with semantic HTML definition tags: <dfn title="一句话通俗注解"><strong>术语名称</strong></dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法"><strong>开放寻址法</strong></dfn> 解决。"
         - Output format example:
-          [
+          {{"a2ui_messages": [
             {{"version":"v0.9","createSurface":{{"surfaceId":"main","catalogId":"{DEFAULT_CATALOG_ID}"}}}},
             {{"version":"v0.9","updateComponents":{{"surfaceId":"main","components":[...]}}}}
-          ]
+          ]}}
         """
     ).strip()
 
+    examples_text = _load_a2ui_examples_text()
     if examples_text:
         system_prompt += "\n" + examples_text
+    return system_prompt
 
+
+def generate_a2ui_messages(llm: Any, resource_text: str, target_language: str = "zh") -> list[dict[str, Any]]:
+    system_prompt = _a2ui_system_prompt(
+        target_language,
+        'Return ONLY a JSON object of the form {"a2ui_messages": [...]}, where '
+        "the array holds ALL A2UI messages for the ENTIRE course (every "
+        "surface's createSurface + updateComponents), no explanation.",
+    )
     user_prompt = (
         "请根据以下教学资源直接生成 A2UI 消息数组（组件树）。\n\n"
         f"Resource text:\n{resource_text}"
@@ -286,6 +312,59 @@ def generate_a2ui_messages(llm: Any, resource_text: str, target_language: str = 
         ],
         _extract_json_array,
     )
+
+
+def generate_a2ui_messages_per_surface(
+    llm: Any,
+    resource_text: str,
+    site_plan: dict[str, Any],
+    target_language: str = "zh",
+) -> list[dict[str, Any]]:
+    """Generates one surface at a time instead of the whole course in a
+    single completion. Splitting shrinks each individual JSON response a
+    model has to get exactly right, which measurably lowered the odds of
+    hitting a parse failure on richer/longer topics during testing — at the
+    cost of one LLM call per surface instead of one call total."""
+    surfaces = site_plan.get("surfaces") if isinstance(site_plan, dict) else None
+    if not surfaces:
+        return generate_a2ui_messages(llm, resource_text, target_language)
+
+    site_overview = json.dumps(
+        {"siteTitle": site_plan.get("siteTitle"), "surfaces": surfaces},
+        ensure_ascii=False,
+    )
+
+    all_messages: list[dict[str, Any]] = []
+    for surface in surfaces:
+        surface_id = surface.get("surfaceId")
+        if not surface_id:
+            continue
+        system_prompt = _a2ui_system_prompt(
+            target_language,
+            'Return ONLY a JSON object of the form {"a2ui_messages": [...]}, '
+            "containing EXACTLY ONE createSurface message and its matching "
+            f'updateComponents message, both for surfaceId "{surface_id}" — '
+            "do not generate any other surface, no explanation.",
+        )
+        user_prompt = (
+            "请只为下面指定的这一个 surface 生成 A2UI 消息（createSurface + updateComponents），"
+            f'surfaceId 为 "{surface_id}"。\n\n'
+            f"Resource text:\n{resource_text}\n\n"
+            "# 完整站点结构（仅供了解上下文与其他 surface 的关系，不要重复生成）\n"
+            f"{site_overview}\n\n"
+            "# 本 surface 的规划\n"
+            f"{json.dumps(surface, ensure_ascii=False)}"
+        )
+        surface_messages = _invoke_and_parse(
+            llm,
+            [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            _extract_json_array,
+        )
+        all_messages.extend(surface_messages)
+    return all_messages
 
 
 def generate_structured_json(llm: Any, resource_text: str, prompt_template: str) -> dict[str, Any]:

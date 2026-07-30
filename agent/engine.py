@@ -1,11 +1,19 @@
 import json
+import os
 import time
 from typing import Any, TypedDict
 
 from langgraph.graph import END, StateGraph
 
 from .io import create_output_dir, export_messages, extract_text_from_path, write_json
-from .llm import build_llm, build_site_plan, generate_a2ui_messages, plan_curriculum, generate_structured_json
+from .llm import (
+    build_llm,
+    build_site_plan,
+    generate_a2ui_messages,
+    generate_a2ui_messages_per_surface,
+    plan_curriculum,
+    generate_structured_json,
+)
 from .validate import validate_a2ui_messages
 from .parser import parse_json_to_a2ui
 
@@ -75,13 +83,25 @@ def _node_generate_messages(state: AgentState) -> AgentState:
     llm = build_llm(api_key=state.get("api_key"))
     resource_text = state["resource_text"]
     site_plan = state.get("site_plan")
-    if site_plan:
-        resource_text = (
-            resource_text
-            + "\n\n# SITE PLAN\n"
-            + json.dumps(site_plan, ensure_ascii=False)
-        )
-    messages = generate_a2ui_messages(llm, resource_text)
+    # One call per surface instead of one call for the whole course shrinks
+    # each individual completion, but as implemented it has no per-surface
+    # fallback — any single surface exhausting its retries fails the whole
+    # course, which testing showed can make the *aggregate* failure rate
+    # worse than one bigger call now that JSON mode (see build_llm) already
+    # fixes the fence/truncation failures this was meant to help with.
+    # Defaulting to off; opt in with A2LEARN_PER_SURFACE_GENERATION=1 once a
+    # per-surface retry/fallback is added.
+    per_surface = os.getenv("A2LEARN_PER_SURFACE_GENERATION", "0") == "1"
+    if site_plan and per_surface:
+        messages = generate_a2ui_messages_per_surface(llm, resource_text, site_plan)
+    else:
+        if site_plan:
+            resource_text = (
+                resource_text
+                + "\n\n# SITE PLAN\n"
+                + json.dumps(site_plan, ensure_ascii=False)
+            )
+        messages = generate_a2ui_messages(llm, resource_text)
     validate_a2ui_messages(messages)
     _log(f"✅ Generated {len(messages)} A2UI messages.")
     return {"a2ui_messages": messages}

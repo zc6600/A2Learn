@@ -1,8 +1,14 @@
 import json
 import unittest
 from types import SimpleNamespace
+from unittest.mock import patch
 
-from agent.llm import _extract_json_array, _extract_json_object, _invoke_and_parse
+from agent.llm import (
+    _extract_json_array,
+    _extract_json_object,
+    _invoke_and_parse,
+    generate_a2ui_messages_per_surface,
+)
 
 
 class ExtractJsonObjectTests(unittest.TestCase):
@@ -108,6 +114,46 @@ class InvokeAndParseTests(unittest.TestCase):
             _invoke_and_parse(llm, [], parser, max_attempts=1)
         self.assertIn("truncated", str(ctx.exception))
         self.assertIn("finish_reason=length", str(ctx.exception))
+
+
+class GenerateA2uiMessagesPerSurfaceTests(unittest.TestCase):
+    def test_calls_llm_once_per_surface_and_concatenates(self) -> None:
+        site_plan = {
+            "siteTitle": "Hash Map 101",
+            "surfaces": [
+                {"surfaceId": "s1", "title": "Intro"},
+                {"surfaceId": "s2", "title": "Details"},
+            ],
+        }
+        calls = []
+
+        def fake_invoke_and_parse(llm, messages, parser, max_attempts=3):
+            calls.append(messages)
+            # The user prompt's opening line names the target surfaceId
+            # directly; the site-plan overview further down mentions every
+            # surfaceId for context, so match on that specific leading phrase
+            # rather than a bare substring check.
+            surface_id = "s1" if 'surfaceId 为 "s1"' in messages[1]["content"] else "s2"
+            return [{"version": "v0.9", "createSurface": {"surfaceId": surface_id}}]
+
+        with patch("agent.llm._invoke_and_parse", side_effect=fake_invoke_and_parse):
+            result = generate_a2ui_messages_per_surface(object(), "resource text", site_plan)
+
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(
+            result,
+            [
+                {"version": "v0.9", "createSurface": {"surfaceId": "s1"}},
+                {"version": "v0.9", "createSurface": {"surfaceId": "s2"}},
+            ],
+        )
+
+    def test_falls_back_to_single_call_when_site_plan_has_no_surfaces(self) -> None:
+        with patch("agent.llm.generate_a2ui_messages", return_value=["fallback"]) as fallback:
+            result = generate_a2ui_messages_per_surface(object(), "resource text", {"surfaces": []})
+
+        fallback.assert_called_once()
+        self.assertEqual(result, ["fallback"])
 
 
 if __name__ == "__main__":
