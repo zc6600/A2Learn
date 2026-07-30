@@ -24,11 +24,19 @@ def build_llm(api_key: str | None = None) -> Any:
             "API Key is required. Please set your OpenRouter API Key in Settings or env."
         )
     model = os.getenv("OPENROUTER_MODEL", DEFAULT_MODEL)
+    # Full A2UI message arrays for a multi-module course are large JSON
+    # documents. Without an explicit max_tokens, some models/providers cap
+    # completions well below what that needs, so the response gets cut off
+    # mid-JSON and every parse attempt fails (see _invoke_and_parse's
+    # finish_reason check, which turns that into an actionable error instead
+    # of a bare JSON-decode failure).
+    max_tokens = int(os.getenv("OPENROUTER_MAX_TOKENS", "65536"))
     return ChatOpenAI(
         model=model,
         api_key=key,
         base_url="https://openrouter.ai/api/v1",
         temperature=0.2,
+        max_tokens=max_tokens,
     )
 
 
@@ -89,9 +97,12 @@ def _extract_json_object(text: str) -> dict[str, Any]:
     end = candidate.rfind("}")
     if start != -1 and end != -1 and end > start:
         sliced = candidate[start : end + 1]
-        parsed = json.loads(sliced)
-        if isinstance(parsed, dict):
-            return parsed
+        try:
+            parsed = json.loads(sliced)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception:
+            pass
 
     raise ValueError("LLM did not return a valid JSON object.")
 
@@ -116,7 +127,18 @@ def _invoke_and_parse(
         try:
             return parser(str(content))
         except Exception as exc:  # noqa: BLE001 - deliberately broad, see docstring
-            last_exc = exc
+            finish_reason = (getattr(response, "response_metadata", None) or {}).get("finish_reason")
+            if finish_reason == "length":
+                # The model hit max_tokens mid-JSON — no amount of retrying
+                # with the same limit fixes this, so say so plainly instead
+                # of letting a bare "Expecting value: line N column M" bubble
+                # up from json.loads on the final attempt.
+                last_exc = ValueError(
+                    "LLM response was truncated (finish_reason=length) before finishing valid JSON. "
+                    "Raise OPENROUTER_MAX_TOKENS or shorten the request."
+                )
+            else:
+                last_exc = exc
             continue
     assert last_exc is not None
     raise last_exc

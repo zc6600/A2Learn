@@ -2,7 +2,25 @@ import json
 import unittest
 from types import SimpleNamespace
 
-from agent.llm import _extract_json_array, _invoke_and_parse
+from agent.llm import _extract_json_array, _extract_json_object, _invoke_and_parse
+
+
+class ExtractJsonObjectTests(unittest.TestCase):
+    def test_parses_plain_object(self) -> None:
+        result = _extract_json_object('```json\n{"title": "x"}\n```')
+        self.assertEqual(result, {"title": "x"})
+
+    def test_raises_friendly_error_instead_of_raw_json_decode_error(self) -> None:
+        # Regression test: the brace-slicing fallback's json.loads() used to
+        # be unguarded, so a truncated response (model hit max_tokens
+        # mid-object) surfaced as a bare "Expecting value: line N column M"
+        # instead of the same friendly ValueError raised elsewhere in this
+        # function. See agent/llm.py:_extract_json_object.
+        truncated = '```json\n{"title": "x", "modules": [{"id": "m1"}\n```'
+        with self.assertRaises(ValueError) as ctx:
+            _extract_json_object(truncated)
+        self.assertNotIn("Expecting value", str(ctx.exception))
+        self.assertIn("did not return a valid JSON object", str(ctx.exception))
 
 
 class ExtractJsonArrayTests(unittest.TestCase):
@@ -70,6 +88,26 @@ class InvokeAndParseTests(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             _invoke_and_parse(llm, [], parser, max_attempts=2)
+
+    def test_reports_truncation_clearly_when_finish_reason_is_length(self) -> None:
+        # Regression test: a response cut off by max_tokens used to surface
+        # as whatever bare exception the parser's json.loads happened to
+        # raise (e.g. "Expecting value: line 1427 column 1") instead of an
+        # actionable message pointing at the real cause.
+        llm = SimpleNamespace(
+            invoke=lambda messages: SimpleNamespace(
+                content="{truncated",
+                response_metadata={"finish_reason": "length"},
+            )
+        )
+
+        def parser(text: str) -> str:
+            raise ValueError("Expecting value: line 1427 column 1 (char 7843)")
+
+        with self.assertRaises(ValueError) as ctx:
+            _invoke_and_parse(llm, [], parser, max_attempts=1)
+        self.assertIn("truncated", str(ctx.exception))
+        self.assertIn("finish_reason=length", str(ctx.exception))
 
 
 if __name__ == "__main__":
