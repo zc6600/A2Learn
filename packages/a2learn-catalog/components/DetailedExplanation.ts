@@ -349,21 +349,11 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
     const title = props.title ? this.resolveString(props.title) : "";
     const content = this.resolveString(props.content);
     const icon = props.icon ? this.resolveString(props.icon) : "";
-    const estimatedReadTime = props.estimatedReadTime ? this.resolveString(props.estimatedReadTime) : "";
 
     const parsedContent = this.renderMarkdown(content);
 
     return html`
       <div class="explanation-card">
-        ${estimatedReadTime
-          ? html`
-              <div class="meta-badge">
-                <span>⏱️</span>
-                <span>${estimatedReadTime}</span>
-              </div>
-            `
-          : nothing}
-
         ${title || icon
           ? html`
               <div class="header">

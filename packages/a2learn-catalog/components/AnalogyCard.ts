@@ -127,15 +127,60 @@ export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCard
   // Lightweight markdown rendering for gallery/static mode.
   private renderInlineMarkdown(markdown: string): string {
     if (!markdown) return "";
-    let htmlStr = markdown
+
+    const codeBlocks: string[] = [];
+
+    // 1) Extract fenced code blocks into placeholders first, so \\n\\n inside them
+    // doesn't cause paragraph splitting to leave orphaned tags.
+    let htmlStr = markdown.replace(
+      /```([a-zA-Z0-9_+-]*)[ \t]*\r?\n?([\s\S]*?)\r?\n?```/g,
+      (_match, lang: string, code: string) => {
+        const langLabel = (lang || "text").trim().toLowerCase();
+        const escapedCode = code
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        const placeholder = `\x1aCODE_${codeBlocks.length}\x1a`;
+        codeBlocks.push(
+          `<pre style="background:#0f172a;color:#e2e8f0;padding:12px 16px;border-radius:8px;overflow-x:auto;margin:10px 0;font-family:ui-monospace,monospace;font-size:0.88em;line-height:1.6"><code>${escapedCode}</code></pre>`
+        );
+        return placeholder;
+      }
+    );
+
+    // 2) Handle raw <pre>...</pre> tags in input
+    htmlStr = htmlStr.replace(
+      /<pre(?:\s+[^>]*)?>([\s\S]*?)<\/pre>/gi,
+      (match) => {
+        const placeholder = `\x1aCODE_${codeBlocks.length}\x1a`;
+        codeBlocks.push(match);
+        return placeholder;
+      }
+    );
+
+    // 3) Bold / <b> conversion
+    htmlStr = htmlStr
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/<b>/gi, "<strong>")
       .replace(/<\/b>/gi, "</strong>");
+
+    // 4) Paragraph splitting — placeholders are never wrapped in <p>
     const paragraphs = htmlStr
       .split(/\n{2,}/)
-      .map((p) => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
+      .map((p) => {
+        const trimmed = p.trim();
+        if (trimmed.startsWith("\x1aCODE_")) return trimmed;
+        return `<p>${trimmed.replace(/\n/g, "<br/>")}</p>`;
+      })
       .join("");
-    return paragraphs || "<p></p>";
+
+    // 5) Restore code blocks
+    let result = paragraphs;
+    codeBlocks.forEach((block, idx) => {
+      result = result.replace(`\x1aCODE_${idx}\x1a`, block);
+    });
+
+    return result || "<p></p>";
   }
 
   render() {
