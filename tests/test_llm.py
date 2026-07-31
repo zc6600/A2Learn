@@ -8,6 +8,7 @@ from agent.llm import (
     _extract_json_object,
     _invoke_and_parse,
     generate_a2ui_messages_per_surface,
+    repair_a2ui_messages,
 )
 
 
@@ -215,6 +216,50 @@ class GenerateA2uiMessagesPerSurfaceTests(unittest.TestCase):
 
         fallback.assert_called_once()
         self.assertEqual(result, ["fallback"])
+
+
+class RepairA2uiMessagesTests(unittest.TestCase):
+    def test_sends_broken_messages_and_error_then_returns_fixed_array(self) -> None:
+        broken = [{"version": "v0.9", "createSurface": {"surfaceId": "main"}}]
+        fixed = [
+            {
+                "version": "v0.9",
+                "createSurface": {
+                    "surfaceId": "main",
+                    "catalogId": "https://a2learn.ai/spec/v1/catalog.json",
+                },
+            }
+        ]
+        seen_prompts = {}
+
+        def fake_invoke(messages):
+            seen_prompts["system"] = messages[0]["content"]
+            seen_prompts["user"] = messages[1]["content"]
+            return SimpleNamespace(content=json.dumps({"a2ui_messages": fixed}))
+
+        llm = SimpleNamespace(invoke=fake_invoke)
+        result = repair_a2ui_messages(llm, broken, "createSurface.catalogId must be '...'.")
+
+        self.assertEqual(result, fixed)
+        self.assertIn("createSurface.catalogId must be", seen_prompts["user"])
+        self.assertIn(json.dumps(broken, ensure_ascii=False), seen_prompts["user"])
+
+    def test_retries_via_invoke_and_parse_on_unparseable_repair_response(self) -> None:
+        calls = {"count": 0}
+
+        def fake_invoke(messages):
+            calls["count"] += 1
+            if calls["count"] < 2:
+                return SimpleNamespace(content="not json")
+            return SimpleNamespace(
+                content=json.dumps({"a2ui_messages": [{"version": "v0.9"}]})
+            )
+
+        llm = SimpleNamespace(invoke=fake_invoke)
+        result = repair_a2ui_messages(llm, [{"broken": True}], "some error", max_attempts=2)
+
+        self.assertEqual(result, [{"version": "v0.9"}])
+        self.assertEqual(calls["count"], 2)
 
 
 if __name__ == "__main__":

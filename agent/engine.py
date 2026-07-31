@@ -13,6 +13,7 @@ from .llm import (
     generate_a2ui_messages_per_surface,
     plan_curriculum,
     generate_structured_json,
+    repair_a2ui_messages,
 )
 from .validate import validate_a2ui_messages
 from .parser import parse_json_to_a2ui
@@ -78,6 +79,32 @@ def _node_build_site(state: AgentState) -> AgentState:
     return {"site_plan": site_plan}
 
 
+def _validate_or_repair(
+    llm: Any,
+    messages: list[dict[str, Any]],
+    max_repair_attempts: int,
+) -> list[dict[str, Any]]:
+    """validate_a2ui_messages() raising is otherwise a hard failure of the
+    whole generation, even though most violations (a wrong catalogId, an
+    empty components list, a missing surfaceId) are small, mechanical fixes
+    an LLM can make given the exact error — cheaper than regenerating the
+    entire course from scratch. Pass max_repair_attempts=0 to disable and
+    fail immediately on the first validation error, as before."""
+    for attempt in range(max_repair_attempts + 1):
+        try:
+            validate_a2ui_messages(messages)
+            return messages
+        except ValueError as exc:
+            if attempt == max_repair_attempts:
+                raise
+            _log(
+                f"⚠️  Generated A2UI messages failed validation ({exc}); "
+                f"asking LLM to repair (attempt {attempt + 1}/{max_repair_attempts})..."
+            )
+            messages = repair_a2ui_messages(llm, messages, str(exc))
+    return messages
+
+
 def _node_generate_messages(state: AgentState) -> AgentState:
     _log("✨ Step 3/3: Generating A2UI messages (calling LLM, please wait...)")
     llm = build_llm(api_key=state.get("api_key"))
@@ -102,7 +129,8 @@ def _node_generate_messages(state: AgentState) -> AgentState:
                 + json.dumps(site_plan, ensure_ascii=False)
             )
         messages = generate_a2ui_messages(llm, resource_text)
-    validate_a2ui_messages(messages)
+    max_repair_attempts = int(os.getenv("A2LEARN_MAX_REPAIR_ATTEMPTS", "2"))
+    messages = _validate_or_repair(llm, messages, max_repair_attempts)
     _log(f"✅ Generated {len(messages)} A2UI messages.")
     return {"a2ui_messages": messages}
 

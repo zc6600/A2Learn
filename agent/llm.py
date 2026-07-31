@@ -426,6 +426,46 @@ def generate_a2ui_messages_per_surface(
     return all_messages
 
 
+def repair_a2ui_messages(
+    llm: Any,
+    messages: list[dict[str, Any]],
+    error: str,
+    max_attempts: int = 2,
+) -> list[dict[str, Any]]:
+    """Asks the LLM to fix an a2ui_messages array that failed
+    validate_a2ui_messages, given the exact validation error it hit.
+    Structurally invalid output (a missing catalogId, an empty
+    updateComponents.components list, etc.) is otherwise an all-or-nothing
+    failure — this targets just what the error names instead of discarding
+    an entire course's worth of already-generated content and starting over."""
+    system_prompt = textwrap.dedent(
+        """
+        You are an A2Learn agent that fixes an invalid A2UI v0.9 message
+        array. You will be given the array and the exact validation error it
+        failed with. Return ONLY a corrected JSON object of the form
+        {"a2ui_messages": [...]} containing the FULL array (every message,
+        not just the changed ones) with ONLY the problem described by the
+        error fixed. Do not rewrite, shorten, or otherwise change any
+        content that the error doesn't mention.
+        """
+    ).strip()
+    user_prompt = (
+        "The following a2ui_messages array failed validation.\n\n"
+        f"Validation error:\n{error}\n\n"
+        "a2ui_messages:\n"
+        f"{json.dumps(messages, ensure_ascii=False)}"
+    )
+    return _invoke_and_parse(
+        llm,
+        [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        _extract_json_array,
+        max_attempts=max_attempts,
+    )
+
+
 def generate_structured_json(llm: Any, resource_text: str, prompt_template: str) -> dict[str, Any]:
     """Generates structured course JSON directly based on the custom prompt template."""
     system_prompt = prompt_template.strip()
