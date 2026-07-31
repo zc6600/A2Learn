@@ -777,7 +777,10 @@ async function bootstrapOnline(
   };
 
   processor.processMessages(initialMessages);
-  const startCreatedId = extractLastCreatedSurfaceId(initialMessages);
+  // Land on the first generated surface, not the last — matches
+  // bootstrapOffline's landing behavior: the course reads top to bottom, so
+  // module 1 is the natural starting point right after generation.
+  const startCreatedId = extractFirstCreatedSurfaceId(initialMessages);
   if (startCreatedId) {
     window.location.hash = `#/${startCreatedId}`;
   }
@@ -1130,7 +1133,7 @@ function bindShellControls(
 // re-querying #app-prompt-input fresh each time it fires) — so they're bound
 // exactly once for the page's lifetime instead of once per render.
 let globalListenersBound = false;
-function bindGlobalListenersOnce(onGenerate: (promptText: string) => void): void {
+function bindGlobalListenersOnce(openExploreInNewTab: (promptText: string) => void): void {
   if (globalListenersBound) return;
   globalListenersBound = true;
 
@@ -1139,15 +1142,13 @@ function bindGlobalListenersOnce(onGenerate: (promptText: string) => void): void
     if (!concept) return;
     const lang = getLang();
     const promptText = lang === "zh" ? `详细解释 ${concept}` : `Explain ${concept} in detail`;
-    const promptInput = document.getElementById("app-prompt-input") as HTMLInputElement | null;
-    if (promptInput) promptInput.value = promptText;
 
     if (!getStoredApiKey()) {
       openSettingsModal();
       alert(T[lang].needApiKeyExplore);
       return;
     }
-    onGenerate(promptText);
+    openExploreInNewTab(promptText);
   });
 
   document.addEventListener("click", (e: MouseEvent) => {
@@ -1316,6 +1317,30 @@ async function bootstrapViewer() {
     void startWithConfig(onlineConfig, false);
   };
 
+  // "Explore this concept" (tooltip button) opens the generated deep-dive in
+  // a new tab instead of replacing the page the visitor is currently reading
+  // — swapping it in place would discard their spot in the showcase they
+  // came from. The new tab re-runs bootstrapViewer() via mode=online/
+  // resourceText query params, which already picks up the stored API key
+  // itself (see startWithConfig's storedKey merge above).
+  const openExploreInNewTab = (promptText: string) => {
+    const currentApiUrl =
+      initialConfig.source.mode === "online"
+        ? initialConfig.source.apiBaseUrl
+        : (import.meta.env.VITE_A2LEARN_API_URL || "").trim();
+
+    if (!currentApiUrl) {
+      alert(T[getLang()].noBackendConfigured);
+      return;
+    }
+
+    const url = new URL(window.location.pathname, window.location.origin);
+    url.searchParams.set("mode", "online");
+    url.searchParams.set("apiBaseUrl", normalizeBaseUrl(currentApiUrl));
+    url.searchParams.set("resourceText", promptText);
+    window.open(url.toString(), "_blank", "noopener");
+  };
+
   const switchLanguage = async (newLang: Lang) => {
     if (newLang === getLang()) return;
     setLang(newLang);
@@ -1338,7 +1363,7 @@ async function bootstrapViewer() {
 
   if (!initialConfig.embed) {
     bindShellControls(onGenerate, switchLanguage, selectExample);
-    bindGlobalListenersOnce(onGenerate);
+    bindGlobalListenersOnce(openExploreInNewTab);
   }
 
   const onMessage = (event: MessageEvent) => {
