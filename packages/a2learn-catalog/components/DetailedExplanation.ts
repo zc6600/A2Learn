@@ -221,45 +221,70 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
 
   private renderMarkdown(markdown: string): string {
     if (!markdown) return "";
-    let htmlContent = markdown
-      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-      .replace(/<b>/gi, "<strong>")
-      .replace(/<\/b>/gi, "</strong>");
 
-    // 1) Replace code blocks with a labeled card (language badge + copy
-    // button) instead of a bare <pre>. The code text is escaped here since
-    // it's being spliced into raw HTML before markdown/sanitization run.
-    htmlContent = htmlContent.replace(
-      /```([a-zA-Z0-9]*)\n([\s\S]+?)\n```/g,
+    const codeBlocks: string[] = [];
+
+    // 1) Extract code blocks (both ```lang ... ``` and raw <pre><code>...</code></pre>)
+    // into placeholders FIRST, so that double newlines (\n\n) inside code blocks
+    // do not break paragraph splitting into orphaned tags like </code></pre>.
+    let htmlContent = markdown.replace(
+      /```([a-zA-Z0-9_+-]*)[ \t]*\r?\n?([\s\S]*?)\r?\n?```/g,
       (_match, lang: string, code: string) => {
-        const langLabel = (lang || "text").toLowerCase();
+        const langLabel = (lang || "text").trim().toLowerCase();
         const escapedCode = code
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;");
-        return `<div class="code-block"><div class="code-block-header"><span class="code-block-lang">${langLabel}</span><button type="button" class="code-copy-btn">复制</button></div><pre><code class="language-${langLabel}">${escapedCode}</code></pre></div>`;
-      },
+        const placeholder = `\x1aCODEBLOCK_${codeBlocks.length}\x1a`;
+        codeBlocks.push(
+          `<div class="code-block"><div class="code-block-header"><span class="code-block-lang">${langLabel}</span><button type="button" class="code-copy-btn">复制</button></div><pre><code class="language-${langLabel}">${escapedCode}</code></pre></div>`
+        );
+        return placeholder;
+      }
     );
 
-    // 2) Replace inline code
+    // Handle any raw <pre><code>...</code></pre> or <pre>...</pre> tags in input
+    htmlContent = htmlContent.replace(
+      /<pre(?:\s+[^>]*)?>[\s\S]*?<\/pre>/gi,
+      (match) => {
+        const placeholder = `\x1aCODEBLOCK_${codeBlocks.length}\x1a`;
+        codeBlocks.push(match);
+        return placeholder;
+      }
+    );
+
+    // 2) Replace bold tags
+    htmlContent = htmlContent
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/<b>/gi, "<strong>")
+      .replace(/<\/b>/gi, "</strong>");
+
+    // 3) Replace inline code `code`
     htmlContent = htmlContent.replace(/`([^`]+)`/g, "<code>$1</code>");
 
-    // 3) Parse blockquotes
-    htmlContent = htmlContent.split("\n").map(line => {
-      if (line.trim().startsWith("&gt;")) {
-        return `<blockquote>${line.trim().substring(4).trim()}</blockquote>`;
-      }
-      return line;
-    }).join("\n");
+    // 4) Parse blockquotes
+    htmlContent = htmlContent
+      .split("\n")
+      .map((line) => {
+        if (line.trim().startsWith("&gt;")) {
+          return `<blockquote>${line.trim().substring(4).trim()}</blockquote>`;
+        }
+        return line;
+      })
+      .join("\n");
 
-    // 4) Parse bullet points intelligently
+    // 5) Parse bullet points
     let inList = false;
     const lines = htmlContent.split("\n");
     const outputLines: string[] = [];
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const trimmed = line.trim();
-      if (trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("• ")) {
+      if (
+        trimmed.startsWith("- ") ||
+        trimmed.startsWith("* ") ||
+        trimmed.startsWith("• ")
+      ) {
         if (!inList) {
           outputLines.push("<ul>");
           inList = true;
@@ -267,9 +292,13 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
         const text = trimmed.replace(/^[-*•]\s*/, "");
         outputLines.push(`<li>${text}</li>`);
       } else if (trimmed === "" && inList) {
-        // Look ahead: if next non-empty line is a list item, stay in list
-        const nextLine = lines.slice(i + 1).find(l => l.trim().length > 0);
-        if (nextLine && (nextLine.trim().startsWith("- ") || nextLine.trim().startsWith("* ") || nextLine.trim().startsWith("• "))) {
+        const nextLine = lines.slice(i + 1).find((l) => l.trim().length > 0);
+        if (
+          nextLine &&
+          (nextLine.trim().startsWith("- ") ||
+            nextLine.trim().startsWith("* ") ||
+            nextLine.trim().startsWith("• "))
+        ) {
           continue;
         } else {
           outputLines.push("</ul>");
@@ -286,16 +315,17 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
     if (inList) outputLines.push("</ul>");
     htmlContent = outputLines.join("\n");
 
-    // 5) Split paragraphs
-    const paragraphs = htmlContent
+    // 6) Split paragraphs
+    htmlContent = htmlContent
       .split(/\n{2,}/)
-      .map(p => {
+      .map((p) => {
         const trimmed = p.trim();
         if (
           trimmed.startsWith("<ul>") ||
           trimmed.startsWith("<pre>") ||
           trimmed.startsWith("<blockquote>") ||
-          trimmed.startsWith('<div class="code-block"')
+          trimmed.startsWith('<div class="code-block"') ||
+          trimmed.startsWith("\x1aCODEBLOCK_")
         ) {
           return trimmed;
         }
@@ -303,7 +333,13 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       })
       .join("");
 
-    return paragraphs;
+    // 7) Restore code block placeholders
+    codeBlocks.forEach((block, idx) => {
+      const placeholder = `\x1aCODEBLOCK_${idx}\x1a`;
+      htmlContent = htmlContent.replace(placeholder, block);
+    });
+
+    return htmlContent;
   }
 
   render() {

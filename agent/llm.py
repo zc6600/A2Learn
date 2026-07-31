@@ -337,6 +337,7 @@ def _a2ui_system_prompt(target_language: str, scope_instruction: str) -> str:
           3. Trace each memory move step-by-step (e.g., "60 -> index 5, 50 -> index 4, 30 -> index 3").
           4. Conclude with real-world impact (e.g., "Inserting 1 element forced 3 RAM moves; 1,000,000 items forces 500,000 RAM moves!").
         - GLOSSARY & TERM ANNOTATION: NEVER output formulaic "请牢记以下..." lists. Weave key terms into a connected paragraph. Always wrap technical terms with semantic HTML definition tags: <dfn title="一句话通俗注解"><strong>术语名称</strong></dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法"><strong>开放寻址法</strong></dfn> 解决。"
+        - CLEAN CONCEPT CARD EXAMPLES: NEVER wrap ConceptCard example strings in HTML tags like <pre><code>...</code></pre>. Use clean plain text lines with arrow flow steps (e.g., "// 传统搜索范式 (遍历比对): 查找 'Alice' -> 遍历比对 1,000,000 次").
         - Output format example:
           {{"a2ui_messages": [
             {{"version":"v0.9","createSurface":{{"surfaceId":"main","catalogId":"{DEFAULT_CATALOG_ID}"}}}},

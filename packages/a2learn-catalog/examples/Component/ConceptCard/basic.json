@@ -21,7 +21,7 @@
             { "literalString": "Protocol" }
           ],
           "definition": { "literalString": "<b>A2UI</b> is a declarative UI protocol designed specifically for AI Agents. Traditional web applications involve servers delivering HTML/CSS or clients initiating API requests to fetch data for rendering. Under the A2UI architecture, the AI Agent directly sends <b>JSON messages</b> describing the UI structure and data to the client, which then dynamically renders them into a native interface based on a predefined component library (Catalog)." },
-          "example": { "literalString": "<pre><code>// Typical message sent by an Agent\n{\n  \"updateComponents\": {\n    \"surfaceId\": \"main\",\n    \"components\": [\n      { \"id\": \"root\", \"component\": \"Card\" }\n    ]\n  }\n}</code></pre>" },
+          "example": { "literalString": "// Typical message sent by an Agent\n{\n  \"updateComponents\": {\n    \"surfaceId\": \"main\",\n    \"components\": [\n      { \"id\": \"root\", \"component\": \"Card\" }\n    ]\n  }\n}" },
           "relatedConcepts": [
             { "literalString": "Generative UI" },
             { "literalString": "Catalog" },

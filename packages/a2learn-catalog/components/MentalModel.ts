@@ -340,12 +340,24 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
 
   private renderDiagram(diagramStr: string) {
     if (!diagramStr) return nothing;
-    const lines = diagramStr.trim().split("\n");
+
+    let cleanDiagram = diagramStr.trim();
+    cleanDiagram = cleanDiagram.replace(/^<pre(?:\s+[^>]*)?>\s*<code(?:\s+[^>]*)?>([\s\S]*?)<\/code>\s*<\/pre>$/i, "$1");
+    cleanDiagram = cleanDiagram.replace(/^```[a-zA-Z0-9_-]*\r?\n([\s\S]*?)\r?\n```$/i, "$1");
+
+    const lines = cleanDiagram.split("\n");
 
     return html`
       <div class="diagram-box">
         ${lines.map((line) => {
-          const cleanLine = line.replace(/^\/\/\s*/, "").replace(/^#\s*/, "").trim();
+          let cleanLine = line
+            .replace(/^<pre(?:\s+[^>]*)?>/, "")
+            .replace(/^<code(?:\s+[^>]*)?>/, "")
+            .replace(/<\/code>$/, "")
+            .replace(/<\/pre>$/, "")
+            .replace(/^\/\/\s*/, "")
+            .replace(/^#\s*/, "")
+            .trim();
           if (!cleanLine) return nothing;
 
           // Check if line contains array memory pattern like [0:10 | 1:20 | ...]

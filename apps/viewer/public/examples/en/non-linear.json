@@ -74,7 +74,7 @@
           "id": "background-pain",
           "component": "AnalogyCard",
           "title": "Why Do We Need CSS Grid? Isn't Flexbox Enough?",
-          "analogy": "Before CSS Grid, frontend engineers built complex pages with <code>float</code>, <code>position: absolute</code>, or even <code>table</code> layouts — fragile code that was hard to maintain. Even once Flexbox arrived and greatly improved one-dimensional (row or column) layout, real product pages often need to control <b>both rows and columns at once</b>:\n<pre><code>/* Goal: a fixed sidebar + a two-column content area + a footer spanning the full width */\n/* The Flexbox approach: nest several layers of flex containers, logic scattered and hard to maintain */</code></pre>\nCSS Grid is purpose-built for <b>two-dimensional layout</b>, letting developers define both row and column structure in a single declaration, so the intent of a complex layout is obvious right in the code."
+          "analogy": "Before CSS Grid, frontend engineers built complex pages with <code>float</code>, <code>position: absolute</code>, or even <code>table</code> layouts — fragile code that was hard to maintain. Even once Flexbox arrived and greatly improved one-dimensional (row or column) layout, real product pages often need to control <b>both rows and columns at once</b>:\n/* Goal: a fixed sidebar + a two-column content area + a footer spanning the full width */\n/* The Flexbox approach: nest several layers of flex containers, logic scattered and hard to maintain */\nCSS Grid is purpose-built for <b>two-dimensional layout</b>, letting developers define both row and column structure in a single declaration, so the intent of a complex layout is obvious right in the code."
         },
         {
           "id": "scenario-chat",
@@ -130,7 +130,7 @@
             "2D Layout"
           ],
           "definition": "Setting an element's <code>display</code> to <code>grid</code> or <code>inline-grid</code> creates a <b>Grid container</b>. Every direct child of that container automatically becomes a <b>Grid item</b>. Grid's 2D space is divided by <b>grid lines</b> into <b>row tracks</b> and <b>column tracks</b>, which intersect to form <b>grid cells</b>.",
-          "example": "<pre><code>.dashboard {\n  display: grid;\n  /* 240px sidebar + three equal content columns */\n  grid-template-columns: 240px 1fr 1fr 1fr;\n  /* 80px top nav + auto-filling middle content + 60px bottom status bar */\n  grid-template-rows: 80px auto 60px;\n  gap: 16px;  /* grid gap */\n}\n\n/* footer spans all 4 columns (-1 refers to the last grid line) */\n.footer {\n  grid-column: 1 / -1;\n}</code></pre>",
+          "example": ".dashboard {\n  display: grid;\n  /* 240px sidebar + three equal content columns */\n  grid-template-columns: 240px 1fr 1fr 1fr;\n  /* 80px top nav + auto-filling middle content + 60px bottom status bar */\n  grid-template-rows: 80px auto 60px;\n  gap: 16px;  /* grid gap */\n}\n\n/* footer spans all 4 columns (-1 refers to the last grid line) */\n.footer {\n  grid-column: 1 / -1;\n}",
           "relatedConcepts": [
             "Flexbox",
             "the fr unit",
@@ -179,7 +179,7 @@
             "grid-template-areas"
           ],
           "definition": "CSS Grid offers two main ways to place elements:<br><b>① Grid line numbers</b>: use <code>grid-column: start-line / end-line</code> to precisely control which columns an element spans;<br><b>② Named areas (grid-template-areas)</b>: \"draw\" the layout with strings on the parent, and have children declare their own name via <code>grid-area</code> — extremely readable code.",
-          "example": "<pre><code>/* Approach 2: named areas (more intuitive) */\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-rows: 60px auto 40px;\n  grid-template-areas:\n    \"header  header\"\n    \"sidebar main  \"\n    \"footer  footer\";\n}\n.header  { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main    { grid-area: main; }\n.footer  { grid-area: footer; }</code></pre>",
+          "example": "/* Approach 2: named areas (more intuitive) */\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-rows: 60px auto 40px;\n  grid-template-areas:\n    \"header  header\"\n    \"sidebar main  \"\n    \"footer  footer\";\n}\n.header  { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main    { grid-area: main; }\n.footer  { grid-area: footer; }",
           "relatedConcepts": [
             "grid-column",
             "grid-row",
@@ -203,7 +203,7 @@
           "questions": [
             {
               "id": "q1",
-              "question": "In the following CSS Grid code, what does <code>.item { grid-column: 1 / -1; }</code> do?\n<pre><code>.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}</code></pre>",
+              "question": "In the following CSS Grid code, what does <code>.item { grid-column: 1 / -1; }</code> do?\n.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}",
               "options": [
                 "The element only occupies column 1",
                 "The element stretches from the 1st column line to the last column line, spanning all 4 columns",

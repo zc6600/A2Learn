@@ -36,7 +36,7 @@
           "id": "background-pain",
           "component": "AnalogyCard",
           "title": "Callback Hell: Why Async Code Used to Drive Developers Crazy",
-          "analogy": "<b>JavaScript is a single-threaded language</b>, but browsers and Node.js still need to handle slow I/O like network requests and file reads. If you wrote that synchronously and blocking, the whole page would freeze! The early solution was the \"callback\" — package up what to do once a task finishes into a function and pass it in.<br><br>But once business logic gets complex:<pre><code>fetchUser(id, function(user) {\n  fetchOrders(user.id, function(orders) {\n    fetchShipment(orders[0].id, function(ship) {\n      // a fourth level... a fifth level...\n    });\n  });\n});</code></pre>\nDevelopers call this nested structure <b>\"Callback Hell\"</b> — hard to read, maintain, and debug. <b>How do you make async code read as elegantly as synchronous code?</b>"
+          "analogy": "<b>JavaScript is a single-threaded language</b>, but browsers and Node.js still need to handle slow I/O like network requests and file reads. If you wrote that synchronously and blocking, the whole page would freeze! The early solution was the \"callback\" — package up what to do once a task finishes into a function and pass it in.<br><br>But once business logic gets complex:fetchUser(id, function(user) {\n  fetchOrders(user.id, function(orders) {\n    fetchShipment(orders[0].id, function(ship) {\n      // a fourth level... a fifth level...\n    });\n  });\n});\nDevelopers call this nested structure <b>\"Callback Hell\"</b> — hard to read, maintain, and debug. <b>How do you make async code read as elegantly as synchronous code?</b>"
         },
         {
           "id": "scenario-chat",
@@ -100,7 +100,7 @@
             "Promise"
           ],
           "definition": "A <b>Promise</b> object represents the result of an async operation <b>at some point in the future</b> (either a success value or a failure reason). It has exactly three states: <code>pending</code>, <code>fulfilled</code>, and <code>rejected</code>. Once its state is settled, it's <b>irreversible</b>, and follow-up logic can be chained via <code>.then()</code> / <code>.catch()</code>.",
-          "example": "<pre><code>// Promise basics: from nesting to chaining\nfetchUser(id)\n  .then(user => fetchOrders(user.id))\n  .then(orders => fetchShipment(orders[0].id))\n  .then(ship => console.log('Package status:', ship.status))\n  .catch(err => console.error('Something went wrong:', err));\n\n// Promise.all: wait for several async tasks to finish in parallel\nconst [user, config] = await Promise.all([\n  fetchUser(id),\n  fetchConfig()\n]);</code></pre>",
+          "example": "// Promise basics: from nesting to chaining\nfetchUser(id)\n  .then(user => fetchOrders(user.id))\n  .then(orders => fetchShipment(orders[0].id))\n  .then(ship => console.log('Package status:', ship.status))\n  .catch(err => console.error('Something went wrong:', err));\n\n// Promise.all: wait for several async tasks to finish in parallel\nconst [user, config] = await Promise.all([\n  fetchUser(id),\n  fetchConfig()\n]);",
           "relatedConcepts": [
             "async / await",
             "Event Loop",
@@ -152,7 +152,7 @@
           "questions": [
             {
               "id": "q1",
-              "question": "What order does the following code log its output in?\n<pre><code>console.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');</code></pre>",
+              "question": "What order does the following code log its output in?\nconsole.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');",
               "options": [
                 "A, B, C, D",
                 "A, D, B, C",

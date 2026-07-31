@@ -140,7 +140,7 @@
             "Paradigm Shift"
           ],
           "definition": "<b>Core Mindset Breakthrough</b>: Stop searching through memory! Switch to <b>'Direct Computation of Memory Addresses'</b>!<br><br>Do not iterate to compare key values. Instead, design a mathematical formula where Key string directly calculates its target array index!",
-          "example": "<pre><code>// Search Paradigm (Comparison): Find 'Alice' -> Compare 1,000,000 times\n// Hash Paradigm (Computation): Compute 'Alice' -> Directly get Index 5 -> Read arr[5]</code></pre>",
+          "example": "// Search Paradigm (Comparison): Find 'Alice' -> Compare 1,000,000 times\n// Hash Paradigm (Computation): Compute 'Alice' -> Directly get Index 5 -> Read arr[5]",
           "relatedConcepts": [
             "Hash Function",
             "O(1) Complexity",
@@ -309,7 +309,7 @@
             "Decoupling"
           ],
           "definition": "<b>Core Mindset Breakthrough</b>: Accept collisions as inevitable. Stop expecting 'one slot stores only one item'.<br><br><b>Two Main Approaches</b>:<br>1. <b>Vertical Attachment (Separate Chaining)</b>: Store a linked list inside each bucket slot to attach multiple colliding items!<br>2. <b>Horizontal Probing (Open Addressing)</b>: When a slot is occupied, probe neighboring slots according to a fixed sequence rule!",
-          "example": "<pre><code>// Approach 1 (Chaining): Slot 5 holds linked list -> [Alice] -> [David]\n// Approach 2 (Open Addressing): Slot 5 occupied -> Probe slot 6 -> Store in 6 if free</code></pre>",
+          "example": "// Approach 1 (Chaining): Slot 5 holds linked list -> [Alice] -> [David]\n// Approach 2 (Open Addressing): Slot 5 occupied -> Probe slot 6 -> Store in 6 if free",
           "relatedConcepts": [
             "Separate Chaining",
             "Open Addressing",
@@ -487,7 +487,7 @@
             "Space Leverage"
           ],
           "definition": "<b>Core Mindset Breakthrough</b>: Maintain small initial RAM. Monitor occupancy metrics. Once threshold is breached, <b>allocate double capacity and re-map all items</b>!",
-          "example": "<pre><code>// Monitor threshold: size / capacity > 0.75\n// When breached: capacity = capacity * 2, rehash all items</code></pre>",
+          "example": "// Monitor threshold: size / capacity > 0.75\n// When breached: capacity = capacity * 2, rehash all items",
           "relatedConcepts": [
             "Load Factor",
             "Rehash",
@@ -657,7 +657,7 @@
             "Security"
           ],
           "definition": "<b>Core Mindset Breakthrough</b>: Dual Defense System!<br><br>1. <b>Input Randomization</b>: Use random seed hashing (SipHash) so attackers cannot predict online hashes!<br>2. <b>Structure Upgrade</b>: Automatically convert long bucket linked lists into self-balancing search trees to hard-cap worst-case lookup bounds!",
-          "example": "<pre><code>// Defense 1 (SipHash): Random seed per process SipHash(Key, Seed)\n// Defense 2 (Treeify): When list length >= 8, convert to Red-Black Tree (O(log N) worst case)</code></pre>",
+          "example": "// Defense 1 (SipHash): Random seed per process SipHash(Key, Seed)\n// Defense 2 (Treeify): When list length >= 8, convert to Red-Black Tree (O(log N) worst case)",
           "relatedConcepts": [
             "HashDoS",
             "Treeify Threshold",

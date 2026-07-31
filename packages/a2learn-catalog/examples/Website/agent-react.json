@@ -120,7 +120,7 @@
             "Multi-hop Reasoning"
           ],
           "definition": "<b>ReAct (Reasoning and Acting)</b> 是 Agent 领域的基础架构。它通过在 Prompt 中显式定义 <code>Thought / Action / Observation</code> 范式，实现了大语言模型<b>内部隐性推理能力</b>与<b>外部物理世界工具执行力</b>的深度协同。",
-          "example": "<pre><code>// ReAct 规范交替追踪 (Tracing) 示例：\nTask: 查阅科罗拉多高原东区所覆盖区域的海拔范围\nThought 1: 我需要先搜索科罗拉多高原，找到其 Eastern Sector 包含的具体地理区域名称。\nAction 1: Search[Colorado plateau]\nObservation 1: 科罗拉多高原位于四角地区，其 Eastern Sector 延伸至圣路易斯山谷...\nThought 2: 网页提及了圣路易斯山谷，我需要继续搜索圣路易斯山谷的海拔范围。\nAction 2: Search[San Luis Valley elevation]\nObservation 2: 圣路易斯山谷的平均海拔约在 2,300 米至 2,700 米之间。\nThought 3: 我已经获取了确切的海拔数据，可以给出最终结论。\nAction 3: Finish[2,300m - 2,700m]</code></pre>",
+          "example": "// ReAct 规范交替追踪 (Tracing) 示例：\nTask: 查阅科罗拉多高原东区所覆盖区域的海拔范围\nThought 1: 我需要先搜索科罗拉多高原，找到其 Eastern Sector 包含的具体地理区域名称。\nAction 1: Search[Colorado plateau]\nObservation 1: 科罗拉多高原位于四角地区，其 Eastern Sector 延伸至圣路易斯山谷...\nThought 2: 网页提及了圣路易斯山谷，我需要继续搜索圣路易斯山谷的海拔范围。\nAction 2: Search[San Luis Valley elevation]\nObservation 2: 圣路易斯山谷的平均海拔约在 2,300 米至 2,700 米之间。\nThought 3: 我已经获取了确切的海拔数据，可以给出最终结论。\nAction 3: Finish[2,300m - 2,700m]",
           "relatedConcepts": [
             "Chain-of-Thought (CoT)",
             "Tool Calling",

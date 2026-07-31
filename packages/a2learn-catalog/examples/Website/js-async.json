@@ -36,7 +36,7 @@
           "id": "background-pain",
           "component": "AnalogyCard",
           "title": "回调地狱：为什么异步代码让开发者崩溃？",
-          "analogy": "<b>JavaScript 是单线程语言</b>，但浏览器和 Node.js 环境需要处理网络请求、文件读取等耗时 I/O 操作。如果用同步阻塞方式写，整个页面会被冻结！早期的解决方案是「回调函数」——把任务完成后要做的事情打包成一个函数传进去。<br><br>但一旦业务逻辑复杂起来：<pre><code>fetchUser(id, function(user) {\n  fetchOrders(user.id, function(orders) {\n    fetchShipment(orders[0].id, function(ship) {\n      // 第四层... 第五层...\n    });\n  });\n});</code></pre>\n这种嵌套结构被开发者称为 <b>「回调地狱（Callback Hell）」</b>，难以阅读、维护和调试。<b>如何让异步代码像同步一样优雅？</b>"
+          "analogy": "<b>JavaScript 是单线程语言</b>，但浏览器和 Node.js 环境需要处理网络请求、文件读取等耗时 I/O 操作。如果用同步阻塞方式写，整个页面会被冻结！早期的解决方案是「回调函数」——把任务完成后要做的事情打包成一个函数传进去。<br><br>但一旦业务逻辑复杂起来：fetchUser(id, function(user) {\n  fetchOrders(user.id, function(orders) {\n    fetchShipment(orders[0].id, function(ship) {\n      // 第四层... 第五层...\n    });\n  });\n});\n这种嵌套结构被开发者称为 <b>「回调地狱（Callback Hell）」</b>，难以阅读、维护和调试。<b>如何让异步代码像同步一样优雅？</b>"
         },
         {
           "id": "scenario-chat",
@@ -100,7 +100,7 @@
             "Promise"
           ],
           "definition": "一个 <b>Promise</b> 对象代表一个异步操作<b>未来某时刻</b>的结果（成功值或失败原因）。它有且仅有三种状态：<code>pending</code>（等待中）、<code>fulfilled</code>（已成功）、<code>rejected</code>（已失败）。状态一旦确定便<b>不可逆转</b>，并可通过 <code>.then()</code> / <code>.catch()</code> 链式注册后续处理逻辑。",
-          "example": "<pre><code>// Promise 基础：从嵌套到链式\nfetchUser(id)\n  .then(user => fetchOrders(user.id))\n  .then(orders => fetchShipment(orders[0].id))\n  .then(ship => console.log('包裹状态:', ship.status))\n  .catch(err => console.error('出错了:', err));\n\n// Promise.all：并行等待多个异步任务全部完成\nconst [user, config] = await Promise.all([\n  fetchUser(id),\n  fetchConfig()\n]);</code></pre>",
+          "example": "// Promise 基础：从嵌套到链式\nfetchUser(id)\n  .then(user => fetchOrders(user.id))\n  .then(orders => fetchShipment(orders[0].id))\n  .then(ship => console.log('包裹状态:', ship.status))\n  .catch(err => console.error('出错了:', err));\n\n// Promise.all：并行等待多个异步任务全部完成\nconst [user, config] = await Promise.all([\n  fetchUser(id),\n  fetchConfig()\n]);",
           "relatedConcepts": [
             "async / await",
             "Event Loop",
@@ -152,7 +152,7 @@
           "questions": [
             {
               "id": "q1",
-              "question": "下面代码的输出顺序是什么？\n<pre><code>console.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');</code></pre>",
+              "question": "下面代码的输出顺序是什么？\nconsole.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');",
               "options": [
                 "A, B, C, D",
                 "A, D, B, C",

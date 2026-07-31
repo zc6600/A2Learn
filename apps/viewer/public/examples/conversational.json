@@ -36,7 +36,7 @@
           "id": "background-pain",
           "component": "AnalogyCard",
           "title": "当函数「记住」了它不该记住的东西……",
-          "analogy": "JavaScript 面试中最令候选人头疼的经典陷阱之一：\n<pre><code>for (var i = 0; i < 3; i++) {\n  setTimeout(function() {\n    console.log(i);  // 你期待 0, 1, 2 吗？\n  }, 1000);\n}</code></pre>\n实际输出：<code>3, 3, 3</code>！<br><br>为什么三个不同时刻注册的回调函数，最终都打印了同一个值？这是一个关于 <b>变量作用域</b> 与 <b>闭包（Closure）</b> 的核心问题——函数在「定义时」捕获的是变量的引用，而不是值的副本。理解这一机制，是真正掌握 JavaScript 的关键。"
+          "analogy": "JavaScript 面试中最令候选人头疼的经典陷阱之一：\nfor (var i = 0; i < 3; i++) {\n  setTimeout(function() {\n    console.log(i);  // 你期待 0, 1, 2 吗？\n  }, 1000);\n}\n实际输出：<code>3, 3, 3</code>！<br><br>为什么三个不同时刻注册的回调函数，最终都打印了同一个值？这是一个关于 <b>变量作用域</b> 与 <b>闭包（Closure）</b> 的核心问题——函数在「定义时」捕获的是变量的引用，而不是值的副本。理解这一机制，是真正掌握 JavaScript 的关键。"
         },
         {
           "id": "scenario-chat",
@@ -92,7 +92,7 @@
             "Closure"
           ],
           "definition": "<b>闭包</b>是一个函数以及该函数<b>定义时所处的词法作用域</b>（Lexical Environment）的组合体。即使外部函数已经返回，内部函数仍然可以访问并操作外部函数作用域中的变量——这些变量并不会被垃圾回收，而是被「封存」在闭包中持续存活。",
-          "example": "<pre><code>// 闭包经典用法：工厂函数与私有状态\nfunction makeCounter() {\n  let count = 0;  // count 被封存在闭包中\n  return {\n    increment() { count++; },\n    decrement() { count--; },\n    value()     { return count; }\n  };\n}\nconst counter = makeCounter();\ncounter.increment();\ncounter.increment();\nconsole.log(counter.value()); // 2\n// count 变量从外部无法直接访问，实现了「私有变量」</code></pre>",
+          "example": "// 闭包经典用法：工厂函数与私有状态\nfunction makeCounter() {\n  let count = 0;  // count 被封存在闭包中\n  return {\n    increment() { count++; },\n    decrement() { count--; },\n    value()     { return count; }\n  };\n}\nconst counter = makeCounter();\ncounter.increment();\ncounter.increment();\nconsole.log(counter.value()); // 2\n// count 变量从外部无法直接访问，实现了「私有变量」",
           "relatedConcepts": [
             "词法作用域 (Lexical Scope)",
             "作用域链 (Scope Chain)",
@@ -145,7 +145,7 @@
           "questions": [
             {
               "id": "q1",
-              "question": "下面代码的输出是什么？\n<pre><code>function outer() {\n  let x = 10;\n  function inner() {\n    x += 5;\n    return x;\n  }\n  return inner;\n}\nconst fn = outer();\nconsole.log(fn()); // 第一次调用\nconsole.log(fn()); // 第二次调用</code></pre>",
+              "question": "下面代码的输出是什么？\nfunction outer() {\n  let x = 10;\n  function inner() {\n    x += 5;\n    return x;\n  }\n  return inner;\n}\nconst fn = outer();\nconsole.log(fn()); // 第一次调用\nconsole.log(fn()); // 第二次调用",
               "options": [
                 "15, 15（每次调用都重新读取 x = 10）",
                 "15, 20（x 被持续修改，闭包共享同一个词法环境）",

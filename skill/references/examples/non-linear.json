@@ -74,7 +74,7 @@
           "id": "background-pain",
           "component": "AnalogyCard",
           "title": "为什么我们需要 CSS Grid？Flexbox 还不够吗？",
-          "analogy": "在 CSS Grid 出现之前，前端工程师用 <code>float</code>、<code>position: absolute</code> 乃至 <code>table</code> 布局实现复杂页面，代码脆弱且难以维护。即便 Flexbox 的出现大幅改善了一维（行或列）布局，但面对真实的产品页面，我们经常需要同时控制<b>行和列两个维度</b>：\n<pre><code>/* 想实现：左侧边栏 + 右侧两列内容区 + 底部横跨全宽的 footer */\n/* Flexbox 方案：嵌套多层 flex 容器，逻辑分散难以维护 */</code></pre>\nCSS Grid 专为<b>二维布局</b>设计，允许开发者在同一个声明中同时定义行与列的结构，让复杂布局的意图在代码中一目了然。"
+          "analogy": "在 CSS Grid 出现之前，前端工程师用 <code>float</code>、<code>position: absolute</code> 乃至 <code>table</code> 布局实现复杂页面，代码脆弱且难以维护。即便 Flexbox 的出现大幅改善了一维（行或列）布局，但面对真实的产品页面，我们经常需要同时控制<b>行和列两个维度</b>：\n/* 想实现：左侧边栏 + 右侧两列内容区 + 底部横跨全宽的 footer */\n/* Flexbox 方案：嵌套多层 flex 容器，逻辑分散难以维护 */\nCSS Grid 专为<b>二维布局</b>设计，允许开发者在同一个声明中同时定义行与列的结构，让复杂布局的意图在代码中一目了然。"
         },
         {
           "id": "scenario-chat",
@@ -130,7 +130,7 @@
             "二维布局"
           ],
           "definition": "将元素的 <code>display</code> 设为 <code>grid</code> 或 <code>inline-grid</code>，即创建一个 <b>Grid 容器</b>。容器内的所有直接子元素自动成为 <b>Grid 项目（Grid Items）</b>。Grid 的二维空间由<b>网格线（Grid Lines）</b>划分出<b>行轨道（Row Tracks）</b>和<b>列轨道（Column Tracks）</b>，交叉形成<b>网格单元（Grid Cells）</b>。",
-          "example": "<pre><code>.dashboard {\n  display: grid;\n  /* 左侧边栏240px + 右侧三等分内容区 */\n  grid-template-columns: 240px 1fr 1fr 1fr;\n  /* 顶部导航80px + 中间内容区自动填充 + 底部状态栏60px */\n  grid-template-rows: 80px auto 60px;\n  gap: 16px;  /* 网格间距 */\n}\n\n/* footer 横跨全部4列（-1 代表最后一条网格线）*/\n.footer {\n  grid-column: 1 / -1;\n}</code></pre>",
+          "example": ".dashboard {\n  display: grid;\n  /* 左侧边栏240px + 右侧三等分内容区 */\n  grid-template-columns: 240px 1fr 1fr 1fr;\n  /* 顶部导航80px + 中间内容区自动填充 + 底部状态栏60px */\n  grid-template-rows: 80px auto 60px;\n  gap: 16px;  /* 网格间距 */\n}\n\n/* footer 横跨全部4列（-1 代表最后一条网格线）*/\n.footer {\n  grid-column: 1 / -1;\n}",
           "relatedConcepts": [
             "Flexbox",
             "fr 单位",
@@ -179,7 +179,7 @@
             "grid-template-areas"
           ],
           "definition": "CSS Grid 提供两种主流元素放置方式：<br><b>① 网格线编号</b>：用 <code>grid-column: 开始线 / 结束线</code> 精确控制元素跨越哪些列；<br><b>② 命名区域（grid-template-areas）</b>：在父容器用字符串「画出」布局图，子元素用 <code>grid-area</code> 声明自己的名字，代码极具可读性。",
-          "example": "<pre><code>/* 方式二：命名区域（更直观）*/\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-rows: 60px auto 40px;\n  grid-template-areas:\n    \"header  header\"\n    \"sidebar main  \"\n    \"footer  footer\";\n}\n.header  { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main    { grid-area: main; }\n.footer  { grid-area: footer; }</code></pre>",
+          "example": "/* 方式二：命名区域（更直观）*/\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-rows: 60px auto 40px;\n  grid-template-areas:\n    \"header  header\"\n    \"sidebar main  \"\n    \"footer  footer\";\n}\n.header  { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main    { grid-area: main; }\n.footer  { grid-area: footer; }",
           "relatedConcepts": [
             "grid-column",
             "grid-row",
@@ -203,7 +203,7 @@
           "questions": [
             {
               "id": "q1",
-              "question": "以下 CSS Grid 代码中，<code>.item { grid-column: 1 / -1; }</code> 的效果是什么？\n<pre><code>.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}</code></pre>",
+              "question": "以下 CSS Grid 代码中，<code>.item { grid-column: 1 / -1; }</code> 的效果是什么？\n.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}",
               "options": [
                 "元素只占第 1 列",
                 "元素从第 1 列线延伸到最后一条列线，横跨全部 4 列",

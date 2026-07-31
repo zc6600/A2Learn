@@ -109,7 +109,7 @@ messages_zh = [
                     "title": "计算范式突破：让 Key 的名称直接算出内存下标",
                     "tags": ["计算代替比对", "O(1)寻址", "范式突破"],
                     "definition": "<b>核心突破 Mindset</b>：彻底放弃‘逐个遍历比对 Key 值’的旧思维，转向<b>‘直接计算物理内存地址’</b>的新范式！<br><br>不要去遍历内存询问数据藏在哪里，而是设计一个高效的数学计算公式，传入 Key 的名称（如用户 ID），公式直接计算出该数据应该保存在数组的哪个物理下标中！",
-                    "example": "<pre><code>// 传统搜索范式 (遍历比对): 查找 'Alice' -> 遍历比对 1,000,000 次\n// 哈希计算范式 (直接计算): 计算 'Alice' -> 算法直接得出 下标 5 -> 一步读取 arr[5]</code></pre>",
+                    "example": "// 传统搜索范式 (遍历比对): 查找 'Alice' -> 遍历比对 1,000,000 次\n// 哈希计算范式 (直接计算): 计算 'Alice' -> 算法直接得出 下标 5 -> 一步读取 arr[5]",
                     "relatedConcepts": ["哈希函数", "O(1)复杂度", "散列映射"]
                 },
                 {
@@ -262,7 +262,7 @@ console.log("Key 'Bob'   直接算出的槽位号:", simpleHash('Bob'));""",
                     "title": "多节点挂载与规则顺延",
                     "tags": ["容忍碰撞", "多维存储", "空间解耦"],
                     "definition": "<b>核心突破 Mindset</b>：承认碰撞必然发生，不再追求‘一个槽位只能存一个元素’。<br><br><b>两大流派思维</b>：<br>1. <b>纵向挂载 (Chaining)</b>：在槽位内部建立多节点挂载链表，同一个槽位挂载多个碰撞数据！<br>2. <b>横向探测 (Open Addressing)</b>：当槽位被占时，允许新数据按既定探测规则去附近寻址闲置槽位！",
-                    "example": "<pre><code>// 思路 1 (链地址法): 槽位 5 内部挂载链表 -> [Alice] -> [David]\n// 思路 2 (开放寻址法): 槽位 5 被占 -> 顺延检查 6号槽位 -> 若空闲则存入 6号</code></pre>",
+                    "example": "// 思路 1 (链地址法): 槽位 5 内部挂载链表 -> [Alice] -> [David]\n// 思路 2 (开放寻址法): 槽位 5 被占 -> 顺延检查 6号槽位 -> 若空闲则存入 6号",
                     "relatedConcepts": ["链地址法", "开放寻址法", "碰撞解决"]
                 },
                 {
@@ -385,7 +385,7 @@ console.log("Key 'Bob'   直接算出的槽位号:", simpleHash('Bob'));""",
                     "title": "按需监控与容量翻倍重散列",
                     "tags": ["动态平衡", "按需扩容", "空间杠杆"],
                     "definition": "<b>核心突破 Mindset</b>：不静态死扣内存，而是设置一个<b>拥挤度监控指标</b>。<br><br>平时保持小内存，一旦拥挤度超过设定的安全警戒线，立即<b>申请双倍新数组空间，并将全量数据重新计算下标分布</b>！",
-                    "example": "<pre><code>// 监控拥挤度指标: size / capacity > 0.75\n// 一旦超标: capacity = capacity * 2，并重新分布全量数据</code></pre>",
+                    "example": "// 监控拥挤度指标: size / capacity > 0.75\n// 一旦超标: capacity = capacity * 2，并重新分布全量数据",
                     "relatedConcepts": ["负载因子", "重散列", "动态扩容"]
                 },
                 {
@@ -503,7 +503,7 @@ console.log("Key 'Bob'   直接算出的槽位号:", simpleHash('Bob'));""",
                     "title": "算法随机化与底层结构升级",
                     "tags": ["SipHash随机化", "最坏情况保底", "安全防御"],
                     "definition": "<b>核心突破 Mindset</b>：双重保底！<br><br>1. <b>入口随机化</b>：使用带随机 Seed 的散列算法，让黑客在本地无法预测线上哈希值！<br>2. <b>底层结构升级</b>：当单槽位节点数过多时，自动将单链表升级为高级平衡树，强行锁死最坏查找复杂度！",
-                    "example": "<pre><code>// 防御 1 (算法随机化): 每次启动进程注入随机种子 SipHash(Key, Seed)\n// 防御 2 (结构升级): 当单链表长度 >= 8 时，链表 -> 自平衡红黑树 (最坏 O(log N))</code></pre>",
+                    "example": "// 防御 1 (算法随机化): 每次启动进程注入随机种子 SipHash(Key, Seed)\n// 防御 2 (结构升级): 当单链表长度 >= 8 时，链表 -> 自平衡红黑树 (最坏 O(log N))",
                     "relatedConcepts": ["HashDoS", "红黑树树化", "SipHash"]
                 },
                 {
@@ -648,7 +648,7 @@ messages_en = [
                     "title": "Paradigm Shift: Calculate Memory Address Directly from Key",
                     "tags": ["Computation Over Comparison", "O(1) Addressing", "Paradigm Shift"],
                     "definition": "<b>Core Mindset Breakthrough</b>: Stop searching through memory! Switch to <b>'Direct Computation of Memory Addresses'</b>!<br><br>Do not iterate to compare key values. Instead, design a mathematical formula where Key string directly calculates its target array index!",
-                    "example": "<pre><code>// Search Paradigm (Comparison): Find 'Alice' -> Compare 1,000,000 times\n// Hash Paradigm (Computation): Compute 'Alice' -> Directly get Index 5 -> Read arr[5]</code></pre>",
+                    "example": "// Search Paradigm (Comparison): Find 'Alice' -> Compare 1,000,000 times\n// Hash Paradigm (Computation): Compute 'Alice' -> Directly get Index 5 -> Read arr[5]",
                     "relatedConcepts": ["Hash Function", "O(1) Complexity", "Hash Mapping"]
                 },
                 {
@@ -801,7 +801,7 @@ console.log("Key 'Bob'   calculated slot index:", simpleHash('Bob'));""",
                     "title": "Multi-Node Attachment & Probing",
                     "tags": ["Tolerate Collisions", "Multi-Dimensional Storage", "Decoupling"],
                     "definition": "<b>Core Mindset Breakthrough</b>: Accept collisions as inevitable. Stop expecting 'one slot stores only one item'.<br><br><b>Two Main Approaches</b>:<br>1. <b>Vertical Attachment (Separate Chaining)</b>: Store a linked list inside each bucket slot to attach multiple colliding items!<br>2. <b>Horizontal Probing (Open Addressing)</b>: When a slot is occupied, probe neighboring slots according to a fixed sequence rule!",
-                    "example": "<pre><code>// Approach 1 (Chaining): Slot 5 holds linked list -> [Alice] -> [David]\n// Approach 2 (Open Addressing): Slot 5 occupied -> Probe slot 6 -> Store in 6 if free</code></pre>",
+                    "example": "// Approach 1 (Chaining): Slot 5 holds linked list -> [Alice] -> [David]\n// Approach 2 (Open Addressing): Slot 5 occupied -> Probe slot 6 -> Store in 6 if free",
                     "relatedConcepts": ["Separate Chaining", "Open Addressing", "Collision Resolution"]
                 },
                 {
@@ -924,7 +924,7 @@ console.log("Key 'Bob'   calculated slot index:", simpleHash('Bob'));""",
                     "title": "Dynamic Monitoring & Capacity Doubling",
                     "tags": ["Dynamic Balance", "On-Demand Resizing", "Space Leverage"],
                     "definition": "<b>Core Mindset Breakthrough</b>: Maintain small initial RAM. Monitor occupancy metrics. Once threshold is breached, <b>allocate double capacity and re-map all items</b>!",
-                    "example": "<pre><code>// Monitor threshold: size / capacity > 0.75\n// When breached: capacity = capacity * 2, rehash all items</code></pre>",
+                    "example": "// Monitor threshold: size / capacity > 0.75\n// When breached: capacity = capacity * 2, rehash all items",
                     "relatedConcepts": ["Load Factor", "Rehash", "Dynamic Resizing"]
                 },
                 {
@@ -1042,7 +1042,7 @@ console.log("Key 'Bob'   calculated slot index:", simpleHash('Bob'));""",
                     "title": "Algorithm Randomization & Tree Structures",
                     "tags": ["SipHash Randomization", "Worst-Case Guarantee", "Security"],
                     "definition": "<b>Core Mindset Breakthrough</b>: Dual Defense System!<br><br>1. <b>Input Randomization</b>: Use random seed hashing (SipHash) so attackers cannot predict online hashes!<br>2. <b>Structure Upgrade</b>: Automatically convert long bucket linked lists into self-balancing search trees to hard-cap worst-case lookup bounds!",
-                    "example": "<pre><code>// Defense 1 (SipHash): Random seed per process SipHash(Key, Seed)\n// Defense 2 (Treeify): When list length >= 8, convert to Red-Black Tree (O(log N) worst case)</code></pre>",
+                    "example": "// Defense 1 (SipHash): Random seed per process SipHash(Key, Seed)\n// Defense 2 (Treeify): When list length >= 8, convert to Red-Black Tree (O(log N) worst case)",
                     "relatedConcepts": ["HashDoS", "Treeify Threshold", "SipHash"]
                 },
                 {

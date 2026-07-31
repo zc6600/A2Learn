@@ -140,7 +140,7 @@
             "Paradigm Shift"
           ],
           "definition": "<b>The core breakthrough mindset</b>: entirely abandon the old idea of 'scan through and compare every key one by one,' and shift toward the new paradigm of <b>'compute the physical memory address directly'</b>!<br><br>Instead of scanning memory and asking where the data is hiding, design an efficient mathematical formula: feed in the key's name (like a user ID), and the formula directly computes which physical index in the array that data should live at!",
-          "example": "<pre><code>// The traditional search paradigm (scan and compare): looking up 'Alice' -> compare up to 1,000,000 times\n// The hashing paradigm (compute directly): compute 'Alice' -> the algorithm directly yields index 5 -> read arr[5] in one step</code></pre>",
+          "example": "// The traditional search paradigm (scan and compare): looking up 'Alice' -> compare up to 1,000,000 times\n// The hashing paradigm (compute directly): compute 'Alice' -> the algorithm directly yields index 5 -> read arr[5] in one step",
           "relatedConcepts": [
             "Hash Function",
             "O(1) Complexity",
@@ -309,7 +309,7 @@
             "Decoupling Space"
           ],
           "definition": "<b>The core breakthrough mindset</b>: accept that collisions are inevitable, and stop insisting that 'a slot can only ever hold one element.'<br><br><b>Two main schools of thought</b>:<br>1. <b>Chaining vertically</b>: build a linked list of multiple nodes inside each slot, letting one slot hold several colliding entries!<br>2. <b>Probing horizontally (Open Addressing)</b>: when a slot is occupied, let new data follow a predetermined probing rule to find a nearby free slot!",
-          "example": "<pre><code>// Idea 1 (Separate Chaining): slot 5 holds a linked list -> [Alice] -> [David]\n// Idea 2 (Open Addressing): slot 5 is occupied -> probe slot 6 next -> store there if it's free</code></pre>",
+          "example": "// Idea 1 (Separate Chaining): slot 5 holds a linked list -> [Alice] -> [David]\n// Idea 2 (Open Addressing): slot 5 is occupied -> probe slot 6 next -> store there if it's free",
           "relatedConcepts": [
             "Separate Chaining",
             "Open Addressing",
@@ -480,7 +480,7 @@
             "Space Leverage"
           ],
           "definition": "<b>The core breakthrough mindset</b>: don't statically lock in a fixed amount of memory — instead, set a <b>crowding monitor metric</b>.<br><br>Keep the memory footprint small most of the time, and the instant crowding exceeds a set safety threshold, immediately <b>allocate a new array at double the size, and recompute the index for every existing entry</b>!",
-          "example": "<pre><code>// Monitor the crowding metric: size / capacity > 0.75\n// Once it's exceeded: capacity = capacity * 2, and redistribute every entry</code></pre>",
+          "example": "// Monitor the crowding metric: size / capacity > 0.75\n// Once it's exceeded: capacity = capacity * 2, and redistribute every entry",
           "relatedConcepts": [
             "Load Factor",
             "Rehashing",
@@ -650,7 +650,7 @@
             "Security Defense"
           ],
           "definition": "<b>The core breakthrough mindset</b>: a double safety net!<br><br>1. <b>Randomize the entry point</b>: use a hashing algorithm with a random seed, so an attacker can't predict the production hash values offline!<br>2. <b>Upgrade the underlying structure</b>: when a single slot's node count grows too large, automatically upgrade its linked list into a balanced tree, forcibly capping the worst-case lookup complexity!",
-          "example": "<pre><code>// Defense 1 (algorithmic randomization): inject a random seed at process startup, SipHash(Key, Seed)\n// Defense 2 (structural upgrade): once a linked list's length >= 8, list -> self-balancing red-black tree (worst case O(log N))</code></pre>",
+          "example": "// Defense 1 (algorithmic randomization): inject a random seed at process startup, SipHash(Key, Seed)\n// Defense 2 (structural upgrade): once a linked list's length >= 8, list -> self-balancing red-black tree (worst case O(log N))",
           "relatedConcepts": [
             "HashDoS",
             "Red-Black Tree Treeification",

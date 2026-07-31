@@ -306,14 +306,26 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
   private renderExample(exampleStr: string) {
     if (!exampleStr) return nothing;
 
-    const lines = exampleStr.trim().split("\n");
+    // Strip any outer <pre><code>...</code></pre> or ```code``` wrapping first
+    let cleanStr = exampleStr.trim();
+    cleanStr = cleanStr.replace(/^<pre(?:\s+[^>]*)?>\s*<code(?:\s+[^>]*)?>([\s\S]*?)<\/code>\s*<\/pre>$/i, "$1");
+    cleanStr = cleanStr.replace(/^```[a-zA-Z0-9_-]*\r?\n([\s\S]*?)\r?\n```$/i, "$1");
+
+    const lines = cleanStr.split("\n");
     const hasArrows = lines.some((line) => line.includes("->") || line.includes("➔") || line.includes("=>"));
 
     if (hasArrows) {
       return html`
         <div class="example-box-flow">
           ${lines.map((line) => {
-            const cleanLine = line.replace(/^\/\/\s*/, "").replace(/^#\s*/, "").trim();
+            let cleanLine = line
+              .replace(/^<pre(?:\s+[^>]*)?>/, "")
+              .replace(/^<code(?:\s+[^>]*)?>/, "")
+              .replace(/<\/code>$/, "")
+              .replace(/<\/pre>$/, "")
+              .replace(/^\/\/\s*/, "")
+              .replace(/^#\s*/, "")
+              .trim();
             if (!cleanLine) return nothing;
 
             const hasArrow = cleanLine.includes("->") || cleanLine.includes("➔") || cleanLine.includes("=>");
@@ -332,7 +344,10 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
               const variantClass = isWarn ? 'variant-warn' : isSuccess ? 'variant-success' : 'variant-info';
               const icon = isWarn ? '🐢' : isSuccess ? '⚡' : '🔄';
 
-              const rawNodes = flowContent.split(/->|➔|=>/).map((s) => s.trim()).filter(Boolean);
+              const rawNodes = flowContent
+                .split(/->|➔|=>/)
+                .map((s) => s.replace(/<\/?[^>]+>/g, "").trim())
+                .filter(Boolean);
 
               return html`
                 <div class="visual-flow-line ${variantClass}">
@@ -363,7 +378,7 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
 
     return html`
       <div class="example-box">
-        ${unsafeHTML(sanitizeHtml(exampleStr))}
+        ${unsafeHTML(sanitizeHtml(cleanStr))}
       </div>
     `;
   }

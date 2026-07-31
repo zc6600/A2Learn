@@ -36,7 +36,7 @@
           "id": "background-pain",
           "component": "AnalogyCard",
           "title": "When a Function \"Remembers\" Something It Shouldn't...",
-          "analogy": "One of the classic interview traps that trips up JavaScript candidates every time:\n<pre><code>for (var i = 0; i < 3; i++) {\n  setTimeout(function() {\n    console.log(i);  // Expecting 0, 1, 2?\n  }, 1000);\n}</code></pre>\nActual output: <code>3, 3, 3</code>!<br><br>Why do three callbacks, registered at three different moments, all end up printing the exact same value? This gets at the core of <b>variable scope</b> and <b>closures</b> — a function captures a *reference* to a variable at the moment it's defined, not a copy of its value. Understanding this mechanism is the key to truly mastering JavaScript."
+          "analogy": "One of the classic interview traps that trips up JavaScript candidates every time:\nfor (var i = 0; i < 3; i++) {\n  setTimeout(function() {\n    console.log(i);  // Expecting 0, 1, 2?\n  }, 1000);\n}\nActual output: <code>3, 3, 3</code>!<br><br>Why do three callbacks, registered at three different moments, all end up printing the exact same value? This gets at the core of <b>variable scope</b> and <b>closures</b> — a function captures a *reference* to a variable at the moment it's defined, not a copy of its value. Understanding this mechanism is the key to truly mastering JavaScript."
         },
         {
           "id": "scenario-chat",
@@ -92,7 +92,7 @@
             "Closure"
           ],
           "definition": "A <b>closure</b> is the combination of a function and the <b>lexical environment</b> it was defined in. Even after the outer function has returned, the inner function can still access and mutate variables from the outer function's scope — those variables aren't garbage-collected; they're \"sealed\" inside the closure and stay alive.",
-          "example": "<pre><code>// A classic closure use case: a factory function with private state\nfunction makeCounter() {\n  let count = 0;  // count is sealed inside the closure\n  return {\n    increment() { count++; },\n    decrement() { count--; },\n    value()     { return count; }\n  };\n}\nconst counter = makeCounter();\ncounter.increment();\ncounter.increment();\nconsole.log(counter.value()); // 2\n// count can't be accessed directly from the outside — this is how you get a \"private variable\"</code></pre>",
+          "example": "// A classic closure use case: a factory function with private state\nfunction makeCounter() {\n  let count = 0;  // count is sealed inside the closure\n  return {\n    increment() { count++; },\n    decrement() { count--; },\n    value()     { return count; }\n  };\n}\nconst counter = makeCounter();\ncounter.increment();\ncounter.increment();\nconsole.log(counter.value()); // 2\n// count can't be accessed directly from the outside — this is how you get a \"private variable\"",
           "relatedConcepts": [
             "Lexical Scope",
             "Scope Chain",
@@ -145,7 +145,7 @@
           "questions": [
             {
               "id": "q1",
-              "question": "What does the following code output?\n<pre><code>function outer() {\n  let x = 10;\n  function inner() {\n    x += 5;\n    return x;\n  }\n  return inner;\n}\nconst fn = outer();\nconsole.log(fn()); // first call\nconsole.log(fn()); // second call</code></pre>",
+              "question": "What does the following code output?\nfunction outer() {\n  let x = 10;\n  function inner() {\n    x += 5;\n    return x;\n  }\n  return inner;\n}\nconst fn = outer();\nconsole.log(fn()); // first call\nconsole.log(fn()); // second call",
               "options": [
                 "15, 15 (x = 10 is re-read on every call)",
                 "15, 20 (x keeps getting mutated — the closure shares one lexical environment)",
