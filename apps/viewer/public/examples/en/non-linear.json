@@ -203,7 +203,7 @@
           "questions": [
             {
               "id": "q1",
-              "question": "In the following CSS Grid code, what does <code>.item { grid-column: 1 / -1; }</code> do?\n.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}",
+              "question": "In the following CSS Grid code, what does <code>.item { grid-column: 1 / -1; }</code> do?\n\n```css\n.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}\n```",
               "options": [
                 "The element only occupies column 1",
                 "The element stretches from the 1st column line to the last column line, spanning all 4 columns",

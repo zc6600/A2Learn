@@ -203,7 +203,7 @@
           "questions": [
             {
               "id": "q1",
-              "question": "以下 CSS Grid 代码中，<code>.item { grid-column: 1 / -1; }</code> 的效果是什么？\n.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}",
+              "question": "以下 CSS Grid 代码中，<code>.item { grid-column: 1 / -1; }</code> 的效果是什么？\n\n```css\n.container {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n}\n.item {\n  grid-column: 1 / -1;\n}\n```",
               "options": [
                 "元素只占第 1 列",
                 "元素从第 1 列线延伸到最后一条列线，横跨全部 4 列",
