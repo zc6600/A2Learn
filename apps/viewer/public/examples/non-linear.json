@@ -130,7 +130,7 @@
             "二维布局"
           ],
           "definition": "将元素的 <code>display</code> 设为 <code>grid</code> 或 <code>inline-grid</code>，即创建一个 <b>Grid 容器</b>。容器内的所有直接子元素自动成为 <b>Grid 项目（Grid Items）</b>。Grid 的二维空间由<b>网格线（Grid Lines）</b>划分出<b>行轨道（Row Tracks）</b>和<b>列轨道（Column Tracks）</b>，交叉形成<b>网格单元（Grid Cells）</b>。",
-          "example": ".dashboard {\n  display: grid;\n  /* 左侧边栏240px + 右侧三等分内容区 */\n  grid-template-columns: 240px 1fr 1fr 1fr;\n  /* 顶部导航80px + 中间内容区自动填充 + 底部状态栏60px */\n  grid-template-rows: 80px auto 60px;\n  gap: 16px;  /* 网格间距 */\n}\n\n/* footer 横跨全部4列（-1 代表最后一条网格线）*/\n.footer {\n  grid-column: 1 / -1;\n}",
+          "example": ".dashboard {\n  display: grid;\n  /* 左侧固定 240px，右侧三个 1fr 会把剩余空间平均分配给内容区；这样侧栏不会挤压主内容的比例。 */\n  grid-template-columns: 240px 1fr 1fr 1fr;\n  /* 顶部导航固定 80px，中心区域自动吸收剩余空间，底部状态栏固定 60px。 */\n  grid-template-rows: 80px auto 60px;\n  gap: 16px;  /* 统一设置行列间距，避免每个子元素单独写 margin 造成布局难以维护。 */\n}\n\n/* footer 横跨全部 4 列；-1 表示最后一条网格线，因此不需要知道列数的具体终点。 */\n.footer {\n  grid-column: 1 / -1;\n}",
           "relatedConcepts": [
             "Flexbox",
             "fr 单位",
@@ -179,7 +179,7 @@
             "grid-template-areas"
           ],
           "definition": "CSS Grid 提供两种主流元素放置方式：<br><b>① 网格线编号</b>：用 <code>grid-column: 开始线 / 结束线</code> 精确控制元素跨越哪些列；<br><b>② 命名区域（grid-template-areas）</b>：在父容器用字符串「画出」布局图，子元素用 <code>grid-area</code> 声明自己的名字，代码极具可读性。",
-          "example": "/* 方式二：命名区域（更直观）*/\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-rows: 60px auto 40px;\n  grid-template-areas:\n    \"header  header\"\n    \"sidebar main  \"\n    \"footer  footer\";\n}\n.header  { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main    { grid-area: main; }\n.footer  { grid-area: footer; }",
+          "example": "/* 方式二：命名区域更直观；布局图直接写在 CSS 中，读代码时可以立刻看出 header、sidebar、main 和 footer 的相对位置。 */\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-rows: 60px auto 40px;\n  grid-template-areas:\n    \"header  header\"\n    \"sidebar main  \"\n    \"footer  footer\";\n}\n.header  { grid-area: header; }  /* 顶部横跨两列。 */\n.sidebar { grid-area: sidebar; } /* 左侧固定宽度的导航区域。 */\n.main    { grid-area: main; }    /* 右侧自动伸展的主要内容区域。 */\n.footer  { grid-area: footer; }  /* 底部再次横跨两列。 */",
           "relatedConcepts": [
             "grid-column",
             "grid-row",

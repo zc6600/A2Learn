@@ -55,6 +55,7 @@ class SessionState:
     # until this flips to "ready" (or "error") instead of blocking on /start.
     status: str = "pending"
     error: str | None = None
+    target_language: str = "zh"
 
     def apply_messages(self, messages: list[dict[str, Any]]) -> None:
         for msg in messages:
@@ -89,12 +90,14 @@ class SessionStore:
         resource_path: str | None = None,
         resource_text: str | None = None,
         api_key: str | None = None,
+        target_language: str = "zh",
     ) -> SessionState:
         session = SessionState(
             session_id=f"sess_{uuid.uuid4().hex[:12]}",
             resource_path=resource_path or "text-input",
             messages=[],
             surface_ids=[],
+            target_language=target_language,
         )
         with self._lock:
             if len(self._sessions) >= self._max_capacity:
@@ -124,6 +127,7 @@ class SessionStore:
                 resource_text=resource_text,
                 mode=mode,
                 api_key=api_key,
+                target_language=session.target_language,
             )
             messages = self._extract_messages(state)
             validate_a2ui_messages(messages)

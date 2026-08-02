@@ -8,6 +8,7 @@ type ViewerSourceOnline = {
     apiBaseUrl: string;
     resourcePath?: string;
     resourceText?: string;
+    language?: "zh" | "en";
     headers?: Record<string, string>;
     themeVars?: Record<string, string>;
 };

@@ -73,8 +73,8 @@ Choose examples by topic:
 | Dialogue or conceptual teaching | `conversational.json` |
 
 Do not copy an example blindly. Preserve its valid structure, but write
-accurate content for the user's topic. Use Chinese learner-facing text unless
-the user requests another language. Only include `interactiveSandbox` for
+accurate content for the user's topic. Use the requested learner-facing
+language (default to Chinese when no language is specified). Only include `interactiveSandbox` for
 programming topics.
 
 ## Generate and parse

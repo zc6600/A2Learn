@@ -139,8 +139,8 @@
             "O(1)寻址",
             "范式突破"
           ],
-          "definition": "<b>核心突破 Mindset</b>：彻底放弃‘逐个遍历比对 Key 值’的旧思维，转向<b>‘直接计算物理内存地址’</b>的新范式！<br><br>不要去遍历内存询问数据藏在哪里，而是设计一个高效的数学计算公式，传入 Key 的名称（如用户 ID），公式直接计算出该数据应该保存在数组的哪个物理下标中！",
-          "example": "// 传统搜索范式 (遍历比对): 查找 'Alice' -> 遍历比对 1,000,000 次\n// 哈希计算范式 (直接计算): 计算 'Alice' -> 算法直接得出 下标 5 -> 一步读取 arr[5]",
+          "definition": "传统查找会从第一个元素开始逐个比较 Key；数据量变大时，比较次数也会跟着增加。哈希表改用另一种方法：先用<dfn title=\"把任意 Key 转换成整数，用于计算候选数组下标的函数\"><strong>哈希函数</strong></dfn>把 Key（例如用户 ID `Alice`）转换成一个整数，再用这个整数计算数组下标，于是系统可以直接跳到目标槽位，而不必扫描前面的元素。这里的哈希函数可以理解为一台稳定的地址计算器：相同的 Key 通常会得到相同的候选位置，但不同 Key 可能落到同一个位置，这种情况叫作<dfn title=\"不同 Key 经过计算后得到同一个数组位置的情况\"><strong>哈希碰撞</strong></dfn>，也是后面必须处理的问题。",
+          "example": "**传统搜索**\n\n数组里有 1,000,000 条记录。查找 `Alice` 时，系统必须从第 0 项开始逐个比较；如果 `Alice` 恰好位于最后一项，就要比较 1,000,000 次，前面的每个元素都只是一次无效等待。\n\n扫描流程：`user_0` → `user_1` → `...` → `Alice` → 找到，但耗时会随着数据量增长。\n\n**哈希查找**\n\n哈希表先把 `Alice` 交给哈希函数，再把结果压缩成数组下标。假设 `hash(\"Alice\") % 10 = 5`，系统就能直接访问 `arr[5]`，不必检查 `arr[0]` 到 `arr[4]`。\n\n计算流程：`Alice` → `hash(\"Alice\")` → 下标 `5` → 直接读取 `arr[5]` → 平均接近 `O(1)`。这里的关键区别是：顺序搜索花时间寻找位置，哈希查找先计算位置再访问。",
           "relatedConcepts": [
             "哈希函数",
             "O(1)复杂度",
@@ -150,10 +150,10 @@
         {
           "id": "step4-implementation",
           "component": "DetailedExplanation",
-          "title": "哈希函数与槽位数组工程落地 (含 Python 伪代码示例)",
+          "title": "哈希函数与槽位数组实现 (含 Python 伪代码示例)",
           "icon": "⚙️",
           "estimatedReadTime": "4 分钟深度解析",
-          "content": "为了将“用计算代替比对”的 Mindset 落地到工程实践中，数据结构引入了两个核心基础设施：\n\n1. **<dfn title=\"将任意长度输入 Key 映射转换为固定范围无符号整数的数学算法\">哈希函数 (Hash Function)</dfn>**：负责接收任意格式的 Key（如字符串、身份证号、对象引用），计算出一个无符号整数。比如 `hash('Alice') = 154829`。\n2. **<dfn title=\"在物理内存中连续开辟的存储槽位数组\">槽位数组 (Bucket Array / Hash Table)</dfn>**：开辟容量为 `capacity` 的物理数组，将算出的哈希值对容量取模，得到物理下标：`index = hash(key) % capacity`。\n\n🐍 **Python 调库与伪代码示例**：\n```python\n# 方式 A: 直接调用 Python 内置 hash() 调库取模\nkey = \"Alice\"\ncapacity = 10\nslot_index = abs(hash(key)) % capacity  # 算出 0~9 槽位号\n\n# 方式 B: 极简哈希函数伪代码实现 (累加字符 ASCII 码)\ndef simple_hash(key: str, capacity: int = 10) -> int:\n    return sum(ord(char) for char in key) % capacity\n```\n\n**常数时间复杂度 O(1) 的物理保障**：\n无论数组里当前保存的是 10 条数据还是 1,000,000 条数据，只要哈希函数的计算过程极快，定位特定 Key 所在内存地址的总耗时都是固定的！这就是 **<dfn title=\"执行耗时与数据总量规模完全无关的极致性能界限\">常数时间复杂度 O(1)</dfn>** 的物理来源。"
+          "content": "为了将“用计算代替比对”的思路落地到工程实践中，数据结构引入了两个核心基础设施：\n\n1. **<dfn title=\"将任意长度输入 Key 映射转换为固定范围无符号整数的数学算法\">哈希函数 (Hash Function)</dfn>**：负责接收任意格式的 Key（如字符串、身份证号、对象引用），计算出一个无符号整数。比如 `hash('Alice') = 154829`。\n2. **<dfn title=\"在物理内存中连续开辟的存储槽位数组\">槽位数组 (Bucket Array / Hash Table)</dfn>**：开辟容量为 `capacity` 的物理数组，将算出的哈希值对容量取模，得到物理下标：`index = hash(key) % capacity`。\n\n🐍 **Python 调库与伪代码示例**：\n```python\n# 方式 A：调用 Python 内置 hash()，先把任意 Key 转成整数；随后再用取模把这个整数压缩到 0~9 的槽位范围，便于观察‘Key 如何定位到数组位置’\nkey = \"Alice\"\ncapacity = 10\nslot_index = abs(hash(key)) % capacity  # 算出 0~9 槽位号\n\n# 方式 B：手写一个更容易读懂的哈希函数；逐个累加字符编码，让学习者可以追踪每个字符如何参与最终槽位计算\ndef simple_hash(key: str, capacity: int = 10) -> int:\n    return sum(ord(char) for char in key) % capacity\n```\n\n**常数时间复杂度 O(1) 的物理保障**：\n无论数组里当前保存的是 10 条数据还是 1,000,000 条数据，只要哈希函数的计算过程极快，定位特定 Key 所在内存地址的总耗时都是固定的！这就是 **<dfn title=\"执行耗时与数据总量规模完全无关的极致性能界限\">常数时间复杂度 O(1)</dfn>** 的物理来源。"
         },
         {
           "id": "step4-sandbox",
@@ -161,7 +161,7 @@
           "title": "代码演示：观察内存数组挪动与哈希直接定位的区别",
           "description": "点击运行代码，对比在有序数组中插入元素（需搬迁后续内存）与哈希计算直接定位的执行开销：",
           "language": "javascript",
-          "code": "// 演示 1：在有序数组 [10, 20, 30, 50, 60] 中插入数字 25\nlet arr = [10, 20, 30, 50, 60];\nlet insertVal = 25;\nlet shiftCount = 0;\n\n// 模拟物理内存平移：从后往前挪动元素\narr.push(undefined);\nfor (let i = arr.length - 1; i > 2; i--) {\n  arr[i] = arr[i - 1];\n  shiftCount++;\n}\narr[2] = insertVal;\n\nconsole.log(\"插入后数组:\", arr);\nconsole.log(\"被迫平移搬迁的内存块数量:\", shiftCount, \"次\");\nconsole.log(\"------------------------------------------\");\n\n// 演示 2：哈希函数直接计算内存下标 (O(1)定位)\nfunction simpleHash(key, capacity = 10) {\n  let hash = 0;\n  for (let i = 0; i < key.length; i++) {\n    hash = (hash * 31 + key.charCodeAt(i)) % capacity;\n  }\n  return hash;\n}\n\nconsole.log(\"Key 'Alice' 直接算出的槽位号:\", simpleHash('Alice'));\nconsole.log(\"Key 'Bob'   直接算出的槽位号:\", simpleHash('Bob'));",
+          "code": "// 演示 1：在有序数组 [10, 20, 30, 50, 60] 中插入 25；目标是把它放到 20 和 30 之间，因此后面的元素都必须先向右搬迁\nlet arr = [10, 20, 30, 50, 60];\nlet insertVal = 25;\nlet shiftCount = 0;\n\n// 模拟连续数组的物理搬迁：必须从最后一个元素开始向右移动，避免前面的值覆盖还没有搬走的数据；每次循环都代表一次实际的槽位复制\narr.push(undefined);\nfor (let i = arr.length - 1; i > 2; i--) {\n  arr[i] = arr[i - 1];\n  shiftCount++;\n}\narr[2] = insertVal;\n\nconsole.log(\"插入后数组:\", arr);\nconsole.log(\"被迫平移搬迁的内存块数量:\", shiftCount, \"次\");\nconsole.log(\"------------------------------------------\");\n\n// 演示 2：让哈希函数直接计算槽位；这里不遍历整个数组，而是把 Key 的字符逐个混入一个整数，最后得到可直接访问的下标\nfunction simpleHash(key, capacity = 10) {\n  let hash = 0;\n  for (let i = 0; i < key.length; i++) {\n    hash = (hash * 31 + key.charCodeAt(i)) % capacity;\n  }\n  return hash;\n}\n\nconsole.log(\"Key 'Alice' 直接算出的槽位号:\", simpleHash('Alice'));\nconsole.log(\"Key 'Bob'   直接算出的槽位号:\", simpleHash('Bob'));",
           "runLocally": true
         },
         {
@@ -308,8 +308,8 @@
             "多维存储",
             "空间解耦"
           ],
-          "definition": "<b>核心突破 Mindset</b>：承认碰撞必然发生，不再追求‘一个槽位只能存一个元素’。<br><br><b>两大流派思维</b>：<br>1. <b>纵向挂载 (Chaining)</b>：在槽位内部建立多节点挂载链表，同一个槽位挂载多个碰撞数据！<br>2. <b>横向探测 (Open Addressing)</b>：当槽位被占时，允许新数据按既定探测规则去附近寻址闲置槽位！",
-          "example": "// 思路 1 (链地址法): 槽位 5 内部挂载链表 -> [Alice] -> [David]\n// 思路 2 (开放寻址法): 槽位 5 被占 -> 顺延检查 6号槽位 -> 若空闲则存入 6号",
+          "definition": "承认碰撞必然发生，不再追求‘一个槽位只能存一个元素’。<br><br><b>两大流派思维</b>：<br>1. <b>纵向挂载 (Chaining)</b>：在槽位内部建立多节点挂载链表，同一个槽位挂载多个碰撞数据！<br>2. <b>横向探测 (Open Addressing)</b>：当槽位被占时，允许新数据按既定探测规则去附近寻址闲置槽位！",
+          "example": "```text\n// 先假设 Alice 和 David 都被映射到槽位 5；碰撞不是覆盖旧值，而是启动冲突处理。\n\n// 思路 1：链地址法把槽位 5 变成一个小型链表，每个节点保存 Key 和 Value。\n// 查找 David 时，先跳到槽位 5，再沿着链表比较 Key，直到找到 David 或走到链表末尾。\n槽位 5 -> [Alice, 95] -> [David, 88] -> [下一个节点]\n\n// 思路 2：开放寻址法不创建链表，而是按照固定规则继续检查数组中的下一个位置。\n// 如果槽位 5 已经放着 Alice，就检查 6；6 也被占用时继续检查 7，直到找到空槽。\n槽位 5 已占用 -> 检查槽位 6 -> 空闲 -> 写入 [David, 88]\n```",
           "relatedConcepts": [
             "链地址法",
             "开放寻址法",
@@ -457,7 +457,7 @@
           "pillarsTitle": "核心原则",
           "pillars": [
             {
-              "title": "拥挤度第一性原理",
+              "title": "拥挤度与动态扩容",
               "description": "闲置槽位越少，冲突概率呈指数级上升，必须动态维持安全水位。",
               "icon": "📊"
             },
@@ -479,8 +479,8 @@
             "按需扩容",
             "空间杠杆"
           ],
-          "definition": "<b>核心突破 Mindset</b>：不静态死扣内存，而是设置一个<b>拥挤度监控指标</b>。<br><br>平时保持小内存，一旦拥挤度超过设定的安全警戒线，立即<b>申请双倍新数组空间，并将全量数据重新计算下标分布</b>！",
-          "example": "// 监控拥挤度指标: size / capacity > 0.75\n// 一旦超标: capacity = capacity * 2，并重新分布全量数据",
+          "definition": "不静态死扣内存，而是设置一个<b>拥挤度监控指标</b>。<br><br>平时保持小内存，一旦拥挤度超过设定的安全警戒线，立即<b>申请双倍新数组空间，并将全量数据重新计算下标分布</b>！",
+          "example": "```text\n// 负载因子表示“当前有多拥挤”：例如 size=75、capacity=100 时，负载因子就是 0.75。\n// 当 size / capacity > 0.75，空槽变少，碰撞和探测次数都会明显增加。\n正常水位 -> size=60, capacity=100 -> 负载因子 0.60 -> 继续写入\n触发扩容 -> size=76, capacity=100 -> 负载因子 0.76 -> 新容量变为 200\n\n// 扩容不是只申请一块更大的数组；所有旧 Key 都必须按新容量重新计算位置。\n// 例如原来 hash(key) % 100 = 5，扩容后必须重新计算 hash(key) % 200，位置可能因此改变。\ncapacity = capacity * 2 -> 重新映射全部元素 -> 恢复较低的碰撞概率\n```",
           "relatedConcepts": [
             "负载因子",
             "重散列",
@@ -493,7 +493,7 @@
           "title": "0.75 负载因子、位运算加速与渐进式 Rehash",
           "icon": "⚙️",
           "estimatedReadTime": "4 分钟深度解析",
-          "content": "工程落地中对动态扩容的三大精妙设计：\n\n1. **<dfn title=\"已存元素总数与当前数组容量的比值 (size / capacity)\">负载因子 (Load Factor)</dfn>**：监控指标。Java HashMap 默认阈值选为 `0.75`（空间利用率与时间性能的最佳数学折中）。\n2. **<dfn title=\"容量保持为2的幂，用按位与运算替代慢速取模\">位运算优化 (Bitwise And)</dfn>**：容量总是保持为 2 的幂（如 16, 32, 64），取模 `hash % capacity` 被硬件极速指令 `<dfn title=\"位运算替代取模硬件加速\">hash & (capacity - 1)</dfn>` 替代！\n3. **<dfn title=\"将大规模数据搬迁平摊到日常读写中的高并发优化\">渐进式 Rehash (Incremental Rehash)</dfn>**：Redis 采用此法，维护 `ht[0]` 与 `ht[1]` 两个哈希表，避免一次性搬迁几百万数据导致系统瞬间卡死。"
+          "content": "动态扩容的三大精妙设计：\n\n1. **<dfn title=\"已存元素总数与当前数组容量的比值 (size / capacity)\">负载因子 (Load Factor)</dfn>**：监控指标。Java HashMap 默认阈值选为 `0.75`（空间利用率与时间性能的最佳数学折中）。\n2. **<dfn title=\"容量保持为2的幂，用按位与运算替代慢速取模\">位运算优化 (Bitwise And)</dfn>**：容量总是保持为 2 的幂（如 16, 32, 64），取模 `hash % capacity` 被硬件极速指令 `<dfn title=\"位运算替代取模硬件加速\">hash & (capacity - 1)</dfn>` 替代！\n3. **<dfn title=\"将大规模数据搬迁平摊到日常读写中的高并发优化\">渐进式 Rehash (Incremental Rehash)</dfn>**：Redis 采用此法，维护 `ht[0]` 与 `ht[1]` 两个哈希表，避免一次性搬迁几百万数据导致系统瞬间卡死。"
         },
         {
           "id": "step5-summary-3",
@@ -649,8 +649,8 @@
             "最坏情况保底",
             "安全防御"
           ],
-          "definition": "<b>核心突破 Mindset</b>：双重保底！<br><br>1. <b>入口随机化</b>：使用带随机 Seed 的散列算法，让黑客在本地无法预测线上哈希值！<br>2. <b>底层结构升级</b>：当单槽位节点数过多时，自动将单链表升级为高级平衡树，强行锁死最坏查找复杂度！",
-          "example": "// 防御 1 (算法随机化): 每次启动进程注入随机种子 SipHash(Key, Seed)\n// 防御 2 (结构升级): 当单链表长度 >= 8 时，链表 -> 自平衡红黑树 (最坏 O(log N))",
+          "definition": "双重保底！<br><br>1. <b>入口随机化</b>：使用带随机 Seed 的散列算法，让黑客在本地无法预测线上哈希值！<br>2. <b>底层结构升级</b>：当单槽位节点数过多时，自动将单链表升级为高级平衡树，强行锁死最坏查找复杂度！",
+          "example": "**防御 1：随机化哈希入口**\n\n每次进程启动时，都向哈希算法注入随机种子，例如 `SipHash(Key, Seed)`。同一个进程仍然可以稳定地查找自己的 Key，但攻击者无法仅靠离线计算预测线上哈希值。\n\n**防御 2：升级碰撞结构**\n\n当某个槽位的链表过长时，把它转换成自平衡红黑树。链表达到设定阈值后，查找路径就会从可能逐个扫描的线性过程，变成有界的 `O(log N)` 搜索。随机化哈希和结构升级结合起来，可以避免可预测的碰撞把单个槽位拖成全服务的性能瓶颈。",
           "relatedConcepts": [
             "HashDoS",
             "红黑树树化",

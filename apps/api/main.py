@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,6 +17,7 @@ from apps.api.session_store import SessionState, SessionStore
 class SessionStartRequest(BaseModel):
     resource_path: str | None = Field(default=None, description="Path to teaching resources (file or directory)")
     resource_text: str | None = Field(default=None, description="Direct text input to use as teaching resource")
+    language: Literal["zh", "en"] = Field(default="zh", description="Learner-facing content language")
 
 
 class SessionStartResponse(BaseModel):
@@ -51,6 +52,7 @@ class SessionActionResponse(BaseModel):
 class StatelessInitRequest(BaseModel):
     resource_path: str | None = Field(default=None, description="Path to teaching resources")
     resource_text: str | None = Field(default=None, description="Direct text input")
+    language: Literal["zh", "en"] = Field(default="zh", description="Learner-facing content language")
 
 class StatelessInitResponse(BaseModel):
     messages: list[dict[str, Any]]
@@ -60,6 +62,7 @@ class StatelessActionRequest(BaseModel):
     components: dict[str, dict[str, Any]] = Field(default_factory=dict, description="Current components state")
     surface_ids: list[str] = Field(default_factory=list, description="Current surface IDs")
     action_count: int = Field(default=0, description="Current action count")
+    language: Literal["zh", "en"] = Field(default="zh", description="Learner-facing content language")
 
 class StatelessActionResponse(BaseModel):
     messages: list[dict[str, Any]]
@@ -176,7 +179,12 @@ def start_session(
         resource_path = _resolve_resource_path(payload.resource_path)
         
     try:
-        session = store.create(resource_path=resource_path, resource_text=resource_text, api_key=api_key)
+        session = store.create(
+            resource_path=resource_path,
+            resource_text=resource_text,
+            api_key=api_key,
+            target_language=payload.language,
+        )
         return SessionStartResponse(session_id=session.session_id, status=session.status, messages=session.messages)
     except HTTPException:
         raise
@@ -206,6 +214,7 @@ def handle_action(session_id: str, payload: SessionActionRequest) -> SessionActi
             component_surfaces=session.component_surfaces,
             surface_ids=session.surface_ids,
             action_count=session.action_count,
+            target_language=session.target_language,
         )
         if messages:
             validate_a2ui_messages(messages, require_create_surface=False)
@@ -239,7 +248,13 @@ def stateless_init(
         
     try:
         mode = os.getenv("A2LEARN_MODE", "agent")
-        state = run_agent(resource_path=resource_path, resource_text=resource_text, mode=mode, api_key=api_key)
+        state = run_agent(
+            resource_path=resource_path,
+            resource_text=resource_text,
+            mode=mode,
+            api_key=api_key,
+            target_language=payload.language,
+        )
         messages = SessionStore._extract_messages(state)
         validate_a2ui_messages(messages)
         return StatelessInitResponse(messages=messages)
@@ -257,6 +272,7 @@ def stateless_action(payload: StatelessActionRequest) -> StatelessActionResponse
             components=payload.components,
             surface_ids=payload.surface_ids,
             action_count=payload.action_count + 1,
+            target_language=payload.language,
         )
         if messages:
             validate_a2ui_messages(messages, require_create_surface=False)

@@ -3,6 +3,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { InteractiveFormulaApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 
@@ -242,7 +243,7 @@ export class A2learnInteractiveFormulaElement extends A2uiLitElement<typeof Inte
 
         ${variables.length > 0
           ? html`
-              <div class="section-title">变量与符号释义</div>
+              <div class="section-title">${uiText("变量与符号释义", "Variables and Symbols")}</div>
               <div class="variables-grid">
                 ${variables.map(
                   ([symbol, desc]) => html`
@@ -258,7 +259,7 @@ export class A2learnInteractiveFormulaElement extends A2uiLitElement<typeof Inte
 
         ${steps.length > 0
           ? html`
-              <div class="section-title">公式推导步骤</div>
+              <div class="section-title">${uiText("公式推导步骤", "Derivation Steps")}</div>
               <div class="steps-list">
                 ${steps.map(
                   (stepObj, idx) => html`

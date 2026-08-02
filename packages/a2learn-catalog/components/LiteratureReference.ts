@@ -3,6 +3,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { LiteratureReferenceApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnLiteratureReferenceElement extends A2uiLitElement<typeof LiteratureReferenceApi> {
   static styles = css`
@@ -164,7 +165,7 @@ export class A2learnLiteratureReferenceElement extends A2uiLitElement<typeof Lit
         ${hasAction
           ? html`
               <div class="action-tip">
-                点击以让 AI 解读此引用 →
+                ${uiText("点击以让 AI 解读此引用 →", "Click to have AI interpret this reference →")}
               </div>
             `
           : nothing}

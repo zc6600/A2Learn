@@ -92,7 +92,7 @@
             "Closure"
           ],
           "definition": "<b>闭包</b>是一个函数以及该函数<b>定义时所处的词法作用域</b>（Lexical Environment）的组合体。即使外部函数已经返回，内部函数仍然可以访问并操作外部函数作用域中的变量——这些变量并不会被垃圾回收，而是被「封存」在闭包中持续存活。",
-          "example": "// 闭包经典用法：工厂函数与私有状态\nfunction makeCounter() {\n  let count = 0;  // count 被封存在闭包中\n  return {\n    increment() { count++; },\n    decrement() { count--; },\n    value()     { return count; }\n  };\n}\nconst counter = makeCounter();\ncounter.increment();\ncounter.increment();\nconsole.log(counter.value()); // 2\n// count 变量从外部无法直接访问，实现了「私有变量」",
+          "example": "// 闭包经典用法：用工厂函数创建一个带有私有状态的计数器；外部只能通过返回的方法间接操作 count，而不能直接改写它。\nfunction makeCounter() {\n  let count = 0;  // count 被封存在闭包中；即使 makeCounter 已经执行完，这个变量仍会被返回的方法保留。\n  return {\n    increment() { count++; }, // 每次调用只增加内部状态，不把变量本身暴露给外部。\n    decrement() { count--; }, // 通过受控的方法减少状态，调用者不需要知道 count 存在哪里。\n    value()     { return count; } // 读取当前值，形成一个清晰的“读接口”。\n  };\n}\nconst counter = makeCounter();\ncounter.increment();\ncounter.increment();\nconsole.log(counter.value()); // 2；这里可以读取结果，但无法直接访问 counter.count。\n// count 变量从外部无法直接访问，这就是闭包实现“私有变量”的基本方式。",
           "relatedConcepts": [
             "词法作用域 (Lexical Scope)",
             "作用域链 (Scope Chain)",

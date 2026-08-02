@@ -4,6 +4,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { DocumentFigureApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnDocumentFigureElement extends A2uiLitElement<typeof DocumentFigureApi> {
   static styles = css`
@@ -256,7 +257,7 @@ export class A2learnDocumentFigureElement extends A2uiLitElement<typeof Document
             
             ${aiExplanation ? html`
               <div class="ai-explanation">
-                <div class="ai-explanation-title">✨ AI 解析</div>
+                <div class="ai-explanation-title">✨ ${uiText("AI 解析", "AI Analysis")}</div>
                 <div>${unsafeHTML(sanitizeHtml(aiExplanation))}</div>
               </div>
             ` : nothing}

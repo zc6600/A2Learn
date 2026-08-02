@@ -3,6 +3,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { ResourceListApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnResourceListElement extends A2uiLitElement<typeof ResourceListApi> {
   static styles = css`
@@ -107,7 +108,7 @@ export class A2learnResourceListElement extends A2uiLitElement<typeof ResourceLi
     const props = this.controller?.props;
     if (!props) return nothing;
 
-    const title = props.title ? this.resolveString(props.title) : "延伸阅读与资源";
+    const title = props.title ? this.resolveString(props.title) : uiText("延伸阅读与资源", "Further Reading and Resources");
     const resources = props.resources || [];
 
     return html`

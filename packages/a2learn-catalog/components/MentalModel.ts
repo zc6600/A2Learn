@@ -3,6 +3,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { MentalModelApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModelApi> {
   static styles = [
@@ -440,11 +441,11 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
     const description = this.resolveString(props.description);
     const icon = this.resolveString(props.icon) || "🧠";
     const analogy = props.analogy ? this.resolveString(props.analogy) : "";
-    const analogyTitle = props.analogyTitle ? this.resolveString(props.analogyTitle) : "💡 真实案例剖析演推";
+    const analogyTitle = props.analogyTitle ? this.resolveString(props.analogyTitle) : uiText("💡 真实案例剖析演推", "💡 Worked Example");
     const diagram = props.diagram ? this.resolveString(props.diagram) : "";
-    const diagramTitle = props.diagramTitle ? this.resolveString(props.diagramTitle) : "📊 内存与数据分布图示";
+    const diagramTitle = props.diagramTitle ? this.resolveString(props.diagramTitle) : uiText("📊 内存与数据分布图示", "📊 Memory and Data Layout");
     const pillars = (props.pillars as Array<Record<string, unknown>>) || [];
-    const pillarsTitle = props.pillarsTitle ? this.resolveString(props.pillarsTitle) : "🗝️ 核心要素";
+    const pillarsTitle = props.pillarsTitle ? this.resolveString(props.pillarsTitle) : uiText("🗝️ 核心要素", "🗝️ Key Elements");
 
     return html`
       <div class="mm-container">

@@ -2,6 +2,7 @@ import { html, css, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { DeepDivePromptApi } from "../api";
+import { uiText } from "../utils/i18n";
 
 export class A2learnDeepDivePromptElement extends A2uiLitElement<typeof DeepDivePromptApi> {
   static styles = css`
@@ -111,7 +112,7 @@ export class A2learnDeepDivePromptElement extends A2uiLitElement<typeof DeepDive
 
     return html`
       <div>
-        <h5 class="deep-dive-title">继续深挖</h5>
+        <h5 class="deep-dive-title">${uiText("继续深挖", "Explore Further")}</h5>
         <div class="prompts-container">
           ${prompts.map((prompt: any) => {
             const isSelected = prompt.id === selectedId;

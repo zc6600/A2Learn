@@ -22,6 +22,8 @@ COPY agent ./agent
 COPY apps/__init__.py ./apps/__init__.py
 COPY apps/api ./apps/api
 COPY packages/a2learn-catalog/examples/Website ./packages/a2learn-catalog/examples/Website
+# English few-shot examples used when the caller requests English output.
+COPY apps/viewer/public/examples/en ./apps/viewer/public/examples/en
 
 # Lock this down to your homepage's real origin(s) in production, e.g.
 # "https://yourname.dev,https://yourname.github.io" — do not leave this as

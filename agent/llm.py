@@ -191,20 +191,29 @@ def _invoke_and_parse(
     raise last_exc
 
 
-def plan_curriculum(llm: Any, resource_text: str) -> dict[str, Any]:
+def _language_instruction(target_language: str) -> str:
+    if target_language == "en":
+        return "Use English for every learner-facing string."
+    return "Use Simplified Chinese for every learner-facing string."
+
+
+def plan_curriculum(llm: Any, resource_text: str, target_language: str = "zh") -> dict[str, Any]:
     system_prompt = textwrap.dedent(
-        """
+        f"""
         You are an A2Learn agent that MUST output a curriculum plan as a JSON object.
         Return ONLY a JSON object, no explanation.
 
         Requirements:
-        - Use Chinese for learner-facing strings.
+        - {_language_instruction(target_language)}
         - Be concise and structured.
         - Include: title, summary, learningObjectives (array), modules (array).
         - Each module: id, title, goals (array), keyConcepts (array), activities (array of strings).
         """
     ).strip()
-    user_prompt = f"请基于以下教学资源规划一份课程大纲（curriculum）。\n\nResource text:\n{resource_text}"
+    user_prompt = (
+        "Based on the following teaching resource, plan a curriculum.\n\n"
+        f"Resource text:\n{resource_text}"
+    )
     return _invoke_and_parse(
         llm,
         [
@@ -215,14 +224,14 @@ def plan_curriculum(llm: Any, resource_text: str) -> dict[str, Any]:
     )
 
 
-def build_site_plan(llm: Any, curriculum: dict[str, Any]) -> dict[str, Any]:
+def build_site_plan(llm: Any, curriculum: dict[str, Any], target_language: str = "zh") -> dict[str, Any]:
     system_prompt = textwrap.dedent(
         f"""
         You are an A2Learn agent that MUST output a site plan as a JSON object.
         Return ONLY a JSON object, no explanation.
 
         Requirements:
-        - Use Chinese for learner-facing strings.
+        - {_language_instruction(target_language)}
         - Include: siteTitle, surfaces (array).
         - Each surface: surfaceId, title, description, moduleId (optional), recommendedComponents (array).
         - recommendedComponents must be chosen from: LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt,
@@ -236,7 +245,7 @@ def build_site_plan(llm: Any, curriculum: dict[str, Any]) -> dict[str, Any]:
         - recommendedComponents per surface: at most 6, for the same reason.
         """
     ).strip()
-    user_prompt = "请把下面 curriculum 转成站点结构（site plan），每个 surface 对应一个学习页面。\n\n" + json.dumps(
+    user_prompt = "Turn the following curriculum into a site plan. Each surface is one learning page.\n\n" + json.dumps(
         curriculum, ensure_ascii=False
     )
     return _invoke_and_parse(
@@ -249,10 +258,12 @@ def build_site_plan(llm: Any, curriculum: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-def _load_a2ui_examples_text() -> str:
+def _load_a2ui_examples_text(target_language: str) -> str:
     from pathlib import Path
 
     examples_dir = Path(__file__).parent.parent / "packages" / "a2learn-catalog" / "examples" / "Website"
+    if target_language == "en":
+        examples_dir = Path(__file__).parent.parent / "apps" / "viewer" / "public" / "examples" / "en"
     if not examples_dir.exists():
         return ""
     examples = []
@@ -296,9 +307,10 @@ def _a2ui_system_prompt(target_language: str, scope_instruction: str) -> str:
           the ENTIRE generation fails — a shorter but complete, valid response
           is always better than a longer one that gets cut off. Be concise and
           information-dense rather than exhaustive:
-          - Per component, keep any single text/content/description field to
-            roughly 150-400 Chinese characters (a few sentences), not multiple
-            paragraphs.
+          - Per component, use roughly 250-650 characters for a meaningful
+            explanation when the topic requires it. Prefer 2-4 connected
+            sentences over a one-line definition, while still avoiding
+            repetition and unnecessary filler.
           - ScenarioDialogue: at most 4-5 message turns total.
           - DetailedExplanation: cover the 2-3 most important points, not an
             exhaustive list.
@@ -315,20 +327,15 @@ def _a2ui_system_prompt(target_language: str, scope_instruction: str) -> str:
         - Components MUST be practical for interactive learning and should prefer:
           LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue,
           Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.
-        - 5-STEP PROBLEM-DRIVEN MODULE METHODOLOGY (5 步问题驱动教学法则):
+        - 5-STEP PROBLEM-DRIVEN MODULE METHODOLOGY:
           Every module MUST strictly follow these 5 sequential steps internally:
-          1. 介绍背景，引出现实问题 (Background & Practical Pain Point)
-          2. 从第一性原理出发建立基本模型 + Naive 解决方案及其缺陷 (First-Principles Model & Naive Solution + Why Naive fails)
-          3. 介绍解决思路 Mindset (Paradigm Shift / Core Breakthrough Mindset)
-          4. Mindset 的实际落地方式 (具体回答/工程方案。若落地衍生新工程难题，则在新 Module 中开启下一轮探索)
-          5. 本模块总结 (Module Summary using AnalogyCard: Part 1 Intuitive takeaway summary paragraph, Part 2 Technical term summary paragraph with bold <dfn title="通俗注解"><strong>术语名称</strong></dfn> hover tooltips).
-        - PURE CONTENT TITLES (绝对去除框架标号与元描述废话):
+          1. Introduce the background and practical pain point.
+          2. Build a first-principles model and explain why the naive approach fails.
+          3. Explain the key conceptual shift.
+          4. Show how the idea is implemented in practice.
+          5. Summarize the module with an intuitive takeaway and connected terminology.
+        - PURE CONTENT TITLES:
           Write clean, direct subject-matter titles for all components and headers.
-          STRICTLY FORBIDDEN IN TITLES & HEADINGS:
-          - NO "关卡 1 ❓", "关卡 2 🔀", "关卡 3 📈", "关卡 4 🛡️" prefixes!
-          - NO "第一性原理与 Naive 方案及缺陷" meta labels!
-          - NO "解决思路 Mindset：", "工程落地：", "本模块总结：" meta tags!
-          - NO "Step 1 | 介绍背景...", "Step 2 | 第一性原理..." prefixes!
         - CONCRETE REAL EXAMPLES (用具体数据步步演推代替抽象公式):
           When explaining data structures or algorithms, NEVER use abstract formulas like "shifting half the array O(N)".
           ALWAYS provide a concrete step-by-step numeric trace:
@@ -336,8 +343,30 @@ def _a2ui_system_prompt(target_language: str, scope_instruction: str) -> str:
           2. State the target operation (e.g., "Insert 25").
           3. Trace each memory move step-by-step (e.g., "60 -> index 5, 50 -> index 4, 30 -> index 3").
           4. Conclude with real-world impact (e.g., "Inserting 1 element forced 3 RAM moves; 1,000,000 items forces 500,000 RAM moves!").
-        - GLOSSARY & TERM ANNOTATION: NEVER output formulaic "请牢记以下..." lists. Weave key terms into a connected paragraph. Always wrap technical terms with semantic HTML definition tags: <dfn title="一句话通俗注解"><strong>术语名称</strong></dfn>. Example: "Python 字典在冲突时使用 <dfn title="哈希冲突时按规则查找下一个空槽位的方法"><strong>开放寻址法</strong></dfn> 解决。"
-        - CLEAN CONCEPT CARD EXAMPLES: NEVER wrap ConceptCard example strings in HTML tags like <pre><code>...</code></pre>. Use clean plain text lines with arrow flow steps (e.g., "// 传统搜索范式 (遍历比对): 查找 'Alice' -> 遍历比对 1,000,000 次").
+        - EXPLANATION DEPTH AND TERM ORDER: Explain one important idea at a
+          time. When a technical term appears for the first time, immediately
+          explain it in plain language and, when appropriate, wrap that term
+          with a semantic HTML definition tag. Do not define one unfamiliar
+          term with two or three other unexplained terms. If a new term is
+          necessary, introduce it with its role, a concrete example, and why
+          the learner needs it before using it as a building block.
+        - GLOSSARY & TERM ANNOTATION: Weave key terms into a connected
+          paragraph rather than stacking a list of definitions. Each paragraph
+          should connect the mechanism, an example, and the practical effect.
+        - CLEAN CONCEPT CARD EXAMPLES: Never wrap ConceptCard example strings in HTML tags like <pre><code>...</code></pre>. Use clean plain text lines with arrow flow steps.
+        - EXPLANATORY CODE COMMENTS: Whenever you generate a code block,
+          InteractiveSandbox snippet, or code-like example, add substantial
+          inline comments to every non-trivial step. Each comment should tell
+          the learner what the line does, why it is needed, and, when useful,
+          show the concrete input, intermediate value, or expected output.
+          Do not merely repeat the API or function name; explain the mechanism
+          in plain language so a learner can follow the code without guessing
+          what an unfamiliar term means.
+        - MARKDOWN EXAMPLES: For ConceptCard `example` fields that mix prose
+          and code, use real Markdown: keep each list item on its own line,
+          leave a blank line before code, and wrap every code sample in a
+          fenced block such as ```conf or ```python. Never concatenate prose,
+          configuration directives, and code onto one line.
         - Output format example:
           {{"a2ui_messages": [
             {{"version":"v0.9","createSurface":{{"surfaceId":"main","catalogId":"{DEFAULT_CATALOG_ID}"}}}},
@@ -346,7 +375,7 @@ def _a2ui_system_prompt(target_language: str, scope_instruction: str) -> str:
         """
     ).strip()
 
-    examples_text = _load_a2ui_examples_text()
+    examples_text = _load_a2ui_examples_text(target_language)
     if examples_text:
         system_prompt += "\n" + examples_text
     return system_prompt
@@ -360,7 +389,7 @@ def generate_a2ui_messages(llm: Any, resource_text: str, target_language: str = 
         "surface's createSurface + updateComponents), no explanation.",
     )
     user_prompt = (
-        "请根据以下教学资源直接生成 A2UI 消息数组（组件树）。\n\n"
+        "Based on the following teaching resource, directly generate the A2UI message array (component tree).\n\n"
         f"Resource text:\n{resource_text}"
     )
 
@@ -407,12 +436,12 @@ def generate_a2ui_messages_per_surface(
             "do not generate any other surface, no explanation.",
         )
         user_prompt = (
-            "请只为下面指定的这一个 surface 生成 A2UI 消息（createSurface + updateComponents），"
+            "Generate A2UI messages (createSurface + updateComponents) only for the specified surface, "
             f'surfaceId 为 "{surface_id}"。\n\n'
             f"Resource text:\n{resource_text}\n\n"
-            "# 完整站点结构（仅供了解上下文与其他 surface 的关系，不要重复生成）\n"
+            "# Full site structure (for context only; do not repeat other surfaces)\n"
             f"{site_overview}\n\n"
-            "# 本 surface 的规划\n"
+            "# This surface's plan\n"
             f"{json.dumps(surface, ensure_ascii=False)}"
         )
         surface_messages = _invoke_and_parse(
@@ -467,10 +496,27 @@ def repair_a2ui_messages(
     )
 
 
-def generate_structured_json(llm: Any, resource_text: str, prompt_template: str) -> dict[str, Any]:
+def generate_structured_json(
+    llm: Any,
+    resource_text: str,
+    prompt_template: str,
+    target_language: str = "zh",
+) -> dict[str, Any]:
     """Generates structured course JSON directly based on the custom prompt template."""
     system_prompt = prompt_template.strip()
-    user_prompt = f"请根据以下教学资源生成结构化课程 JSON 对象。\n\nResource text:\n{resource_text}"
+    system_prompt = system_prompt.replace(
+        "{TARGET_LANGUAGE}",
+        "English" if target_language == "en" else "Simplified Chinese",
+    )
+    if target_language == "en":
+        system_prompt = system_prompt.replace(
+            "Use Chinese for learner-facing strings.",
+            "Use English for learner-facing strings.",
+        ).replace(
+            "in Chinese",
+            "in English",
+        )
+    user_prompt = f"Based on the following teaching resource, generate a structured course JSON object.\n\nResource text:\n{resource_text}"
     return _invoke_and_parse(
         llm,
         [
@@ -479,4 +525,3 @@ def generate_structured_json(llm: Any, resource_text: str, prompt_template: str)
         ],
         _extract_json_object,
     )
-

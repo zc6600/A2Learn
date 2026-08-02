@@ -4,6 +4,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { SmartAnnotationBoardApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnSmartAnnotationBoardElement extends A2uiLitElement<typeof SmartAnnotationBoardApi> {
   static styles = css`
@@ -323,7 +324,7 @@ export class A2learnSmartAnnotationBoardElement extends A2uiLitElement<typeof Sm
           ` : html`
             <textarea 
               class="textarea" 
-              placeholder="在这里输入你的内容..."
+              placeholder=${uiText("在这里输入你的内容...", "Enter your response here...")}
               .value=${displayContent}
               @input=${this.handleInput}
               ?disabled=${isReviewing}
@@ -339,7 +340,7 @@ export class A2learnSmartAnnotationBoardElement extends A2uiLitElement<typeof Sm
               @click=${this.handleSubmit}
               ?disabled=${isReviewing || wordCount === 0}
             >
-              ${isReviewing ? "处理中..." : "提交"}
+              ${isReviewing ? uiText("处理中...", "Processing...") : uiText("提交", "Submit")}
             </button>
           </div>
         ` : nothing}
@@ -347,8 +348,8 @@ export class A2learnSmartAnnotationBoardElement extends A2uiLitElement<typeof Sm
         ${isReviewed && feedback ? html`
           <div class="feedback-panel">
             <div class="feedback-header">
-              <h4 class="feedback-title">AI 反馈与批注</h4>
-              ${feedback.score !== undefined ? html`<div class="score-badge">${feedback.score} 分</div>` : nothing}
+              <h4 class="feedback-title">${uiText("AI 反馈与批注", "AI Feedback and Annotations")}</h4>
+              ${feedback.score !== undefined ? html`<div class="score-badge">${feedback.score} ${uiText("分", "points")}</div>` : nothing}
             </div>
             ${feedback.overallComment ? html`
               <div class="overall-comment">
@@ -357,7 +358,7 @@ export class A2learnSmartAnnotationBoardElement extends A2uiLitElement<typeof Sm
             ` : nothing}
             ${feedback.inlineAnnotations?.length > 0 ? html`
               <p style="font-size: 13px; color: var(--app-muted); margin-top: 12px; margin-bottom: 0;">
-                💡 提示：将鼠标悬浮在原文的高亮片段上，可以查看行内批注详情。
+                💡 ${uiText("提示：将鼠标悬浮在原文的高亮片段上，可以查看行内批注详情。", "Tip: Hover over highlighted text to view its inline annotation.")}
               </p>
             ` : nothing}
           </div>

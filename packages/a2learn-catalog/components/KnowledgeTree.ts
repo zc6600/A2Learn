@@ -4,6 +4,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { KnowledgeTreeApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnKnowledgeTreeElement extends A2uiLitElement<typeof KnowledgeTreeApi> {
   static styles = css`
@@ -149,7 +150,7 @@ export class A2learnKnowledgeTreeElement extends A2uiLitElement<typeof Knowledge
         <!-- 面包屑导航 -->
         ${path.length > 0 || currentNode ? html`
           <div class="breadcrumb">
-            <span class="crumb-item" @click=${() => this.handleNavigate("root")}>🏠 根目录</span>
+            <span class="crumb-item" @click=${() => this.handleNavigate("root")}>🏠 ${uiText("根目录", "Root")}</span>
             ${path.map((p: any) => html`
               <span class="crumb-separator">/</span>
               <span class="crumb-item" @click=${() => this.handleNavigate(p.id)}>

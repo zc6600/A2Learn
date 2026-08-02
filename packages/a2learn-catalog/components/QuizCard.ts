@@ -4,6 +4,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { QuizCardApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
   static styles = css`
@@ -284,7 +285,7 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
     if (!props || !props.questions || props.questions.length === 0) return nothing;
 
     const questions = props.questions;
-    const title = props.title ? this.resolveString(props.title) : "互动测验";
+    const title = props.title ? this.resolveString(props.title) : uiText("互动测验", "Interactive Quiz");
     const total = questions.length;
 
     return html`
@@ -349,7 +350,7 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
               ${isSubmitted ? html`
                 <div class="explanation-box ${isCorrect ? 'correct' : 'incorrect'}">
                   <h4 class="explanation-title ${isCorrect ? 'correct' : 'incorrect'}">
-                    ${isCorrect ? "✅ 回答正确" : "❌ 回答错误"}
+                    ${isCorrect ? uiText("✅ 回答正确", "✅ Correct") : uiText("❌ 回答错误", "❌ Incorrect")}
                   </h4>
                   ${q.explanation ? html`
                     <p class="explanation-content">${unsafeHTML(sanitizeHtml(this.resolveString(q.explanation)))}</p>
@@ -359,18 +360,18 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
 
               <div class="action-bar">
                 ${total > 1 && index > 0 ? html`
-                  <button class="btn-next" @click=${this.prevQuestion}>上一题</button>
+                  <button class="btn-next" @click=${this.prevQuestion}>${uiText("上一题", "Previous")}</button>
                 ` : nothing}
                 
                 ${!isSubmitted ? html`
                   <button class="btn-submit" 
                     ?disabled=${selections.size === 0}
                     @click=${() => this.submitQuestion(qId)}>
-                    提交答案
+                    ${uiText("提交答案", "Submit Answer")}
                   </button>
                 ` : html`
                   ${index < total - 1 ? html`
-                    <button class="btn-next" @click=${this.nextQuestion}>下一题</button>
+                    <button class="btn-next" @click=${this.nextQuestion}>${uiText("下一题", "Next")}</button>
                   ` : nothing}
                 `}
               </div>

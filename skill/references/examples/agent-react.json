@@ -120,7 +120,7 @@
             "Multi-hop Reasoning"
           ],
           "definition": "<b>ReAct (Reasoning and Acting)</b> 是 Agent 领域的基础架构。它通过在 Prompt 中显式定义 <code>Thought / Action / Observation</code> 范式，实现了大语言模型<b>内部隐性推理能力</b>与<b>外部物理世界工具执行力</b>的深度协同。",
-          "example": "// ReAct 规范交替追踪 (Tracing) 示例：\nTask: 查阅科罗拉多高原东区所覆盖区域的海拔范围\nThought 1: 我需要先搜索科罗拉多高原，找到其 Eastern Sector 包含的具体地理区域名称。\nAction 1: Search[Colorado plateau]\nObservation 1: 科罗拉多高原位于四角地区，其 Eastern Sector 延伸至圣路易斯山谷...\nThought 2: 网页提及了圣路易斯山谷，我需要继续搜索圣路易斯山谷的海拔范围。\nAction 2: Search[San Luis Valley elevation]\nObservation 2: 圣路易斯山谷的平均海拔约在 2,300 米至 2,700 米之间。\nThought 3: 我已经获取了确切的海拔数据，可以给出最终结论。\nAction 3: Finish[2,300m - 2,700m]",
+          "example": "**ReAct 交替追踪示例**\n\n**任务**：查阅科罗拉多高原东区所覆盖区域的海拔范围。\n\n**Thought 1（思考）**：我需要先搜索科罗拉多高原，确认 Eastern Sector 包含哪些具体地理区域；这里的 Thought 是行动前对当前信息缺口的明确判断。\n\n**Action 1（行动）**：`Search[Colorado plateau]`\n\n**Observation 1（观察）**：搜索结果显示，科罗拉多高原位于四角地区，其 Eastern Sector 延伸至圣路易斯山谷。这个观察结果把“东区”从一个模糊描述连接到了具体地点。\n\n**Thought 2（思考）**：网页已经提到圣路易斯山谷，下一步需要单独搜索它的海拔范围，不能直接把地点名称当成答案。\n\n**Action 2（行动）**：`Search[San Luis Valley elevation]`\n\n**Observation 2（观察）**：结果显示，圣路易斯山谷的平均海拔约为 2,300 米至 2,700 米。\n\n**Thought 3（思考）**：现在已经获得了与问题直接对应的数值范围，可以停止继续搜索并组织最终结论。\n\n**Action 3（完成）**：`Finish[2,300m - 2,700m]`\n\n这个例子展示了 ReAct 的基本循环：先说明还缺什么信息，再执行搜索，读取观察结果，最后根据新证据决定下一步或结束任务。",
           "relatedConcepts": [
             "Chain-of-Thought (CoT)",
             "Tool Calling",
@@ -158,7 +158,7 @@
         {
           "id": "summary-and-terms",
           "component": "AnalogyCard",
-          "title": "总结：ReAct 范式的本质与工程落地",
+          "title": "ReAct 范式的本质与应用",
           "analogy": "ReAct 不是黑盒魔术，而是一套用 Prompt 协议约束 LLM 格式、用宿主代码拦截 Action 并追加 Observation 的通用控制循环机制。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>在 AI Agent 架构中，<dfn title=\"结合 Reasoning 思考与 Acting 行动的 LLM 协同闭环范式\"><strong>ReAct 范式</strong></dfn> 解决了传统 <dfn title=\"只在模型内部隐式推理容易产生知识幻觉的技巧\"><strong>CoT 思维链</strong></dfn> 的静态幻觉问题。通过显式拆解 <dfn title=\"模型在行动前生成的自主逻辑与步骤规划\"><strong>推理迹 (Thought)</strong></dfn> 与 <dfn title=\"模型输出的结构化工具调用指令\"><strong>动作空间 (Action)</strong></dfn>，并在宿主环境捕获执行后追加 <dfn title=\"外部工具或 API 返回给模型的真实物理观测\"><strong>观察反馈 (Observation)</strong></dfn>，彻底把大模型转化为了具备工具使用能力的动态自主系统。</p></div>"
         }
       ]

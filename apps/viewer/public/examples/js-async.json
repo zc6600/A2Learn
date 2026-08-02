@@ -100,7 +100,7 @@
             "Promise"
           ],
           "definition": "一个 <b>Promise</b> 对象代表一个异步操作<b>未来某时刻</b>的结果（成功值或失败原因）。它有且仅有三种状态：<code>pending</code>（等待中）、<code>fulfilled</code>（已成功）、<code>rejected</code>（已失败）。状态一旦确定便<b>不可逆转</b>，并可通过 <code>.then()</code> / <code>.catch()</code> 链式注册后续处理逻辑。",
-          "example": "// Promise 基础：从嵌套到链式\nfetchUser(id)\n  .then(user => fetchOrders(user.id))\n  .then(orders => fetchShipment(orders[0].id))\n  .then(ship => console.log('包裹状态:', ship.status))\n  .catch(err => console.error('出错了:', err));\n\n// Promise.all：并行等待多个异步任务全部完成\nconst [user, config] = await Promise.all([\n  fetchUser(id),\n  fetchConfig()\n]);",
+          "example": "// Promise 基础：把“获取用户 -> 获取订单 -> 获取物流”串成一条链；每个 then 都接收上一步成功的结果，因此下一步不需要手动嵌套回调。\nfetchUser(id)\n  .then(user => fetchOrders(user.id)) // 先拿到用户，再用用户 ID 查询订单。\n  .then(orders => fetchShipment(orders[0].id)) // 取第一笔订单的物流信息，返回值继续交给下一个 then。\n  .then(ship => console.log('包裹状态:', ship.status)) // 所有请求成功后输出最终状态。\n  .catch(err => console.error('出错了:', err)); // 任一步失败都会汇聚到这里，避免每层都重复写错误处理。\n\n// Promise.all：当多个异步任务彼此独立时并行等待；只有全部完成后，解构出的 user 和 config 才会同时可用。\nconst [user, config] = await Promise.all([\n  fetchUser(id),\n  fetchConfig()\n]);",
           "relatedConcepts": [
             "async / await",
             "Event Loop",

@@ -31,6 +31,7 @@ class AgentState(TypedDict, total=False):
     a2ui_messages: list[dict[str, Any]]
     output_dir: str
     generated_messages_path: str
+    target_language: str
 
 
 def _log(msg: str) -> None:
@@ -58,7 +59,7 @@ def _node_load_resource(state: AgentState) -> AgentState:
 def _node_plan_curriculum(state: AgentState) -> AgentState:
     _log("🧠 Step 1/3: Planning curriculum (calling LLM, please wait...)")
     llm = build_llm(api_key=state.get("api_key"))
-    curriculum = plan_curriculum(llm, state["resource_text"])
+    curriculum = plan_curriculum(llm, state["resource_text"], state.get("target_language", "zh"))
     _log(f"✅ Curriculum planned: {len(curriculum.get('modules', []))} modules.")
     output_dir = state.get("output_dir")
     if output_dir:
@@ -70,7 +71,7 @@ def _node_plan_curriculum(state: AgentState) -> AgentState:
 def _node_build_site(state: AgentState) -> AgentState:
     _log("🏗️  Step 2/3: Building site plan (calling LLM, please wait...)")
     llm = build_llm(api_key=state.get("api_key"))
-    site_plan = build_site_plan(llm, state["curriculum"])
+    site_plan = build_site_plan(llm, state["curriculum"], state.get("target_language", "zh"))
     _log(f"✅ Site plan built: {len(site_plan.get('surfaces', []))} surfaces.")
     output_dir = state.get("output_dir")
     if output_dir:
@@ -120,7 +121,9 @@ def _node_generate_messages(state: AgentState) -> AgentState:
     # per-surface retry/fallback is added.
     per_surface = os.getenv("A2LEARN_PER_SURFACE_GENERATION", "0") == "1"
     if site_plan and per_surface:
-        messages = generate_a2ui_messages_per_surface(llm, resource_text, site_plan)
+        messages = generate_a2ui_messages_per_surface(
+            llm, resource_text, site_plan, state.get("target_language", "zh")
+        )
     else:
         if site_plan:
             resource_text = (
@@ -128,7 +131,7 @@ def _node_generate_messages(state: AgentState) -> AgentState:
                 + "\n\n# SITE PLAN\n"
                 + json.dumps(site_plan, ensure_ascii=False)
             )
-        messages = generate_a2ui_messages(llm, resource_text)
+        messages = generate_a2ui_messages(llm, resource_text, state.get("target_language", "zh"))
     max_repair_attempts = int(os.getenv("A2LEARN_MAX_REPAIR_ATTEMPTS", "2"))
     messages = _validate_or_repair(llm, messages, max_repair_attempts)
     _log(f"✅ Generated {len(messages)} A2UI messages.")
@@ -161,6 +164,7 @@ def run_parser_mode(
     resource_path: str = None,
     resource_text: str = None,
     api_key: str = None,
+    target_language: str = "zh",
 ) -> AgentState:
     """Runs direct structured JSON generation and uses the parser to generate A2UI messages."""
     from pathlib import Path
@@ -187,7 +191,7 @@ def run_parser_mode(
     
     _log("✨ Generating structured JSON (calling LLM, please wait...)")
     llm = build_llm(api_key=api_key)
-    structured_data = generate_structured_json(llm, text, prompt_template)
+    structured_data = generate_structured_json(llm, text, prompt_template, target_language)
     
     # Save the structured content json
     write_json(output_dir, "course_content.json", structured_data)
@@ -214,9 +218,12 @@ def run_agent(
     resource_text: str = None,
     mode: str = "agent",
     api_key: str = None,
+    target_language: str = "zh",
 ) -> AgentState:
     if mode == "parser":
-        return run_parser_mode(resource_path, resource_text, api_key=api_key)
+        return run_parser_mode(
+            resource_path, resource_text, api_key=api_key, target_language=target_language
+        )
 
     app = build_agent_graph()
     initial_state = {}
@@ -226,9 +233,9 @@ def run_agent(
         initial_state["resource_text"] = resource_text
     if api_key:
         initial_state["api_key"] = api_key
+    initial_state["target_language"] = target_language
         
     if not resource_path and not resource_text:
         raise ValueError("Either resource_path or resource_text must be provided")
         
     return app.invoke(initial_state)
-

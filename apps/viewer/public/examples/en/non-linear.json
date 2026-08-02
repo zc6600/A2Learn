@@ -130,7 +130,7 @@
             "2D Layout"
           ],
           "definition": "Setting an element's <code>display</code> to <code>grid</code> or <code>inline-grid</code> creates a <b>Grid container</b>. Every direct child of that container automatically becomes a <b>Grid item</b>. Grid's 2D space is divided by <b>grid lines</b> into <b>row tracks</b> and <b>column tracks</b>, which intersect to form <b>grid cells</b>.",
-          "example": ".dashboard {\n  display: grid;\n  /* 240px sidebar + three equal content columns */\n  grid-template-columns: 240px 1fr 1fr 1fr;\n  /* 80px top nav + auto-filling middle content + 60px bottom status bar */\n  grid-template-rows: 80px auto 60px;\n  gap: 16px;  /* grid gap */\n}\n\n/* footer spans all 4 columns (-1 refers to the last grid line) */\n.footer {\n  grid-column: 1 / -1;\n}",
+          "example": ".dashboard {\n  display: grid;\n  /* Keep the sidebar at 240px; the three 1fr tracks divide the remaining space equally so the sidebar does not distort content proportions. */\n  grid-template-columns: 240px 1fr 1fr 1fr;\n  /* Fix the top navigation at 80px, let the middle absorb remaining space, and keep the status bar at 60px. */\n  grid-template-rows: 80px auto 60px;\n  gap: 16px;  /* Use one grid gap instead of scattered margins, which keeps the layout easier to maintain. */\n}\n\n/* The footer spans all 4 columns; -1 means the final grid line, so the column count need not be repeated. */\n.footer {\n  grid-column: 1 / -1;\n}",
           "relatedConcepts": [
             "Flexbox",
             "the fr unit",
@@ -179,7 +179,7 @@
             "grid-template-areas"
           ],
           "definition": "CSS Grid offers two main ways to place elements:<br><b>① Grid line numbers</b>: use <code>grid-column: start-line / end-line</code> to precisely control which columns an element spans;<br><b>② Named areas (grid-template-areas)</b>: \"draw\" the layout with strings on the parent, and have children declare their own name via <code>grid-area</code> — extremely readable code.",
-          "example": "/* Approach 2: named areas (more intuitive) */\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-rows: 60px auto 40px;\n  grid-template-areas:\n    \"header  header\"\n    \"sidebar main  \"\n    \"footer  footer\";\n}\n.header  { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main    { grid-area: main; }\n.footer  { grid-area: footer; }",
+          "example": "/* Approach 2: named areas are more readable because the layout diagram appears directly in CSS. */\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-rows: 60px auto 40px;\n  grid-template-areas:\n    \"header  header\"\n    \"sidebar main  \"\n    \"footer  footer\";\n}\n.header  { grid-area: header; }  /* The header spans both columns. */\n.sidebar { grid-area: sidebar; } /* The fixed-width navigation area on the left. */\n.main    { grid-area: main; }    /* The flexible primary content area on the right. */\n.footer  { grid-area: footer; }  /* The footer spans both columns again. */",
           "relatedConcepts": [
             "grid-column",
             "grid-row",

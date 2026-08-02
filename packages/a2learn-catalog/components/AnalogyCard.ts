@@ -4,6 +4,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { AnalogyCardApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCardApi> {
   static styles = [
@@ -187,7 +188,7 @@ export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCard
     const props = (this as any).controller?.props;
     if (!props) return nothing;
 
-    const title = this.resolveString(props.title) || "打个比方";
+    const title = this.resolveString(props.title) || uiText("打个比方", "An Analogy");
     const icon = this.resolveString(props.icon) || "💡";
     const analogy = this.resolveString(props.analogy);
     const renderedAnalogy = this.renderInlineMarkdown(analogy);

@@ -261,6 +261,7 @@ def _build_llm_messages(
     surface_ids: list[str],
     action_count: int,
     component_surfaces: dict[str, str] | None = None,
+    target_language: str = "zh",
 ) -> list[dict[str, Any]]:
     source_component_id = str(action.get("sourceComponentId") or "")
     component_snapshot = components.get(source_component_id, {})
@@ -277,8 +278,9 @@ def _build_llm_messages(
         max_components=200,
     )
 
+    learner_language = "English" if target_language == "en" else "Simplified Chinese"
     system_prompt = textwrap.dedent(
-        """
+        f"""
         You are an A2Learn interaction engine.
         Produce ONLY a JSON array of A2UI v0.9 messages for incremental update.
 
@@ -287,13 +289,13 @@ def _build_llm_messages(
         - Every message must include "version": "v0.9".
         - Use updateComponents only (no createSurface/deleteSurface).
         - Keep component IDs stable.
-        - Learner-facing text must be Chinese.
+        - Learner-facing text must be in {learner_language}.
         """
     ).strip()
 
     user_prompt = textwrap.dedent(
         f"""
-        请根据用户动作生成“增量”A2UI messages（仅 updateComponents）。
+        Generate incremental A2UI messages based on the user action (updateComponents only).
 
         Action count: {action_count}
         Target surface id: {target_surface}
@@ -314,7 +316,7 @@ def _build_llm_messages(
         Existing surface IDs:
         {json.dumps(surface_ids, ensure_ascii=False)}
 
-        只返回 JSON 数组，例如：
+        Return only a JSON array, for example:
         [
           {{
             "version":"v0.9",
@@ -346,9 +348,12 @@ def build_action_response(
     surface_ids: list[str],
     action_count: int,
     component_surfaces: dict[str, str] | None = None,
+    target_language: str = "zh",
 ) -> list[dict[str, Any]]:
     try:
-        messages = _build_llm_messages(action, components, surface_ids, action_count, component_surfaces)
+        messages = _build_llm_messages(
+            action, components, surface_ids, action_count, component_surfaces, target_language
+        )
         if isinstance(messages, list) and messages:
             validate_a2ui_messages(messages, require_create_surface=False)
             return messages

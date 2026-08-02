@@ -4,6 +4,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { InteractiveSandboxApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof InteractiveSandboxApi> {
   static styles = css`
@@ -862,7 +863,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
     const props = (this as any).controller?.props;
     if (!props) return nothing;
 
-    const title = props.title ? this.resolveString(props.title) : "互动沙盒";
+    const title = props.title ? this.resolveString(props.title) : uiText("互动沙盒", "Interactive Sandbox");
     const description = props.description ? this.resolveString(props.description) : "";
     const code = this.localCode;
     const language = props.language || "javascript";
@@ -895,10 +896,10 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
           <div class="editor-pane">
             <div class="pane-header">
               <span>Input Code</span>
-              <button class="copy-btn ${this.copied ? "copied" : ""}" @click=${this.handleCopyClick} title="复制代码">
+              <button class="copy-btn ${this.copied ? "copied" : ""}" @click=${this.handleCopyClick} title=${uiText("复制代码", "Copy code")}>
                 ${this.copied
-                  ? html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>已复制`
-                  : html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>复制`}
+                  ? html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>${uiText("已复制", "Copied")}`
+                  : html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>${uiText("复制", "Copy")}`}
               </button>
             </div>
             <div class="code-editor code-font">
@@ -924,7 +925,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
             <div class="output-content ${status} ${language}">
               ${this.activeTab === 'console' || !hasTestCases ? html`
                 ${status === "idle" && !output
-                  ? html`<div class="output-content-idle">点击运行按钮查看结果...</div>`
+                  ? html`<div class="output-content-idle">${uiText("点击运行按钮查看结果...", "Click Run to see the result...")}</div>`
                   : this.renderOutput(output, status, language)}
               ` : html`
                 <div class="testcases-list">
@@ -950,7 +951,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
 
         ${description ? html`
           <div class="description">
-            💡 <strong>提示：</strong>${unsafeHTML(sanitizeHtml(description))}
+            💡 <strong>${uiText("提示：", "Note:")}</strong>${unsafeHTML(sanitizeHtml(description))}
           </div>
         ` : nothing}
       </div>

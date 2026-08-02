@@ -108,17 +108,17 @@ messages_zh = [
                     "component": "ConceptCard",
                     "title": "计算范式突破：让 Key 的名称直接算出内存下标",
                     "tags": ["计算代替比对", "O(1)寻址", "范式突破"],
-                    "definition": "<b>核心突破 Mindset</b>：彻底放弃‘逐个遍历比对 Key 值’的旧思维，转向<b>‘直接计算物理内存地址’</b>的新范式！<br><br>不要去遍历内存询问数据藏在哪里，而是设计一个高效的数学计算公式，传入 Key 的名称（如用户 ID），公式直接计算出该数据应该保存在数组的哪个物理下标中！",
+                    "definition": "彻底放弃‘逐个遍历比对 Key 值’的旧思维，转向<b>‘直接计算物理内存地址’</b>的新范式！<br><br>不要去遍历内存询问数据藏在哪里，而是设计一个高效的数学计算公式，传入 Key 的名称（如用户 ID），公式直接计算出该数据应该保存在数组的哪个物理下标中！",
                     "example": "// 传统搜索范式 (遍历比对): 查找 'Alice' -> 遍历比对 1,000,000 次\n// 哈希计算范式 (直接计算): 计算 'Alice' -> 算法直接得出 下标 5 -> 一步读取 arr[5]",
                     "relatedConcepts": ["哈希函数", "O(1)复杂度", "散列映射"]
                 },
                 {
                     "id": "step4-implementation",
                     "component": "DetailedExplanation",
-                    "title": "哈希函数与槽位数组工程落地 (含 Python 伪代码示例)",
+                    "title": "哈希函数与槽位数组实现 (含 Python 伪代码示例)",
                     "icon": "⚙️",
                     "estimatedReadTime": "4 分钟深度解析",
-                    "content": "为了将“用计算代替比对”的 Mindset 落地到工程实践中，数据结构引入了两个核心基础设施：\n\n1. **<dfn title=\"将任意长度输入 Key 映射转换为固定范围无符号整数的数学算法\">哈希函数 (Hash Function)</dfn>**：负责接收任意格式的 Key（如字符串、身份证号、对象引用），计算出一个无符号整数。比如 `hash('Alice') = 154829`。\n2. **<dfn title=\"在物理内存中连续开辟的存储槽位数组\">槽位数组 (Bucket Array / Hash Table)</dfn>**：开辟容量为 `capacity` 的物理数组，将算出的哈希值对容量取模，得到物理下标：`index = hash(key) % capacity`。\n\n🐍 **Python 调库与伪代码示例**：\n```python\n# 方式 A: 直接调用 Python 内置 hash() 调库取模\nkey = \"Alice\"\ncapacity = 10\nslot_index = abs(hash(key)) % capacity  # 算出 0~9 槽位号\n\n# 方式 B: 极简哈希函数伪代码实现 (累加字符 ASCII 码)\ndef simple_hash(key: str, capacity: int = 10) -> int:\n    return sum(ord(char) for char in key) % capacity\n```\n\n**常数时间复杂度 O(1) 的物理保障**：\n无论数组里当前保存的是 10 条数据还是 1,000,000 条数据，只要哈希函数的计算过程极快，定位特定 Key 所在内存地址的总耗时都是固定的！这就是 **<dfn title=\"执行耗时与数据总量规模完全无关的极致性能界限\">常数时间复杂度 O(1)</dfn>** 的物理来源。"
+                    "content": "为了将“用计算代替比对”的思路落地到工程实践中，数据结构引入了两个核心基础设施：\n\n1. **<dfn title=\"将任意长度输入 Key 映射转换为固定范围无符号整数的数学算法\">哈希函数 (Hash Function)</dfn>**：负责接收任意格式的 Key（如字符串、身份证号、对象引用），计算出一个无符号整数。比如 `hash('Alice') = 154829`。\n2. **<dfn title=\"在物理内存中连续开辟的存储槽位数组\">槽位数组 (Bucket Array / Hash Table)</dfn>**：开辟容量为 `capacity` 的物理数组，将算出的哈希值对容量取模，得到物理下标：`index = hash(key) % capacity`。\n\n🐍 **Python 调库与伪代码示例**：\n```python\n# 方式 A：调用 Python 内置 hash()，先把任意 Key 转成整数；随后再用取模把这个整数压缩到 0~9 的槽位范围，便于观察‘Key 如何定位到数组位置’\nkey = \"Alice\"\ncapacity = 10\nslot_index = abs(hash(key)) % capacity  # 算出 0~9 槽位号\n\n# 方式 B：手写一个更容易读懂的哈希函数；逐个累加字符编码，让学习者可以追踪每个字符如何参与最终槽位计算\ndef simple_hash(key: str, capacity: int = 10) -> int:\n    return sum(ord(char) for char in key) % capacity\n```\n\n**常数时间复杂度 O(1) 的物理保障**：\n无论数组里当前保存的是 10 条数据还是 1,000,000 条数据，只要哈希函数的计算过程极快，定位特定 Key 所在内存地址的总耗时都是固定的！这就是 **<dfn title=\"执行耗时与数据总量规模完全无关的极致性能界限\">常数时间复杂度 O(1)</dfn>** 的物理来源。"
                 },
                 {
                     "id": "step4-sandbox",
@@ -126,12 +126,12 @@ messages_zh = [
                     "title": "代码演示：观察内存数组挪动与哈希直接定位的区别",
                     "description": "点击运行代码，对比在有序数组中插入元素（需搬迁后续内存）与哈希计算直接定位的执行开销：",
                     "language": "javascript",
-                    "code": """// 演示 1：在有序数组 [10, 20, 30, 50, 60] 中插入数字 25
+                    "code": """// 演示 1：在有序数组 [10, 20, 30, 50, 60] 中插入 25；目标是把它放到 20 和 30 之间，因此后面的元素都必须先向右搬迁
 let arr = [10, 20, 30, 50, 60];
 let insertVal = 25;
 let shiftCount = 0;
 
-// 模拟物理内存平移：从后往前挪动元素
+// 模拟连续数组的物理搬迁：必须从最后一个元素开始向右移动，避免前面的值覆盖还没有搬走的数据；每次循环都代表一次实际的槽位复制
 arr.push(undefined);
 for (let i = arr.length - 1; i > 2; i--) {
   arr[i] = arr[i - 1];
@@ -143,7 +143,7 @@ console.log("插入后数组:", arr);
 console.log("被迫平移搬迁的内存块数量:", shiftCount, "次");
 console.log("------------------------------------------");
 
-// 演示 2：哈希函数直接计算内存下标 (O(1)定位)
+// 演示 2：让哈希函数直接计算槽位；这里不遍历整个数组，而是把 Key 的字符逐个混入一个整数，最后得到可直接访问的下标
 function simpleHash(key, capacity = 10) {
   let hash = 0;
   for (let i = 0; i < key.length; i++) {
@@ -261,7 +261,7 @@ console.log("Key 'Bob'   直接算出的槽位号:", simpleHash('Bob'));""",
                     "component": "ConceptCard",
                     "title": "多节点挂载与规则顺延",
                     "tags": ["容忍碰撞", "多维存储", "空间解耦"],
-                    "definition": "<b>核心突破 Mindset</b>：承认碰撞必然发生，不再追求‘一个槽位只能存一个元素’。<br><br><b>两大流派思维</b>：<br>1. <b>纵向挂载 (Chaining)</b>：在槽位内部建立多节点挂载链表，同一个槽位挂载多个碰撞数据！<br>2. <b>横向探测 (Open Addressing)</b>：当槽位被占时，允许新数据按既定探测规则去附近寻址闲置槽位！",
+                    "definition": "承认碰撞必然发生，不再追求‘一个槽位只能存一个元素’。<br><br><b>两大流派思维</b>：<br>1. <b>纵向挂载 (Chaining)</b>：在槽位内部建立多节点挂载链表，同一个槽位挂载多个碰撞数据！<br>2. <b>横向探测 (Open Addressing)</b>：当槽位被占时，允许新数据按既定探测规则去附近寻址闲置槽位！",
                     "example": "// 思路 1 (链地址法): 槽位 5 内部挂载链表 -> [Alice] -> [David]\n// 思路 2 (开放寻址法): 槽位 5 被占 -> 顺延检查 6号槽位 -> 若空闲则存入 6号",
                     "relatedConcepts": ["链地址法", "开放寻址法", "碰撞解决"]
                 },
@@ -373,7 +373,7 @@ console.log("Key 'Bob'   直接算出的槽位号:", simpleHash('Bob'));""",
                     "diagram": "拥挤度90%: [0:占用 | 1:占用 | 2:占用 | 3:占用 | 4:空闲]\n容量翻倍:   [0:占用 | 1:空闲 | 2:占用 | 3:空闲 | ... | 9:空闲]",
                     "pillarsTitle": "核心原则",
                     "pillars": [
-                        {"title": "拥挤度第一性原理", "description": "闲置槽位越少，冲突概率呈指数级上升，必须动态维持安全水位。", "icon": "📊"},
+                        {"title": "拥挤度与动态扩容", "description": "闲置槽位越少，冲突概率呈指数级上升，必须动态维持安全水位。", "icon": "📊"},
                         {"title": "静态大内存缺陷", "description": "一开始就申请巨大的物理内存会造成极大的内存资源浪费。", "icon": "⚠️"}
                     ],
                     "analogyTitle": "💡 静态大内存预分配分析",
@@ -384,7 +384,7 @@ console.log("Key 'Bob'   直接算出的槽位号:", simpleHash('Bob'));""",
                     "component": "ConceptCard",
                     "title": "按需监控与容量翻倍重散列",
                     "tags": ["动态平衡", "按需扩容", "空间杠杆"],
-                    "definition": "<b>核心突破 Mindset</b>：不静态死扣内存，而是设置一个<b>拥挤度监控指标</b>。<br><br>平时保持小内存，一旦拥挤度超过设定的安全警戒线，立即<b>申请双倍新数组空间，并将全量数据重新计算下标分布</b>！",
+                    "definition": "不静态死扣内存，而是设置一个<b>拥挤度监控指标</b>。<br><br>平时保持小内存，一旦拥挤度超过设定的安全警戒线，立即<b>申请双倍新数组空间，并将全量数据重新计算下标分布</b>！",
                     "example": "// 监控拥挤度指标: size / capacity > 0.75\n// 一旦超标: capacity = capacity * 2，并重新分布全量数据",
                     "relatedConcepts": ["负载因子", "重散列", "动态扩容"]
                 },
@@ -394,7 +394,7 @@ console.log("Key 'Bob'   直接算出的槽位号:", simpleHash('Bob'));""",
                     "title": "0.75 负载因子、位运算加速与渐进式 Rehash",
                     "icon": "⚙️",
                     "estimatedReadTime": "4 分钟深度解析",
-                    "content": "工程落地中对动态扩容的三大精妙设计：\n\n1. **<dfn title=\"已存元素总数与当前数组容量的比值 (size / capacity)\">负载因子 (Load Factor)</dfn>**：监控指标。Java HashMap 默认阈值选为 `0.75`（空间利用率与时间性能的最佳数学折中）。\n2. **<dfn title=\"容量保持为2的幂，用按位与运算替代慢速取模\">位运算优化 (Bitwise And)</dfn>**：容量总是保持为 2 的幂（如 16, 32, 64），取模 `hash % capacity` 被硬件极速指令 `<dfn title=\"位运算替代取模硬件加速\">hash & (capacity - 1)</dfn>` 替代！\n3. **<dfn title=\"将大规模数据搬迁平摊到日常读写中的高并发优化\">渐进式 Rehash (Incremental Rehash)</dfn>**：Redis 采用此法，维护 `ht[0]` 与 `ht[1]` 两个哈希表，避免一次性搬迁几百万数据导致系统瞬间卡死。"
+                    "content": "动态扩容的三大精妙设计：\n\n1. **<dfn title=\"已存元素总数与当前数组容量的比值 (size / capacity)\">负载因子 (Load Factor)</dfn>**：监控指标。Java HashMap 默认阈值选为 `0.75`（空间利用率与时间性能的最佳数学折中）。\n2. **<dfn title=\"容量保持为2的幂，用按位与运算替代慢速取模\">位运算优化 (Bitwise And)</dfn>**：容量总是保持为 2 的幂（如 16, 32, 64），取模 `hash % capacity` 被硬件极速指令 `<dfn title=\"位运算替代取模硬件加速\">hash & (capacity - 1)</dfn>` 替代！\n3. **<dfn title=\"将大规模数据搬迁平摊到日常读写中的高并发优化\">渐进式 Rehash (Incremental Rehash)</dfn>**：Redis 采用此法，维护 `ht[0]` 与 `ht[1]` 两个哈希表，避免一次性搬迁几百万数据导致系统瞬间卡死。"
                 },
                 {
                     "id": "step5-summary-3",
@@ -502,7 +502,7 @@ console.log("Key 'Bob'   直接算出的槽位号:", simpleHash('Bob'));""",
                     "component": "ConceptCard",
                     "title": "算法随机化与底层结构升级",
                     "tags": ["SipHash随机化", "最坏情况保底", "安全防御"],
-                    "definition": "<b>核心突破 Mindset</b>：双重保底！<br><br>1. <b>入口随机化</b>：使用带随机 Seed 的散列算法，让黑客在本地无法预测线上哈希值！<br>2. <b>底层结构升级</b>：当单槽位节点数过多时，自动将单链表升级为高级平衡树，强行锁死最坏查找复杂度！",
+                    "definition": "双重保底！<br><br>1. <b>入口随机化</b>：使用带随机 Seed 的散列算法，让黑客在本地无法预测线上哈希值！<br>2. <b>底层结构升级</b>：当单槽位节点数过多时，自动将单链表升级为高级平衡树，强行锁死最坏查找复杂度！",
                     "example": "// 防御 1 (算法随机化): 每次启动进程注入随机种子 SipHash(Key, Seed)\n// 防御 2 (结构升级): 当单链表长度 >= 8 时，链表 -> 自平衡红黑树 (最坏 O(log N))",
                     "relatedConcepts": ["HashDoS", "红黑树树化", "SipHash"]
                 },
@@ -647,7 +647,7 @@ messages_en = [
                     "component": "ConceptCard",
                     "title": "Paradigm Shift: Calculate Memory Address Directly from Key",
                     "tags": ["Computation Over Comparison", "O(1) Addressing", "Paradigm Shift"],
-                    "definition": "<b>Core Mindset Breakthrough</b>: Stop searching through memory! Switch to <b>'Direct Computation of Memory Addresses'</b>!<br><br>Do not iterate to compare key values. Instead, design a mathematical formula where Key string directly calculates its target array index!",
+                    "definition": "Stop searching through memory! Switch to <b>'Direct Computation of Memory Addresses'</b>!<br><br>Do not iterate to compare key values. Instead, design a mathematical formula where Key string directly calculates its target array index!",
                     "example": "// Search Paradigm (Comparison): Find 'Alice' -> Compare 1,000,000 times\n// Hash Paradigm (Computation): Compute 'Alice' -> Directly get Index 5 -> Read arr[5]",
                     "relatedConcepts": ["Hash Function", "O(1) Complexity", "Hash Mapping"]
                 },
@@ -800,7 +800,7 @@ console.log("Key 'Bob'   calculated slot index:", simpleHash('Bob'));""",
                     "component": "ConceptCard",
                     "title": "Multi-Node Attachment & Probing",
                     "tags": ["Tolerate Collisions", "Multi-Dimensional Storage", "Decoupling"],
-                    "definition": "<b>Core Mindset Breakthrough</b>: Accept collisions as inevitable. Stop expecting 'one slot stores only one item'.<br><br><b>Two Main Approaches</b>:<br>1. <b>Vertical Attachment (Separate Chaining)</b>: Store a linked list inside each bucket slot to attach multiple colliding items!<br>2. <b>Horizontal Probing (Open Addressing)</b>: When a slot is occupied, probe neighboring slots according to a fixed sequence rule!",
+                    "definition": "Accept collisions as inevitable. Stop expecting 'one slot stores only one item'.<br><br><b>Two Main Approaches</b>:<br>1. <b>Vertical Attachment (Separate Chaining)</b>: Store a linked list inside each bucket slot to attach multiple colliding items!<br>2. <b>Horizontal Probing (Open Addressing)</b>: When a slot is occupied, probe neighboring slots according to a fixed sequence rule!",
                     "example": "// Approach 1 (Chaining): Slot 5 holds linked list -> [Alice] -> [David]\n// Approach 2 (Open Addressing): Slot 5 occupied -> Probe slot 6 -> Store in 6 if free",
                     "relatedConcepts": ["Separate Chaining", "Open Addressing", "Collision Resolution"]
                 },
@@ -923,7 +923,7 @@ console.log("Key 'Bob'   calculated slot index:", simpleHash('Bob'));""",
                     "component": "ConceptCard",
                     "title": "Dynamic Monitoring & Capacity Doubling",
                     "tags": ["Dynamic Balance", "On-Demand Resizing", "Space Leverage"],
-                    "definition": "<b>Core Mindset Breakthrough</b>: Maintain small initial RAM. Monitor occupancy metrics. Once threshold is breached, <b>allocate double capacity and re-map all items</b>!",
+                    "definition": "Maintain small initial RAM. Monitor occupancy metrics. Once threshold is breached, <b>allocate double capacity and re-map all items</b>!",
                     "example": "// Monitor threshold: size / capacity > 0.75\n// When breached: capacity = capacity * 2, rehash all items",
                     "relatedConcepts": ["Load Factor", "Rehash", "Dynamic Resizing"]
                 },
@@ -1041,7 +1041,7 @@ console.log("Key 'Bob'   calculated slot index:", simpleHash('Bob'));""",
                     "component": "ConceptCard",
                     "title": "Algorithm Randomization & Tree Structures",
                     "tags": ["SipHash Randomization", "Worst-Case Guarantee", "Security"],
-                    "definition": "<b>Core Mindset Breakthrough</b>: Dual Defense System!<br><br>1. <b>Input Randomization</b>: Use random seed hashing (SipHash) so attackers cannot predict online hashes!<br>2. <b>Structure Upgrade</b>: Automatically convert long bucket linked lists into self-balancing search trees to hard-cap worst-case lookup bounds!",
+                    "definition": "Dual Defense System!<br><br>1. <b>Input Randomization</b>: Use random seed hashing (SipHash) so attackers cannot predict online hashes!<br>2. <b>Structure Upgrade</b>: Automatically convert long bucket linked lists into self-balancing search trees to hard-cap worst-case lookup bounds!",
                     "example": "// Defense 1 (SipHash): Random seed per process SipHash(Key, Seed)\n// Defense 2 (Treeify): When list length >= 8, convert to Red-Black Tree (O(log N) worst case)",
                     "relatedConcepts": ["HashDoS", "Treeify Threshold", "SipHash"]
                 },

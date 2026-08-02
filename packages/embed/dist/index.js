@@ -177,6 +177,7 @@ var A2LearnEmbedElement = class extends HTMLElement {
       const apiBaseUrl = (this.getAttribute("api-base-url") || "").trim();
       const resourcePath = (this.getAttribute("resource-path") || "").trim() || void 0;
       const resourceText = (this.getAttribute("resource-text") || "").trim() || void 0;
+      const language = (this.getAttribute("language") || "").trim();
       if (!apiBaseUrl) {
         container.textContent = "Missing api-base-url.";
         return;
@@ -186,6 +187,7 @@ var A2LearnEmbedElement = class extends HTMLElement {
         apiBaseUrl,
         resourcePath,
         resourceText,
+        language: language === "en" || language === "zh" ? language : void 0,
         headers: this.headers,
         themeVars
       };

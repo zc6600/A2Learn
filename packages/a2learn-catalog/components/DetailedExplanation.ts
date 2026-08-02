@@ -3,6 +3,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { DetailedExplanationApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof DetailedExplanationApi> {
   static styles = [
@@ -195,10 +196,10 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
     try {
       await navigator.clipboard.writeText(codeEl.textContent || "");
       const original = btn.textContent;
-      btn.textContent = "已复制";
+      btn.textContent = uiText("已复制", "Copied");
       btn.classList.add("copied");
       setTimeout(() => {
-        btn.textContent = original || "复制";
+        btn.textContent = original || uiText("复制", "Copy");
         btn.classList.remove("copied");
       }, 1500);
     } catch {
@@ -237,7 +238,7 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
           .replace(/>/g, "&gt;");
         const placeholder = `\x1aCODEBLOCK_${codeBlocks.length}\x1a`;
         codeBlocks.push(
-          `<div class="code-block"><div class="code-block-header"><span class="code-block-lang">${langLabel}</span><button type="button" class="code-copy-btn">复制</button></div><pre><code class="language-${langLabel}">${escapedCode}</code></pre></div>`
+          `<div class="code-block"><div class="code-block-header"><span class="code-block-lang">${langLabel}</span><button type="button" class="code-copy-btn">${uiText("复制", "Copy")}</button></div><pre><code class="language-${langLabel}">${escapedCode}</code></pre></div>`
         );
         return placeholder;
       }

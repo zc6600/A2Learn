@@ -52,6 +52,7 @@ type ViewerSourceOnline = {
   apiBaseUrl: string;
   resourcePath?: string;
   resourceText?: string;
+  language?: Lang;
   headers?: Record<string, string>;
   themeVars?: Record<string, string>;
 };
@@ -74,6 +75,7 @@ type InitMessage = {
         apiBaseUrl?: string;
         resourcePath?: string;
         resourceText?: string;
+        language?: Lang;
         headers?: Record<string, string>;
         themeVars?: Record<string, string>;
       };
@@ -187,6 +189,7 @@ function configFromLocation(): ViewerRuntimeConfig {
         apiBaseUrl: normalizeBaseUrl(apiBaseUrl),
         resourcePath,
         resourceText,
+        language: getLang(),
         headers,
         themeVars,
       },
@@ -689,6 +692,7 @@ async function bootstrapOnline(
   const startPayload = {
     resource_path: source.resourcePath || undefined,
     resource_text: source.resourceText || undefined,
+    language: source.language || getLang(),
   };
   const startResponse = await fetch(`${source.apiBaseUrl}/api/session/start`, {
     method: "POST",
@@ -1197,6 +1201,7 @@ async function bootstrapViewer() {
   let stopResize: () => void = () => {};
 
   const renderShell = (lang: Lang) => {
+    document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
     const title = initialConfig.embed ? "" : "A2Learn Showcase Generator";
     const subtitle = initialConfig.embed ? "" : T[lang].subtitle;
 
@@ -1308,6 +1313,7 @@ async function bootstrapViewer() {
         mode: "online",
         apiBaseUrl: normalizeBaseUrl(currentApiUrl),
         resourceText: promptText,
+        language: getLang(),
         headers: userKey ? { Authorization: `Bearer ${userKey}` } : undefined,
       },
     };
@@ -1385,6 +1391,7 @@ async function bootstrapViewer() {
             apiBaseUrl: normalizeBaseUrl(String((source as any).apiBaseUrl || "")),
             resourcePath: typeof (source as any).resourcePath === "string" ? String((source as any).resourcePath) : undefined,
             resourceText: typeof (source as any).resourceText === "string" ? String((source as any).resourceText) : undefined,
+            language: (source as any).language === "zh" || (source as any).language === "en" ? (source as any).language : getLang(),
             headers: isPlainObject((source as any).headers)
               ? Object.fromEntries(
                   Object.entries((source as any).headers).filter(([, v]) => typeof v === "string") as Array<[

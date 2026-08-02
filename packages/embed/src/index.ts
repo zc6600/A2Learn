@@ -9,6 +9,7 @@ export type ViewerSourceOnline = {
   apiBaseUrl: string;
   resourcePath?: string;
   resourceText?: string;
+  language?: "zh" | "en";
   headers?: Record<string, string>;
   themeVars?: Record<string, string>;
 };
@@ -238,6 +239,7 @@ export class A2LearnEmbedElement extends HTMLElement {
       const apiBaseUrl = (this.getAttribute("api-base-url") || "").trim();
       const resourcePath = (this.getAttribute("resource-path") || "").trim() || undefined;
       const resourceText = (this.getAttribute("resource-text") || "").trim() || undefined;
+      const language = (this.getAttribute("language") || "").trim();
       if (!apiBaseUrl) {
         container.textContent = "Missing api-base-url.";
         return;
@@ -247,6 +249,7 @@ export class A2LearnEmbedElement extends HTMLElement {
         apiBaseUrl,
         resourcePath,
         resourceText,
+        language: language === "en" || language === "zh" ? language : undefined,
         headers: this.headers,
         themeVars,
       };

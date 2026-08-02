@@ -3,6 +3,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { AchievementApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnAchievementElement extends A2uiLitElement<typeof AchievementApi> {
   static styles = css`
@@ -107,7 +108,7 @@ export class A2learnAchievementElement extends A2uiLitElement<typeof Achievement
       <div class="achievement-card">
         <div class="icon-container">${icon}</div>
         <div class="content">
-          <h3 class="title">解锁成就：${title}</h3>
+          <h3 class="title">${uiText("解锁成就：", "Achievement unlocked: ")}${title}</h3>
           <p class="description">${unsafeHTML(sanitizeHtml(description))}</p>
           <div class="date">
             <span>📅</span> ${unlockedAt}

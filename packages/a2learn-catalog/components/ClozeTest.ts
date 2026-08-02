@@ -4,6 +4,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { ClozeTestApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnClozeTestElement extends A2uiLitElement<typeof ClozeTestApi> {
   static styles = css`
@@ -252,7 +253,7 @@ export class A2learnClozeTestElement extends A2uiLitElement<typeof ClozeTestApi>
         
         ${hasAnswered && explanation && status === 'incorrect' ? html`
           <div class="explanation">
-            <strong>解析：</strong><br/>
+            <strong>${uiText("解析：", "Explanation:")}</strong><br/>
             ${unsafeHTML(sanitizeHtml(explanation))}
           </div>
         ` : nothing}

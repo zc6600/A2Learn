@@ -4,6 +4,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { CourseOutlineApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnCourseOutlineElement extends A2uiLitElement<typeof CourseOutlineApi> {
   static styles = css`
@@ -165,11 +166,11 @@ export class A2learnCourseOutlineElement extends A2uiLitElement<typeof CourseOut
 
   private getActionText(status: string) {
     switch (status) {
-      case "completed": return "复习";
-      case "current": return "开始学习";
-      case "expanded": return "收起";
-      case "locked": return "未解锁";
-      default: return "查看";
+      case "completed": return uiText("复习", "Review");
+      case "current": return uiText("开始学习", "Start Learning");
+      case "expanded": return uiText("收起", "Collapse");
+      case "locked": return uiText("未解锁", "Locked");
+      default: return uiText("查看", "View");
     }
   }
 
@@ -209,7 +210,7 @@ export class A2learnCourseOutlineElement extends A2uiLitElement<typeof CourseOut
               <div class="expansion-area">
                  <!-- 在这里，我们预留一个提示，或者利用 A2UI 的 children slot 机制 -->
                  <div class="child-container" id="child-container-${mod.id}">
-                    ${mod.status === "expanded" ? html`<div style="color: var(--app-muted); text-align: center; font-size: 13px;">Agent 生成的内容将在此处原位展开...</div>` : nothing}
+                    ${mod.status === "expanded" ? html`<div style="color: var(--app-muted); text-align: center; font-size: 13px;">${uiText("Agent 生成的内容将在此处原位展开...", "Agent-generated content will expand here...")}</div>` : nothing}
                  </div>
               </div>
             </div>
