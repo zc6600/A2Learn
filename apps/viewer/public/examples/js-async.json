@@ -36,7 +36,7 @@
           "id": "background-pain",
           "component": "AnalogyCard",
           "title": "回调地狱：为什么异步代码让开发者崩溃？",
-          "analogy": "<b>JavaScript 是单线程语言</b>，但浏览器和 Node.js 环境需要处理网络请求、文件读取等耗时 I/O 操作。如果用同步阻塞方式写，整个页面会被冻结！早期的解决方案是「回调函数」——把任务完成后要做的事情打包成一个函数传进去。<br><br>但一旦业务逻辑复杂起来：\n\n```javascript\nfetchUser(id, function(user) {\n  fetchOrders(user.id, function(orders) {\n    fetchShipment(orders[0].id, function(ship) {\n      // 第四层... 第五层...\n    });\n  });\n});\n```\n\n这种嵌套结构被开发者称为 <b>「回调地狱（Callback Hell）」</b>，难以阅读、维护和调试。<b>如何让异步代码像同步一样优雅？</b>"
+          "analogy": "<b>JavaScript 是单线程语言</b>：同一时刻，负责执行 JavaScript 的主线程通常只能处理一段代码。<dfn title=\"同步阻塞：程序必须等当前任务完成后才能继续，等待期间主线程无法处理点击、渲染等其他工作\"><strong>同步阻塞</strong></dfn> 就是把耗时任务直接放在这条执行路径上；例如等待网络响应时，页面无法继续响应用户操作。<dfn title=\"I/O：Input/Output，程序与网络、文件或其他外部设备交换数据的操作\"><strong>I/O</strong></dfn> 则是网络请求、文件读取等需要等待外部系统的操作。浏览器和 Node.js 会把这些等待交给宿主环境处理，让主线程在等待期间继续运行其他 JavaScript。<br><br>早期的解决方案是 <dfn title=\"回调函数：把任务完成后要执行的函数作为参数传入，完成时由异步任务调用它\"><strong>回调函数</strong></dfn>——把任务完成后要做的事情打包成一个函数传进去。<br><br>但一旦业务逻辑复杂起来：\n\n```javascript\nfetchUser(id, function(user) {\n  fetchOrders(user.id, function(orders) {\n    fetchShipment(orders[0].id, function(ship) {\n      // 第四层... 第五层...\n    });\n  });\n});\n```\n\n这种嵌套结构被开发者称为 <b>「回调地狱（Callback Hell）」</b>，难以阅读、维护和调试。<b>如何让异步代码像同步一样优雅？</b>"
         },
         {
           "id": "scenario-chat",
