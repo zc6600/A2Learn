@@ -1,0 +1,7 @@
+interface:
+  display_name: "A2Learn"
+  short_description: "Generate interactive educational websites"
+  default_prompt: "Use $a2learn to turn this topic or teaching resource into an interactive learning website."
+
+policy:
+  allow_implicit_invocation: true

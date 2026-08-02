@@ -1,109 +1,146 @@
 ---
 name: a2learn
 description: >-
-  AI-driven interactive knowledge showcase generator. Takes static teaching resources (like Markdown files or documentation directories) or text prompts, and generates interactive educational websites with components like quizzes, learning paths, and interactive sandboxes.
+  Generate A2Learn interactive educational websites from a topic or teaching
+  resource. Use this skill when the user wants a learning showcase, course
+  page, quiz, learning path, interactive explanation, or A2UI website. The
+  agent authors the course JSON; local A2Learn code converts it to messages
+  and serves the viewer. No OpenRouter API key or external LLM pipeline is
+  required.
 ---
 
-# A2Learn Agent Skill Guide
+# A2Learn
 
-This skill enables an autonomous agent to set up, run, generate, and embed A2Learn interactive educational showcases.
+Use this workflow to turn a topic or local teaching material into an
+interactive A2Learn website.
 
----
+## Operating model
 
-## 1. Installation & Environment Setup
+The agent is the content generator. Do not call the old LangChain/LLM
+generation loop and do not ask for an OpenRouter key.
 
-To initialize the project environment, run the following commands sequentially:
-
-```bash
-# 1. Clone the project repository
-git clone https://github.com/zc6600/A2Learn
-cd A2Learn
-
-# 2. Run the environment setup script (initializes .venv, npm installs, builds embed SDK)
-bash setup.sh
+```text
+topic or resource
+  -> inspect the relevant rules and examples
+  -> write course_content.json
+  -> run the local parser and validator
+  -> start the viewer
+  -> return the viewer URL and output paths
 ```
 
-### Dependency Checklist
-- **Python 3.11+** (used automatically inside `.venv`)
-- **Node.js 18+** & **npm**
+## Locate the repository
 
----
+This skill is intentionally usable when only this file was fetched from
+GitHub. If the A2Learn repository is not already the current workspace, clone
+it first:
 
-## 2. OpenRouter API Key Prerequisites
+```bash
+git clone https://github.com/zc6600/A2Learn.git
+cd A2Learn
+```
 
-- **When it is NOT required**:
-  If you have already generated or designed a schema-compliant course JSON file directly (e.g. following the templates under references), **you do NOT need to configure the OpenRouter API key**. You can map and preview the showcase entirely offline:
-  ```bash
-  # Directly serving and previewing a pre-existing JSON message file
-  python skill/scripts/a2learn_cli.py start-offline --file skill/references/examples/paper-attention.json --port 8010
-  ```
-- **When it IS required**:
-  You only need to export `OPENROUTER_API_KEY` (or define it in a `.env` file in the repository root) if you want to run the full LLM planning and generation pipelines:
-  ```bash
-  export OPENROUTER_API_KEY="your_openrouter_api_key"
-  ```
+Run all commands below from the repository root. Set up the local Python and
+Node dependencies with:
 
----
+```bash
+A2LEARN_SKIP_LLM_SETUP=1 bash setup.sh
+```
 
-## 3. Usage Cases
+The local JSON-to-A2UI workflow below does not require an API key. The setup
+script still supports the repository's legacy LLM generation mode, but the
+environment flag skips that optional configuration for this workflow. If
+dependencies are already installed, do not run setup again.
 
-### Case 1: Direct Generation (Standalone Preview)
-Use this case to generate a standalone interactive learning site and preview it locally.
+## Read only the relevant references
 
-#### Option A: Direct JSON Parser Mode (Recommended - Faster & Deterministic)
-1. Write the topic details or parse materials into a structured JSON file matching the schema defined in [parser_mode_prompt.txt](file:///Users/frank/github_project/A2Learn/skill/references/parser_mode_prompt.txt).
-2. Generate A2UI messages and run the offline viewer:
-   ```bash
-   python skill/scripts/a2learn_cli.py start-offline --file skill/references/examples/js-async.json --mode parser --port 8010
-   ```
+Before writing JSON, inspect:
 
-#### Option B: Multi-step Agent Loop Mode (Requires LLM API Key)
-1. Plan the syllabus and generate messages in a LangGraph loop from raw text:
-   ```bash
-   python skill/scripts/a2learn_cli.py start-offline --text "Explain how Neural Networks work" --mode agent --port 8010
-   ```
+- `skill/references/parser_mode_prompt.txt` for the complete content schema.
+- One or two matching files in `skill/references/examples/` for final A2UI
+  layout and component usage. These examples are message arrays, not the
+  intermediate `course_content.json` format.
+- `agent/parser.py` to verify field-to-component mappings.
+- `docs/a2learn_component_design.md` when selecting unfamiliar components.
 
----
+Choose examples by topic:
 
-### Case 2: Project Integration (Embedded Canvas)
-Use this case to integrate the interactive rendering canvas into third-party web portals or learning platforms.
+| Topic | Start with |
+| --- | --- |
+| Programming or coding | `js-async.json`, `agent-react.json` |
+| Academic paper or formula | `paper-attention.json` |
+| Multi-module course | `biophysics-ai.json` |
+| Navigation-heavy course | `non-linear.json` |
+| Dialogue or conceptual teaching | `conversational.json` |
 
-- **Option A: iframe Embedding (Zero Coupling)**:
-  Serve the build output under `apps/viewer/dist` via Nginx or CDN, then embed the iframe in the host website:
-  ```html
-  <iframe src="https://your-viewer-host/?embed=1&mode=offline&messagesUrl=https%3A%2F%2Fexample.com%2Fsite_messages.json" style="width: 100%; border: 0; min-height: 600px;"></iframe>
-  ```
-- **Option B: JS SDK & Web Components**:
-  Import the `@a2learn/embed` JS SDK inside your host application to control authentication headers and themes:
-  ```javascript
-  import { createA2LearnEmbed } from "@a2learn/embed";
-  createA2LearnEmbed({
-    container: document.getElementById("learning-container"),
-    viewerUrl: "https://your-viewer-host/",
-    source: { mode: "offline", messagesUrl: "https://example.com/site_messages.json" }
-  });
-  ```
-- **Option C: Stateless API Integration**:
-  If the host platform wants to manage state in its own database, it can use the stateless endpoint `/api/stateless/action` of our backend, passing the current component map and receiving only incremental updates.
+Do not copy an example blindly. Preserve its valid structure, but write
+accurate content for the user's topic. Use Chinese learner-facing text unless
+the user requests another language. Only include `interactiveSandbox` for
+programming topics.
 
-For complete integration and stateless API specifications, refer to [Integration Modes & Component Updates Guide](file:///Users/frank/github_project/A2Learn/skill/references/integration_modes.md).
+## Generate and parse
 
----
+Create a task directory and write the Agent-authored intermediate JSON there:
 
-## 4. Reference Templates & Files
+```bash
+TASK_ID="$(date +%Y%m%d-%H%M%S)"
+mkdir -p "outputs/$TASK_ID"
+```
 
-All supplementary and reference materials are located under the `skill/references/` directory:
+Write:
 
-- **LLM Prompt Templates**:
-  - [parser_mode_prompt.txt](file:///Users/frank/github_project/A2Learn/skill/references/parser_mode_prompt.txt): Schema and prompts for the direct JSON parser mode.
-  - [curriculum_planner_prompt.txt](file:///Users/frank/github_project/A2Learn/skill/references/curriculum_planner_prompt.txt): System prompt for planning syllabus modules.
-  - [site_planner_prompt.txt](file:///Users/frank/github_project/A2Learn/skill/references/site_planner_prompt.txt): System prompt for routing layout structures.
-  - [message_generator_prompt.txt](file:///Users/frank/github_project/A2Learn/skill/references/message_generator_prompt.txt): System prompt for full A2UI message payload generation.
-- **Reference Layouts under `skill/references/examples/`**:
-  - [paper-attention.json](file:///Users/frank/github_project/A2Learn/skill/references/examples/paper-attention.json): Academic paper deep dive showcase (Transformer).
-  - [js-async.json](file:///Users/frank/github_project/A2Learn/skill/references/examples/js-async.json): Coding lab showcase with Interactive Sandbox.
-  - [non-linear.json](file:///Users/frank/github_project/A2Learn/skill/references/examples/non-linear.json): Chapter navigation using SectionNavigator.
-  - [conversational.json](file:///Users/frank/github_project/A2Learn/skill/references/examples/conversational.json): Dialogue mentor showcase with InteractiveDialog.
-  - [biophysics-ai.json](file:///Users/frank/github_project/A2Learn/skill/references/examples/biophysics-ai.json): Multi-surface academic course.
-  - [agent-react.json](file:///Users/frank/github_project/A2Learn/skill/references/examples/agent-react.json): Agent-oriented React tutorial.
+```text
+outputs/<task_id>/course_content.json
+```
 
+The file must be a JSON object matching the schema in
+`skill/references/parser_mode_prompt.txt`. Then run the deterministic local
+conversion:
+
+```bash
+python -m agent.parse_course_content \
+  --input "outputs/<task_id>/course_content.json" \
+  --output "outputs/<task_id>/site_messages.json" \
+  --sync-viewer
+```
+
+The command performs JSON parsing, conversion through `agent/parser.py`, and
+A2UI validation. It makes no network or model call. Stop and fix the
+intermediate JSON if validation fails.
+
+## Legacy generation mode
+
+The repository's existing `run_agent.py` and `skill/scripts/a2learn_cli.py`
+generation commands remain supported for users who explicitly want the old
+LLM-backed pipeline. Do not remove or rewrite that path when extending this
+skill. This skill's default path is the local parser workflow above.
+
+## Start the viewer
+
+```bash
+npm run viewer:dev -- --host 127.0.0.1 --port 8010
+```
+
+Return the URL shown by the dev server, normally:
+
+```text
+http://127.0.0.1:8010
+```
+
+Also report these files:
+
+```text
+outputs/<task_id>/course_content.json
+outputs/<task_id>/site_messages.json
+apps/viewer/public/generated/site_messages.json
+```
+
+The parser creates JSON files; only the viewer creates the browser URL.
+
+## Failure handling
+
+- Missing or invalid JSON: inspect and repair `course_content.json`.
+- A2UI validation error: compare the relevant field with `agent/parser.py`
+  and an example JSON; do not hand-edit the generated A2UI messages first.
+- Viewer dependency error: run `A2LEARN_SKIP_LLM_SETUP=1 bash setup.sh`, then
+  retry the viewer.
+- Never expose API keys in `course_content.json`, logs, or committed files.

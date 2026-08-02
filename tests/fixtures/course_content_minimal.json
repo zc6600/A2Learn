@@ -1,0 +1,9 @@
+{
+  "siteTitle": "离线解析测试",
+  "description": "由 Agent 生成，再由本地 parser 转换。",
+  "conceptCard": {
+    "title": "概念",
+    "definition": "定义",
+    "example": "例子"
+  }
+}
