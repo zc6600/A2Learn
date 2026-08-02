@@ -394,6 +394,14 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       return html`<div class="example-markdown">${unsafeHTML(this.renderExampleMarkdown(cleanStr))}</div>`;
     }
 
+    // Generated examples sometimes contain real source code without Markdown
+    // fences. Keep that code readable instead of letting HTML collapse its
+    // line breaks into one paragraph.
+    const looksLikeCode = /(^|\n)\s*(?:function\s+\w+|(?:const|let|var)\s+\w+\s*=|for\s*\(|fetch\w*\s*\(|(?:\.|#)?[a-zA-Z][\w-]*\s*\{)/m.test(cleanStr);
+    if (looksLikeCode) {
+      return html`<div class="example-markdown">${unsafeHTML(this.renderExampleMarkdown(`\`\`\`text\n${cleanStr}\n\`\`\``))}</div>`;
+    }
+
     const lines = cleanStr.split("\n");
     const hasArrows = lines.some((line) => line.includes("->") || line.includes("➔") || line.includes("=>"));
 

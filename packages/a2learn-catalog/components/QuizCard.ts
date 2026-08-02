@@ -53,6 +53,23 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
       margin-bottom: 20px;
       color: var(--a2ui-color-on-surface);
     }
+    .quiz-code-block {
+      display: block;
+      margin: 12px 0;
+      padding: 14px 16px;
+      overflow-x: auto;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font: 0.88em/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      white-space: pre;
+    }
+    .quiz-inline-code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: color-mix(in oklab, var(--a2ui-color-primary) 10%, var(--a2ui-color-surface));
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
     .options {
       display: flex;
       flex-direction: column;
@@ -280,6 +297,31 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
     return selections.has(correctIndex);
   }
 
+  private renderRichText(value: unknown): string {
+    const text = this.resolveString(value as any) || "";
+    const escapeHtml = (source: string) => source
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;");
+    const codeBlocks: string[] = [];
+    let output = escapeHtml(text).replace(
+      /```([a-zA-Z0-9_+-]*)[ \t]*\r?\n?([\s\S]*?)\r?\n?```/g,
+      (_match, _language: string, code: string) => {
+        const placeholder = `\x1aQUIZ_CODE_${codeBlocks.length}\x1a`;
+        codeBlocks.push(`<pre class="quiz-code-block"><code>${code.trim()}</code></pre>`);
+        return placeholder;
+      }
+    );
+    output = output.replace(/`([^`]+)`/g, `<code class="quiz-inline-code">$1</code>`);
+    output = output.replace(/\r?\n/g, "<br/>");
+    codeBlocks.forEach((block, index) => {
+      output = output.replace(`<br/>\x1aQUIZ_CODE_${index}\x1a<br/>`, block);
+      output = output.replace(`\x1aQUIZ_CODE_${index}\x1a`, block);
+    });
+    return output;
+  }
+
   render() {
     const props = (this as any).controller?.props;
     if (!props || !props.questions || props.questions.length === 0) return nothing;
@@ -308,7 +350,7 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
 
           return html`
             <div class="question-block ${index === this.currentQuestionIndex ? 'active' : ''}">
-              <div class="question-text">${unsafeHTML(sanitizeHtml(this.resolveString(q.question)))}</div>
+              <div class="question-text">${unsafeHTML(sanitizeHtml(this.renderRichText(q.question)))}</div>
               
               <div class="options">
                 ${q.options.map((opt: any, optIndex: number) => {
@@ -341,7 +383,7 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
                         ? html`<div class="option-checkbox"></div>`
                         : html`<div class="option-radio"></div>`
                       }
-                      <span class="option-text">${unsafeHTML(sanitizeHtml(this.resolveString(opt)))}</span>
+                      <span class="option-text">${unsafeHTML(sanitizeHtml(this.renderRichText(opt)))}</span>
                     </div>
                   `;
                 })}

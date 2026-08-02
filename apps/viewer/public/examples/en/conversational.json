@@ -145,7 +145,7 @@
           "questions": [
             {
               "id": "q1",
-              "question": "What does the following code output?\nfunction outer() {\n  let x = 10;\n  function inner() {\n    x += 5;\n    return x;\n  }\n  return inner;\n}\nconst fn = outer();\nconsole.log(fn()); // first call\nconsole.log(fn()); // second call",
+              "question": "What does the following code output?\n\n```javascript\nfunction outer() {\n  let x = 10;\n  function inner() {\n    x += 5;\n    return x;\n  }\n  return inner;\n}\nconst fn = outer();\nconsole.log(fn()); // first call\nconsole.log(fn()); // second call\n```",
               "options": [
                 "15, 15 (x = 10 is re-read on every call)",
                 "15, 20 (x keeps getting mutated — the closure shares one lexical environment)",

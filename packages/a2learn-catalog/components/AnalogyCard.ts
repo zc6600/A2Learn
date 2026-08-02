@@ -129,6 +129,19 @@ export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCard
   private renderInlineMarkdown(markdown: string): string {
     if (!markdown) return "";
 
+    // Some generated analogies contain source code but omit Markdown fences.
+    // Normalize the common JavaScript/CSS shapes before paragraph rendering so
+    // the code remains a multiline code block instead of becoming one sentence.
+    markdown = markdown
+      .replace(
+        /(\nfor \(var i = 0;[\s\S]*?\n\})(\n?)(?=(?:实际输出|Actual output))/m,
+        "\n```javascript$1\n```\n"
+      )
+      .replace(
+        /(\n\/\*[\s\S]*?\*\/)(\n?)(?=(?:CSS Grid|CSS Grid is))/m,
+        "\n```css$1\n```\n"
+      );
+
     const codeBlocks: string[] = [];
 
     // 1) Extract fenced code blocks into placeholders first, so \\n\\n inside them

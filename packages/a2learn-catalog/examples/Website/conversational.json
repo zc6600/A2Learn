@@ -145,7 +145,7 @@
           "questions": [
             {
               "id": "q1",
-              "question": "下面代码的输出是什么？\nfunction outer() {\n  let x = 10;\n  function inner() {\n    x += 5;\n    return x;\n  }\n  return inner;\n}\nconst fn = outer();\nconsole.log(fn()); // 第一次调用\nconsole.log(fn()); // 第二次调用",
+              "question": "下面代码的输出是什么？\n\n```javascript\nfunction outer() {\n  let x = 10;\n  function inner() {\n    x += 5;\n    return x;\n  }\n  return inner;\n}\nconst fn = outer();\nconsole.log(fn()); // 第一次调用\nconsole.log(fn()); // 第二次调用\n```",
               "options": [
                 "15, 15（每次调用都重新读取 x = 10）",
                 "15, 20（x 被持续修改，闭包共享同一个词法环境）",
