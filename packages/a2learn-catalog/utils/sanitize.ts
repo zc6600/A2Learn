@@ -1,7 +1,7 @@
 import createDOMPurify from "dompurify";
-import { css } from "lit";
+import { css, unsafeCSS } from "lit";
 import katex from "katex";
-import "katex/dist/katex.min.css";
+import katexCss from "katex/dist/katex.min.css?inline";
 
 const FORBID_TAGS = [
   "base",
@@ -22,7 +22,11 @@ function getPurifier() {
   return purifier;
 }
 
+export const katexStyles = css`${unsafeCSS(katexCss)}`;
+
 export const tooltipStyles = css`
+  ${katexStyles}
+
   .a2learn-term-tooltip {
     position: relative;
     display: inline-flex;
@@ -129,18 +133,17 @@ export const tooltipStyles = css`
 `;
 
 /**
- * Renders inline `$...$` and block `$$...$$` LaTeX math to HTML via KaTeX,
- * before the string is passed to DOMPurify/unsafeHTML. Content authors write
- * plain LaTeX delimited with dollar signs (as the LLM prompts already
- * instruct); this is the one place that actually turns it into typeset math
- * instead of leaving the literal "$...$" text on the page.
+ * Renders inline `$...$` / `\(...\)` and block `$$...$$` / `\[...\]` LaTeX math to HTML via KaTeX,
+ * as well as un-delimited TeX expressions like `\sqrt{...}`.
  */
 export function renderMathInHtml(input: string): string {
-  if (!input || input.indexOf("$") === -1) return input;
+  if (!input) return input;
+  if (input.indexOf("$") === -1 && input.indexOf("\\") === -1) return input;
 
-  // Block math first, so a "$$...$$" pair is never partially consumed by the
-  // inline-math pass below.
-  let out = input.replace(/\$\$([\s\S]+?)\$\$/g, (match, expr) => {
+  let out = input;
+
+  // 1. Block math: $$...$$ or \[...\]
+  out = out.replace(/(?:\$\$|\\\[)([\s\S]+?)(?:\$\$|\\\])/g, (match, expr) => {
     try {
       return katex.renderToString(expr.trim(), {
         throwOnError: false,
@@ -153,11 +156,24 @@ export function renderMathInHtml(input: string): string {
     }
   });
 
-  // Inline math: "$...$" with no leading/trailing whitespace touching the
-  // delimiters (so plain currency like "$5" is left alone).
-  out = out.replace(/\$([^\s$][^$]*?[^\s$]|[^\s$])\$/g, (match, expr) => {
+  // 2. Inline math: $...$ or \(...\)
+  out = out.replace(/(?:\$|\\\()([^\s$][^$]*?[^\s$]|[^\s$])(?:\$|\\\))/g, (match, expr) => {
     try {
       return katex.renderToString(expr, {
+        throwOnError: false,
+        trust: false,
+        output: "html",
+        displayMode: false,
+      });
+    } catch {
+      return match;
+    }
+  });
+
+  // 3. Standalone TeX commands like \sqrt{...}, \frac{...}{...} without $ delimiters
+  out = out.replace(/\\(sqrt|frac|text|mathbf|mathrm|mathcal)\{[^}]+\}(\{[^}]+\})?/g, (match) => {
+    try {
+      return katex.renderToString(match, {
         throwOnError: false,
         trust: false,
         output: "html",

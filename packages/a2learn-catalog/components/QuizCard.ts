@@ -3,11 +3,13 @@ import { customElement, state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { QuizCardApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "../utils/sanitize";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 import { uiText } from "../utils/i18n";
 
 export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
-  static styles = css`
+  static styles = [
+    tooltipStyles,
+    css`
     :host {
       display: block;
       margin: var(--a2ui-spacing-m) 0;
@@ -219,7 +221,8 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-  `;
+  `
+  ];
 
   // { questionId: Set<number> }
   @state() private userSelections: Record<string, Set<number>> = {};
