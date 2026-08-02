@@ -32,6 +32,12 @@ class ApiMainTests(unittest.TestCase):
     def setUp(self) -> None:
         self.client = TestClient(app)
 
+    def test_root_endpoint_returns_ok(self) -> None:
+        resp = self.client.get("/")
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        self.assertEqual(body["status"], "ok")
+
     def test_start_session_returns_messages(self) -> None:
         session = SessionState(
             session_id="sess_test",

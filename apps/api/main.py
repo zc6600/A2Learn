@@ -149,6 +149,11 @@ def _extract_api_key(
     return None
 
 
+@app.get("/")
+def root() -> dict[str, str]:
+    return {"status": "ok", "service": "A2Learn Session API"}
+
+
 @app.get("/healthz")
 def healthz() -> dict[str, str]:
     return {"status": "ok"}

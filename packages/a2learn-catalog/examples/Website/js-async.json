@@ -36,19 +36,7 @@
           "id": "background-pain",
           "component": "AnalogyCard",
           "title": "回调地狱：为什么异步代码让开发者崩溃？",
-          "analogy": "<b>JavaScript 是单线程语言</b>，但浏览器和 Node.js 环境需要处理网络请求、文件读取等耗时 I/O 操作。如果用同步阻塞方式写，整个页面会被冻结！早期的解决方案是「回调函数」——把任务完成后要做的事情打包成一个函数传进去。<br><br>但一旦业务逻辑复杂起来：
-
-```javascript
-fetchUser(id, function(user) {
-  fetchOrders(user.id, function(orders) {
-    fetchShipment(orders[0].id, function(ship) {
-      // 第四层... 第五层...
-    });
-  });
-});
-```
-
-这种嵌套结构被开发者称为 <b>「回调地狱（Callback Hell）」</b>，难以阅读、维护和调试。<b>如何让异步代码像同步一样优雅？</b>"
+          "analogy": "<b>JavaScript 是单线程语言</b>，但浏览器和 Node.js 环境需要处理网络请求、文件读取等耗时 I/O 操作。如果用同步阻塞方式写，整个页面会被冻结！早期的解决方案是「回调函数」——把任务完成后要做的事情打包成一个函数传进去。<br><br>但一旦业务逻辑复杂起来：\n\n```javascript\nfetchUser(id, function(user) {\n  fetchOrders(user.id, function(orders) {\n    fetchShipment(orders[0].id, function(ship) {\n      // 第四层... 第五层...\n    });\n  });\n});\n```\n\n这种嵌套结构被开发者称为 <b>「回调地狱（Callback Hell）」</b>，难以阅读、维护和调试。<b>如何让异步代码像同步一样优雅？</b>"
         },
         {
           "id": "scenario-chat",
