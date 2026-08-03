@@ -1,9 +1,12 @@
+import tempfile
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
+from apps.api.knowledge_store import KnowledgeStore
 from apps.api.main import app
 from apps.api.session_store import SessionState
 
@@ -55,6 +58,25 @@ class ApiMainTests(unittest.TestCase):
         body = resp.json()
         self.assertEqual(body["session_id"], "sess_test")
         self.assertGreaterEqual(len(body["messages"]), 2)
+
+    def test_upload_source_then_start_session_from_source_id(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source_store = KnowledgeStore(root / "knowledge.sqlite3", root / "files")
+            with patch("apps.api.main.knowledge_store", source_store):
+                uploaded = self.client.post(
+                    "/api/knowledge/sources",
+                    files={"file": ("notes.md", b"# Vectors\n\nA vector has magnitude and direction.", "text/markdown")},
+                )
+                self.assertEqual(uploaded.status_code, 201)
+                source_id = uploaded.json()["source"]["sourceId"]
+
+                session = SessionState(session_id="sess_source", resource_path="text-input", messages=[], surface_ids=[])
+                with patch("apps.api.main.store.create", return_value=session) as create:
+                    response = self.client.post("/api/session/start", json={"sourceIds": [source_id], "resourceQuery": "vector"})
+
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("[Source: notes, page 1]", create.call_args.kwargs["resource_text"])
 
     def test_session_status_pending_omits_messages(self) -> None:
         session = SessionState(

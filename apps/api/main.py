@@ -7,7 +7,7 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, Literal
 
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, File, Form, Header, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, model_validator
@@ -26,6 +26,12 @@ from apps.api.agent_thread_store import (
     SqliteAgentThreadStore,
 )
 from apps.api.example_projects import ExampleLanguage, load_example_documents
+from apps.api.knowledge_store import (
+    InvalidKnowledgeUploadError,
+    KnowledgeSourceNotFoundError,
+    KnowledgeSourceNotReadyError,
+    KnowledgeStore,
+)
 from apps.api.page_document_store import (
     DocumentAlreadyExistsError,
     DocumentNotFoundError,
@@ -51,6 +57,8 @@ class SessionStartRequest(BaseModel):
     resource_text: str | None = Field(default=None, description="Direct text input to use as teaching resource")
     language: Literal["zh", "en"] = Field(default="zh", description="Learner-facing content language")
     generation_profile: dict[str, Any] | None = Field(default=None, alias="generationProfile")
+    source_ids: list[str] = Field(default_factory=list, alias="sourceIds", max_length=10)
+    resource_query: str | None = Field(default=None, alias="resourceQuery", max_length=1_000)
 
 
 class SessionStartResponse(BaseModel):
@@ -87,9 +95,23 @@ class StatelessInitRequest(BaseModel):
     resource_text: str | None = Field(default=None, description="Direct text input")
     language: Literal["zh", "en"] = Field(default="zh", description="Learner-facing content language")
     generation_profile: dict[str, Any] | None = Field(default=None, alias="generationProfile")
+    source_ids: list[str] = Field(default_factory=list, alias="sourceIds", max_length=10)
+    resource_query: str | None = Field(default=None, alias="resourceQuery", max_length=1_000)
 
 class StatelessInitResponse(BaseModel):
     messages: list[dict[str, Any]]
+
+
+class KnowledgeSourceResponse(BaseModel):
+    source: dict[str, Any]
+
+
+class KnowledgeSourceListResponse(BaseModel):
+    sources: list[dict[str, Any]]
+
+
+class KnowledgeChunkListResponse(BaseModel):
+    chunks: list[dict[str, Any]]
 
 class StatelessActionRequest(BaseModel):
     action: dict[str, Any]
@@ -197,6 +219,7 @@ store = SessionStore()
 # zero-config POC intentionally keep the lightweight in-memory repository.
 page_document_store = build_page_document_store(os.getenv("A2LEARN_PAGE_DOCUMENT_DB_PATH"))
 project_store = build_project_store(page_document_store, os.getenv("A2LEARN_PAGE_DOCUMENT_DB_PATH"))
+knowledge_store = KnowledgeStore.from_env()
 # Human-in-the-loop pauses must survive a process restart. If the PageDocument
 # database is configured, keep checkpoints beside the documents; deployments
 # may override this independently with A2LEARN_AGENT_CHECKPOINT_DB_PATH.
@@ -262,6 +285,29 @@ def _resolve_resource_path(req_path: str | None) -> str:
     return str(candidate)
 
 
+def _resolve_generation_resource(
+    resource_path: str | None,
+    resource_text: str | None,
+    source_ids: list[str],
+    resource_query: str | None,
+) -> tuple[str | None, str | None]:
+    """Resolve one trusted source route without exposing local file paths."""
+    if source_ids:
+        if resource_path:
+            raise HTTPException(status_code=422, detail="Use either sourceIds or resource_path, not both.")
+        try:
+            return None, knowledge_store.build_generation_context(source_ids, query=resource_query)
+        except KnowledgeSourceNotFoundError as exc:
+            raise HTTPException(status_code=404, detail="KNOWLEDGE_SOURCE_NOT_FOUND") from exc
+        except KnowledgeSourceNotReadyError as exc:
+            raise HTTPException(status_code=409, detail=f"KNOWLEDGE_SOURCE_NOT_READY: {exc}") from exc
+    if resource_text:
+        return None, resource_text
+    if not resource_path and not os.getenv("A2LEARN_DEFAULT_RESOURCE_PATH"):
+        raise HTTPException(status_code=400, detail="Either resource_path, resource_text, or sourceIds must be provided")
+    return _resolve_resource_path(resource_path), None
+
+
 def _require_session(session_id: str) -> SessionState:
     session = store.get(session_id)
     if session is None:
@@ -305,6 +351,46 @@ def root() -> dict[str, str]:
 @app.get("/healthz")
 def healthz() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post("/api/knowledge/sources", response_model=KnowledgeSourceResponse, status_code=201)
+def upload_knowledge_source(
+    file: UploadFile = File(...),  # noqa: B008 - FastAPI declares multipart input this way.
+    title: str | None = Form(default=None, max_length=300),
+) -> KnowledgeSourceResponse:
+    """Store an original source and synchronously create its first text rendition.
+
+    Uploads that need an OCR/parser worker are retained and returned with an
+    explicit status. They are never presented to generation as empty text.
+    """
+    try:
+        source = knowledge_store.ingest_upload(file.file, file.filename, file.content_type, title)
+        return KnowledgeSourceResponse(source=source.to_dict())
+    except InvalidKnowledgeUploadError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    finally:
+        file.file.close()
+
+
+@app.get("/api/knowledge/sources", response_model=KnowledgeSourceListResponse)
+def list_knowledge_sources() -> KnowledgeSourceListResponse:
+    return KnowledgeSourceListResponse(sources=[source.to_dict() for source in knowledge_store.list()])
+
+
+@app.get("/api/knowledge/sources/{source_id}", response_model=KnowledgeSourceResponse)
+def get_knowledge_source(source_id: str) -> KnowledgeSourceResponse:
+    try:
+        return KnowledgeSourceResponse(source=knowledge_store.get(source_id).to_dict())
+    except KnowledgeSourceNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="KNOWLEDGE_SOURCE_NOT_FOUND") from exc
+
+
+@app.get("/api/knowledge/sources/{source_id}/chunks", response_model=KnowledgeChunkListResponse)
+def get_knowledge_source_chunks(source_id: str, query: str | None = None, limit: int = 20) -> KnowledgeChunkListResponse:
+    try:
+        return KnowledgeChunkListResponse(chunks=[chunk.to_dict() for chunk in knowledge_store.chunks(source_id, query, limit)])
+    except KnowledgeSourceNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="KNOWLEDGE_SOURCE_NOT_FOUND") from exc
 
 
 @app.post("/api/page-documents", response_model=PageDocumentResponse, status_code=201)
@@ -749,13 +835,12 @@ def start_session(
     x_api_key: str | None = Header(default=None),
 ) -> SessionStartResponse:
     api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
-    resource_path = None
-    resource_text = payload.resource_text or os.getenv("A2LEARN_DEFAULT_RESOURCE_TEXT")
-
-    if not resource_text:
-        if not payload.resource_path and not os.getenv("A2LEARN_DEFAULT_RESOURCE_PATH"):
-            raise HTTPException(status_code=400, detail="Either resource_path or resource_text must be provided")
-        resource_path = _resolve_resource_path(payload.resource_path)
+    resource_path, resource_text = _resolve_generation_resource(
+        payload.resource_path,
+        payload.resource_text or os.getenv("A2LEARN_DEFAULT_RESOURCE_TEXT"),
+        payload.source_ids,
+        payload.resource_query,
+    )
 
     try:
         normalize_generation_profile(payload.generation_profile)
@@ -823,13 +908,12 @@ def stateless_init(
     x_api_key: str | None = Header(default=None),
 ) -> StatelessInitResponse:
     api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
-    resource_path = None
-    resource_text = payload.resource_text or os.getenv("A2LEARN_DEFAULT_RESOURCE_TEXT")
-
-    if not resource_text:
-        if not payload.resource_path and not os.getenv("A2LEARN_DEFAULT_RESOURCE_PATH"):
-            raise HTTPException(status_code=400, detail="Either resource_path or resource_text must be provided")
-        resource_path = _resolve_resource_path(payload.resource_path)
+    resource_path, resource_text = _resolve_generation_resource(
+        payload.resource_path,
+        payload.resource_text or os.getenv("A2LEARN_DEFAULT_RESOURCE_TEXT"),
+        payload.source_ids,
+        payload.resource_query,
+    )
 
     try:
         normalize_generation_profile(payload.generation_profile)
