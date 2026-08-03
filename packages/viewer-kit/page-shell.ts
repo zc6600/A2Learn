@@ -784,6 +784,8 @@ export interface AppPreset {
 
 export interface AppChromeStrings {
   promptPlaceholder: string;
+  sourceLibraryLabel: string;
+  sourceLibraryTitle: string;
   submitLabel: string;
   presetsLabel: string;
   presets: AppPreset[];
@@ -800,6 +802,8 @@ export interface AppChromeStrings {
 
 const DEFAULT_CHROME_ZH: AppChromeStrings = {
   promptPlaceholder: "输入你想学习的知识主题（例如：解释 Hash Map 机制...）",
+  sourceLibraryLabel: "📚 上传资料",
+  sourceLibraryTitle: "上传并选择资料",
   submitLabel: "⚡ 实时生成 Showcase",
   presetsLabel: "热门推荐：",
   presets: [
@@ -863,6 +867,9 @@ export function renderAppFrame(
             placeholder="${chrome.promptPlaceholder}"
             autocomplete="off"
           />
+          <button id="app-source-library-btn" type="button" class="app-btn-icon app-source-library-btn" title="${chrome.sourceLibraryTitle}">
+            ${chrome.sourceLibraryLabel}
+          </button>
           <button id="app-prompt-submit" type="submit" class="app-submit-btn">
             ${chrome.submitLabel}
           </button>

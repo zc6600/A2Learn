@@ -1,9 +1,12 @@
+import tempfile
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
+from apps.api.knowledge_store import KnowledgeStore
 from apps.api.main import app
 from apps.api.session_store import SessionState
 
@@ -55,6 +58,25 @@ class ApiMainTests(unittest.TestCase):
         body = resp.json()
         self.assertEqual(body["session_id"], "sess_test")
         self.assertGreaterEqual(len(body["messages"]), 2)
+
+    def test_upload_source_then_start_session_from_source_id(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source_store = KnowledgeStore(root / "knowledge.sqlite3", root / "files")
+            with patch("apps.api.main.knowledge_store", source_store):
+                uploaded = self.client.post(
+                    "/api/knowledge/sources",
+                    files={"file": ("notes.md", b"# Vectors\n\nA vector has magnitude and direction.", "text/markdown")},
+                )
+                self.assertEqual(uploaded.status_code, 201)
+                source_id = uploaded.json()["source"]["sourceId"]
+
+                session = SessionState(session_id="sess_source", resource_path="text-input", messages=[], surface_ids=[])
+                with patch("apps.api.main.store.create", return_value=session) as create:
+                    response = self.client.post("/api/session/start", json={"sourceIds": [source_id], "resourceQuery": "vector"})
+
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("[Source: notes, page 1]", create.call_args.kwargs["resource_text"])
 
     def test_session_status_pending_omits_messages(self) -> None:
         session = SessionState(
@@ -376,6 +398,73 @@ class ApiMainTests(unittest.TestCase):
         self.assertTrue(runner.call_args.kwargs["selected_component_id"] is None)
         self.assertEqual(runner.call_args.kwargs["document_id"], "project-agent:main")
         self.assertTrue(builder.call_args.kwargs["review_before_apply"])
+
+    def test_project_question_agent_uses_the_read_only_agent(self) -> None:
+        document = {
+            "documentId": "project-question:main",
+            "revision": 1,
+            "surfaceId": "main",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Question target"}},
+            ],
+        }
+        self.client.post(
+            "/api/projects",
+            json={"projectId": "project-question", "source": "generated", "actor": "ai", "documents": [document]},
+        )
+        fake_events = [SimpleNamespace(event="done", data={"threadId": "question-thread"})]
+        with patch("apps.api.main.build_page_question_agent", return_value=object()) as question_builder, patch(
+            "apps.api.main.build_page_editor_agent"
+        ) as editor_builder, patch(
+            "apps.api.main.stream_page_editor_agent", return_value=iter(fake_events)
+        ) as runner:
+            response = self.client.post(
+                "/api/projects/project-question/agent",
+                json={
+                    "message": "Why is this title phrased this way?",
+                    "threadId": "question-thread",
+                    "surfaceId": "main",
+                    "componentId": "title",
+                    "agentMode": "ask",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        question_builder.assert_called_once()
+        editor_builder.assert_not_called()
+        self.assertEqual(runner.call_args.kwargs["selected_component_id"], "title")
+
+    def test_project_agent_resume_rejects_a_changed_agent_mode(self) -> None:
+        document = {
+            "documentId": "project-question-policy:main",
+            "revision": 1,
+            "surfaceId": "main",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Question target"}},
+            ],
+        }
+        self.client.post(
+            "/api/projects",
+            json={"projectId": "project-question-policy", "source": "generated", "actor": "ai", "documents": [document]},
+        )
+        with patch("apps.api.main.build_page_question_agent", return_value=object()), patch(
+            "apps.api.main.stream_page_editor_agent", return_value=iter([SimpleNamespace(event="done", data={"threadId": "question-policy-thread"})])
+        ):
+            started = self.client.post(
+                "/api/projects/project-question-policy/agent",
+                json={"message": "Explain this", "threadId": "question-policy-thread", "surfaceId": "main", "agentMode": "ask"},
+            )
+
+        response = self.client.post(
+            "/api/projects/project-question-policy/agent/resume",
+            json={"threadId": "question-policy-thread", "surfaceId": "main", "agentMode": "edit", "response": "Continue"},
+        )
+
+        self.assertEqual(started.status_code, 200)
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["detail"], "AGENT_THREAD_POLICY_MISMATCH")
 
     def test_project_agent_resume_uses_the_requested_surface_and_response(self) -> None:
         document = {

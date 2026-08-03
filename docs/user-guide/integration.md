@@ -112,7 +112,45 @@ Generates the initial A2UI message list from a path or text prompt.
 - **Response**:
   Returns the complete initial A2UI message JSON array. No session is created in the API server memory.
 
-### 4.2 Stateless Action (`/api/stateless/action`)
+### 4.2 Private knowledge sources (books and notes)
+
+The knowledge-source API implements the ingestion half of a NotebookLM-style
+workflow. It keeps the uploaded original file privately and separately stores
+chunked text with page locations for retrieval and citations.
+
+Upload a source as multipart form data:
+
+```bash
+curl -X POST http://localhost:8008/api/knowledge/sources \
+  -F 'file=@./books/attention.pdf' \
+  -F 'title=Attention Is All You Need'
+```
+
+The response includes an opaque `sourceId`, an `extractionStatus`, and its
+`chunkCount`. Text PDFs and text/Markdown files are immediately `ready`.
+Scanned PDFs and images can return `needs_ocr`; retain the source and process
+it with an OCR worker before using it to generate a course. An image can be
+OCR'd immediately when the server has `tesseract` installed. Native text is
+never needlessly OCR'd, which preserves headings and text fidelity.
+
+Use one or more ready sources for a new session or a stateless generation
+request. `resourceQuery` is used to prioritize relevant chunks; returned text
+includes source/page markers for the generator to retain as citations.
+
+```json
+{
+  "sourceIds": ["src_01abc..."],
+  "resourceQuery": "Explain scaled dot-product attention for beginners",
+  "language": "zh"
+}
+```
+
+For local development, metadata defaults to `./data/a2learn-knowledge.sqlite3`
+and originals to `./data/knowledge-files`. Set
+`A2LEARN_KNOWLEDGE_DB_PATH` and `A2LEARN_KNOWLEDGE_STORAGE_ROOT` in production;
+use a private volume or object-storage adapter, never a public static folder.
+
+### 4.3 Stateless Action (`/api/stateless/action`)
 Evaluates user interaction callbacks (e.g. step selection, code run) and returns incremental update messages.
 - **Request**:
   ```json

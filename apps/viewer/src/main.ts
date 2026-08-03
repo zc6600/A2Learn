@@ -14,6 +14,14 @@ import { bootstrapGallery } from "@a2learn/viewer-kit/gallery/gallery-ui";
 import { pickRenderedComponent } from "./component-picker";
 import { mountFloatingAgent } from "./floating-agent";
 import { mountInlineComponentEditor } from "./inline-component-editor";
+import { mountSourceLibrary } from "./source-library";
+import {
+  createPresentationSurface,
+  findPresentationPageIndex,
+  paginateSurface,
+  type PresentationPage,
+  type PresentationSurface,
+} from "./presentation-paginator";
 import { recentProjects, rememberProject, type RecentProject } from "./recent-projects";
 import {
   GENERATION_COMPONENTS,
@@ -34,6 +42,9 @@ let activeRuntime: {
   processor: MessageProcessor<any>;
   modeHint?: string;
 } | null = null;
+
+let presentationRenderVersion = 0;
+let activePresentationPage: PresentationSurface | null = null;
 
 type SessionStatus = "pending" | "ready" | "error";
 
@@ -68,6 +79,8 @@ type ViewerSourceOnline = {
   apiBaseUrl: string;
   resourcePath?: string;
   resourceText?: string;
+  sourceIds?: string[];
+  resourceQuery?: string;
   language?: Lang;
   headers?: Record<string, string>;
   themeVars?: Record<string, string>;
@@ -157,12 +170,13 @@ const GENERATION_THEME_VAR_NAMES = Array.from(
   new Set(RENDER_THEMES.flatMap((theme) => Object.keys(theme.vars))),
 );
 
-function applyGenerationTheme(themeId: string): void {
+function applyGenerationTheme(themeId: string, displayMode: GenerationProfile["displayMode"] = "standard"): void {
   for (const variable of GENERATION_THEME_VAR_NAMES) {
     document.documentElement.style.removeProperty(variable);
   }
   const theme = getRenderTheme(themeId);
   document.documentElement.dataset.a2learnTheme = theme.id;
+  document.documentElement.dataset.a2learnDisplayMode = displayMode;
   applyThemeVars(theme.vars);
 }
 
@@ -187,6 +201,12 @@ function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string 
         exampleUses: "使用组件：",
         theme: "页面风格",
         themeCopy: "影响页面的颜色、字体、留白和卡片质感。",
+        displayMode: "展示模式",
+        displayModeCopy: "标准模式保留完整页面；演示模式会按内容自动分页，并支持全屏与右键翻页。",
+        standardMode: "标准页面",
+        standardModeCopy: "页面连续阅读，使用原有页签切换。",
+        presentationMode: "自动分页演示",
+        presentationModeCopy: "将当前内容排入 16:9 页面，可全屏展示。",
         intent: "视觉与内容意图（可选）",
         intentPlaceholder: "例如：古典诗词赏析，突出原文、逐句注释与留白，避免科技感卡片堆叠。",
         explain: "讲解",
@@ -203,6 +223,12 @@ function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string 
         exampleUses: "Uses: ",
         theme: "Page style",
         themeCopy: "Changes the page color, typography, spacing, and card feel.",
+        displayMode: "Display mode",
+        displayModeCopy: "Standard keeps the full page; presentation paginates content and supports fullscreen and right-click navigation.",
+        standardMode: "Standard page",
+        standardModeCopy: "Continuous reading with the existing page tabs.",
+        presentationMode: "Auto-paginated presentation",
+        presentationModeCopy: "Fits the current content into 16:9 pages for presenting.",
         intent: "Visual and content intent (optional)",
         intentPlaceholder: "For example: classical poetry analysis with prominent verses, line-by-line annotations, and generous whitespace.",
         explain: "Explain",
@@ -242,6 +268,22 @@ function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string 
       </span>
     </label>`).join("");
 
+  const displayModeOptions = `
+    <label class="generation-theme-option">
+      <input type="radio" name="generation-display-mode" value="standard" ${profile.displayMode === "standard" ? "checked" : ""} />
+      <span class="generation-theme-copy">
+        <span class="generation-theme-label">${copy.standardMode}</span>
+        <span class="generation-theme-description">${copy.standardModeCopy}</span>
+      </span>
+    </label>
+    <label class="generation-theme-option">
+      <input type="radio" name="generation-display-mode" value="presentation" ${profile.displayMode === "presentation" ? "checked" : ""} />
+      <span class="generation-theme-copy">
+        <span class="generation-theme-label">${copy.presentationMode}</span>
+        <span class="generation-theme-description">${copy.presentationModeCopy}</span>
+      </span>
+    </label>`;
+
   const exampleOptions = LOCAL_EXAMPLES.map((example) => {
     const selected = profile.exampleIds.includes(example.id);
     const componentLabels = example.componentIds
@@ -280,6 +322,11 @@ function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string 
         <div class="generation-theme-grid">${themeOptions}</div>
       </section>
       <section class="generation-settings-section">
+        <p class="generation-settings-section-title">${copy.displayMode}</p>
+        <p class="generation-settings-section-copy">${copy.displayModeCopy}</p>
+        <div class="generation-theme-grid">${displayModeOptions}</div>
+      </section>
+      <section class="generation-settings-section">
         <label class="generation-settings-section-title" for="generation-visual-intent">${copy.intent}</label>
         <textarea id="generation-visual-intent" class="app-modal-input generation-intent-input" maxlength="500" placeholder="${escapeHtml(copy.intentPlaceholder)}">${escapeHtml(profile.visualIntent)}</textarea>
       </section>
@@ -292,8 +339,9 @@ function profileFromSettingsInputs(): GenerationProfile {
   const exampleIds = Array.from(document.querySelectorAll<HTMLInputElement>(".generation-example-input:checked"))
     .map((input) => input.dataset.exampleId || "");
   const themeId = document.querySelector<HTMLInputElement>("input[name='generation-theme']:checked")?.value;
+  const displayMode = document.querySelector<HTMLInputElement>("input[name='generation-display-mode']:checked")?.value;
   const visualIntent = (document.getElementById("generation-visual-intent") as HTMLTextAreaElement | null)?.value || "";
-  return normalizeGenerationProfile({ version: 1, enabledComponents, exampleIds, themeId, visualIntent });
+  return normalizeGenerationProfile({ version: 1, enabledComponents, exampleIds, themeId, displayMode, visualIntent });
 }
 
 function syncGenerationSettingsInputs(profile: GenerationProfile): void {
@@ -311,6 +359,8 @@ function syncGenerationSettingsInputs(profile: GenerationProfile): void {
   if (intent) intent.value = profile.visualIntent;
   const selectedTheme = document.querySelector<HTMLInputElement>(`input[name='generation-theme'][value='${profile.themeId}']`);
   if (selectedTheme) selectedTheme.checked = true;
+  const selectedDisplayMode = document.querySelector<HTMLInputElement>(`input[name='generation-display-mode'][value='${profile.displayMode}']`);
+  if (selectedDisplayMode) selectedDisplayMode.checked = true;
 }
 
 function getLocalExampleComponents(exampleId: string): string[] {
@@ -501,6 +551,8 @@ const T: Record<
 const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
   zh: {
     promptPlaceholder: "输入你想学习的知识主题（例如：解释 Hash Map 机制...）",
+    sourceLibraryLabel: "📚 上传资料",
+    sourceLibraryTitle: "上传并选择资料",
     submitLabel: "⚡ 实时生成 Showcase",
     presetsLabel: "热门推荐：",
     presets: [
@@ -521,6 +573,8 @@ const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
   },
   en: {
     promptPlaceholder: "Enter a topic you want to learn (e.g., Explain how Hash Maps work...)",
+    sourceLibraryLabel: "📚 Upload sources",
+    sourceLibraryTitle: "Upload and select sources",
     submitLabel: "⚡ Generate Showcase Live",
     presetsLabel: "Popular picks:",
     presets: [
@@ -709,42 +763,331 @@ function injectPresentationContentTheme(): void {
   const style = document.createElement("style");
   style.id = "a2learn-presentation-content-theme";
   style.textContent = `
-    html[data-a2learn-theme="ppt-stage"] #surface-container {
+    html[data-a2learn-display-mode="presentation"] #surface-container {
       width: min(100%, 1280px);
       margin-inline: auto;
     }
-    html[data-a2learn-theme="ppt-stage"] .surface-tabs-container {
+    html[data-a2learn-display-mode="presentation"] .surface-tabs-container {
       padding: 0 0 18px;
     }
-    html[data-a2learn-theme="ppt-stage"] .surface-tabs {
+    html[data-a2learn-display-mode="presentation"] .surface-tabs {
       justify-content: center;
     }
-    html[data-a2learn-theme="ppt-stage"] .surface-tab {
+    html[data-a2learn-display-mode="presentation"] .surface-tab {
       min-height: 38px;
       border-radius: 2px;
       font-family: var(--a2ui-font-family-title);
       letter-spacing: .02em;
     }
-    html[data-a2learn-theme="ppt-stage"] #surface-container > a2learn-markdown-surface {
+    .presentation-measure-stage {
+      position: fixed;
+      top: 0;
+      left: -10000px;
+      width: 1280px;
+      visibility: hidden;
+      pointer-events: none;
+      contain: layout style;
+    }
+    .presentation-measure-canvas,
+    .presentation-page-canvas {
+      --presentation-canvas-padding: 68px;
       box-sizing: border-box;
-      display: flex;
       width: 100%;
-      min-height: min(72vw, 720px);
-      aspect-ratio: 16 / 9;
-      overflow: auto;
-      padding: clamp(22px, 4vw, 68px);
+      padding: var(--presentation-canvas-padding);
       border: 1px solid var(--a2ui-color-border);
       background: color-mix(in oklab, var(--a2ui-color-surface) 92%, transparent);
       box-shadow: var(--a2learn-panel-shadow);
     }
+    .presentation-measure-canvas {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+    }
+    .presentation-measure-canvas > a2learn-markdown-surface {
+      display: block;
+    }
+    html[data-a2learn-display-mode="presentation"] .presentation-deck {
+      display: grid;
+      gap: 14px;
+    }
+    html[data-a2learn-display-mode="presentation"] .presentation-deck-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 2px 0;
+      color: var(--app-muted);
+      font: 600 14px/1.25 var(--a2ui-font-family-title);
+      letter-spacing: .03em;
+    }
+    html[data-a2learn-display-mode="presentation"] .presentation-deck-title {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    html[data-a2learn-display-mode="presentation"] .presentation-deck-controls {
+      display: flex;
+      flex: none;
+      align-items: center;
+      gap: 8px;
+    }
+    html[data-a2learn-display-mode="presentation"] .presentation-page-count {
+      min-width: 48px;
+      text-align: center;
+    }
+    html[data-a2learn-display-mode="presentation"] .presentation-page-button {
+      min-height: 34px;
+      padding: 6px 10px;
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: 2px;
+      color: var(--a2ui-color-on-surface);
+      background: var(--a2ui-color-surface-subtle);
+      cursor: pointer;
+    }
+    html[data-a2learn-display-mode="presentation"] .presentation-page-button:disabled {
+      cursor: not-allowed;
+      opacity: .42;
+    }
+    html[data-a2learn-display-mode="presentation"] .presentation-page-canvas {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      min-height: 0;
+      overflow: auto;
+    }
+    html[data-a2learn-display-mode="presentation"] .presentation-page-content {
+      width: calc(100% / var(--presentation-page-scale, 1));
+      transform: scale(var(--presentation-page-scale, 1));
+      transform-origin: top left;
+    }
+    html[data-a2learn-display-mode="presentation"] .presentation-page-content > a2learn-markdown-surface {
+      display: block;
+    }
+    html[data-a2learn-display-mode="presentation"] #surface-container:fullscreen {
+      box-sizing: border-box;
+      width: 100vw;
+      height: 100vh;
+      padding: 24px;
+      overflow: auto;
+      background: var(--a2learn-page-background);
+    }
+    html[data-a2learn-display-mode="presentation"] #surface-container:fullscreen .presentation-deck {
+      display: grid;
+      min-height: calc(100vh - 96px);
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+    html[data-a2learn-display-mode="presentation"] #surface-container:fullscreen .presentation-page-canvas {
+      width: min(100%, calc((100vh - 100px) * 16 / 9));
+      max-height: calc(100vh - 100px);
+      margin: auto;
+    }
     @media (max-width: 768px) {
-      html[data-a2learn-theme="ppt-stage"] #surface-container > a2learn-markdown-surface {
+      html[data-a2learn-display-mode="presentation"] .presentation-measure-canvas,
+      html[data-a2learn-display-mode="presentation"] .presentation-page-canvas {
+        --presentation-canvas-padding: 22px;
+      }
+      .presentation-measure-canvas { --presentation-canvas-padding: 68px; }
+      html[data-a2learn-display-mode="presentation"] .presentation-page-canvas {
         min-height: auto;
         aspect-ratio: auto;
+        overflow: visible;
+      }
+      html[data-a2learn-display-mode="presentation"] .presentation-page-content {
+        width: 100%;
+        transform: none;
+      }
+      html[data-a2learn-display-mode="presentation"] .presentation-deck-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      html[data-a2learn-display-mode="presentation"] .presentation-deck-controls {
+        align-self: flex-end;
       }
     }
   `;
   document.head.appendChild(style);
+}
+
+function disposePresentationPage(): void {
+  activePresentationPage?.dispose();
+  activePresentationPage = null;
+}
+
+function renderPresentationDeck(
+  container: HTMLElement,
+  source: any,
+  title: string,
+  modeHint?: string,
+): void {
+  const renderVersion = presentationRenderVersion;
+  const deck = document.createElement("section");
+  deck.className = "presentation-deck";
+  deck.setAttribute("aria-label", modeHint || "Presentation content");
+
+  const toolbar = document.createElement("div");
+  toolbar.className = "presentation-deck-toolbar";
+  const deckTitle = document.createElement("span");
+  deckTitle.className = "presentation-deck-title";
+  deckTitle.textContent = title;
+  const controls = document.createElement("div");
+  controls.className = "presentation-deck-controls";
+  const previous = document.createElement("button");
+  previous.className = "presentation-page-button";
+  previous.type = "button";
+  previous.textContent = getLang() === "zh" ? "上一页" : "Previous";
+  const pageCount = document.createElement("span");
+  pageCount.className = "presentation-page-count";
+  const next = document.createElement("button");
+  next.className = "presentation-page-button";
+  next.type = "button";
+  next.textContent = getLang() === "zh" ? "下一页" : "Next";
+  const fullscreen = document.createElement("button");
+  fullscreen.className = "presentation-page-button";
+  fullscreen.type = "button";
+  fullscreen.textContent = getLang() === "zh" ? "全屏" : "Full screen";
+  fullscreen.addEventListener("click", () => {
+    if (document.fullscreenElement === container) {
+      void document.exitFullscreen();
+      return;
+    }
+    void container.requestFullscreen().catch(() => {
+      // Fullscreen can be disallowed by an embedding host; normal viewing remains available.
+    });
+  });
+  controls.append(previous, pageCount, next, fullscreen);
+  toolbar.append(deckTitle, controls);
+
+  const canvas = document.createElement("div");
+  canvas.className = "presentation-page-canvas";
+  deck.append(toolbar, canvas);
+  container.appendChild(deck);
+
+  const loading = document.createElement("span");
+  loading.className = "presentation-page-count";
+  loading.textContent = getLang() === "zh" ? "正在分页…" : "Paginating…";
+  pageCount.replaceWith(loading);
+  previous.disabled = true;
+  next.disabled = true;
+
+  void paginateSurface(source).then((pages) => {
+    if (renderVersion !== presentationRenderVersion || !deck.isConnected) return;
+    if (!pages?.length) {
+      deck.remove();
+      const fallback = document.createElement("a2learn-markdown-surface") as any;
+      fallback.surface = source;
+      fallback.setAttribute("data-surface-id", source.id ?? "");
+      container.appendChild(fallback);
+      setTimeout(() => stampComponentIds(container), 0);
+      return;
+    }
+
+    let activeIndex = 0;
+    const renderedCount = document.createElement("span");
+    renderedCount.className = "presentation-page-count";
+    loading.replaceWith(renderedCount);
+
+    const renderPage = (index: number) => {
+      if (renderVersion !== presentationRenderVersion) return;
+      activeIndex = index;
+      disposePresentationPage();
+      canvas.innerHTML = "";
+      const page: PresentationPage = pages[activeIndex];
+      canvas.style.setProperty("--presentation-page-scale", String(page.scale));
+      const content = document.createElement("div");
+      content.className = "presentation-page-content";
+      const rendered = document.createElement("a2learn-markdown-surface") as any;
+      activePresentationPage = createPresentationSurface(source, page.items, activeIndex);
+      rendered.surface = activePresentationPage.surface;
+      rendered.setAttribute("data-surface-id", source.id ?? "");
+      content.appendChild(rendered);
+      canvas.appendChild(content);
+      renderedCount.textContent = `${activeIndex + 1} / ${pages.length}`;
+      previous.disabled = activeIndex === 0;
+      next.disabled = activeIndex === pages.length - 1;
+      setTimeout(() => stampComponentIds(canvas), 0);
+    };
+
+    previous.addEventListener("click", () => renderPage(Math.max(0, activeIndex - 1)));
+    next.addEventListener("click", () => renderPage(Math.min(pages.length - 1, activeIndex + 1)));
+    // A right-click on the visible “Next” control is intentionally equivalent
+    // to its normal click, so macOS secondary clicks do not merely focus it.
+    next.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+      if (!next.disabled) next.click();
+    });
+    next.addEventListener("mousedown", (event) => {
+      // macOS can expose a secondary click as button 2 (mouse/two-finger) or
+      // Control+primary click. Handle it at the control itself, before the
+      // browser turns it into a focused context-menu target.
+      if (event.button !== 2 && !(event.button === 0 && event.ctrlKey)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (!next.disabled) next.click();
+    });
+    deck.addEventListener("a2learn:navigate-component", (event) => {
+      const targetComponentId = (event as CustomEvent<{ targetComponentId?: unknown }>).detail?.targetComponentId;
+      if (typeof targetComponentId !== "string") return;
+      const targetPage = findPresentationPageIndex(source, pages, targetComponentId);
+      if (targetPage >= 0 && targetPage !== activeIndex) renderPage(targetPage);
+    });
+
+    // LearningPath normally performs its own hash/DOM navigation. In a paged
+    // presentation, its destination can be on a different generated page, so
+    // resolve the clicked step at the viewer level as well.
+    deck.addEventListener("click", (event) => {
+      const path = event.composedPath();
+      const stepElement = path.find((node) => node instanceof HTMLElement && node.classList.contains("step")) as HTMLElement | undefined;
+      const learningPath = path.find((node) => node instanceof HTMLElement && node.localName === "a2learn-learning-path") as HTMLElement | undefined;
+      if (!stepElement || !learningPath) return;
+      const steps = (learningPath as any).controller?.props?.steps;
+      const siblingSteps = Array.from(stepElement.parentElement?.children || []).filter((node) => node instanceof HTMLElement && node.classList.contains("step"));
+      const stepIndex = siblingSteps.indexOf(stepElement);
+      const step = Array.isArray(steps) && stepIndex >= 0 ? steps[stepIndex] : null;
+      if (!step || typeof step !== "object") return;
+      if (typeof step.targetSurfaceId === "string" && step.targetSurfaceId) {
+        window.location.hash = `#/${step.targetSurfaceId}`;
+      }
+      const targetComponentId = typeof step.targetSectionId === "string"
+        ? step.targetSectionId
+        : typeof step.targetComponentId === "string"
+          ? step.targetComponentId
+          : "";
+      if (targetComponentId) {
+        const targetPage = findPresentationPageIndex(source, pages, targetComponentId);
+        if (targetPage >= 0 && targetPage !== activeIndex) renderPage(targetPage);
+      }
+    }, true);
+
+    const isInteractiveTarget = (event: MouseEvent | PointerEvent): boolean => {
+      const selector = "a, button, input, select, textarea, summary, [contenteditable='true'], [data-presentation-preserve-contextmenu]";
+      return event.composedPath().some((node) => node instanceof Element && !!node.closest(selector));
+    };
+    const advanceWithRightClick = (event: MouseEvent | PointerEvent): boolean => {
+      if (isInteractiveTarget(event) || activeIndex >= pages.length - 1) return false;
+      event.preventDefault();
+      renderPage(activeIndex + 1);
+      return true;
+    };
+    let latestRightPointerAt = 0;
+    const handleRightPointer = (event: PointerEvent | MouseEvent) => {
+      if (event.button !== 2) return;
+      if (advanceWithRightClick(event)) latestRightPointerAt = Date.now();
+    };
+    canvas.addEventListener("pointerdown", handleRightPointer, true);
+    canvas.addEventListener("mousedown", handleRightPointer, true);
+    canvas.addEventListener("contextmenu", (event) => {
+      if (Date.now() - latestRightPointerAt < 600) {
+        event.preventDefault();
+        return;
+      }
+      advanceWithRightClick(event);
+    }, true);
+    renderPage(0);
+  }).catch((error: unknown) => {
+    if (renderVersion !== presentationRenderVersion || !deck.isConnected) return;
+    deck.remove();
+    showState(container, `Unable to paginate presentation content: ${String(error)}`, "error");
+  });
 }
 
 export function renderSurfaces(
@@ -754,6 +1097,10 @@ export function renderSurfaces(
 ): void {
   injectRoutingTheme();
   injectPresentationContentTheme();
+  const generationProfile = getStoredGenerationProfile();
+  document.documentElement.dataset.a2learnDisplayMode = generationProfile.displayMode;
+  presentationRenderVersion += 1;
+  disposePresentationPage();
 
   const surfaces = Array.from(processor.model.surfacesMap.values());
   if (surfaces.length === 0) {
@@ -811,6 +1158,10 @@ export function renderSurfaces(
   // Render only the active surface
   const activeSurface = surfaces.find(s => s.id === activeId);
   if (activeSurface) {
+    if (generationProfile.displayMode === "presentation") {
+      renderPresentationDeck(container, activeSurface, getSurfaceTitle(activeSurface), modeHint);
+      return;
+    }
     const el = document.createElement("a2learn-markdown-surface") as any;
     el.surface = activeSurface;
     el.setAttribute("data-surface-id", activeSurface.id ?? "");
@@ -939,6 +1290,8 @@ async function bootstrapOnline(
   const startPayload = {
     resource_path: source.resourcePath || undefined,
     resource_text: source.resourceText || undefined,
+    sourceIds: source.sourceIds || undefined,
+    resourceQuery: source.resourceQuery || undefined,
     language: source.language || getLang(),
     generationProfile: getStoredGenerationProfile(),
   };
@@ -1269,6 +1622,7 @@ function bindShellControls(
   onGenerate: (promptText: string) => void,
   onSwitchLang: (lang: Lang) => void,
   onSelectExample: (id: string) => void,
+  onOpenSourceLibrary?: () => void,
 ): void {
   updateKeyPillStatus();
 
@@ -1280,6 +1634,7 @@ function bindShellControls(
   const keyInput = document.getElementById("app-api-key-input") as HTMLInputElement | null;
   const form = document.getElementById("app-prompt-form") as HTMLFormElement | null;
   const promptInput = document.getElementById("app-prompt-input") as HTMLInputElement | null;
+  const sourceLibraryButton = document.getElementById("app-source-library-btn");
   const componentInputs = document.querySelectorAll<HTMLInputElement>(".generation-component-input");
   const exampleInputs = document.querySelectorAll<HTMLInputElement>(".generation-example-input");
 
@@ -1295,7 +1650,7 @@ function bindShellControls(
       updateKeyPillStatus();
     }
     const profile = setStoredGenerationProfile(profileFromSettingsInputs());
-    applyGenerationTheme(profile.themeId);
+    applyGenerationTheme(profile.themeId, profile.displayMode);
     if (activeRuntime) {
       renderSurfaces(activeRuntime.container, activeRuntime.processor, activeRuntime.modeHint);
     }
@@ -1359,6 +1714,8 @@ function bindShellControls(
     }
     onGenerate(promptText);
   });
+
+  sourceLibraryButton?.addEventListener("click", () => onOpenSourceLibrary?.());
 
   document.querySelectorAll(".app-preset-chip").forEach((chip) => {
     chip.addEventListener("click", () => {
@@ -1441,7 +1798,8 @@ async function bootstrapViewer() {
   applyEmbedFlag(initialConfig.embed);
   applyThemeVars(initialConfig.source.themeVars);
   if (!initialConfig.embed && !initialConfig.source.themeVars) {
-    applyGenerationTheme(getStoredGenerationProfile().themeId);
+    const profile = getStoredGenerationProfile();
+    applyGenerationTheme(profile.themeId, profile.displayMode);
   }
 
   // Whether the caller explicitly asked for a particular source (query
@@ -1686,6 +2044,45 @@ async function bootstrapViewer() {
     void startWithConfig(onlineConfig, false);
   };
 
+  const onGenerateFromSources = (sourceIds: string[], resourceQuery: string) => {
+    const target = container;
+    if (!target) return;
+    currentContent = { kind: "other" };
+    updateProjectUrl(null);
+    const currentApiUrl =
+      initialConfig.source.mode === "online"
+        ? initialConfig.source.apiBaseUrl
+        : (import.meta.env.VITE_A2LEARN_API_URL || "").trim();
+    if (!currentApiUrl) {
+      showState(target, T[getLang()].noBackendConfigured, "error");
+      return;
+    }
+    const userKey = getStoredApiKey();
+    void startWithConfig({
+      embed: false,
+      source: {
+        mode: "online",
+        apiBaseUrl: normalizeBaseUrl(currentApiUrl),
+        sourceIds,
+        resourceQuery: resourceQuery || undefined,
+        language: getLang(),
+        headers: userKey ? { Authorization: `Bearer ${userKey}` } : undefined,
+      },
+    }, false);
+  };
+
+  const sourceLibrary = initialConfig.embed
+    ? null
+    : mountSourceLibrary({
+        getApiBaseUrl: editorApiBaseUrl,
+        getApiKey: getStoredApiKey,
+        getLanguage: () => (getLang() === "en" ? "en" : "zh"),
+        onGenerate: onGenerateFromSources,
+      });
+  if (sourceLibrary) {
+    languageChangeControllers.push(sourceLibrary);
+  }
+
   // "Explore this concept" (tooltip button) opens the generated deep-dive in
   // a new tab instead of replacing the page the visitor is currently reading
   // — swapping it in place would discard their spot in the showcase they
@@ -1719,7 +2116,7 @@ async function bootstrapViewer() {
     if (!target) return;
     stopResize();
     stopResize = setupAutoResize(target, () => parentOrigin);
-    bindShellControls(onGenerate, switchLanguage, selectExample);
+    bindShellControls(onGenerate, switchLanguage, selectExample, sourceLibrary?.open);
 
     if (currentContent.kind === "example") {
       const item = getExampleItems(newLang).find((i) => i.id === currentContent.id);
@@ -1737,7 +2134,7 @@ async function bootstrapViewer() {
   };
 
   if (!initialConfig.embed) {
-    bindShellControls(onGenerate, switchLanguage, selectExample);
+    bindShellControls(onGenerate, switchLanguage, selectExample, sourceLibrary?.open);
     bindGlobalListenersOnce(openExploreInNewTab);
   }
 

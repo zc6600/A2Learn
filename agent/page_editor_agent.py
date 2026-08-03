@@ -64,6 +64,20 @@ Rules:
    otherwise.
 """
 
+PAGE_QUESTION_SYSTEM_PROMPT = """You are A2Learn's learning Q&A assistant.
+
+Answer questions about the currently selected learning page. Before answering a
+question about page content, call get_page_document so your answer is grounded
+in the current document. If a selected component is supplied, focus on it
+unless the learner explicitly asks about the whole page. You may call
+get_page_history when the learner asks about previous edits.
+
+Explain clearly, use small examples when helpful, and answer in the learner's
+language. You are strictly read-only: never claim to have changed the page and
+never suggest that a page edit was applied. If the learner asks for a change,
+briefly tell them to switch to Edit mode.
+"""
+
 
 @dataclass(frozen=True)
 class PageEditorContext:
@@ -165,6 +179,7 @@ def apply_page_operations(
 
 
 PAGE_EDITOR_TOOLS = [get_page_document, get_page_history, ask_user, apply_page_operations]
+PAGE_QUESTION_TOOLS = [get_page_document, get_page_history]
 
 
 def create_page_editor_agent(
@@ -200,6 +215,18 @@ def create_page_editor_agent(
     )
 
 
+def create_page_question_agent(model: Any, *, checkpointer: Any | None = None) -> Any:
+    """Create a read-only learning Q&A agent for the current PageDocument."""
+    return create_agent(
+        model=model,
+        tools=PAGE_QUESTION_TOOLS,
+        system_prompt=PAGE_QUESTION_SYSTEM_PROMPT,
+        context_schema=PageEditorContext,
+        checkpointer=checkpointer,
+        name="page_question",
+    )
+
+
 def build_page_editor_agent(
     api_key: str | None = None,
     *,
@@ -212,6 +239,15 @@ def build_page_editor_agent(
         checkpointer=checkpointer,
         review_before_apply=review_before_apply,
     )
+
+
+def build_page_question_agent(
+    api_key: str | None = None,
+    *,
+    checkpointer: Any | None = None,
+) -> Any:
+    """Build the production read-only PageDocument Q&A agent."""
+    return create_page_question_agent(build_page_editor_llm(api_key), checkpointer=checkpointer)
 
 
 def stream_page_editor_agent(

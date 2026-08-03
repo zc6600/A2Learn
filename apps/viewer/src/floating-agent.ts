@@ -83,6 +83,10 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     .a2learn-agent-close { border: 0; background: transparent; color: var(--app-muted, #64748b); cursor: pointer; font-size: 18px; }
     .a2learn-agent-target { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--a2ui-color-border, #e2e8f0); color: var(--app-muted, #64748b); font-size: 12px; }
     .a2learn-agent-target-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .a2learn-agent-intent { display: flex; gap: 5px; padding: 8px 12px 7px; border-bottom: 1px solid var(--a2ui-color-border, #e2e8f0); }
+    .a2learn-agent-intent-button { border: 1px solid var(--a2ui-color-border, #cbd5e1); border-radius: var(--a2learn-pill-radius, 999px); padding: 4px 8px; background: var(--a2ui-color-surface, #fff); color: var(--app-muted, #64748b); cursor: pointer; font: inherit; font-size: 11px; font-weight: 700; }
+    .a2learn-agent-intent-button.active { border-color: var(--a2ui-color-primary, #0d9488); background: #f0fdfa; color: var(--a2ui-color-primary, #0f766e); }
+    .a2learn-agent-intent-button:disabled { cursor: not-allowed; opacity: .55; }
     .a2learn-agent-mode { display: flex; gap: 5px; padding: 7px 12px; border-bottom: 1px solid var(--a2ui-color-border, #e2e8f0); background: var(--a2ui-color-surface-subtle, #f8fafc); }
     .a2learn-agent-mode-button { border: 1px solid var(--a2ui-color-border, #cbd5e1); border-radius: var(--a2learn-pill-radius, 999px); padding: 4px 8px; background: var(--a2ui-color-surface, #fff); color: var(--app-muted, #64748b); cursor: pointer; font: inherit; font-size: 11px; font-weight: 700; }
     .a2learn-agent-mode-button.active { border-color: var(--a2ui-color-primary, #0d9488); background: #f0fdfa; color: var(--a2ui-color-primary, #0f766e); }
@@ -134,9 +138,10 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   const root = document.createElement("div");
   root.id = "a2learn-floating-agent";
   root.innerHTML = `
-    <section class="a2learn-agent-panel" aria-label="页面编辑 Agent">
+    <section class="a2learn-agent-panel" aria-label="学习 Agent">
       <header class="a2learn-agent-head"><span class="a2learn-agent-title"></span><span class="a2learn-agent-actions"><button class="a2learn-agent-new a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-recent-toggle a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-history-toggle a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-close" type="button">×</button></span></header>
       <div class="a2learn-agent-target"><span class="a2learn-agent-target-label"></span><button class="a2learn-agent-pick a2learn-agent-text-button" type="button"></button></div>
+      <div class="a2learn-agent-intent"><button class="a2learn-agent-intent-button" data-agent-mode="ask" type="button"></button><button class="a2learn-agent-intent-button" data-agent-mode="edit" type="button"></button></div>
       <div class="a2learn-agent-mode"><button class="a2learn-agent-mode-button" data-approval-mode="direct" type="button"></button><button class="a2learn-agent-mode-button" data-approval-mode="review" type="button"></button></div>
       <form class="a2learn-agent-create"><input class="a2learn-agent-create-input" /><button class="a2learn-agent-create-submit" type="submit"></button></form>
       <div class="a2learn-agent-recents"></div>
@@ -157,6 +162,8 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   const recentToggle = root.querySelector<HTMLButtonElement>(".a2learn-agent-recent-toggle")!;
   const historyToggle = root.querySelector<HTMLButtonElement>(".a2learn-agent-history-toggle")!;
   const targetLabel = root.querySelector<HTMLElement>(".a2learn-agent-target-label")!;
+  const intentButtons = Array.from(root.querySelectorAll<HTMLButtonElement>(".a2learn-agent-intent-button"));
+  const approvalModes = root.querySelector<HTMLElement>(".a2learn-agent-mode")!;
   const pick = root.querySelector<HTMLButtonElement>(".a2learn-agent-pick")!;
   const modeButtons = Array.from(root.querySelectorAll<HTMLButtonElement>(".a2learn-agent-mode-button"));
   const createForm = root.querySelector<HTMLFormElement>(".a2learn-agent-create")!;
@@ -177,6 +184,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   let threadId = "";
   let selectedComponentId: string | null = null;
   let waitingForHumanInput = false;
+  let agentMode: "ask" | "edit" = "ask";
   let approvalMode: "direct" | "review" = "direct";
   let pageEpoch = 0;
 
@@ -184,10 +192,19 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
 
   const updateLabels = () => {
     const english = options.getLanguage() === "en";
-    launcher.textContent = english ? "✦ Edit case" : "✦ 修改案例";
-    title.textContent = english ? "Page Editor Agent" : "页面编辑 Agent";
-    input.placeholder = english ? "For example: Make this case title more concise" : "例如：把这个案例的标题改得更简洁";
-    input.setAttribute("aria-label", english ? "Instruction for page editor Agent" : "给页面编辑 Agent 的指令");
+    const isQuestionMode = agentMode === "ask";
+    launcher.textContent = isQuestionMode
+      ? (english ? "✦ Ask about case" : "✦ 案例问答")
+      : (english ? "✦ Edit case" : "✦ 修改案例");
+    title.textContent = isQuestionMode
+      ? (english ? "Learning Q&A" : "学习问答")
+      : (english ? "Page Editor Agent" : "页面编辑 Agent");
+    input.placeholder = isQuestionMode
+      ? (english ? "For example: Why does this approach avoid collisions?" : "例如：这个方法为什么能避免冲突？")
+      : (english ? "For example: Make this case title more concise" : "例如：把这个案例的标题改得更简洁");
+    input.setAttribute("aria-label", isQuestionMode
+      ? (english ? "Question for the learning assistant" : "向学习助手提问")
+      : (english ? "Instruction for page editor Agent" : "给页面编辑 Agent 的指令"));
     send.textContent = english ? "Send" : "发送";
     close.setAttribute("aria-label", english ? "Close" : "关闭");
     newProject.textContent = english ? "New" : "新建";
@@ -198,6 +215,12 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     createSubmit.textContent = english ? "Create" : "创建";
     reviewInput.placeholder = english ? "Or write a different direction" : "或输入其他修改方向";
     reviewSubmit.textContent = english ? "Reply" : "回复";
+    intentButtons.forEach((button) => {
+      const mode = button.dataset.agentMode === "edit" ? "edit" : "ask";
+      button.textContent = mode === "ask" ? (english ? "Ask" : "问答") : (english ? "Edit" : "编辑");
+      button.classList.toggle("active", agentMode === mode);
+    });
+    approvalModes.hidden = isQuestionMode;
     modeButtons.forEach((button) => {
       const mode = button.dataset.approvalMode === "review" ? "review" : "direct";
       button.textContent = mode === "review"
@@ -358,6 +381,21 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     updateLabels();
   });
 
+  intentButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (waitingForHumanInput) return;
+      const nextMode = button.dataset.agentMode === "edit" ? "edit" : "ask";
+      if (nextMode === agentMode) return;
+      // Q&A and edit have different tool permissions. A thread therefore
+      // belongs to exactly one mode and is never reused across that boundary.
+      agentMode = nextMode;
+      threadId = "";
+      clearReview();
+      updateLabels();
+      input.focus();
+    });
+  });
+
   modeButtons.forEach((button) => {
     button.addEventListener("click", () => {
       if (waitingForHumanInput) return;
@@ -371,6 +409,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   const setComposerDisabled = (disabled: boolean) => {
     input.disabled = disabled;
     send.disabled = disabled;
+    intentButtons.forEach((button) => { button.disabled = disabled; });
     modeButtons.forEach((button) => { button.disabled = disabled; });
   };
 
@@ -442,6 +481,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
         body: JSON.stringify({
           threadId,
           surfaceId: options.getSurfaceId(),
+          agentMode,
           approvalMode,
           decision,
           response: responseText.trim() || undefined,
@@ -561,7 +601,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     const projectId = options.getProjectId();
     const apiBaseUrl = options.getApiBaseUrl().replace(/\/+$/, "");
     if (!projectId) {
-      addMessage(events, "error", text("请先选择一个案例，再修改页面。", "Select a case before editing the page."));
+      addMessage(events, "error", text("请先选择一个案例。", "Select a case first."));
       return;
     }
     if (!apiBaseUrl) {
@@ -582,11 +622,14 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
           threadId: threadId || undefined,
           surfaceId: options.getSurfaceId(),
           componentId: selectedComponentId || undefined,
+          agentMode,
           approvalMode,
         }),
       });
       if (requestEpoch !== pageEpoch) return;
-      addMessage(events, "status", text("Agent 正在修改当前案例…", "The Agent is editing this case…"));
+      addMessage(events, "status", agentMode === "ask"
+        ? text("学习助手正在阅读当前案例…", "The learning assistant is reading this case…")
+        : text("Agent 正在修改当前案例…", "The Agent is editing this case…"));
       await consumeAgentStream(response, showHumanInput, requestEpoch);
     } catch (error) {
       if (requestEpoch === pageEpoch) {
@@ -607,6 +650,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       // document, even if both rendered components happen to share an id.
       threadId = "";
       selectedComponentId = null;
+      agentMode = "ask";
       approvalMode = "direct";
       pageEpoch += 1;
       clearReview();
