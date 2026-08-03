@@ -38,13 +38,131 @@ The FastAPI server exposes one write path for both actors:
 | --- | --- |
 | `POST /api/page-documents` | Create revision 1 and return an A2UI snapshot. |
 | `GET /api/page-documents/{id}` | Read the current source document. |
+| `GET /api/page-documents/{id}/revisions/{revision}` | Read an immutable complete PageDocument snapshot. |
 | `PUT /api/page-documents/{id}` | Submit an edited document with `baseRevision`; return an incremental patch or a reset/snapshot plan. |
+| `POST /api/page-documents/{id}/operations` | Apply a constrained human or AI operation against `baseRevision`. |
 | `GET /api/page-documents/{id}/a2ui` | Get a fresh snapshot for a newly connected or resynchronized renderer. |
 | `GET /api/page-documents/{id}/history` | Inspect human/AI revision metadata. |
 
 The update request includes `actor` (`human` or `ai`), `summary`, `baseRevision`, and `document`. The submitted document keeps the base revision. The server validates the optimistic lock and assigns the next revision atomically. A stale write receives `409 PAGE_DOCUMENT_REVISION_CONFLICT` with the current revision.
 
+The constrained operations endpoint uses the same operation contract as the
+Agent tool. For example, a human client changes one component with:
+
+```json
+{
+  "actor": "human",
+  "baseRevision": 3,
+  "operations": [
+    {"op": "set_props", "component_id": "title", "props": {"text": "New title"}}
+  ]
+}
+```
+
+The currently supported operations are `set_props`, `insert_component`, and
+leaf-only `remove_component`. The snake_case fields are intentional: this is
+the shared tool contract, not a separately shaped browser-only API.
+
 This store is intentionally in-memory and is suitable only for the POC. Production should persist both documents and revision records in a transactional database, with authentication-derived actor identity rather than a caller-provided `actor` field.
+
+For a persistent local POC, configure the SQLite path before starting FastAPI:
+
+```bash
+export A2LEARN_PAGE_DOCUMENT_DB_PATH=./data/page-documents.sqlite3
+uv run uvicorn apps.api.main:app --reload
+```
+
+If the variable is unset, the API uses the in-memory repository. This keeps
+tests and disposable experiments isolated; the SQLite repository creates its
+parent directory and schema on first startup.
+
+The Page Editor Agent's LangGraph checkpoint is SQLite-backed as well. It
+defaults to `./data/a2learn-agent-checkpoints.sqlite3`, or shares
+`A2LEARN_PAGE_DOCUMENT_DB_PATH` when that variable is configured. Set
+`A2LEARN_AGENT_CHECKPOINT_DB_PATH` only when checkpoints should use a separate
+database file. This makes a paused human-in-the-loop approval resumable after
+an API restart.
+
+## Floating Editor Agent
+
+The Viewer keeps its existing learning-page structure, surface tabs, and hash
+navigation. It adds only a small fixed bottom-right `修改案例` launcher
+(`Edit case` in English). The
+launcher derives the current example/project from the existing selection and
+sends Agent requests with the current surface as context. A successful
+`tool_end` applies `result.sync.messages` to the existing `MessageProcessor`;
+the final `assistant_message` is explanatory text only.
+
+The panel also creates a minimal generated project without replacing the
+Viewer shell. Its explicit component-picker mode uses the A2UI component IDs
+stamped into rendered Shadow DOM nodes, so ordinary component interaction is
+unaffected. The selected ID is sent to the editor Agent as trusted context.
+
+Revision numbers remain an internal concurrency/audit mechanism. They are not
+shown as editor UI to learners.
+
+## Project identity compatibility layer
+
+Examples and user-generated pages use a project-level identity such as
+`hash-table` or `user-project-123`. A project groups one or more surface-level
+PageDocuments without changing the existing PageDocument endpoints:
+
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /api/projects` | Register an example or generated project with one or more PageDocuments. |
+| `GET /api/projects/{id}` | Read the project metadata and its current surface documents. |
+| `POST /api/projects/{id}/ensure-example` | Import a bundled example by stable project ID on first access. |
+| `GET /api/projects/{id}/history` | Aggregate revision history across the project's surfaces. |
+| `GET /api/projects/{id}/a2ui` | Return the combined A2UI snapshot for all project surfaces. |
+| `POST /api/projects/{id}/agent` | Run the editing Agent against the requested `surfaceId`. |
+
+`source` is either `example` or `generated`. When
+`A2LEARN_PAGE_DOCUMENT_DB_PATH` is configured, project metadata is persisted
+in that same SQLite database alongside the PageDocuments. Without it, both
+stores intentionally remain in memory for tests and disposable local runs.
+The SQLite ProjectStore owns project creation and uses the PageDocument
+repository's shared transaction, so a failed project-map insert rolls back the
+new PageDocuments as well.
+This is an anonymous workspace model: project IDs are opaque UUIDs, not user
+accounts or permissions. The Editor/Agent context is bound to
+`projectId + surfaceId`, while the legacy `/api/page-documents/*` routes stay
+available.
+
+## Anonymous workspace history
+
+Every PageDocument revision stores a complete source snapshot. The restore
+endpoints make an earlier snapshot the *next* revision rather than mutating
+history:
+
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /api/page-documents/{id}/revisions/{revision}/restore` | Restore one document snapshot. |
+| `POST /api/projects/{id}/restore` | Restore a document owned by a project. |
+
+The floating editor lists change summaries and timestamps, not revision
+numbers. A restore is explicit and produces normal A2UI sync messages, so the
+currently rendered surface updates immediately.
+
+## Human component edits
+
+The Viewer supports direct human editing without exposing component JSON.
+Double-clicking a supported rendered component opens a small field-based editor
+beside it. The schema covers scalar fields and editable list entries for the
+learning cards, paths, sections, resources, timelines, dialogues, quizzes,
+code, flashcards, figures, knowledge trees, course outlines, papers,
+references, matching exercises, and formula derivations. It sends only changed props through
+`POST /api/projects/{id}/components/{componentId}`, using a human-authored
+`set_props` operation. This keeps human and AI changes on the same
+PageDocument history and renderer sync path.
+
+For example, the first access to `hash-table` can import its four bundled
+surfaces with:
+
+```bash
+curl -X POST http://localhost:8008/api/projects/hash-table/ensure-example \
+  -H 'Content-Type: application/json' \
+  -d '{"language":"zh"}'
+```
 
 ## Page Editor Agent POC
 

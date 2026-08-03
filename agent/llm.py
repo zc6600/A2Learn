@@ -7,6 +7,7 @@ from typing import Any
 from dotenv import load_dotenv
 
 from .config import DEFAULT_CATALOG_ID, DEFAULT_MODEL
+from .generation_profile import load_reference_examples
 
 try:
     from langchain_openai import ChatOpenAI
@@ -249,7 +250,17 @@ def plan_curriculum(llm: Any, resource_text: str, target_language: str = "zh") -
     )
 
 
-def build_site_plan(llm: Any, curriculum: dict[str, Any], target_language: str = "zh") -> dict[str, Any]:
+def build_site_plan(
+    llm: Any,
+    curriculum: dict[str, Any],
+    target_language: str = "zh",
+    enabled_components: tuple[str, ...] | None = None,
+) -> dict[str, Any]:
+    component_choices = ", ".join(enabled_components) if enabled_components is not None else (
+        "LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, "
+        "ScenarioDialogue, Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, "
+        "PaperAbstract, LiteratureReference, InteractiveFormula"
+    )
     system_prompt = textwrap.dedent(
         f"""
         You are an A2Learn agent that MUST output a site plan as a JSON object.
@@ -259,8 +270,7 @@ def build_site_plan(llm: Any, curriculum: dict[str, Any], target_language: str =
         - {_language_instruction(target_language)}
         - Include: siteTitle, surfaces (array).
         - Each surface: surfaceId, title, description, moduleId (optional), recommendedComponents (array).
-        - recommendedComponents must be chosen from: LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt,
-          ScenarioDialogue, Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.
+        - recommendedComponents must be chosen only from: {component_choices}.
         - HARD CAP: at most 4 surfaces total, even for a broad/complex topic.
           The next generation step writes rich, detailed content for every
           surface in a single response with a finite token budget — more
@@ -283,7 +293,12 @@ def build_site_plan(llm: Any, curriculum: dict[str, Any], target_language: str =
     )
 
 
-def _load_a2ui_examples_text(target_language: str) -> str:
+def _load_a2ui_examples_text(
+    target_language: str,
+    example_ids: tuple[str, ...] | None = None,
+) -> str:
+    if example_ids is not None:
+        return load_reference_examples(example_ids, target_language)
     from pathlib import Path
 
     examples_dir = Path(__file__).parent.parent / "packages" / "a2learn-catalog" / "examples" / "Website"
@@ -308,7 +323,13 @@ def _load_a2ui_examples_text(target_language: str) -> str:
     return "\n\nHere are some examples of valid A2UI message arrays:\n" + "\n\n".join(examples)
 
 
-def _a2ui_system_prompt(target_language: str, scope_instruction: str) -> str:
+def _a2ui_system_prompt(
+    target_language: str,
+    scope_instruction: str,
+    enabled_components: tuple[str, ...] | None = None,
+    example_ids: tuple[str, ...] | None = None,
+    visual_intent: str = "",
+) -> str:
     """Shared prompt body for both the single-shot (generate_a2ui_messages)
     and per-surface (generate_a2ui_messages_per_surface) generators —
     `scope_instruction` is the only part that differs between them (whole
@@ -317,6 +338,20 @@ def _a2ui_system_prompt(target_language: str, scope_instruction: str) -> str:
         "TARGET LANGUAGE: CHINESE (简体中文). All generated titles, descriptions, definitions, dialogues, analogies, and tooltips MUST be in clear, engaging, professional Chinese."
         if target_language == "zh" else
         "TARGET LANGUAGE: ENGLISH. All generated titles, descriptions, definitions, dialogues, analogies, and tooltips MUST be in fluent, clear, engaging, professional English."
+    )
+
+    component_constraint = (
+        "- COMPONENT ALLOWLIST: You may use only these custom learning components: "
+        + (", ".join(enabled_components) or "none")
+        + ". Column and Text remain available for structural layout. Do not use any other custom learning component."
+        if enabled_components is not None
+        else "- Components MUST be practical for interactive learning and should prefer: LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue, Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula."
+    )
+    visual_instruction = (
+        f"- VISUAL AND CONTENT INTENT: {visual_intent}\n"
+        "  Reflect this intent through hierarchy, content density, and component choice. Do not output CSS."
+        if visual_intent
+        else ""
     )
 
     system_prompt = textwrap.dedent(
@@ -349,9 +384,8 @@ def _a2ui_system_prompt(target_language: str, scope_instruction: str) -> str:
         - Every message MUST include: "version": "v0.9".
         - Must include createSurface and updateComponents.
         - createSurface.catalogId MUST be "{DEFAULT_CATALOG_ID}".
-        - Components MUST be practical for interactive learning and should prefer:
-          LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue,
-          Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.
+        {component_constraint}
+        {visual_instruction}
         - 5-STEP PROBLEM-DRIVEN MODULE METHODOLOGY:
           Every module MUST strictly follow these 5 sequential steps internally:
           1. Introduce the background and practical pain point.
@@ -400,18 +434,28 @@ def _a2ui_system_prompt(target_language: str, scope_instruction: str) -> str:
         """
     ).strip()
 
-    examples_text = _load_a2ui_examples_text(target_language)
+    examples_text = _load_a2ui_examples_text(target_language, example_ids)
     if examples_text:
         system_prompt += "\n" + examples_text
     return system_prompt
 
 
-def generate_a2ui_messages(llm: Any, resource_text: str, target_language: str = "zh") -> list[dict[str, Any]]:
+def generate_a2ui_messages(
+    llm: Any,
+    resource_text: str,
+    target_language: str = "zh",
+    enabled_components: tuple[str, ...] | None = None,
+    example_ids: tuple[str, ...] | None = None,
+    visual_intent: str = "",
+) -> list[dict[str, Any]]:
     system_prompt = _a2ui_system_prompt(
         target_language,
         'Return ONLY a JSON object of the form {"a2ui_messages": [...]}, where '
         "the array holds ALL A2UI messages for the ENTIRE course (every "
         "surface's createSurface + updateComponents), no explanation.",
+        enabled_components,
+        example_ids,
+        visual_intent,
     )
     user_prompt = (
         "Based on the following teaching resource, directly generate the A2UI message array (component tree).\n\n"
@@ -433,6 +477,9 @@ def generate_a2ui_messages_per_surface(
     resource_text: str,
     site_plan: dict[str, Any],
     target_language: str = "zh",
+    enabled_components: tuple[str, ...] | None = None,
+    example_ids: tuple[str, ...] | None = None,
+    visual_intent: str = "",
 ) -> list[dict[str, Any]]:
     """Generates one surface at a time instead of the whole course in a
     single completion. Splitting shrinks each individual JSON response a
@@ -441,7 +488,9 @@ def generate_a2ui_messages_per_surface(
     cost of one LLM call per surface instead of one call total."""
     surfaces = site_plan.get("surfaces") if isinstance(site_plan, dict) else None
     if not surfaces:
-        return generate_a2ui_messages(llm, resource_text, target_language)
+        return generate_a2ui_messages(
+            llm, resource_text, target_language, enabled_components, example_ids, visual_intent
+        )
 
     site_overview = json.dumps(
         {"siteTitle": site_plan.get("siteTitle"), "surfaces": surfaces},
@@ -459,6 +508,9 @@ def generate_a2ui_messages_per_surface(
             "containing EXACTLY ONE createSurface message and its matching "
             f'updateComponents message, both for surfaceId "{surface_id}" — '
             "do not generate any other surface, no explanation.",
+            enabled_components,
+            example_ids,
+            visual_intent,
         )
         user_prompt = (
             "Generate A2UI messages (createSurface + updateComponents) only for the specified surface, "

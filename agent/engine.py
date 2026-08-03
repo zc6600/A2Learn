@@ -17,6 +17,7 @@ from .llm import (
 )
 from .validate import validate_a2ui_messages
 from .parser import parse_json_to_a2ui
+from .generation_profile import load_reference_examples, normalize_generation_profile
 
 
 
@@ -32,6 +33,7 @@ class AgentState(TypedDict, total=False):
     output_dir: str
     generated_messages_path: str
     target_language: str
+    generation_profile: dict[str, Any]
 
 
 def _log(msg: str) -> None:
@@ -71,7 +73,13 @@ def _node_plan_curriculum(state: AgentState) -> AgentState:
 def _node_build_site(state: AgentState) -> AgentState:
     _log("🏗️  Step 2/3: Building site plan (calling LLM, please wait...)")
     llm = build_llm(api_key=state.get("api_key"))
-    site_plan = build_site_plan(llm, state["curriculum"], state.get("target_language", "zh"))
+    profile = normalize_generation_profile(state.get("generation_profile"))
+    site_plan = build_site_plan(
+        llm,
+        state["curriculum"],
+        state.get("target_language", "zh"),
+        profile.enabled_components,
+    )
     _log(f"✅ Site plan built: {len(site_plan.get('surfaces', []))} surfaces.")
     output_dir = state.get("output_dir")
     if output_dir:
@@ -84,6 +92,7 @@ def _validate_or_repair(
     llm: Any,
     messages: list[dict[str, Any]],
     max_repair_attempts: int,
+    permitted_custom_components: tuple[str, ...] | None = None,
 ) -> list[dict[str, Any]]:
     """validate_a2ui_messages() raising is otherwise a hard failure of the
     whole generation, even though most violations (a wrong catalogId, an
@@ -93,7 +102,7 @@ def _validate_or_repair(
     fail immediately on the first validation error, as before."""
     for attempt in range(max_repair_attempts + 1):
         try:
-            validate_a2ui_messages(messages)
+            validate_a2ui_messages(messages, permitted_custom_components=permitted_custom_components)
             return messages
         except ValueError as exc:
             if attempt == max_repair_attempts:
@@ -109,6 +118,7 @@ def _validate_or_repair(
 def _node_generate_messages(state: AgentState) -> AgentState:
     _log("✨ Step 3/3: Generating A2UI messages (calling LLM, please wait...)")
     llm = build_llm(api_key=state.get("api_key"))
+    profile = normalize_generation_profile(state.get("generation_profile"))
     resource_text = state["resource_text"]
     site_plan = state.get("site_plan")
     # One call per surface instead of one call for the whole course shrinks
@@ -122,7 +132,13 @@ def _node_generate_messages(state: AgentState) -> AgentState:
     per_surface = os.getenv("A2LEARN_PER_SURFACE_GENERATION", "0") == "1"
     if site_plan and per_surface:
         messages = generate_a2ui_messages_per_surface(
-            llm, resource_text, site_plan, state.get("target_language", "zh")
+            llm,
+            resource_text,
+            site_plan,
+            state.get("target_language", "zh"),
+            profile.enabled_components,
+            profile.example_ids,
+            profile.visual_intent,
         )
     else:
         if site_plan:
@@ -131,9 +147,21 @@ def _node_generate_messages(state: AgentState) -> AgentState:
                 + "\n\n# SITE PLAN\n"
                 + json.dumps(site_plan, ensure_ascii=False)
             )
-        messages = generate_a2ui_messages(llm, resource_text, state.get("target_language", "zh"))
+        messages = generate_a2ui_messages(
+            llm,
+            resource_text,
+            state.get("target_language", "zh"),
+            profile.enabled_components,
+            profile.example_ids,
+            profile.visual_intent,
+        )
     max_repair_attempts = int(os.getenv("A2LEARN_MAX_REPAIR_ATTEMPTS", "2"))
-    messages = _validate_or_repair(llm, messages, max_repair_attempts)
+    messages = _validate_or_repair(
+        llm,
+        messages,
+        max_repair_attempts,
+        profile.enabled_components,
+    )
     _log(f"✅ Generated {len(messages)} A2UI messages.")
     return {"a2ui_messages": messages}
 
@@ -165,6 +193,7 @@ def run_parser_mode(
     resource_text: str = None,
     api_key: str = None,
     target_language: str = "zh",
+    generation_profile: dict[str, Any] | None = None,
 ) -> AgentState:
     """Runs direct structured JSON generation and uses the parser to generate A2UI messages."""
     from pathlib import Path
@@ -188,6 +217,36 @@ def run_parser_mode(
     if not prompt_file.exists():
         raise FileNotFoundError(f"Parser prompt template not found at {prompt_file}")
     prompt_template = prompt_file.read_text(encoding="utf-8")
+    profile = normalize_generation_profile(generation_profile)
+    if profile.enabled_components is not None:
+        parser_field_map = {
+            "LearningPath": "learningPath",
+            "PaperAbstract": "paperAbstract",
+            "LiteratureReference": "literatureReference",
+            "ConceptCard": "conceptCard",
+            "MentalModel": "mentalModel",
+            "InteractiveFormula": "interactiveFormula",
+            "InteractiveSandbox": "interactiveSandbox",
+            "QuizCard": "quizCard",
+            "DetailedExplanation": "detailedExplanation",
+            "ResourceList": "resourceList",
+        }
+        supported_fields = [
+            field for component, field in parser_field_map.items() if component in profile.enabled_components
+        ]
+        prompt_template += (
+            "\n\nGeneration selection:\n"
+            "Only populate these optional JSON objects: "
+            + ", ".join(supported_fields or ["none"])
+            + ". Omit every other optional component object from the schema."
+        )
+    reference_examples = load_reference_examples(profile.example_ids, target_language)
+    if reference_examples:
+        prompt_template += (
+            "\n\nThe following selected A2UI pages are style and structure references only. "
+            "Still return the structured JSON schema requested above, not A2UI messages."
+            + reference_examples
+        )
     
     _log("✨ Generating structured JSON (calling LLM, please wait...)")
     llm = build_llm(api_key=api_key)
@@ -198,8 +257,8 @@ def run_parser_mode(
     _log("✅ Structured course JSON generated.")
     
     _log("⚙️ Parsing JSON to A2UI messages...")
-    messages = parse_json_to_a2ui(structured_data)
-    validate_a2ui_messages(messages)
+    messages = parse_json_to_a2ui(structured_data, profile.enabled_components)
+    validate_a2ui_messages(messages, permitted_custom_components=profile.enabled_components)
     _log(f"✅ Generated {len(messages)} A2UI messages from parser.")
     
     export_res = export_messages(messages, output_dir=output_dir)
@@ -219,10 +278,15 @@ def run_agent(
     mode: str = "agent",
     api_key: str = None,
     target_language: str = "zh",
+    generation_profile: dict[str, Any] | None = None,
 ) -> AgentState:
     if mode == "parser":
         return run_parser_mode(
-            resource_path, resource_text, api_key=api_key, target_language=target_language
+            resource_path,
+            resource_text,
+            api_key=api_key,
+            target_language=target_language,
+            generation_profile=generation_profile,
         )
 
     app = build_agent_graph()
@@ -234,6 +298,11 @@ def run_agent(
     if api_key:
         initial_state["api_key"] = api_key
     initial_state["target_language"] = target_language
+    if generation_profile is not None:
+        # Validate synchronously, before the background session starts an LLM
+        # call, so malformed browser payloads fail fast and predictably.
+        normalize_generation_profile(generation_profile)
+        initial_state["generation_profile"] = generation_profile
         
     if not resource_path and not resource_text:
         raise ValueError("Either resource_path or resource_text must be provided")

@@ -193,6 +193,302 @@ class ApiMainTests(unittest.TestCase):
         changed = body["sync"]["messages"][0]["updateComponents"]["components"]
         self.assertEqual(changed[0]["text"], "Edited by AI")
 
+    def test_page_revision_endpoint_returns_complete_source_snapshot(self) -> None:
+        document = {
+            "documentId": "revision-api-page",
+            "revision": 1,
+            "surfaceId": "revision-api-page",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Initial"}},
+            ],
+        }
+        self.assertEqual(
+            self.client.post("/api/page-documents", json={"actor": "human", "document": document}).status_code,
+            201,
+        )
+        self.client.post(
+            "/api/page-documents/revision-api-page/operations",
+            json={
+                "actor": "ai",
+                "baseRevision": 1,
+                "operations": [{"op": "set_props", "component_id": "title", "props": {"text": "Edited"}}],
+            },
+        )
+
+        response = self.client.get("/api/page-documents/revision-api-page/revisions/1")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["document"]["revision"], 1)
+        self.assertEqual(response.json()["document"]["components"][1]["props"]["text"], "Initial")
+
+    def test_project_restore_endpoint_restores_a_snapshot_as_a_new_revision(self) -> None:
+        document = {
+            "documentId": "restore-project:main",
+            "revision": 1,
+            "surfaceId": "main",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Initial"}},
+            ],
+        }
+        self.assertEqual(
+            self.client.post(
+                "/api/projects",
+                json={"projectId": "restore-project", "source": "generated", "actor": "human", "documents": [document]},
+            ).status_code,
+            201,
+        )
+        self.assertEqual(
+            self.client.post(
+                "/api/page-documents/restore-project:main/operations",
+                json={
+                    "actor": "ai",
+                    "baseRevision": 1,
+                    "operations": [{"op": "set_props", "component_id": "title", "props": {"text": "Edited"}}],
+                },
+            ).status_code,
+            200,
+        )
+
+        response = self.client.post(
+            "/api/projects/restore-project/restore",
+            json={"documentId": "restore-project:main", "revision": 1, "actor": "human"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["document"]["revision"], 3)
+        self.assertEqual(response.json()["document"]["components"][1]["props"]["text"], "Initial")
+
+    def test_project_endpoint_registers_multiple_page_documents(self) -> None:
+        documents = [
+            {
+                "documentId": "generated-project:main",
+                "revision": 1,
+                "surfaceId": "main",
+                "components": [
+                    {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                    {"id": "title", "component": "Text", "props": {"text": "Main"}},
+                ],
+            },
+            {
+                "documentId": "generated-project:detail",
+                "revision": 1,
+                "surfaceId": "detail",
+                "components": [
+                    {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                    {"id": "title", "component": "Text", "props": {"text": "Detail"}},
+                ],
+            },
+        ]
+
+        response = self.client.post(
+            "/api/projects",
+            json={"projectId": "generated-project", "source": "generated", "actor": "ai", "documents": documents},
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["project"]["source"], "generated")
+        self.assertEqual(response.json()["project"]["documentIds"], ["generated-project:main", "generated-project:detail"])
+        fetched = self.client.get("/api/projects/generated-project")
+        self.assertEqual(fetched.status_code, 200)
+        self.assertEqual(len(fetched.json()["documents"]), 2)
+
+    def test_project_component_endpoint_applies_a_human_props_replacement(self) -> None:
+        document = {
+            "documentId": "manual-project:main",
+            "revision": 1,
+            "surfaceId": "main",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Initial", "variant": "h1"}},
+            ],
+        }
+        self.assertEqual(
+            self.client.post(
+                "/api/projects",
+                json={"projectId": "manual-project", "source": "generated", "actor": "human", "documents": [document]},
+            ).status_code,
+            201,
+        )
+
+        response = self.client.post(
+            "/api/projects/manual-project/components/title",
+            json={"surfaceId": "main", "props": {"text": "Updated manually"}, "replaceProps": True},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["document"]["revision"], 2)
+        self.assertEqual(response.json()["document"]["components"][1]["props"], {"text": "Updated manually"})
+        self.assertEqual(response.json()["sync"]["mode"], "incremental")
+
+    def test_example_project_endpoint_imports_hash_table_by_project_id(self) -> None:
+        response = self.client.post("/api/projects/hash-table/ensure-example", json={"language": "zh"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["project"]["projectId"], "hash-table")
+        self.assertEqual(len(response.json()["documents"]), 4)
+
+        snapshot = self.client.get("/api/projects/hash-table/a2ui")
+        self.assertEqual(snapshot.status_code, 200)
+        self.assertGreater(len(snapshot.json()["messages"]), 4)
+
+    def test_example_project_can_use_a_language_specific_storage_id(self) -> None:
+        response = self.client.post(
+            "/api/projects/example-en-hash-table/ensure-example",
+            json={"language": "en", "exampleId": "hash-table"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["project"]["projectId"], "example-en-hash-table")
+        self.assertTrue(response.json()["documents"][0]["documentId"].startswith("example-en-hash-table:"))
+
+    def test_project_agent_targets_requested_surface(self) -> None:
+        document = {
+            "documentId": "project-agent:main",
+            "revision": 1,
+            "surfaceId": "main",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Main"}},
+            ],
+        }
+        self.client.post(
+            "/api/projects",
+            json={"projectId": "project-agent", "source": "generated", "actor": "ai", "documents": [document]},
+        )
+        fake_agent = object()
+        fake_events = [SimpleNamespace(event="done", data={"threadId": "project-thread"})]
+        with patch("apps.api.main.build_page_editor_agent", return_value=fake_agent) as builder, patch(
+            "apps.api.main.stream_page_editor_agent", return_value=iter(fake_events)
+        ) as runner:
+            response = self.client.post(
+                "/api/projects/project-agent/agent",
+                json={
+                    "message": "Improve the page",
+                    "surfaceId": "main",
+                    "threadId": "project-thread",
+                    "approvalMode": "review",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(runner.call_args.kwargs["selected_component_id"] is None)
+        self.assertEqual(runner.call_args.kwargs["document_id"], "project-agent:main")
+        self.assertTrue(builder.call_args.kwargs["review_before_apply"])
+
+    def test_project_agent_resume_uses_the_requested_surface_and_response(self) -> None:
+        document = {
+            "documentId": "project-agent-resume:main",
+            "revision": 1,
+            "surfaceId": "main",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Main"}},
+            ],
+        }
+        self.client.post(
+            "/api/projects",
+            json={"projectId": "project-agent-resume", "source": "generated", "actor": "ai", "documents": [document]},
+        )
+        fake_agent = object()
+        fake_events = [SimpleNamespace(event="done", data={"threadId": "project-thread"})]
+        with patch("apps.api.main.build_page_editor_agent", return_value=fake_agent), patch(
+            "apps.api.main.stream_page_editor_agent", side_effect=[iter(fake_events), iter(fake_events)]
+        ) as runner:
+            started = self.client.post(
+                "/api/projects/project-agent-resume/agent",
+                json={"message": "Improve the page", "threadId": "project-resume-thread", "surfaceId": "main"},
+            )
+            response = self.client.post(
+                "/api/projects/project-agent-resume/agent/resume",
+                json={"threadId": "project-resume-thread", "surfaceId": "main", "response": "Use the detailed option."},
+            )
+
+        self.assertEqual(started.status_code, 200)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(runner.call_args.kwargs["document_id"], "project-agent-resume:main")
+        self.assertEqual(runner.call_args.kwargs["thread_id"], "project-resume-thread")
+        self.assertEqual(runner.call_args.kwargs["human_response"], "Use the detailed option.")
+
+    def test_project_agent_resume_requires_a_response_for_respond(self) -> None:
+        response = self.client.post(
+            "/api/projects/missing/agent/resume",
+            json={"threadId": "thread-without-answer", "decision": "respond"},
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    def test_project_agent_resume_rejects_a_changed_approval_policy(self) -> None:
+        document = {
+            "documentId": "project-policy:main",
+            "revision": 1,
+            "surfaceId": "main",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Main"}},
+            ],
+        }
+        self.client.post(
+            "/api/projects",
+            json={"projectId": "project-policy", "source": "generated", "actor": "ai", "documents": [document]},
+        )
+        with patch("apps.api.main.build_page_editor_agent", return_value=object()), patch(
+            "apps.api.main.stream_page_editor_agent", return_value=iter([SimpleNamespace(event="done", data={"threadId": "policy-thread"})])
+        ):
+            started = self.client.post(
+                "/api/projects/project-policy/agent",
+                json={"message": "Improve the page", "threadId": "policy-thread", "surfaceId": "main", "approvalMode": "review"},
+            )
+
+        response = self.client.post(
+            "/api/projects/project-policy/agent/resume",
+            json={"threadId": "policy-thread", "surfaceId": "main", "approvalMode": "direct", "response": "Confirm"},
+        )
+
+        self.assertEqual(started.status_code, 200)
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["detail"], "AGENT_THREAD_POLICY_MISMATCH")
+
+    def test_put_can_restore_a_previous_snapshot_as_a_new_human_revision(self) -> None:
+        document = {
+            "documentId": "rollback-api-page",
+            "revision": 1,
+            "surfaceId": "rollback-api-page",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Initial"}},
+            ],
+        }
+        self.assertEqual(
+            self.client.post("/api/page-documents", json={"actor": "human", "document": document}).status_code,
+            201,
+        )
+        edited = {**document, "revision": 1, "components": [document["components"][0], {"id": "title", "component": "Text", "props": {"text": "Edited"}}]}
+        self.assertEqual(
+            self.client.put(
+                "/api/page-documents/rollback-api-page",
+                json={"actor": "ai", "baseRevision": 1, "document": edited},
+            ).status_code,
+            200,
+        )
+
+        previous = self.client.get("/api/page-documents/rollback-api-page/revisions/1").json()["document"]
+        previous["revision"] = 2
+        response = self.client.put(
+            "/api/page-documents/rollback-api-page",
+            json={
+                "actor": "human",
+                "baseRevision": 2,
+                "summary": "Restore initial title",
+                "document": previous,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["document"]["revision"], 3)
+        self.assertEqual(response.json()["document"]["components"][1]["props"]["text"], "Initial")
+
     def test_page_editor_agent_endpoint_streams_tool_and_assistant_events(self) -> None:
         document = {
             "documentId": "editor-chat-page",

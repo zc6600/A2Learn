@@ -13,11 +13,13 @@ from dataclasses import dataclass
 from typing import Any
 
 from langchain.agents import create_agent
+from langchain.agents.middleware import HumanInTheLoopMiddleware
 from langchain.tools import ToolRuntime, tool
+from langgraph.types import Command
 
 from apps.api.page_document_store import (
     DocumentNotFoundError,
-    PageDocumentStore,
+    PageDocumentRepository,
     RevisionConflictError,
 )
 
@@ -34,13 +36,32 @@ Rules:
    current revision, component IDs, types, and properties.
 2. Make edits only with apply_page_operations. Never claim a change succeeded
    until that tool returns ok=true.
-3. Preserve component IDs and use the smallest operation set that satisfies
+3. If the user's request leaves a meaningful content, tone, scope, or visual
+   direction choice unresolved, call ask_user before writing. Offer 2–4 short,
+   concrete options (including a conservative option when appropriate), then
+   wait for the user's reply. Do not ask when the intended change is clear.
+4. Preserve component IDs and use the smallest operation set that satisfies
    the user. The available operations are set_props, insert_component, and
-   remove_component.
-4. If a tool reports a revision conflict, re-read the page, reconsider the
+   remove_component. Operation field names are snake_case exactly as shown
+   below; do not use componentId, parentId, id, properties, update_component,
+   or a raw A2UI message.
+
+   To change a title or any existing component property, use exactly:
+   {"op": "set_props", "component_id": "the-exact-id-from-the-read", "props": {"text": "new text"}}
+
+   To insert, use exactly:
+   {"op": "insert_component", "parent_id": "parent-id", "component": {"id": "new-id", "component": "Text", "props": {"text": "..."}}}
+
+   To remove a leaf, use exactly:
+   {"op": "remove_component", "component_id": "leaf-id"}
+5. If a tool reports a revision conflict, re-read the page, reconsider the
    user's request against the latest state, then retry only if still correct.
-5. Explain the result briefly, including the new revision. Do not expose raw
+   Do not retry INVALID_PAGE_OPERATION: report the failure briefly instead.
+6. Explain the result briefly, including the new revision. Do not expose raw
    A2UI protocol details unless the user asks for them.
+7. The page context may name a selected component. When it does, treat that
+   component as the user's intended target unless their request clearly says
+   otherwise.
 """
 
 
@@ -50,7 +71,11 @@ class PageEditorContext:
 
     document_id: str
     user_id: str
-    page_document_store: PageDocumentStore
+    # ToolRuntime's context is converted into a Pydantic schema by LangChain.
+    # Protocols are structural typing constructs, not runtime-valid Pydantic
+    # instance types, so keep this injected dependency out of that schema.
+    page_document_store: Any
+    selected_component_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -72,7 +97,16 @@ def get_page_document(runtime: ToolRuntime[PageEditorContext]) -> dict[str, Any]
         document = runtime.context.page_document_store.get(runtime.context.document_id)
     except DocumentNotFoundError:
         return {"ok": False, "error": "PAGE_DOCUMENT_NOT_FOUND"}
-    return {"ok": True, "document": document.to_dict()}
+    selected_component = next(
+        (component.to_a2ui() for component in document.components if component.id == runtime.context.selected_component_id),
+        None,
+    )
+    return {
+        "ok": True,
+        "document": document.to_dict(),
+        "selectedComponentId": runtime.context.selected_component_id,
+        "selectedComponent": selected_component,
+    }
 
 
 @tool
@@ -83,6 +117,18 @@ def get_page_history(runtime: ToolRuntime[PageEditorContext]) -> dict[str, Any]:
     except DocumentNotFoundError:
         return {"ok": False, "error": "PAGE_DOCUMENT_NOT_FOUND"}
     return {"ok": True, "changes": [change.to_dict() for change in changes]}
+
+
+@tool
+def ask_user(question: str, options: list[str]) -> str:
+    """Pause and ask the user to choose between concrete editing directions.
+
+    Use only when a meaningful choice cannot be inferred safely. The human's
+    reply is supplied by the runtime before this tool body is ever executed.
+    """
+    # HumanInTheLoopMiddleware intercepts this tool before execution. Keeping
+    # a defensive return makes the tool safe if the middleware is ever removed.
+    return f"No user response was supplied for: {question}. Options: {options}"
 
 
 @tool
@@ -118,55 +164,152 @@ def apply_page_operations(
     return {"ok": True, "document": document.to_dict(), "sync": _sync_response(plan)}
 
 
-PAGE_EDITOR_TOOLS = [get_page_document, get_page_history, apply_page_operations]
+PAGE_EDITOR_TOOLS = [get_page_document, get_page_history, ask_user, apply_page_operations]
 
 
-def create_page_editor_agent(model: Any, *, checkpointer: Any | None = None) -> Any:
+def create_page_editor_agent(
+    model: Any,
+    *,
+    checkpointer: Any | None = None,
+    review_before_apply: bool = False,
+) -> Any:
     """Create the LangChain v1 tool-loop agent without binding page state globally."""
+    review_instruction = ""
+    if review_before_apply:
+        review_instruction = (
+            "\nThe user selected review-first mode. Every apply_page_operations call "
+            "will wait for confirmation, so make summary a concise, user-facing "
+            "description of the exact proposed change before calling it.\n"
+        )
     return create_agent(
         model=model,
         tools=PAGE_EDITOR_TOOLS,
-        system_prompt=PAGE_EDITOR_SYSTEM_PROMPT,
+        middleware=[
+            HumanInTheLoopMiddleware(
+                interrupt_on={
+                    "ask_user": {"allowed_decisions": ["respond"]},
+                    "apply_page_operations": {"allowed_decisions": ["approve", "reject"]}
+                    if review_before_apply else False,
+                },
+            ),
+        ],
+        system_prompt=PAGE_EDITOR_SYSTEM_PROMPT + review_instruction,
         context_schema=PageEditorContext,
         checkpointer=checkpointer,
         name="page_editor",
     )
 
 
-def build_page_editor_agent(api_key: str | None = None, *, checkpointer: Any | None = None) -> Any:
+def build_page_editor_agent(
+    api_key: str | None = None,
+    *,
+    checkpointer: Any | None = None,
+    review_before_apply: bool = False,
+) -> Any:
     """Build the production editor-agent graph using the caller's BYOK key."""
-    return create_page_editor_agent(build_page_editor_llm(api_key), checkpointer=checkpointer)
+    return create_page_editor_agent(
+        build_page_editor_llm(api_key),
+        checkpointer=checkpointer,
+        review_before_apply=review_before_apply,
+    )
 
 
 def stream_page_editor_agent(
     agent: Any,
-    message: str,
+    message: str | None,
     *,
     document_id: str,
     user_id: str,
-    page_document_store: PageDocumentStore,
+    page_document_store: PageDocumentRepository,
     thread_id: str,
+    selected_component_id: str | None = None,
+    human_response: str | None = None,
+    human_decision: str = "respond",
 ) -> Iterator[PageEditorEvent]:
     """Stream model and tool results in their actual execution order."""
+    decision: dict[str, Any] = {"type": human_decision}
+    if human_response:
+        decision["message"] = human_response
+    input_value: Any = Command(resume={"decisions": [decision]}) if human_response is not None or human_decision != "respond" else {
+        "messages": [{"role": "user", "content": message or ""}]
+    }
     updates = agent.stream(
-        {"messages": [{"role": "user", "content": message}]},
-        config={"configurable": {"thread_id": thread_id}},
+        input_value,
+        config={"configurable": {"thread_id": thread_id}, "recursion_limit": 8},
         context=PageEditorContext(
             document_id=document_id,
             user_id=user_id,
+            selected_component_id=selected_component_id,
             page_document_store=page_document_store,
         ),
         stream_mode="updates",
     )
     for update in updates:
+        if isinstance(update, Mapping) and "__interrupt__" in update:
+            yield PageEditorEvent("human_input_required", _human_input_request(update["__interrupt__"], thread_id))
+            return
         for node_update in update.values():
             if not isinstance(node_update, Mapping):
                 continue
             messages = node_update.get("messages", [])
             if not isinstance(messages, list):
                 continue
-            yield from _events_for_messages(messages)
+            events = tuple(_events_for_messages(messages))
+            yield from events
+            failed_operation = next(
+                (
+                    event.data["result"]
+                    for event in events
+                    if event.event == "tool_end"
+                    and isinstance(event.data.get("result"), dict)
+                    and event.data["result"].get("error") == "INVALID_PAGE_OPERATION"
+                ),
+                None,
+            )
+            if failed_operation is not None:
+                detail = failed_operation.get("detail")
+                message = "The Agent generated an invalid page edit."
+                if isinstance(detail, str) and detail:
+                    message = f"{message} {detail}"
+                yield PageEditorEvent("error", {"message": message})
+                yield PageEditorEvent("done", {"threadId": thread_id})
+                return
     yield PageEditorEvent("done", {"threadId": thread_id})
+
+
+def _human_input_request(interrupts: Any, thread_id: str) -> dict[str, Any]:
+    """Reduce LangGraph's interrupt object to stable frontend data."""
+    interrupt = interrupts[0] if isinstance(interrupts, (list, tuple)) and interrupts else None
+    value = getattr(interrupt, "value", {})
+    if not isinstance(value, Mapping):
+        return {"threadId": thread_id, "question": "The Agent needs your input.", "options": []}
+    requests = value.get("action_requests")
+    request = next(
+        (
+            item
+            for item in requests
+            if isinstance(item, Mapping) and item.get("name") in {"ask_user", "apply_page_operations"}
+        ),
+        None,
+    ) if isinstance(requests, list) else None
+    arguments = request.get("arguments") if isinstance(request, Mapping) else None
+    if isinstance(request, Mapping) and request.get("name") == "apply_page_operations":
+        summary = arguments.get("summary") if isinstance(arguments, Mapping) else None
+        return {
+            "threadId": thread_id,
+            "kind": "approval",
+            "question": summary if isinstance(summary, str) and summary else "The Agent proposes a page edit.",
+            "options": [],
+        }
+    question = arguments.get("question") if isinstance(arguments, Mapping) else None
+    raw_options = arguments.get("options") if isinstance(arguments, Mapping) else None
+    options = [item for item in raw_options if isinstance(item, str) and item] if isinstance(raw_options, list) else []
+    return {
+        "threadId": thread_id,
+        "kind": "question",
+        "question": question if isinstance(question, str) and question else "The Agent needs your input.",
+        "options": options,
+    }
 
 
 def _events_for_messages(messages: list[Any]) -> Iterator[PageEditorEvent]:

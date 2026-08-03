@@ -56,6 +56,7 @@ class SessionState:
     status: str = "pending"
     error: str | None = None
     target_language: str = "zh"
+    generation_profile: dict[str, Any] | None = None
 
     def apply_messages(self, messages: list[dict[str, Any]]) -> None:
         for msg in messages:
@@ -91,6 +92,7 @@ class SessionStore:
         resource_text: str | None = None,
         api_key: str | None = None,
         target_language: str = "zh",
+        generation_profile: dict[str, Any] | None = None,
     ) -> SessionState:
         session = SessionState(
             session_id=f"sess_{uuid.uuid4().hex[:12]}",
@@ -98,6 +100,7 @@ class SessionStore:
             messages=[],
             surface_ids=[],
             target_language=target_language,
+            generation_profile=deepcopy(generation_profile),
         )
         with self._lock:
             if len(self._sessions) >= self._max_capacity:
@@ -128,6 +131,7 @@ class SessionStore:
                 mode=mode,
                 api_key=api_key,
                 target_language=session.target_language,
+                generation_profile=session.generation_profile,
             )
             messages = self._extract_messages(state)
             validate_a2ui_messages(messages)

@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node ./scripts/start.mjs",
     "dev": "vite",
+    "editor": "vite --mode editor",
     "gallery": "vite --mode gallery",
     "build": "vite build",
     "preview": "vite preview"

@@ -35,6 +35,8 @@ def apply_page_operations(document: PageDocument, operations: Sequence[Mapping[s
         op = operation.get("op")
         if op == "set_props":
             _set_props(components, operation)
+        elif op == "replace_props":
+            _replace_props(components, operation)
         elif op == "insert_component":
             _insert_component(components, order, operation)
         elif op == "remove_component":
@@ -64,6 +66,21 @@ def _set_props(components: dict[str, PageComponent], operation: Mapping[str, Any
     if forbidden:
         raise PageOperationError(f"set_props cannot change identity fields: {sorted(forbidden)}.")
     components[component_id] = replace(current, props={**deepcopy(dict(current.props)), **deepcopy(dict(props))})
+
+
+def _replace_props(components: dict[str, PageComponent], operation: Mapping[str, Any]) -> None:
+    """Replace the complete props object for an explicit human edit."""
+    component_id = _component_id(operation)
+    current = components.get(component_id)
+    if current is None:
+        raise PageOperationError(f"Component does not exist: {component_id}.")
+    props = operation.get("props")
+    if not isinstance(props, Mapping):
+        raise PageOperationError("replace_props.props must be an object.")
+    forbidden = {key for key in props if key in {"id", "component"}}
+    if forbidden:
+        raise PageOperationError(f"replace_props cannot change identity fields: {sorted(forbidden)}.")
+    components[component_id] = replace(current, props=deepcopy(dict(props)))
 
 
 def _insert_component(

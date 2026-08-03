@@ -18,13 +18,19 @@ from typing import Any
 from .config import DEFAULT_CATALOG_ID
 
 
-def parse_json_to_a2ui(data: dict[str, Any]) -> list[dict[str, Any]]:
+def parse_json_to_a2ui(
+    data: dict[str, Any],
+    permitted_custom_components: tuple[str, ...] | None = None,
+) -> list[dict[str, Any]]:
     """Converts structured course content JSON into standard A2UI messages list."""
     surface_id = "main"
     catalog_id = DEFAULT_CATALOG_ID
 
     components = []
     children = []
+
+    def is_enabled(component: str) -> bool:
+        return permitted_custom_components is None or component in permitted_custom_components
 
     # 1. Header (siteTitle)
     if data.get("siteTitle"):
@@ -47,7 +53,7 @@ def parse_json_to_a2ui(data: dict[str, Any]) -> list[dict[str, Any]]:
 
     # 2.5 Paper Abstract (paperAbstract)
     pa = data.get("paperAbstract")
-    if isinstance(pa, dict) and pa.get("title"):
+    if is_enabled("PaperAbstract") and isinstance(pa, dict) and pa.get("title"):
         components.append({
             "id": "paper-abstract",
             "component": "PaperAbstract",
@@ -64,7 +70,7 @@ def parse_json_to_a2ui(data: dict[str, Any]) -> list[dict[str, Any]]:
 
     # 2.6 Literature Reference (literatureReference)
     lr = data.get("literatureReference")
-    if isinstance(lr, dict) and lr.get("title"):
+    if is_enabled("LiteratureReference") and isinstance(lr, dict) and lr.get("title"):
         components.append({
             "id": "literature-reference",
             "component": "LiteratureReference",
@@ -79,7 +85,7 @@ def parse_json_to_a2ui(data: dict[str, Any]) -> list[dict[str, Any]]:
 
     # 3. Learning Path (learningPath)
     lp = data.get("learningPath")
-    if isinstance(lp, dict) and lp.get("steps"):
+    if is_enabled("LearningPath") and isinstance(lp, dict) and lp.get("steps"):
         components.append({
             "id": "learning-path",
             "component": "LearningPath",
@@ -92,7 +98,7 @@ def parse_json_to_a2ui(data: dict[str, Any]) -> list[dict[str, Any]]:
 
     # 4. Concept Card (conceptCard)
     cc = data.get("conceptCard")
-    if isinstance(cc, dict) and cc.get("title"):
+    if is_enabled("ConceptCard") and isinstance(cc, dict) and cc.get("title"):
         components.append({
             "id": "concept",
             "component": "ConceptCard",
@@ -106,7 +112,7 @@ def parse_json_to_a2ui(data: dict[str, Any]) -> list[dict[str, Any]]:
 
     # 5. Mental Model (mentalModel)
     mm = data.get("mentalModel")
-    if isinstance(mm, dict) and mm.get("title"):
+    if is_enabled("MentalModel") and isinstance(mm, dict) and mm.get("title"):
         components.append({
             "id": "mental-model",
             "component": "MentalModel",
@@ -121,7 +127,7 @@ def parse_json_to_a2ui(data: dict[str, Any]) -> list[dict[str, Any]]:
 
     # 5.5 Interactive Formula (interactiveFormula)
     formula_data = data.get("interactiveFormula")
-    if isinstance(formula_data, dict) and formula_data.get("latex"):
+    if is_enabled("InteractiveFormula") and isinstance(formula_data, dict) and formula_data.get("latex"):
         components.append({
             "id": "attention-formula",
             "component": "InteractiveFormula",
@@ -134,7 +140,7 @@ def parse_json_to_a2ui(data: dict[str, Any]) -> list[dict[str, Any]]:
 
     # 6. Interactive Sandbox (interactiveSandbox)
     sb = data.get("interactiveSandbox")
-    if isinstance(sb, dict) and sb.get("title"):
+    if is_enabled("InteractiveSandbox") and isinstance(sb, dict) and sb.get("title"):
         components.append({
             "id": "sandbox",
             "component": "InteractiveSandbox",
@@ -151,7 +157,7 @@ def parse_json_to_a2ui(data: dict[str, Any]) -> list[dict[str, Any]]:
 
     # 7. Quiz Card (quizCard)
     qc = data.get("quizCard")
-    if isinstance(qc, dict) and qc.get("questions"):
+    if is_enabled("QuizCard") and isinstance(qc, dict) and qc.get("questions"):
         components.append({
             "id": "quiz",
             "component": "QuizCard",
@@ -162,7 +168,7 @@ def parse_json_to_a2ui(data: dict[str, Any]) -> list[dict[str, Any]]:
 
     # 8. Detailed Explanation (detailedExplanation)
     de = data.get("detailedExplanation")
-    if isinstance(de, dict) and de.get("title"):
+    if is_enabled("DetailedExplanation") and isinstance(de, dict) and de.get("title"):
         components.append({
             "id": "detailed-explanation",
             "component": "DetailedExplanation",
@@ -175,7 +181,7 @@ def parse_json_to_a2ui(data: dict[str, Any]) -> list[dict[str, Any]]:
 
     # 9. Resource List (resourceList)
     rl = data.get("resourceList")
-    if isinstance(rl, dict) and rl.get("resources"):
+    if is_enabled("ResourceList") and isinstance(rl, dict) and rl.get("resources"):
         components.append({
             "id": "resources",
             "component": "ResourceList",

@@ -27,6 +27,25 @@ class PageOperationsTests(unittest.TestCase):
         self.assertEqual(title.props["text"], "Edited")
         self.assertEqual(edited.revision, 1)
 
+    def test_replace_props_removes_properties_omitted_by_a_human_edit(self) -> None:
+        document = PageDocument.from_dict(
+            {
+                **page().to_dict(),
+                "components": [
+                    {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                    {"id": "title", "component": "Text", "props": {"text": "Initial", "variant": "h1"}},
+                ],
+            }
+        )
+
+        edited = apply_page_operations(
+            document,
+            [{"op": "replace_props", "component_id": "title", "props": {"text": "Edited"}}],
+        )
+
+        title = next(component for component in edited.components if component.id == "title")
+        self.assertEqual(title.props, {"text": "Edited"})
+
     def test_insert_component_updates_parent_and_component_order(self) -> None:
         edited = apply_page_operations(
             page(),

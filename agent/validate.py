@@ -7,6 +7,7 @@ def validate_a2ui_messages(
     messages: list[dict[str, Any]],
     require_create_surface: bool = True,
     require_update_components: bool = True,
+    permitted_custom_components: tuple[str, ...] | None = None,
 ) -> None:
     if not isinstance(messages, list) or not messages:
         raise ValueError("a2ui_messages must be a non-empty list.")
@@ -49,6 +50,14 @@ def validate_a2ui_messages(
                     raise ValueError("Each component in updateComponents must be an object.")
                 if "id" not in c or "component" not in c:
                     raise ValueError("Each component must contain both 'id' and 'component'.")
+                if (
+                    permitted_custom_components is not None
+                    and c["component"] not in {"Column", "Text"}
+                    and c["component"] not in permitted_custom_components
+                ):
+                    raise ValueError(
+                        f"Component '{c['component']}' is not enabled for this generation."
+                    )
 
     if require_create_surface and create_surface_count == 0:
         raise ValueError("At least one createSurface message is required.")
