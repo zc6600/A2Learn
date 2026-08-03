@@ -97,6 +97,57 @@ OPENROUTER_API_KEY=your_openrouter_api_key_here
 # Start the Vite dev server
 npm run viewer:dev
 ```
+
+To enable the floating PageDocument editing Agent, start the API separately:
+
+```bash
+# terminal 1
+uv run uvicorn apps.api.main:app --reload --port 8008
+
+# terminal 2 — keep the existing Viewer structure
+npm run viewer:dev
+```
+
+Select an example from the existing example cards. A small floating `✦ 修改案例`
+button appears at the bottom-right (shown as `✦ Edit case` in English); it uses the selected example as the Agent
+project context. The normal Viewer layout, surface tabs, and hash navigation
+remain unchanged.
+
+Inside the floating panel, `新建` / `New` creates a minimal blank page through
+the project API. `选择组件` / `Select` then lets the user click one rendered
+component; its stable component ID is sent as the Agent's edit target.
+Use `直接修改` / `Direct` for clear edits that can apply immediately, or
+`先给方案` / `Review first` to require confirmation of every Agent-proposed
+page write before it runs.
+
+Created pages receive an opaque `?project=...` URL and are kept in the panel's
+`最近` / `Recent` list using this browser's local storage. To keep them after an
+API restart, configure SQLite before launching the API:
+
+```bash
+A2LEARN_PAGE_DOCUMENT_DB_PATH=./data/a2learn.sqlite3 \
+  uv run uvicorn apps.api.main:app --reload --port 8008
+```
+
+The same SQLite file also stores resumable Page Editor Agent checkpoints, so a
+pending human confirmation survives an API restart. To keep checkpoints in a
+separate file, set `A2LEARN_AGENT_CHECKPOINT_DB_PATH`; when neither variable is
+set, checkpoints use `./data/a2learn-agent-checkpoints.sqlite3` by default.
+
+The `历史` / `History` panel shows edit summaries and can restore an earlier
+page state. Revision numbers stay internal; restoring creates a new revision
+and immediately syncs the current A2UI surface.
+
+For a quick editing-only run, the same Viewer can default to `hash-table`:
+
+```bash
+npm run viewer:editor
+```
+
+Open `http://localhost:5173/`. Use `?example=agent-react` to choose another
+bundled example, or `?projectId=user-project-123` for a registered generated
+project. Loading the page does not need an LLM key; sending an Agent instruction
+does.
 Then open any example URL listed in the [Example Catalog](#-example-catalog) section above.
 
 ### 4. Generate & Launch Showcase (Offline Preview)

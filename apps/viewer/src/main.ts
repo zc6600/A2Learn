@@ -11,13 +11,29 @@ import {
   type ExampleCardItem,
 } from "@a2learn/viewer-kit/page-shell";
 import { bootstrapGallery } from "@a2learn/viewer-kit/gallery/gallery-ui";
+import { pickRenderedComponent } from "./component-picker";
+import { mountFloatingAgent } from "./floating-agent";
+import { mountInlineComponentEditor } from "./inline-component-editor";
+import { recentProjects, rememberProject, type RecentProject } from "./recent-projects";
+import {
+  GENERATION_COMPONENTS,
+  LOCAL_EXAMPLES,
+  MAX_ENABLED_COMPONENTS,
+  MAX_EXAMPLE_CASES,
+  RENDER_THEMES,
+  getRenderTheme,
+  getStoredGenerationProfile,
+  normalizeGenerationProfile,
+  setStoredGenerationProfile,
+  type GenerationProfile,
+  type Lang,
+} from "./generation-profile";
 
 let activeRuntime: {
   container: HTMLElement;
   processor: MessageProcessor<any>;
   modeHint?: string;
 } | null = null;
-
 
 type SessionStatus = "pending" | "ready" | "error";
 
@@ -134,6 +150,190 @@ function applyThemeVars(vars?: Record<string, string>): void {
   }
 }
 
+// Themes are deliberately a controlled set of CSS variables, rather than a
+// free-form CSS editor. This keeps a saved profile portable and avoids making
+// an untrusted configuration capable of changing the host page's layout.
+const GENERATION_THEME_VAR_NAMES = Array.from(
+  new Set(RENDER_THEMES.flatMap((theme) => Object.keys(theme.vars))),
+);
+
+function applyGenerationTheme(themeId: string): void {
+  for (const variable of GENERATION_THEME_VAR_NAMES) {
+    document.documentElement.style.removeProperty(variable);
+  }
+  const theme = getRenderTheme(themeId);
+  document.documentElement.dataset.a2learnTheme = theme.id;
+  applyThemeVars(theme.vars);
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string {
+  const copy = lang === "zh"
+    ? {
+        heading: "生成配置",
+        note: "这些偏好会保存在当前浏览器，并用于定制下一次生成。",
+        components: "本次可生成的组件",
+        componentsCopy: "选择本次页面可使用的组件；全部关闭时只会保留基础文字与布局。",
+        examples: "参考案例",
+        examplesCopy: "选择可供生成时参考的本地案例（如 Hash Table）；选中案例会同时启用它使用的组件。",
+        exampleUses: "使用组件：",
+        theme: "页面风格",
+        themeCopy: "影响页面的颜色、字体、留白和卡片质感。",
+        intent: "视觉与内容意图（可选）",
+        intentPlaceholder: "例如：古典诗词赏析，突出原文、逐句注释与留白，避免科技感卡片堆叠。",
+        explain: "讲解",
+        practice: "练习",
+        explore: "探索",
+      }
+    : {
+        heading: "Generation settings",
+        note: "These preferences are saved in this browser and customize your next generation.",
+        components: "Components available for this run",
+        componentsCopy: "Choose the components available for this page. With none selected, only basic text and layout remain.",
+        examples: "Reference examples",
+        examplesCopy: "Choose local examples (such as Hash Table). Selecting one also enables the components it uses.",
+        exampleUses: "Uses: ",
+        theme: "Page style",
+        themeCopy: "Changes the page color, typography, spacing, and card feel.",
+        intent: "Visual and content intent (optional)",
+        intentPlaceholder: "For example: classical poetry analysis with prominent verses, line-by-line annotations, and generous whitespace.",
+        explain: "Explain",
+        practice: "Practice",
+        explore: "Explore",
+      };
+
+  const groupLabels: Record<string, string> = {
+    explain: copy.explain,
+    practice: copy.practice,
+    explore: copy.explore,
+  };
+  const groups = ["explain", "practice", "explore"] as const;
+  const componentGroups = groups.map((group) => {
+    const options = GENERATION_COMPONENTS.filter((component) => component.group === group)
+      .map((component) => {
+        const enabled = profile.enabledComponents.includes(component.id);
+        return `
+          <div class="generation-component-option">
+            <label class="generation-component-copy">
+              <input class="generation-component-input" type="checkbox" data-component-id="${component.id}" ${enabled ? "checked" : ""} />
+              <span class="generation-component-label">${escapeHtml(component.label[lang])}</span>
+              <span class="generation-component-description">${escapeHtml(component.description[lang])}</span>
+            </label>
+          </div>`;
+      })
+      .join("");
+    return `<section class="generation-component-group"><p class="generation-component-group-title">${groupLabels[group]}</p>${options}</section>`;
+  }).join("");
+
+  const themeOptions = RENDER_THEMES.map((theme) => `
+    <label class="generation-theme-option">
+      <input type="radio" name="generation-theme" value="${theme.id}" ${profile.themeId === theme.id ? "checked" : ""} />
+      <span class="generation-theme-copy">
+        <span class="generation-theme-label">${escapeHtml(theme.label[lang])}</span>
+        <span class="generation-theme-description">${escapeHtml(theme.description[lang])}</span>
+      </span>
+    </label>`).join("");
+
+  const exampleOptions = LOCAL_EXAMPLES.map((example) => {
+    const selected = profile.exampleIds.includes(example.id);
+    const componentLabels = example.componentIds
+      .map((id) => GENERATION_COMPONENTS.find((component) => component.id === id)?.label[lang] || id)
+      .join(" · ");
+    return `
+      <label class="generation-example-option">
+        <input class="generation-example-input" type="checkbox" data-example-id="${example.id}" ${selected ? "checked" : ""} />
+        <span class="generation-component-copy">
+          <span class="generation-component-label">${escapeHtml(example.label[lang])}</span>
+          <span class="generation-component-description">${escapeHtml(example.description[lang])}</span>
+          <span class="generation-example-components">${copy.exampleUses}${escapeHtml(componentLabels)}</span>
+        </span>
+      </label>`;
+  }).join("");
+
+  return `
+    <section class="generation-settings" aria-label="${copy.heading}">
+      <div>
+        <p class="generation-settings-heading">${copy.heading}</p>
+        <p class="generation-settings-note">${copy.note}</p>
+      </div>
+      <section class="generation-settings-section">
+        <p class="generation-settings-section-title">${copy.components} <span id="generation-enabled-count" class="generation-counter">${profile.enabledComponents.length}/${MAX_ENABLED_COMPONENTS}</span></p>
+        <p class="generation-settings-section-copy">${copy.componentsCopy}</p>
+        <div class="generation-component-groups">${componentGroups}</div>
+      </section>
+      <section class="generation-settings-section">
+        <p class="generation-settings-section-title">${copy.examples} <span id="generation-example-count" class="generation-counter">${profile.exampleIds.length}/${MAX_EXAMPLE_CASES}</span></p>
+        <p class="generation-settings-section-copy">${copy.examplesCopy}</p>
+        <div class="generation-example-grid">${exampleOptions}</div>
+      </section>
+      <section class="generation-settings-section">
+        <p class="generation-settings-section-title">${copy.theme}</p>
+        <p class="generation-settings-section-copy">${copy.themeCopy}</p>
+        <div class="generation-theme-grid">${themeOptions}</div>
+      </section>
+      <section class="generation-settings-section">
+        <label class="generation-settings-section-title" for="generation-visual-intent">${copy.intent}</label>
+        <textarea id="generation-visual-intent" class="app-modal-input generation-intent-input" maxlength="500" placeholder="${escapeHtml(copy.intentPlaceholder)}">${escapeHtml(profile.visualIntent)}</textarea>
+      </section>
+    </section>`;
+}
+
+function profileFromSettingsInputs(): GenerationProfile {
+  const enabledComponents = Array.from(document.querySelectorAll<HTMLInputElement>(".generation-component-input:checked"))
+    .map((input) => input.dataset.componentId || "");
+  const exampleIds = Array.from(document.querySelectorAll<HTMLInputElement>(".generation-example-input:checked"))
+    .map((input) => input.dataset.exampleId || "");
+  const themeId = document.querySelector<HTMLInputElement>("input[name='generation-theme']:checked")?.value;
+  const visualIntent = (document.getElementById("generation-visual-intent") as HTMLTextAreaElement | null)?.value || "";
+  return normalizeGenerationProfile({ version: 1, enabledComponents, exampleIds, themeId, visualIntent });
+}
+
+function syncGenerationSettingsInputs(profile: GenerationProfile): void {
+  document.querySelectorAll<HTMLInputElement>(".generation-component-input").forEach((input) => {
+    input.checked = profile.enabledComponents.includes(input.dataset.componentId || "");
+  });
+  document.querySelectorAll<HTMLInputElement>(".generation-example-input").forEach((input) => {
+    input.checked = profile.exampleIds.includes(input.dataset.exampleId || "");
+  });
+  const enabledCount = document.getElementById("generation-enabled-count");
+  const exampleCount = document.getElementById("generation-example-count");
+  if (enabledCount) enabledCount.textContent = `${profile.enabledComponents.length}/${MAX_ENABLED_COMPONENTS}`;
+  if (exampleCount) exampleCount.textContent = `${profile.exampleIds.length}/${MAX_EXAMPLE_CASES}`;
+  const intent = document.getElementById("generation-visual-intent") as HTMLTextAreaElement | null;
+  if (intent) intent.value = profile.visualIntent;
+  const selectedTheme = document.querySelector<HTMLInputElement>(`input[name='generation-theme'][value='${profile.themeId}']`);
+  if (selectedTheme) selectedTheme.checked = true;
+}
+
+function getLocalExampleComponents(exampleId: string): string[] {
+  return LOCAL_EXAMPLES.find((example) => example.id === exampleId)?.componentIds || [];
+}
+
+function setExampleComponentInputs(componentIds: string[], checked: boolean): void {
+  const ids = new Set(componentIds);
+  document.querySelectorAll<HTMLInputElement>(".generation-component-input").forEach((input) => {
+    if (ids.has(input.dataset.componentId || "")) {
+      input.checked = checked;
+    }
+  });
+}
+
+function clearExamplesUsingComponent(componentId: string): void {
+  document.querySelectorAll<HTMLInputElement>(".generation-example-input:checked").forEach((input) => {
+    if (getLocalExampleComponents(input.dataset.exampleId || "").includes(componentId)) {
+      input.checked = false;
+    }
+  });
+}
+
 function normalizeBaseUrl(input: string): string {
   return input.replace(/\/+$/, "");
 }
@@ -167,7 +367,12 @@ function configFromLocation(): ViewerRuntimeConfig {
   const envResourceText = (import.meta.env.VITE_A2LEARN_RESOURCE_TEXT || "").trim();
 
   const apiBaseUrl = (apiBaseUrlParam || envApiUrl).trim();
-  const messagesUrl = (messagesUrlParam || envMessagesUrl || "/generated/site_messages.json").trim();
+  const editorMode = modeRaw === "editor" || import.meta.env.MODE === "editor";
+  const editorExample = params.get("example") || "hash-table";
+  const editorMessagesUrl = editorMode
+    ? (getLang() === "en" ? `/examples/en/${editorExample}.json` : `/examples/${editorExample}.json`)
+    : "/generated/site_messages.json";
+  const messagesUrl = (messagesUrlParam || envMessagesUrl || editorMessagesUrl).trim();
   const resourcePath = (resourcePathParam || envResourcePath).trim() || undefined;
   const resourceText = (resourceTextParam || envResourceText).trim() || undefined;
 
@@ -227,8 +432,6 @@ function buildHeaders(extra?: Record<string, string>): Record<string, string> {
   }
   return headers;
 }
-
-type Lang = "zh" | "en";
 
 const LANG_STORAGE_KEY = "a2learn_lang";
 
@@ -306,10 +509,10 @@ const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
       { label: "HTTP/3 协议", prompt: "Explain HTTP/3 protocol QUIC features and advantages over HTTP/2" },
       { label: "三体星系天体物理", prompt: "Explain the Three Body Problem orbital dynamics in astrophysics" },
     ],
-    settingsBtnLabel: "⚙️ API Key",
-    settingsBtnTitle: "设置 OpenRouter API Key",
+    settingsBtnLabel: "⚙️ 设置",
+    settingsBtnTitle: "配置 API Key、生成组件与页面主题",
     keyPillMissingLabel: "🔑 API Key 待配置",
-    modalTitle: "⚙️ 配置 API Key (BYOK 模式)",
+    modalTitle: "⚙️ 生成设置",
     modalBodyIntroHtml:
       "输入你的 <strong>OpenRouter API Key</strong>。你的 Key 将仅保存在浏览器本地（<code>localStorage</code>），每次交互时透传给后端，绝不上交服务器保存。",
     modalBodyFooter: "无 API Key？你也可以直接点击主页顶部的热门推荐，预览预置的精美 Showcase。",
@@ -326,10 +529,10 @@ const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
       { label: "HTTP/3 Protocol", prompt: "Explain HTTP/3 protocol QUIC features and advantages over HTTP/2" },
       { label: "Three-Body Problem Physics", prompt: "Explain the Three Body Problem orbital dynamics in astrophysics" },
     ],
-    settingsBtnLabel: "⚙️ API Key",
-    settingsBtnTitle: "Configure OpenRouter API Key",
+    settingsBtnLabel: "⚙️ Settings",
+    settingsBtnTitle: "Configure API key, generation components, and page theme",
     keyPillMissingLabel: "🔑 API Key not set",
-    modalTitle: "⚙️ Configure API Key (BYOK mode)",
+    modalTitle: "⚙️ Generation Settings",
     modalBodyIntroHtml:
       "Enter your <strong>OpenRouter API Key</strong>. It's stored only in your browser (<code>localStorage</code>) and passed through to the backend on each request — it is never saved on our servers.",
     modalBodyFooter: "No API key? You can still click the popular picks above, or browse the pre-generated example gallery below.",
@@ -501,12 +704,56 @@ function getSurfaceTitle(surface: any): string {
   return cleanId || (lang === "zh" ? "学习页面" : "Learning Page");
 }
 
-function renderSurfaces(
+function injectPresentationContentTheme(): void {
+  if (document.getElementById("a2learn-presentation-content-theme")) return;
+  const style = document.createElement("style");
+  style.id = "a2learn-presentation-content-theme";
+  style.textContent = `
+    html[data-a2learn-theme="ppt-stage"] #surface-container {
+      width: min(100%, 1280px);
+      margin-inline: auto;
+    }
+    html[data-a2learn-theme="ppt-stage"] .surface-tabs-container {
+      padding: 0 0 18px;
+    }
+    html[data-a2learn-theme="ppt-stage"] .surface-tabs {
+      justify-content: center;
+    }
+    html[data-a2learn-theme="ppt-stage"] .surface-tab {
+      min-height: 38px;
+      border-radius: 2px;
+      font-family: var(--a2ui-font-family-title);
+      letter-spacing: .02em;
+    }
+    html[data-a2learn-theme="ppt-stage"] #surface-container > a2learn-markdown-surface {
+      box-sizing: border-box;
+      display: flex;
+      width: 100%;
+      min-height: min(72vw, 720px);
+      aspect-ratio: 16 / 9;
+      overflow: auto;
+      padding: clamp(22px, 4vw, 68px);
+      border: 1px solid var(--a2ui-color-border);
+      background: color-mix(in oklab, var(--a2ui-color-surface) 92%, transparent);
+      box-shadow: var(--a2learn-panel-shadow);
+    }
+    @media (max-width: 768px) {
+      html[data-a2learn-theme="ppt-stage"] #surface-container > a2learn-markdown-surface {
+        min-height: auto;
+        aspect-ratio: auto;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+export function renderSurfaces(
   container: HTMLElement,
   processor: MessageProcessor<any>,
   modeHint?: string,
 ): void {
   injectRoutingTheme();
+  injectPresentationContentTheme();
 
   const surfaces = Array.from(processor.model.surfacesMap.values());
   if (surfaces.length === 0) {
@@ -693,6 +940,7 @@ async function bootstrapOnline(
     resource_path: source.resourcePath || undefined,
     resource_text: source.resourceText || undefined,
     language: source.language || getLang(),
+    generationProfile: getStoredGenerationProfile(),
   };
   const startResponse = await fetch(`${source.apiBaseUrl}/api/session/start`, {
     method: "POST",
@@ -952,50 +1200,12 @@ async function bootstrapOffline(container: HTMLElement, source: ViewerSourceOffl
 
 // Static reference examples bundled at apps/viewer/public/examples/ — viewable
 // offline with no API key, so they render even when no backend is deployed.
-const EXAMPLE_META: Array<{ id: string; zh: { title: string; description: string }; en: { title: string; description: string } }> = [
-  {
-    id: "hash-table",
-    zh: { title: "Hash Table 哈希表", description: "哈希冲突与开放寻址法" },
-    en: { title: "Hash Table", description: "Hash collisions and open addressing" },
-  },
-  {
-    id: "agent-react",
-    zh: { title: "ReAct Agent 架构", description: "手写 ReAct 循环引擎" },
-    en: { title: "ReAct Agent Architecture", description: "Hand-building a ReAct loop engine" },
-  },
-  {
-    id: "js-async",
-    zh: { title: "JS 异步与事件循环", description: "手写 Promise.all 实现" },
-    en: { title: "JS Async & the Event Loop", description: "Implementing Promise.all from scratch" },
-  },
-  {
-    id: "conversational",
-    zh: { title: "JS 闭包与作用域", description: "闭包模块模式与私有变量" },
-    en: { title: "JS Closures & Scope", description: "The module pattern and private variables via closures" },
-  },
-  {
-    id: "non-linear",
-    zh: { title: "CSS Grid 二维布局", description: "零媒体查询的响应式网格" },
-    en: { title: "CSS Grid 2D Layout", description: "Responsive grids with zero media queries" },
-  },
-  {
-    id: "paper-attention",
-    zh: { title: "Transformer 注意力机制", description: "缩放点积注意力四步推导" },
-    en: { title: "Transformer Attention", description: "Deriving scaled dot-product attention in four steps" },
-  },
-  {
-    id: "biophysics-ai",
-    zh: { title: "AI 驱动生物物理 (AlphaFold)", description: "AlphaFold3 扩散模块解析" },
-    en: { title: "AI-Driven Biophysics (AlphaFold)", description: "Breaking down AlphaFold3's diffusion module" },
-  },
-];
-
 function getExampleItems(lang: Lang): ExampleCardItem[] {
-  return EXAMPLE_META.map((m) => ({
-    id: m.id,
-    title: m[lang].title,
-    description: m[lang].description,
-    messagesUrl: lang === "en" ? `/examples/en/${m.id}.json` : `/examples/${m.id}.json`,
+  return LOCAL_EXAMPLES.map((example) => ({
+    id: example.id,
+    title: example.label[lang],
+    description: example.description[lang],
+    messagesUrl: lang === "en" ? `/examples/en/${example.id}.json` : `/examples/${example.id}.json`,
   }));
 }
 
@@ -1042,6 +1252,7 @@ function openSettingsModal(): void {
   const modal = document.getElementById("app-settings-modal");
   const keyInput = document.getElementById("app-api-key-input") as HTMLInputElement | null;
   if (keyInput) keyInput.value = getStoredApiKey();
+  syncGenerationSettingsInputs(getStoredGenerationProfile());
   modal?.classList.remove("hidden");
 }
 
@@ -1069,6 +1280,8 @@ function bindShellControls(
   const keyInput = document.getElementById("app-api-key-input") as HTMLInputElement | null;
   const form = document.getElementById("app-prompt-form") as HTMLFormElement | null;
   const promptInput = document.getElementById("app-prompt-input") as HTMLInputElement | null;
+  const componentInputs = document.querySelectorAll<HTMLInputElement>(".generation-component-input");
+  const exampleInputs = document.querySelectorAll<HTMLInputElement>(".generation-example-input");
 
   settingsBtn?.addEventListener("click", openSettingsModal);
   closeBtn?.addEventListener("click", closeSettingsModal);
@@ -1081,6 +1294,11 @@ function bindShellControls(
       setStoredApiKey(keyInput.value);
       updateKeyPillStatus();
     }
+    const profile = setStoredGenerationProfile(profileFromSettingsInputs());
+    applyGenerationTheme(profile.themeId);
+    if (activeRuntime) {
+      renderSurfaces(activeRuntime.container, activeRuntime.processor, activeRuntime.modeHint);
+    }
     closeSettingsModal();
   });
 
@@ -1089,6 +1307,44 @@ function bindShellControls(
     if (keyInput) keyInput.value = "";
     updateKeyPillStatus();
     closeSettingsModal();
+  });
+
+  componentInputs.forEach((input) => {
+    input.addEventListener("change", () => {
+      if (!input.checked) {
+        // A reference case is only meaningful while all of the components it
+        // demonstrates remain available. Turning one off therefore removes
+        // only the dependent examples, never restores a hidden default.
+        clearExamplesUsingComponent(input.dataset.componentId || "");
+      }
+      const current = profileFromSettingsInputs();
+      if (input.checked && current.enabledComponents.length > MAX_ENABLED_COMPONENTS) {
+        input.checked = false;
+        alert(getLang() === "zh" ? `本次最多选择 ${MAX_ENABLED_COMPONENTS} 个组件。` : `Choose at most ${MAX_ENABLED_COMPONENTS} components for one run.`);
+      }
+      syncGenerationSettingsInputs(profileFromSettingsInputs());
+    });
+  });
+
+  exampleInputs.forEach((input) => {
+    input.addEventListener("change", () => {
+      const selectedProfile = profileFromSettingsInputs();
+      const selectedExampleCount = document.querySelectorAll<HTMLInputElement>(".generation-example-input:checked").length;
+      if (input.checked && selectedExampleCount > MAX_EXAMPLE_CASES) {
+        input.checked = false;
+        alert(getLang() === "zh" ? `本次最多选择 ${MAX_EXAMPLE_CASES} 个本地案例。` : `Choose at most ${MAX_EXAMPLE_CASES} local examples for one run.`);
+      } else if (input.checked) {
+        const requiredComponents = getLocalExampleComponents(input.dataset.exampleId || "");
+        const combined = new Set([...selectedProfile.enabledComponents, ...requiredComponents]);
+        if (combined.size > MAX_ENABLED_COMPONENTS) {
+          input.checked = false;
+          alert(getLang() === "zh" ? `该案例需要的组件会超过 ${MAX_ENABLED_COMPONENTS} 个上限。` : `This example would require more than ${MAX_ENABLED_COMPONENTS} components.`);
+        } else {
+          setExampleComponentInputs(requiredComponents, true);
+        }
+      }
+      syncGenerationSettingsInputs(profileFromSettingsInputs());
+    });
   });
 
   form?.addEventListener("submit", (e) => {
@@ -1184,6 +1440,9 @@ async function bootstrapViewer() {
   const initialConfig = configFromLocation();
   applyEmbedFlag(initialConfig.embed);
   applyThemeVars(initialConfig.source.themeVars);
+  if (!initialConfig.embed && !initialConfig.source.themeVars) {
+    applyGenerationTheme(getStoredGenerationProfile().themeId);
+  }
 
   // Whether the caller explicitly asked for a particular source (query
   // params / env vars). If not, the "default" offline config is just a
@@ -1193,12 +1452,36 @@ async function bootstrapViewer() {
     initialConfig.source.mode === "online" ||
     (initialConfig.source.mode === "offline" && initialConfig.source.messagesUrl !== "/generated/site_messages.json");
 
-  type ContentState = { kind: "example"; id: string } | { kind: "other" };
+  type ContentState = { kind: "example" | "project"; id: string } | { kind: "other" };
   let currentContent: ContentState = { kind: "other" };
+  const locationParams = new URLSearchParams(window.location.search);
+  const initialProjectId = locationParams.get("project");
+  const initialEditorExample = locationParams.get("example");
+  if (initialProjectId) {
+    currentContent = { kind: "project", id: initialProjectId };
+  } else if (import.meta.env.MODE === "editor" || locationParams.get("mode") === "editor") {
+    currentContent = { kind: "example", id: initialEditorExample || "hash-table" };
+  }
 
   let container: HTMLElement | null = null;
   let parentOrigin = "*";
   let stopResize: () => void = () => {};
+  const languageChangeControllers: Array<{ onLanguageChanged: () => void }> = [];
+
+  const editorApiBaseUrl = () =>
+    initialConfig.source.mode === "online"
+      ? initialConfig.source.apiBaseUrl
+      : (
+          import.meta.env.VITE_A2LEARN_API_URL ||
+          (import.meta.env.DEV ? "http://localhost:8008" : window.location.origin)
+        ).trim();
+
+  const updateProjectUrl = (projectId: string | null) => {
+    const url = new URL(window.location.href);
+    if (projectId) url.searchParams.set("project", projectId);
+    else url.searchParams.delete("project");
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  };
 
   const renderShell = (lang: Lang) => {
     document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
@@ -1209,6 +1492,10 @@ async function bootstrapViewer() {
       ? ""
       : renderExamplesStrip(T[lang].examplesStripTitle, getExampleItems(lang));
 
+    const chrome: AppChromeStrings = {
+      ...CHROME_STRINGS[lang],
+      settingsContentHtml: generationSettingsHtml(lang, getStoredGenerationProfile()),
+    };
     renderAppFrame(
       root,
       title,
@@ -1216,7 +1503,7 @@ async function bootstrapViewer() {
       `${examplesHtml}<section id="surface-container" aria-live="polite">
         <p class="viewer-state loading">${T[lang].loadingShowcase}</p>
       </section>`,
-      initialConfig.embed ? undefined : { lang, chrome: CHROME_STRINGS[lang] },
+      initialConfig.embed ? undefined : { lang, chrome },
     );
     container = document.getElementById("surface-container");
   };
@@ -1224,6 +1511,54 @@ async function bootstrapViewer() {
   renderShell(getLang());
   if (!container) {
     return;
+  }
+
+  if (!initialConfig.embed) {
+    const getCurrentProjectId = () => {
+      if (currentContent.kind === "other") return null;
+      return currentContent.kind === "example"
+        ? `example-${getLang()}-${currentContent.id}`
+        : currentContent.id;
+    };
+    const floatingAgent = mountFloatingAgent({
+      getLanguage: () => (getLang() === "en" ? "en" : "zh"),
+      getProjectId: getCurrentProjectId,
+      getSurfaceId: readCurrentSurfaceHash,
+      getApiBaseUrl: editorApiBaseUrl,
+      getApiKey: getStoredApiKey,
+      getProcessor: () => activeRuntime?.processor || null,
+      render: () => {
+        if (activeRuntime) renderSurfaces(activeRuntime.container, activeRuntime.processor, activeRuntime.modeHint);
+      },
+      pickComponent: () => container ? pickRenderedComponent(container) : Promise.resolve(null),
+      recentProjects,
+      onProjectCreated: (projectId, title, messages) => {
+        if (!container) return;
+        const processor = new MessageProcessor([a2learnCatalog], () => undefined);
+        processor.processMessages(messages);
+        activeRuntime = { container, processor, modeHint: "Project editor mode." };
+        currentContent = { kind: "project", id: projectId };
+        rememberProject(projectId, title);
+        updateProjectUrl(projectId);
+        const firstSurface = extractFirstCreatedSurfaceId(messages);
+        if (firstSurface) window.location.hash = `#/${firstSurface}`;
+        renderSurfaces(container, processor, "Project editor mode.");
+      },
+      onOpenProject: async (project) => openProject(project),
+    });
+    const inlineEditor = mountInlineComponentEditor({
+      getContainer: () => container,
+      getLanguage: () => (getLang() === "en" ? "en" : "zh"),
+      getProjectId: getCurrentProjectId,
+      getSurfaceId: readCurrentSurfaceHash,
+      getApiBaseUrl: editorApiBaseUrl,
+      getApiKey: getStoredApiKey,
+      getProcessor: () => activeRuntime?.processor || null,
+      render: () => {
+        if (activeRuntime) renderSurfaces(activeRuntime.container, activeRuntime.processor, activeRuntime.modeHint);
+      },
+    });
+    languageChangeControllers.push(floatingAgent, inlineEditor);
   }
 
   stopResize = setupAutoResize(container, () => parentOrigin);
@@ -1289,13 +1624,41 @@ async function bootstrapViewer() {
     const item = getExampleItems(getLang()).find((i) => i.id === id);
     if (!item) return;
     currentContent = { kind: "example", id };
+    updateProjectUrl(null);
     await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } });
+  };
+
+  const openProject = async (project: RecentProject) => {
+    const target = container;
+    if (!target) return;
+    const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
+    if (!apiBaseUrl) {
+      throw new Error(getLang() === "en" ? "The editing API is not configured." : "未配置编辑 API 服务。");
+    }
+    const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(project.id)}/a2ui`);
+    if (!response.ok) {
+      throw new Error(getLang() === "en" ? `Could not open the page (${response.status})` : `打开页面失败 (${response.status})`);
+    }
+    const payload = await response.json() as { messages?: A2uiMessage[] };
+    if (!Array.isArray(payload.messages)) {
+      throw new Error(getLang() === "en" ? "Invalid page data" : "页面数据无效");
+    }
+    const processor = new MessageProcessor([a2learnCatalog], () => undefined);
+    processor.processMessages(payload.messages);
+    activeRuntime = { container: target, processor, modeHint: "Project editor mode." };
+    currentContent = { kind: "project", id: project.id };
+    rememberProject(project.id, project.title);
+    updateProjectUrl(project.id);
+    const firstSurface = extractFirstCreatedSurfaceId(payload.messages);
+    if (firstSurface) window.location.hash = `#/${firstSurface}`;
+    renderSurfaces(target, processor, "Project editor mode.");
   };
 
   const onGenerate = (promptText: string) => {
     const target = container;
     if (!target) return;
     currentContent = { kind: "other" };
+    updateProjectUrl(null);
     const currentApiUrl =
       initialConfig.source.mode === "online"
         ? initialConfig.source.apiBaseUrl
@@ -1350,6 +1713,7 @@ async function bootstrapViewer() {
   const switchLanguage = async (newLang: Lang) => {
     if (newLang === getLang()) return;
     setLang(newLang);
+    languageChangeControllers.forEach((controller) => controller.onLanguageChanged());
     renderShell(newLang);
     const target = container;
     if (!target) return;
@@ -1363,6 +1727,11 @@ async function bootstrapViewer() {
         await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } });
         return;
       }
+    }
+    if (currentContent.kind === "project" && activeRuntime) {
+      activeRuntime = { ...activeRuntime, container: target };
+      renderSurfaces(target, activeRuntime.processor, activeRuntime.modeHint);
+      return;
     }
     showState(target, T[newLang].pickExamplePrompt, "empty");
   };
@@ -1423,7 +1792,9 @@ async function bootstrapViewer() {
 
   window.addEventListener("message", onMessage);
 
-  if (hasExplicitSource || initialConfig.embed) {
+  if (initialProjectId) {
+    await openProject({ id: initialProjectId, title: initialProjectId, openedAt: new Date().toISOString() });
+  } else if (hasExplicitSource || initialConfig.embed) {
     await startWithConfig(initialConfig);
   } else if (container) {
     // Nothing explicit was requested (typical first visit to the static

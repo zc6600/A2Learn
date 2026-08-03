@@ -24,6 +24,11 @@ export function injectBaseTheme(): void {
       --app-text: #111827;
       --app-muted: #6b7280;
       --app-outline: #e5e7eb;
+      --a2learn-page-background: #ffffff;
+      --a2learn-shell-radius: 20px;
+      --a2learn-control-radius: 12px;
+      --a2learn-pill-radius: 999px;
+      --a2learn-panel-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
       --a2ui-font-family-title: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
       --a2ui-font-size-xs: 12px;
       --a2ui-font-size-s: 14px;
@@ -61,7 +66,7 @@ export function injectBaseTheme(): void {
     html, body {
       margin: 0;
       min-height: 100%;
-      background: var(--app-bg);
+      background: var(--a2learn-page-background);
       color: var(--app-text);
       font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
     }
@@ -78,11 +83,11 @@ export function injectBaseTheme(): void {
       margin-bottom: 24px;
       padding: 20px 24px;
       border: 1px solid var(--a2ui-color-border);
-      border-radius: 20px;
+      border-radius: var(--a2learn-shell-radius);
       background: color-mix(in oklab, var(--a2ui-color-surface) 80%, transparent);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      box-shadow: var(--a2learn-panel-shadow);
       display: flex;
       flex-direction: column;
       gap: 18px;
@@ -124,7 +129,7 @@ export function injectBaseTheme(): void {
       display: inline-flex;
       background: color-mix(in oklab, var(--a2ui-color-surface) 92%, black);
       border: 1px solid var(--a2ui-color-border);
-      border-radius: 9999px;
+      border-radius: var(--a2learn-pill-radius);
       padding: 3px;
       gap: 2px;
     }
@@ -135,7 +140,7 @@ export function injectBaseTheme(): void {
       font-size: 12px;
       font-weight: 700;
       padding: 4px 12px;
-      border-radius: 9999px;
+      border-radius: var(--a2learn-pill-radius);
       cursor: pointer;
       transition: all 0.2s ease;
     }
@@ -149,7 +154,7 @@ export function injectBaseTheme(): void {
       font-family: "JetBrains Mono", monospace;
       font-weight: 600;
       padding: 6px 14px;
-      border-radius: 20px;
+      border-radius: var(--a2learn-pill-radius);
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -169,7 +174,7 @@ export function injectBaseTheme(): void {
       background: var(--a2ui-color-surface);
       color: var(--app-text);
       border: 1px solid var(--a2ui-color-border);
-      border-radius: 12px;
+      border-radius: var(--a2learn-control-radius);
       padding: 8px 16px;
       font-size: 13px;
       font-weight: 600;
@@ -192,7 +197,7 @@ export function injectBaseTheme(): void {
       gap: 14px;
       background: #f9fafb;
       padding: 16px;
-      border-radius: 16px;
+      border-radius: var(--a2learn-shell-radius);
       border: 1px solid #e5e7eb;
     }
     .app-prompt-form {
@@ -205,7 +210,7 @@ export function injectBaseTheme(): void {
       background: var(--a2ui-color-surface);
       color: var(--app-text);
       border: 1px solid var(--a2ui-color-border);
-      border-radius: 12px;
+      border-radius: var(--a2learn-control-radius);
       padding: 12px 18px;
       font-size: 14px;
       outline: none;
@@ -219,7 +224,7 @@ export function injectBaseTheme(): void {
       background: var(--a2ui-color-primary);
       color: #ffffff;
       border: none;
-      border-radius: 12px;
+      border-radius: var(--a2learn-control-radius);
       padding: 12px 22px;
       font-size: 14px;
       font-weight: 600;
@@ -255,7 +260,7 @@ export function injectBaseTheme(): void {
       background: var(--a2ui-color-surface);
       color: var(--app-text);
       border: 1px solid var(--a2ui-color-border);
-      border-radius: 20px;
+      border-radius: var(--a2learn-pill-radius);
       padding: 5px 14px;
       font-size: 12px;
       font-weight: 500;
@@ -290,7 +295,7 @@ export function injectBaseTheme(): void {
       text-align: left;
       background: var(--a2ui-color-surface);
       border: 1px solid var(--a2ui-color-border);
-      border-radius: 14px;
+      border-radius: var(--a2learn-shell-radius);
       padding: 12px 14px;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -334,9 +339,10 @@ export function injectBaseTheme(): void {
       background: var(--a2ui-color-surface);
       color: var(--app-text);
       border: 1px solid var(--a2ui-color-border);
-      border-radius: 20px;
+      border-radius: var(--a2learn-shell-radius);
       padding: 24px;
-      max-width: 460px;
+      max-width: 680px;
+      max-height: calc(100vh - 40px);
       width: 100%;
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.24);
       display: flex;
@@ -374,6 +380,8 @@ export function injectBaseTheme(): void {
       font-size: 13.5px;
       color: var(--app-muted);
       line-height: 1.5;
+      overflow-y: auto;
+      padding-right: 4px;
     }
     .app-modal-input {
       width: 100%;
@@ -422,13 +430,148 @@ export function injectBaseTheme(): void {
     .app-btn-primary:hover {
       filter: brightness(1.1);
     }
+    .generation-settings {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-top: 4px;
+    }
+    .generation-settings-heading {
+      margin: 0;
+      color: var(--app-text);
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .generation-settings-note {
+      margin: 5px 0 0;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .generation-settings-section {
+      border-top: 1px solid var(--a2ui-color-border);
+      padding-top: 14px;
+    }
+    .generation-settings-section-title {
+      margin: 0 0 4px;
+      color: var(--app-text);
+      font-size: 13px;
+      font-weight: 750;
+    }
+    .generation-settings-section-copy {
+      margin: 0 0 10px;
+      font-size: 12px;
+    }
+    .generation-counter {
+      color: var(--a2ui-color-primary);
+      font-weight: 750;
+    }
+    .generation-component-groups {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .generation-component-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .generation-component-group-title {
+      margin: 0;
+      color: var(--app-text);
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .generation-component-option,
+    .generation-example-option,
+    .generation-theme-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--app-text);
+    }
+    .generation-component-option input,
+    .generation-example-option input,
+    .generation-theme-option input {
+      margin: 3px 0 0;
+      accent-color: var(--a2ui-color-primary);
+      flex: none;
+    }
+    .generation-component-copy {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .generation-component-label {
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .generation-component-description,
+    .generation-theme-description {
+      color: var(--app-muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+    .generation-example-components {
+      margin-top: 3px;
+      color: var(--a2ui-color-primary);
+      font-size: 10.5px;
+      line-height: 1.35;
+    }
+    .generation-example-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .generation-example-option {
+      padding: 9px;
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: 10px;
+    }
+    .generation-example-option:has(input:checked) {
+      border-color: var(--a2ui-color-primary);
+      background: color-mix(in oklab, var(--a2ui-color-primary) 7%, var(--a2ui-color-surface));
+    }
+    .generation-theme-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .generation-theme-option {
+      padding: 9px;
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: 10px;
+    }
+    .generation-theme-option:has(input:checked) {
+      border-color: var(--a2ui-color-primary);
+      background: color-mix(in oklab, var(--a2ui-color-primary) 7%, var(--a2ui-color-surface));
+    }
+    .generation-theme-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .generation-theme-label {
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .generation-intent-input {
+      width: 100%;
+      min-height: 68px;
+      box-sizing: border-box;
+      resize: vertical;
+      font: inherit;
+      line-height: 1.5;
+    }
 
     .viewer-main {
       padding: 16px;
       border-radius: 20px;
       border: 1px solid var(--app-outline);
       background: color-mix(in oklab, var(--a2ui-color-surface) 94%, transparent);
-      box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+      box-shadow: var(--a2learn-panel-shadow);
     }
     .viewer-state {
       margin: 12px 0;
@@ -614,6 +757,15 @@ export function injectBaseTheme(): void {
         padding: 10px;
         border-radius: 14px;
       }
+      .generation-component-groups {
+        grid-template-columns: 1fr;
+      }
+      .generation-theme-grid {
+        grid-template-columns: 1fr;
+      }
+      .generation-example-grid {
+        grid-template-columns: 1fr;
+      }
       :root {
         --a2ui-font-size-xl: 24px;
         --a2ui-font-size-2xl: 30px;
@@ -643,6 +795,7 @@ export interface AppChromeStrings {
   modalBodyFooter: string;
   modalClearLabel: string;
   modalSaveLabel: string;
+  settingsContentHtml?: string;
 }
 
 const DEFAULT_CHROME_ZH: AppChromeStrings = {
@@ -740,6 +893,7 @@ export function renderAppFrame(
           <p style="font-size: 12px; color: var(--app-muted);">
             ${chrome.modalBodyFooter}
           </p>
+          ${chrome.settingsContentHtml || ""}
         </div>
         <div class="app-modal-footer">
           <button id="app-modal-clear" class="app-btn-secondary">${chrome.modalClearLabel}</button>
