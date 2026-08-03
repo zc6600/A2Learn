@@ -1,4 +1,5 @@
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
@@ -156,6 +157,77 @@ class ApiMainTests(unittest.TestCase):
         self.assertEqual(body["session_id"], "sess_action")
         self.assertEqual(len(body["messages"]), 1)
         append_mock.assert_called_once()
+
+    def test_page_operations_endpoint_returns_a2ui_incremental_patch(self) -> None:
+        document = {
+            "documentId": "editor-api-page",
+            "revision": 1,
+            "surfaceId": "editor-api-page",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Initial"}},
+            ],
+        }
+        created = self.client.post(
+            "/api/page-documents",
+            json={"actor": "human", "document": document},
+        )
+        self.assertEqual(created.status_code, 201)
+
+        response = self.client.post(
+            "/api/page-documents/editor-api-page/operations",
+            json={
+                "actor": "ai",
+                "baseRevision": 1,
+                "summary": "Make the title clearer",
+                "operations": [
+                    {"op": "set_props", "component_id": "title", "props": {"text": "Edited by AI"}}
+                ],
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["document"]["revision"], 2)
+        self.assertEqual(body["sync"]["mode"], "incremental")
+        changed = body["sync"]["messages"][0]["updateComponents"]["components"]
+        self.assertEqual(changed[0]["text"], "Edited by AI")
+
+    def test_page_editor_agent_endpoint_streams_tool_and_assistant_events(self) -> None:
+        document = {
+            "documentId": "editor-chat-page",
+            "revision": 1,
+            "surfaceId": "editor-chat-page",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Initial"}},
+            ],
+        }
+        created = self.client.post("/api/page-documents", json={"actor": "human", "document": document})
+        self.assertEqual(created.status_code, 201)
+        fake_agent = object()
+        fake_events = [
+            SimpleNamespace(event="tool_start", data={"tool": "apply_page_operations"}),
+            SimpleNamespace(event="tool_end", data={"tool": "apply_page_operations", "result": {"ok": True}}),
+            SimpleNamespace(event="assistant_message", data={"text": "I updated the title."}),
+            SimpleNamespace(event="done", data={"threadId": "editor-thread-1"}),
+        ]
+        with patch("apps.api.main.build_page_editor_agent", return_value=fake_agent), patch(
+            "apps.api.main.stream_page_editor_agent", return_value=iter(fake_events)
+        ) as runner:
+            response = self.client.post(
+                "/api/page-documents/editor-chat-page/agent",
+                json={"message": "Make the title clearer", "threadId": "editor-thread-1"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/event-stream", response.headers["content-type"])
+        self.assertIn("event: tool_start", response.text)
+        self.assertIn("event: tool_end", response.text)
+        self.assertIn("event: assistant_message", response.text)
+        self.assertIn("event: done", response.text)
+        self.assertEqual(runner.call_args.kwargs["document_id"], "editor-chat-page")
+        self.assertEqual(runner.call_args.kwargs["thread_id"], "editor-thread-1")
 
 
 if __name__ == "__main__":

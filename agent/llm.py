@@ -53,6 +53,31 @@ def build_llm(api_key: str | None = None) -> Any:
     )
 
 
+def build_page_editor_llm(api_key: str | None = None) -> Any:
+    """Build a tool-calling model for the conversational Page Editor Agent.
+
+    The course-generation model intentionally enables JSON mode because it
+    emits complete, machine-parsed artefacts. The editor instead needs normal
+    assistant messages *and* provider tool calls, so JSON mode must not leak
+    into this configuration.
+    """
+
+    key = api_key or os.getenv("OPENROUTER_API_KEY") or os.getenv("OPEN_ROUTER_API_KEY")
+    if not key or ChatOpenAI is None:
+        raise RuntimeError(
+            "API Key is required. Please set your OpenRouter API Key in Settings or env."
+        )
+    model = os.getenv("OPENROUTER_EDITOR_MODEL") or os.getenv("OPENROUTER_MODEL", DEFAULT_MODEL)
+    max_tokens = int(os.getenv("OPENROUTER_EDITOR_MAX_TOKENS", "8192"))
+    return ChatOpenAI(
+        model=model,
+        api_key=key,
+        base_url="https://openrouter.ai/api/v1",
+        temperature=0.1,
+        max_tokens=max_tokens,
+    )
+
+
 
 def _extract_json_array(text: str) -> list[dict[str, Any]]:
     # 1) With JSON mode on (see build_llm), the response IS raw JSON — try
