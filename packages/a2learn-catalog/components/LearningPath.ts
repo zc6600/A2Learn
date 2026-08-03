@@ -197,6 +197,14 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
     // 3. 同页或跨页 DOM 元素平滑滚动
     const targetSectionId = step.targetSectionId || step.targetComponentId;
     if (targetSectionId) {
+      // Presentation mode may place the destination on a different generated
+      // slide. The viewer listens for this composed event and changes slides
+      // before the existing DOM scroll fallback runs.
+      this.dispatchEvent(new CustomEvent("a2learn:navigate-component", {
+        detail: { targetComponentId: targetSectionId },
+        bubbles: true,
+        composed: true,
+      }));
       setTimeout(() => {
         const targetEl = this.findTargetElement(targetSectionId);
         if (targetEl) {

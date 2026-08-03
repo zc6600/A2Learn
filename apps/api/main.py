@@ -16,7 +16,11 @@ from agent.action_response import build_action_response
 from agent.engine import run_agent
 from agent.generation_profile import normalize_generation_profile
 from agent.page_document import PageDocument
-from agent.page_editor_agent import build_page_editor_agent, stream_page_editor_agent
+from agent.page_editor_agent import (
+    build_page_editor_agent,
+    build_page_question_agent,
+    stream_page_editor_agent,
+)
 from agent.page_operations import PageOperationError
 from agent.validate import validate_a2ui_messages
 from apps.api.agent_thread_store import (
@@ -160,12 +164,14 @@ class PageEditorAgentRequest(BaseModel):
 class ProjectEditorAgentRequest(PageEditorAgentRequest):
     surface_id: str | None = Field(default=None, alias="surfaceId", max_length=200)
     component_id: str | None = Field(default=None, alias="componentId", max_length=200)
+    agent_mode: Literal["ask", "edit"] = Field(default="edit", alias="agentMode")
     approval_mode: Literal["direct", "review"] = Field(default="direct", alias="approvalMode")
 
 
 class ProjectEditorAgentResumeRequest(BaseModel):
     thread_id: str = Field(alias="threadId", min_length=1, max_length=300)
     surface_id: str | None = Field(default=None, alias="surfaceId", max_length=200)
+    agent_mode: Literal["ask", "edit"] = Field(default="edit", alias="agentMode")
     approval_mode: Literal["direct", "review"] = Field(default="direct", alias="approvalMode")
     decision: Literal["approve", "reject", "respond"] = "respond"
     response: str | None = Field(default=None, max_length=2_000)
@@ -580,10 +586,14 @@ def run_project_editor_agent(
 
     api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
     try:
-        agent = build_page_editor_agent(
-            api_key,
-            checkpointer=page_editor_checkpointer,
-            review_before_apply=payload.approval_mode == "review",
+        agent = (
+            build_page_question_agent(api_key, checkpointer=page_editor_checkpointer)
+            if payload.agent_mode == "ask"
+            else build_page_editor_agent(
+                api_key,
+                checkpointer=page_editor_checkpointer,
+                review_before_apply=payload.approval_mode == "review",
+            )
         )
     except RuntimeError as exc:
         raise HTTPException(status_code=400, detail=f"PAGE_EDITOR_AGENT_UNAVAILABLE: {exc}") from exc
@@ -595,6 +605,7 @@ def run_project_editor_agent(
         document_id=target.document_id,
         surface_id=target.surface_id,
         approval_mode=payload.approval_mode,
+        agent_mode=payload.agent_mode,
     )
     try:
         stored_thread = agent_thread_store.create_or_get(requested_thread)
@@ -647,16 +658,22 @@ def resume_project_editor_agent(
         raise HTTPException(status_code=409, detail="AGENT_THREAD_CONTEXT_MISMATCH")
     if payload.approval_mode != thread.approval_mode:
         raise HTTPException(status_code=409, detail="AGENT_THREAD_POLICY_MISMATCH")
+    if payload.agent_mode != thread.agent_mode:
+        raise HTTPException(status_code=409, detail="AGENT_THREAD_POLICY_MISMATCH")
     target = next((document for document in documents if document.document_id == thread.document_id), None)
     if target is None:
         raise HTTPException(status_code=409, detail="AGENT_THREAD_CONTEXT_MISMATCH")
 
     api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
     try:
-        agent = build_page_editor_agent(
-            api_key,
-            checkpointer=page_editor_checkpointer,
-            review_before_apply=thread.approval_mode == "review",
+        agent = (
+            build_page_question_agent(api_key, checkpointer=page_editor_checkpointer)
+            if thread.agent_mode == "ask"
+            else build_page_editor_agent(
+                api_key,
+                checkpointer=page_editor_checkpointer,
+                review_before_apply=thread.approval_mode == "review",
+            )
         )
     except RuntimeError as exc:
         raise HTTPException(status_code=400, detail=f"PAGE_EDITOR_AGENT_UNAVAILABLE: {exc}") from exc

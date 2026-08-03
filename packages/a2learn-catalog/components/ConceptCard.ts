@@ -100,15 +100,15 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       border: 1px solid #e5e7eb;
     }
     .example-box {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-left: 4px solid #0d9488;
+      background: var(--a2ui-color-surface-subtle, #f9fafb);
+      border: 1px solid var(--a2ui-color-border, #e5e7eb);
+      border-left: 4px solid var(--a2ui-color-primary, #0d9488);
       padding: var(--a2ui-spacing-m) var(--a2ui-spacing-l);
       border-radius: 0 var(--a2ui-border-radius) var(--a2ui-border-radius) 0;
       margin-bottom: var(--a2ui-spacing-xl);
       font-size: 14px;
       overflow-x: auto;
-      color: #111827;
+      color: var(--a2ui-color-on-surface, #111827);
     }
     .example-box pre {
       margin: 0;
@@ -130,7 +130,7 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
     }
     .example-markdown {
       margin-bottom: var(--a2ui-spacing-xl);
-      color: #1f2937;
+      color: var(--a2ui-color-on-surface, #1f2937);
       font-size: 15px;
       line-height: 1.7;
     }
@@ -142,7 +142,7 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
     .example-markdown h3,
     .example-markdown h4 {
       margin: 0 0 10px;
-      color: #0f172a;
+      color: var(--a2ui-color-on-surface, #0f172a);
       line-height: 1.35;
     }
     .example-markdown ul,
@@ -155,10 +155,10 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
     }
     .example-markdown code:not(pre code) {
       padding: 2px 6px;
-      border: 1px solid #dbeafe;
+      border: 1px solid var(--a2ui-color-border, #dbeafe);
       border-radius: 5px;
-      background: #eff6ff;
-      color: #075985;
+      background: var(--a2ui-color-surface-subtle, #eff6ff);
+      color: var(--a2ui-color-primary, #075985);
       font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
       font-size: 0.9em;
     }

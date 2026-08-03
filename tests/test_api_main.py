@@ -399,6 +399,73 @@ class ApiMainTests(unittest.TestCase):
         self.assertEqual(runner.call_args.kwargs["document_id"], "project-agent:main")
         self.assertTrue(builder.call_args.kwargs["review_before_apply"])
 
+    def test_project_question_agent_uses_the_read_only_agent(self) -> None:
+        document = {
+            "documentId": "project-question:main",
+            "revision": 1,
+            "surfaceId": "main",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Question target"}},
+            ],
+        }
+        self.client.post(
+            "/api/projects",
+            json={"projectId": "project-question", "source": "generated", "actor": "ai", "documents": [document]},
+        )
+        fake_events = [SimpleNamespace(event="done", data={"threadId": "question-thread"})]
+        with patch("apps.api.main.build_page_question_agent", return_value=object()) as question_builder, patch(
+            "apps.api.main.build_page_editor_agent"
+        ) as editor_builder, patch(
+            "apps.api.main.stream_page_editor_agent", return_value=iter(fake_events)
+        ) as runner:
+            response = self.client.post(
+                "/api/projects/project-question/agent",
+                json={
+                    "message": "Why is this title phrased this way?",
+                    "threadId": "question-thread",
+                    "surfaceId": "main",
+                    "componentId": "title",
+                    "agentMode": "ask",
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        question_builder.assert_called_once()
+        editor_builder.assert_not_called()
+        self.assertEqual(runner.call_args.kwargs["selected_component_id"], "title")
+
+    def test_project_agent_resume_rejects_a_changed_agent_mode(self) -> None:
+        document = {
+            "documentId": "project-question-policy:main",
+            "revision": 1,
+            "surfaceId": "main",
+            "components": [
+                {"id": "root", "component": "Column", "props": {"children": ["title"]}},
+                {"id": "title", "component": "Text", "props": {"text": "Question target"}},
+            ],
+        }
+        self.client.post(
+            "/api/projects",
+            json={"projectId": "project-question-policy", "source": "generated", "actor": "ai", "documents": [document]},
+        )
+        with patch("apps.api.main.build_page_question_agent", return_value=object()), patch(
+            "apps.api.main.stream_page_editor_agent", return_value=iter([SimpleNamespace(event="done", data={"threadId": "question-policy-thread"})])
+        ):
+            started = self.client.post(
+                "/api/projects/project-question-policy/agent",
+                json={"message": "Explain this", "threadId": "question-policy-thread", "surfaceId": "main", "agentMode": "ask"},
+            )
+
+        response = self.client.post(
+            "/api/projects/project-question-policy/agent/resume",
+            json={"threadId": "question-policy-thread", "surfaceId": "main", "agentMode": "edit", "response": "Continue"},
+        )
+
+        self.assertEqual(started.status_code, 200)
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["detail"], "AGENT_THREAD_POLICY_MISMATCH")
+
     def test_project_agent_resume_uses_the_requested_surface_and_response(self) -> None:
         document = {
             "documentId": "project-agent-resume:main",

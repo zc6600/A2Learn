@@ -29,6 +29,7 @@ export type GenerationProfile = {
   enabledComponents: string[];
   exampleIds: string[];
   themeId: string;
+  displayMode: "standard" | "presentation";
   visualIntent: string;
 };
 
@@ -164,8 +165,8 @@ export const RENDER_THEMES: RenderTheme[] = [
   },
   {
     id: "ppt-stage",
-    label: { zh: "演示排版", en: "Presentation Layout" },
-    description: { zh: "以 16:9 的演示画布突出当前内容，保留完整页面操作", en: "A 16:9 content canvas while keeping the full page interactive" },
+    label: { zh: "深蓝舞台", en: "Deep Blue Stage" },
+    description: { zh: "高对比度的深蓝配色与方正排版", en: "High-contrast deep blue colors and square geometry" },
     vars: {
       "--app-bg": "#101827",
       "--app-text": "#f8fafc",
@@ -212,6 +213,7 @@ export const DEFAULT_GENERATION_PROFILE: GenerationProfile = {
   enabledComponents: DEFAULT_COMPONENTS,
   exampleIds: ["hash-table", "paper-attention"],
   themeId: "learning-default",
+  displayMode: "standard",
   visualIntent: "",
 };
 
@@ -249,6 +251,12 @@ export function normalizeGenerationProfile(value: unknown): GenerationProfile {
     themeId: typeof raw.themeId === "string" && KNOWN_THEME_IDS.has(raw.themeId)
       ? raw.themeId
       : DEFAULT_GENERATION_PROFILE.themeId,
+    // Before display modes were separate, selecting the old presentation theme
+    // also enabled pagination. Preserve that saved preference during migration.
+    displayMode: raw.displayMode === "presentation" ||
+      (raw.displayMode === undefined && raw.themeId === "ppt-stage")
+      ? "presentation"
+      : "standard",
     visualIntent: typeof raw.visualIntent === "string" ? raw.visualIntent.slice(0, 500) : "",
   };
 }

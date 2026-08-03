@@ -7,8 +7,11 @@ from langgraph.types import Command
 
 from agent.page_editor_agent import (
     PAGE_EDITOR_TOOLS,
+    PAGE_QUESTION_TOOLS,
     build_page_editor_agent,
+    build_page_question_agent,
     create_page_editor_agent,
+    create_page_question_agent,
     stream_page_editor_agent,
 )
 from apps.api.page_document_store import PageDocumentStore
@@ -39,6 +42,24 @@ class PageEditorAgentTests(unittest.TestCase):
 
         factory.assert_called_once_with("visitor-key")
         self.assertEqual(agent.name, "page_editor")
+
+    def test_question_agent_has_only_read_tools(self) -> None:
+        model = ChatOpenAI(model="test-model", api_key="test-key", base_url="https://example.invalid/v1")
+
+        agent = create_page_question_agent(model)
+
+        self.assertEqual(agent.name, "page_question")
+        self.assertEqual([tool.name for tool in PAGE_QUESTION_TOOLS], ["get_page_document", "get_page_history"])
+        self.assertNotIn("apply_page_operations", [tool.name for tool in PAGE_QUESTION_TOOLS])
+
+    def test_build_page_question_agent_uses_the_same_tool_calling_llm_factory(self) -> None:
+        model = ChatOpenAI(model="test-model", api_key="test-key", base_url="https://example.invalid/v1")
+
+        with patch("agent.page_editor_agent.build_page_editor_llm", return_value=model) as factory:
+            agent = build_page_question_agent("visitor-key")
+
+        factory.assert_called_once_with("visitor-key")
+        self.assertEqual(agent.name, "page_question")
 
     def test_stream_emits_tool_then_assistant_events_in_execution_order(self) -> None:
         sync = {"mode": "incremental", "reason": "localized", "messages": [{"version": "v0.9"}]}
