@@ -14,6 +14,7 @@ import { bootstrapGallery } from "@a2learn/viewer-kit/gallery/gallery-ui";
 import { pickRenderedComponent } from "./component-picker";
 import { mountFloatingAgent } from "./floating-agent";
 import { mountInlineComponentEditor } from "./inline-component-editor";
+import { mountSourceLibrary } from "./source-library";
 import { recentProjects, rememberProject, type RecentProject } from "./recent-projects";
 import {
   GENERATION_COMPONENTS,
@@ -68,6 +69,8 @@ type ViewerSourceOnline = {
   apiBaseUrl: string;
   resourcePath?: string;
   resourceText?: string;
+  sourceIds?: string[];
+  resourceQuery?: string;
   language?: Lang;
   headers?: Record<string, string>;
   themeVars?: Record<string, string>;
@@ -501,6 +504,8 @@ const T: Record<
 const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
   zh: {
     promptPlaceholder: "输入你想学习的知识主题（例如：解释 Hash Map 机制...）",
+    sourceLibraryLabel: "📚 上传资料",
+    sourceLibraryTitle: "上传并选择资料",
     submitLabel: "⚡ 实时生成 Showcase",
     presetsLabel: "热门推荐：",
     presets: [
@@ -521,6 +526,8 @@ const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
   },
   en: {
     promptPlaceholder: "Enter a topic you want to learn (e.g., Explain how Hash Maps work...)",
+    sourceLibraryLabel: "📚 Upload sources",
+    sourceLibraryTitle: "Upload and select sources",
     submitLabel: "⚡ Generate Showcase Live",
     presetsLabel: "Popular picks:",
     presets: [
@@ -939,6 +946,8 @@ async function bootstrapOnline(
   const startPayload = {
     resource_path: source.resourcePath || undefined,
     resource_text: source.resourceText || undefined,
+    sourceIds: source.sourceIds || undefined,
+    resourceQuery: source.resourceQuery || undefined,
     language: source.language || getLang(),
     generationProfile: getStoredGenerationProfile(),
   };
@@ -1269,6 +1278,7 @@ function bindShellControls(
   onGenerate: (promptText: string) => void,
   onSwitchLang: (lang: Lang) => void,
   onSelectExample: (id: string) => void,
+  onOpenSourceLibrary?: () => void,
 ): void {
   updateKeyPillStatus();
 
@@ -1280,6 +1290,7 @@ function bindShellControls(
   const keyInput = document.getElementById("app-api-key-input") as HTMLInputElement | null;
   const form = document.getElementById("app-prompt-form") as HTMLFormElement | null;
   const promptInput = document.getElementById("app-prompt-input") as HTMLInputElement | null;
+  const sourceLibraryButton = document.getElementById("app-source-library-btn");
   const componentInputs = document.querySelectorAll<HTMLInputElement>(".generation-component-input");
   const exampleInputs = document.querySelectorAll<HTMLInputElement>(".generation-example-input");
 
@@ -1359,6 +1370,8 @@ function bindShellControls(
     }
     onGenerate(promptText);
   });
+
+  sourceLibraryButton?.addEventListener("click", () => onOpenSourceLibrary?.());
 
   document.querySelectorAll(".app-preset-chip").forEach((chip) => {
     chip.addEventListener("click", () => {
@@ -1686,6 +1699,45 @@ async function bootstrapViewer() {
     void startWithConfig(onlineConfig, false);
   };
 
+  const onGenerateFromSources = (sourceIds: string[], resourceQuery: string) => {
+    const target = container;
+    if (!target) return;
+    currentContent = { kind: "other" };
+    updateProjectUrl(null);
+    const currentApiUrl =
+      initialConfig.source.mode === "online"
+        ? initialConfig.source.apiBaseUrl
+        : (import.meta.env.VITE_A2LEARN_API_URL || "").trim();
+    if (!currentApiUrl) {
+      showState(target, T[getLang()].noBackendConfigured, "error");
+      return;
+    }
+    const userKey = getStoredApiKey();
+    void startWithConfig({
+      embed: false,
+      source: {
+        mode: "online",
+        apiBaseUrl: normalizeBaseUrl(currentApiUrl),
+        sourceIds,
+        resourceQuery: resourceQuery || undefined,
+        language: getLang(),
+        headers: userKey ? { Authorization: `Bearer ${userKey}` } : undefined,
+      },
+    }, false);
+  };
+
+  const sourceLibrary = initialConfig.embed
+    ? null
+    : mountSourceLibrary({
+        getApiBaseUrl: editorApiBaseUrl,
+        getApiKey: getStoredApiKey,
+        getLanguage: () => (getLang() === "en" ? "en" : "zh"),
+        onGenerate: onGenerateFromSources,
+      });
+  if (sourceLibrary) {
+    languageChangeControllers.push(sourceLibrary);
+  }
+
   // "Explore this concept" (tooltip button) opens the generated deep-dive in
   // a new tab instead of replacing the page the visitor is currently reading
   // — swapping it in place would discard their spot in the showcase they
@@ -1719,7 +1771,7 @@ async function bootstrapViewer() {
     if (!target) return;
     stopResize();
     stopResize = setupAutoResize(target, () => parentOrigin);
-    bindShellControls(onGenerate, switchLanguage, selectExample);
+    bindShellControls(onGenerate, switchLanguage, selectExample, sourceLibrary?.open);
 
     if (currentContent.kind === "example") {
       const item = getExampleItems(newLang).find((i) => i.id === currentContent.id);
@@ -1737,7 +1789,7 @@ async function bootstrapViewer() {
   };
 
   if (!initialConfig.embed) {
-    bindShellControls(onGenerate, switchLanguage, selectExample);
+    bindShellControls(onGenerate, switchLanguage, selectExample, sourceLibrary?.open);
     bindGlobalListenersOnce(openExploreInNewTab);
   }
 
