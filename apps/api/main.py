@@ -410,6 +410,8 @@ async def generate_narration(
         raise HTTPException(status_code=404, detail="PAGE_DOCUMENT_NOT_FOUND") from exc
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"NARRATION_FAILED: {_sanitize_error_message(exc)}") from exc
 
 
 @app.post("/api/projects/{project_id}/narration")
@@ -438,13 +440,12 @@ async def generate_project_narration(
     }
     try:
         script = await run_in_threadpool(rewrite_page_narration, combined_document, llm=llm, language=language)
-    except RuntimeError as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
-    try:
         audio_id, _ = await run_in_threadpool(synthesize, script, language=language, api_key=api_key)
-    except RuntimeError as exc:
+        return {"script": script, "audioUrl": f"/api/audio/{audio_id}.mp3"}
+    except (RuntimeError, ValueError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
-    return {"script": script, "audioUrl": f"/api/audio/{audio_id}.mp3"}
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"NARRATION_FAILED: {_sanitize_error_message(exc)}") from exc
 
 
 @app.post("/api/knowledge/sources", response_model=KnowledgeSourceResponse, status_code=201)
