@@ -13,3 +13,13 @@ ssh:
 builder:
   arch: amd64
   remote: ssh://zhuchen@20.6.131.6
+
+env:
+  clear:
+    A2LEARN_PAGE_DOCUMENT_DB_PATH: /data/a2learn.sqlite3
+    A2LEARN_SESSION_DB_PATH: /data/a2learn.sqlite3
+    A2LEARN_KNOWLEDGE_DB_PATH: /data/knowledge.sqlite3
+    A2LEARN_KNOWLEDGE_STORAGE_ROOT: /data/knowledge-files
+
+volumes:
+  - "/var/lib/a2learn/data:/data"
