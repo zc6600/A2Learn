@@ -1,0 +1,43 @@
+[
+  {"version":"v0.9","createSurface":{"surfaceId":"deng-gao","catalogId":"https://a2learn.ai/spec/v1/catalog.json"}},
+  {"version":"v0.9","updateComponents":{"surfaceId":"deng-gao","components":[
+    {"id":"root","component":"Column","children":["title","poem","structure-title","structure-timeline","dialogue-title","dialogue","match-title","match","explanation-title","artistic-explanation","deep-dive-prompts"]},
+    {"id":"title","component":"Text","variant":"h1","text":"《登高》· 重读古今七律之冠的苍凉与壮阔"},
+    {"id":"poem","component":"DetailedExplanation","title":"杜甫 · 原文与微注","content":"风急天高猿啸哀，<dfn title=\"水中的小洲\">渚清</dfn>沙白鸟飞回。\n\n无边落木<dfn title=\"形容树叶稀疏飘落的声音\">萧萧</dfn>下，不尽长江滚滚来。\n\n<dfn title=\"空间之远，身处夔州异乡\">万里</dfn>悲秋<dfn title=\"长期漂泊异乡为客\">常作客</dfn>，<dfn title=\"晚年，借指一生\">百年</dfn>多病<dfn title=\"孤身一人登高\">独登台</dfn>。\n\n艰难苦恨<dfn title=\"满头如霜的白发\">繁霜鬓</dfn>，<dfn title=\"衰颓困顿，因病新近戒酒\">潦倒新停浊酒杯</dfn>。"},
+    {"id":"structure-title","component":"Text","variant":"h2","text":"四联镜头解码：从天地寒秋到一人白发"},
+    {"id":"structure-timeline","component":"Timeline","variant":"journey","orientation":"vertical","events":[
+      {"id":"scene-1","time":"首联 · 听觉与视角的急遽张力","title":"风急天高猿啸哀，渚清沙白鸟飞回。","description":"<b>眼前</b>风声呼啸、天高地迥、峡猿哀鸣，小洲清冷、沙滩洁白、水鸟盘旋。<br><b>镜头</b>一开篇即密集融入六种意象，声色并茂，勾勒出夔州秋日极为高急狭肃的天地全景。"},
+      {"id":"scene-2","time":"颔联 · 时空的宇宙级宏大","title":"无边落木萧萧下，不尽长江滚滚来。","description":"<b>仰观</b>无边落叶萧萧而下，岁月飞逝；<b>俯瞰</b>不尽长江奔流不息，历史滚滚。<br><b>镜头</b>视界猛地拉开至极致，将个人渺小凄凉的身世，置于永恒无尽的宇宙与历史长河之中。"},
+      {"id":"scene-3","time":"颈联 · 十四周沉重身世","title":"万里悲秋常作客，百年多病独登台。","description":"<b>凝视</b>空间之远（万里）、季节之肃（悲秋）、身世之苦（常作客）、时光之逝（百年）、身体之衰（多病）、孤独之至（独登台）。<br><b>镜头</b>从宏大宇宙猛地收缩到高台上孤身一人，十四字无一字不叠愁。"},
+      {"id":"scene-4","time":"尾联 · 现实困顿与无可奈何","title":"艰难苦恨繁霜鬓，潦倒新停浊酒杯。","description":"<b>落脚</b>家国战乱苦难（艰难苦恨）、满头如霜白发（繁霜鬓），以及衰颓潦倒中因病不得不新近戒掉浊酒（新停浊酒杯）。<br><b>镜头</b>停留在诗人抚鬓停杯的无柰瞬间，将苍凉壮阔推向了情感与现实的极峰。"}
+    ]},
+    {"id":"dialogue-title","component":"Text","variant":"h2","text":"峡江独白：当诗人在高台停下酒杯"},
+    {"id":"dialogue","component":"ScenarioDialogue","variant":"correspondence","topic":"夔州高台上的心境独白","characters":{"poet":{"name":"杜甫 (老杜)","avatar":"👴","alignment":"left"},"wind":{"name":"峡江秋风","avatar":"🌪️","alignment":"right"}},"messages":[
+      {"characterId":"poet","content":"重阳佳节，独登夔州高台。听这峡里的风声与猿啸，声声都切在心头。"},
+      {"characterId":"wind","content":"你看这无边落木萧萧下，江水滚滚东去，天地辽阔，何必如此沉郁？"},
+      {"characterId":"poet","content":"并非我偏要沉郁。漂泊万里，常年为客；身患肺疾风痹，今又独自一人登高。天地虽大，何处是我归家之路？"},
+      {"characterId":"wind","content":"世人皆求免愁，你却连解愁的浊酒也停了？"},
+      {"characterId":"poet","content":"身体潦倒衰颓，大夫叮嘱不可再饮。家国艰难未平，个人白发渐繁。停下酒杯，反倒看得更清楚这满地的秋意与苍凉。"}
+    ]},
+    {"id":"match-title","component":"Text","variant":"h2","text":"沉浸解码：颈联十四字，字字皆是愁"},
+    {"id":"match","component":"DragAndDropMatch","title":"剖析‘万里悲秋常作客，百年多病独登台’的六重愁苦维度","instruction":"点击左侧诗中关键词，配对右侧对应的悲苦维度（亦可直接拖拽）。","leftLabel":"诗中词句","rightLabel":"悲苦维度","successMessage":"太棒了！你已经洞察到这十四个字里层层叠加的无尽悲凉。","incorrectMessage":"可以重新读一读颈联：想一想‘万里’代表空间，‘百年’代表岁月，‘独’代表什么？","matchExplanations":{"wanli":"‘万里’写尽空间之辽阔远隔，离蜀陇家乡何止万里。","beiqiu":"‘悲秋’写季节之萧瑟，感伤岁月不居。","zuoke":"‘常作客’写长年漂泊羁旅、寄人离下的羁旅之苦。","bainian":"‘百年’写暮年迟暮，人生忽已暮。","du":"‘独登台’写亲朋离散、形单影只的极致孤独。"},"leftItems":[
+      {"id":"wanli","content":"“万里”"},
+      {"id":"beiqiu","content":"“悲秋”"},
+      {"id":"zuoke","content":"“常作客”"},
+      {"id":"bainian","content":"“百年”"},
+      {"id":"du","content":"“独登台”"}
+    ],"rightItems":[
+      {"id":"space","content":"空间维度：身处夔州，远隔家乡万里之遥"},
+      {"id":"season","content":"时令维度：面对萧瑟秋景，触发深沉悲愁"},
+      {"id":"fate","content":"身世维度：长年漂泊异乡，寄人篱下为客"},
+      {"id":"age","content":"生命维度：人生晚年迟暮，时光不可逆转"},
+      {"id":"isolation","content":"心理维度：无人相伴，孤身一人登上高台"}
+    ],"correctMatches":{"wanli":"space","beiqiu":"season","zuoke":"fate","bainian":"age","du":"isolation"}},
+    {"id":"explanation-title","component":"Text","variant":"h2","text":"为什么《登高》被称为‘古今七律第一’？"},
+    {"id":"artistic-explanation","component":"DetailedExplanation","title":"第三视角 · 艺术成就与审美沉思","content":"<p><b>一、句句皆对仗，一篇之中句句皆律</b></p><p>明代胡应麟在《诗薮》中赞誉《登高》为<b>“古今七律第一”</b>。全诗八句四联，无一联不对仗，首联“风急”对“天高”、“猿啸哀”对“鸟飞回”，工整浑成，毫无雕琢痕迹。</p><p><b>二、动静相兼，时空交融</b></p><p>颔联“无边落木萧萧下，不尽长江滚滚来”兼具声色空间：落木落叶是<b>视线中的点与面</b>，长江奔流是<b>时间上的长河</b>。把宇宙宏观的浩瀚与诗人微观身世的苍凉完美交融在一起。</p><p><b>三、沉郁顿挫，悲壮而不颓废</b></p><p>杜甫之悲，不是小我私情的哀怨，而是包含着对家国艰难（“艰难苦恨”）的沉痛关怀。即便是潦倒停杯、身陷绝境，诗风依然刚健雄浑，具有直击人心的崇高美感。</p>"},
+    {"id":"deep-dive-prompts","component":"DeepDivePrompt","prompts":[
+      {"id":"p1","label":"‘无边落木萧萧下，不尽长江滚滚来’在空间感和时间感上是如何震撼人心的？","icon":"🌊"},
+      {"id":"p2","label":"为什么说杜甫在《登高》里的‘悲’不是软弱的颓废，而是一种雄浑悲壮的崇高美？","icon":"🏔️"}
+    ]}
+  ]}}
+]

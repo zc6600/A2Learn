@@ -22,6 +22,7 @@ EXAMPLE_IDS = frozenset(
         "paper-attention",
         "biophysics-ai",
         "poetry-social",
+        "deng-gao",
     }
 )
 
