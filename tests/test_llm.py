@@ -3,7 +3,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from agent.llm import (
+from agent.generation.llm import (
     _extract_json_array,
     _extract_json_object,
     _invoke_and_parse,
@@ -198,7 +198,7 @@ class GenerateA2uiMessagesPerSurfaceTests(unittest.TestCase):
             surface_id = "s1" if 'surfaceId 为 "s1"' in messages[1]["content"] else "s2"
             return [{"version": "v0.9", "createSurface": {"surfaceId": surface_id}}]
 
-        with patch("agent.llm._invoke_and_parse", side_effect=fake_invoke_and_parse):
+        with patch("agent.generation.llm._invoke_and_parse", side_effect=fake_invoke_and_parse):
             result = generate_a2ui_messages_per_surface(object(), "resource text", site_plan)
 
         self.assertEqual(len(calls), 2)
@@ -211,7 +211,7 @@ class GenerateA2uiMessagesPerSurfaceTests(unittest.TestCase):
         )
 
     def test_falls_back_to_single_call_when_site_plan_has_no_surfaces(self) -> None:
-        with patch("agent.llm.generate_a2ui_messages", return_value=["fallback"]) as fallback:
+        with patch("agent.generation.llm.generate_a2ui_messages", return_value=["fallback"]) as fallback:
             result = generate_a2ui_messages_per_surface(object(), "resource text", {"surfaces": []})
 
         fallback.assert_called_once()

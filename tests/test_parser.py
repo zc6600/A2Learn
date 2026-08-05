@@ -14,8 +14,8 @@
 
 """Unit tests for the A2UI parser module."""
 
-from agent.parser import parse_json_to_a2ui
-from agent.validate import validate_a2ui_messages
+from agent.core.validate import validate_a2ui_messages
+from agent.generation.parser import parse_json_to_a2ui
 
 
 def test_parse_json_to_a2ui_all_fields():

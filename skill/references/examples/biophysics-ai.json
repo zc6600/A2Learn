@@ -17,7 +17,6 @@
           "children": [
             "header",
             "intro-text",
-            "knowledge-tree",
             "section-nav",
             "learning-path",
             "analogy-card",
@@ -48,52 +47,6 @@
           "text": "2021 年，DeepMind 的 **AlphaFold2** 在 *Nature* 发表，一举解决了困扰生物学界 50 年的「蛋白质折叠问题」。这不仅是 AI 史上的里程碑，更开启了计算生物物理学的新纪元。如今，AI 已深度渗透蛋白质结构预测、药物设计、冷冻电镜解析和分子动力学模拟等核心领域，正在重塑现代生命科学研究范式。"
         },
         {
-          "id": "knowledge-tree",
-          "component": "KnowledgeTree",
-          "title": "AI + 生物物理知识体系",
-          "path": [
-            {
-              "id": "biophysics",
-              "label": "计算生物物理学"
-            },
-            {
-              "id": "ai-bio",
-              "label": "AI 驱动的生物物理"
-            }
-          ],
-          "currentNode": {
-            "id": "structure-prediction",
-            "label": "蛋白质结构预测",
-            "description": "当前聚焦：AI 如何从氨基酸序列预测三维蛋白质结构"
-          },
-          "childrenNodes": [
-            {
-              "id": "drug-discovery",
-              "label": "AI 药物发现",
-              "hasChildren": true
-            },
-            {
-              "id": "cryo-em",
-              "label": "冷冻电镜 + AI",
-              "hasChildren": true
-            },
-            {
-              "id": "md-sim",
-              "label": "AI 分子动力学",
-              "hasChildren": true
-            },
-            {
-              "id": "single-cell",
-              "label": "单细胞组学 + AI",
-              "hasChildren": false
-            }
-          ],
-          "onNodeNavigate": {
-            "name": "knowledge_tree_navigate",
-            "context": {}
-          }
-        },
-        {
           "id": "section-nav",
           "component": "SectionNavigator",
           "activeSectionId": "alphafold",
@@ -107,28 +60,32 @@
               "title": "AlphaFold 与结构预测",
               "description": "从 AlphaFold2 到 AlphaFold3：蛋白质折叠问题的终结",
               "icon": "🔵",
-              "status": "current"
+              "status": "current",
+              "targetComponentId": "concept-alphafold2"
             },
             {
               "id": "plm",
               "title": "蛋白质语言模型",
               "description": "ESMFold、OmegaFold 等单序列预测新范式",
               "icon": "🟣",
-              "status": "available"
+              "status": "available",
+              "targetComponentId": "concept-plm"
             },
             {
               "id": "drug",
               "title": "AI 药物发现",
               "description": "分子生成、虚拟筛选与靶点识别",
               "icon": "🟢",
-              "status": "available"
+              "status": "available",
+              "targetComponentId": "deep-dive"
             },
             {
               "id": "cryoem-ai",
               "title": "冷冻电镜 + AI",
               "description": "DeepEMhancer、ModelAngelo 加速结构解析",
               "icon": "🟡",
-              "status": "available"
+              "status": "available",
+              "targetComponentId": "detailed-explanation-alphafold3"
             },
             {
               "id": "md-ai",

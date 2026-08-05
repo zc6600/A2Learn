@@ -1,7 +1,7 @@
 import unittest
 
-from agent.page_document import PageDocument
-from agent.page_operations import PageOperationError, apply_page_operations
+from agent.document.page_document import PageDocument
+from agent.document.page_operations import PageOperationError, apply_page_operations
 
 
 def page() -> PageDocument:

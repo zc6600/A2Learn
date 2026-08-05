@@ -1,6 +1,6 @@
 import unittest
 
-from agent.validate import validate_a2ui_messages
+from agent.core.validate import validate_a2ui_messages
 
 
 class ValidateMessagesTests(unittest.TestCase):

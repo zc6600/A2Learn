@@ -1,8 +1,10 @@
+"""CLI entry point for A2Learn agent."""
+
 import argparse
 import os
 
-from .config import DEFAULT_MODEL
-from .engine import run_agent
+from .core.config import DEFAULT_MODEL
+from .generation.engine import run_agent
 
 
 def main() -> None:
@@ -27,4 +29,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

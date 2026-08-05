@@ -1,154 +1,218 @@
 import { html, css, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { DragAndDropMatchApi } from "../api";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { uiText } from "../utils/i18n";
 
+/** Two-column Matching component with dual Click-to-Pair & Drag-and-Drop support. */
 export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAndDropMatchApi> {
   static styles = css`
     :host {
       display: block;
-      margin: var(--a2ui-spacing-l) 0;
-      font-family: var(--a2ui-font-family);
+      margin: var(--a2ui-spacing-l, 20px) 0;
+      font-family: var(--a2ui-font-family, sans-serif);
+      user-select: none;
+      -webkit-user-select: none;
     }
-    .match-board {
-      background: var(--a2ui-color-surface);
-      border: 1px solid var(--a2ui-color-border);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    .board {
       position: relative;
+      overflow: hidden;
+      border: 1px solid var(--a2ui-color-border, #d9dde5);
+      border-radius: var(--a2ui-card-border-radius, 16px);
+      background: var(--a2ui-color-surface, #fff);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
     }
-    .columns-container {
-      display: flex;
-      justify-content: space-between;
-      gap: 40px;
-      position: relative;
+    header {
+      padding: 20px 22px 16px;
+      border-bottom: 1px solid color-mix(in srgb, var(--a2ui-color-border, #d9dde5) 72%, transparent);
+      background: color-mix(in srgb, var(--a2ui-color-surface, #fff) 94%, var(--a2ui-color-primary, #2563eb));
     }
-    .column {
-      flex: 1;
+    h3 {
+      margin: 0;
+      color: var(--a2ui-color-on-surface, #1e293b);
+      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));
+      font-size: 18px;
+      line-height: 1.35;
+    }
+    .instruction {
+      margin: 7px 0 0;
+      color: var(--app-muted, #64748b);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .progress {
+      display: inline-flex;
+      margin-top: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 12%, transparent);
+      color: var(--a2ui-color-primary, #2563eb);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* 2-Column Classic Layout */
+    .matching-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 22px;
+    }
+
+    .column-title {
+      color: var(--app-muted, #64748b);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .items-stack {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      z-index: 1;
-    }
-    .item {
-      padding: 16px;
-      background: color-mix(in oklab, var(--a2ui-color-surface) 95%, black);
-      border: 2px solid var(--a2ui-color-border);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--a2ui-color-on-surface);
-      position: relative;
-      text-align: center;
-      user-select: none;
-    }
-    .item:hover:not(.disabled) {
-      border-color: var(--a2ui-color-primary);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .item.selected {
-      border-color: var(--a2ui-color-primary);
-      background: color-mix(in oklab, var(--a2ui-color-primary) 10%, transparent);
-      box-shadow: 0 0 0 3px color-mix(in oklab, var(--a2ui-color-primary) 20%, transparent);
-    }
-    .item.matched {
-      border-color: var(--a2ui-color-primary);
-      background: color-mix(in oklab, var(--a2ui-color-primary) 5%, transparent);
-      opacity: 0.8;
-    }
-    .item.disabled {
-      cursor: default;
-    }
-    
-    /* Error state highlights */
-    .match-board.incorrect .item.matched-wrong {
-      border-color: var(--a2ui-color-error, #f44336);
-      background: color-mix(in oklab, var(--a2ui-color-error, #f44336) 10%, transparent);
-      color: var(--a2ui-color-error, #f44336);
-    }
-    .match-board.incorrect .item.matched-correct {
-      border-color: var(--a2ui-color-success, #4caf50);
-      background: color-mix(in oklab, var(--a2ui-color-success, #4caf50) 10%, transparent);
-    }
-    
-    .match-board.correct .item {
-      border-color: var(--a2ui-color-success, #4caf50);
-      background: color-mix(in oklab, var(--a2ui-color-success, #4caf50) 5%, transparent);
+      gap: 12px;
     }
 
-    svg.connections {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-    }
-    path.line {
-      stroke: var(--a2ui-color-primary);
-      stroke-width: 3;
-      fill: none;
-      opacity: 0.6;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    .match-board.correct path.line { stroke: var(--a2ui-color-success, #4caf50); }
-    path.line.wrong { stroke: var(--a2ui-color-error, #f44336); stroke-dasharray: 5,5; }
-
-    .actions {
-      margin-top: 24px;
+    /* Cards */
+    .match-card {
       display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      border: 2px solid var(--a2ui-color-border, #d9dde5);
+      border-radius: 12px;
+      background: var(--a2ui-color-surface, #fff);
+      color: var(--a2ui-color-on-surface, #1e293b);
+      cursor: pointer;
+      font-size: 14.5px;
+      line-height: 1.5;
+      transition: all 0.18s ease;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+    }
+    .match-card:hover:not(:disabled) {
+      border-color: var(--a2ui-color-primary, #2563eb);
+      background: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 4%, var(--a2ui-color-surface, #fff));
+      transform: translateY(-1px);
+    }
+
+    /* Active Selection */
+    .match-card.active-selected {
+      border-color: var(--a2ui-color-primary, #2563eb);
+      background: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 12%, var(--a2ui-color-surface, #fff));
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 20%, transparent);
+    }
+
+    /* Paired State */
+    .match-card.paired {
+      border-color: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 60%, var(--a2ui-color-border, #d9dde5));
+      background: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 8%, var(--a2ui-color-surface, #fff));
+    }
+
+    /* Results State */
+    .match-card.correct {
+      border-color: var(--a2ui-color-success, #16a34a);
+      background: color-mix(in srgb, var(--a2ui-color-success, #16a34a) 10%, var(--a2ui-color-surface, #fff));
+      color: var(--a2ui-color-success, #16a34a);
+    }
+    .match-card.incorrect {
+      border-color: var(--a2ui-color-error, #dc2626);
+      background: color-mix(in srgb, var(--a2ui-color-error, #dc2626) 10%, var(--a2ui-color-surface, #fff));
+      color: var(--a2ui-color-error, #dc2626);
+    }
+
+    .pair-badge {
+      display: inline-flex;
+      align-items: center;
       justify-content: center;
-      gap: 16px;
-      position: relative;
-      z-index: 1;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: var(--a2ui-color-primary, #2563eb);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .pair-badge.correct { background: var(--a2ui-color-success, #16a34a); }
+    .pair-badge.incorrect { background: var(--a2ui-color-error, #dc2626); }
+
+    /* Feedback */
+    .feedback {
+      margin: 0 22px 18px;
+      padding: 14px 16px;
+      border-left: 4px solid var(--a2ui-color-primary, #2563eb);
+      background: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 6%, transparent);
+      color: var(--a2ui-color-on-surface, #1e293b);
+      font-size: 14px;
+      line-height: 1.6;
+      border-radius: 0 8px 8px 0;
+    }
+    .feedback.correct {
+      border-left-color: var(--a2ui-color-success, #16a34a);
+      background: color-mix(in srgb, var(--a2ui-color-success, #16a34a) 7%, transparent);
+    }
+    .feedback.incorrect {
+      border-left-color: var(--a2ui-color-error, #dc2626);
+      background: color-mix(in srgb, var(--a2ui-color-error, #dc2626) 7%, transparent);
+    }
+    .feedback strong { display: block; margin-bottom: 3px; }
+    .feedback ul { margin: 9px 0 0; padding-left: 18px; }
+    .feedback li { margin: 4px 0; }
+
+    footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 18px 22px 22px;
+      border-top: 1px solid color-mix(in srgb, var(--a2ui-color-border, #d9dde5) 50%, transparent);
     }
     .btn {
-      padding: 10px 24px;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-    }
-    .btn-submit {
-      background: var(--a2ui-color-primary);
-      color: white;
-    }
-    .btn-submit:hover:not(:disabled) { filter: brightness(1.1); }
-    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-    
-    .btn-reset {
+      min-height: 38px;
+      padding: 8px 16px;
+      border: 1px solid var(--a2ui-color-border, #d9dde5);
+      border-radius: var(--a2learn-control-radius, 8px);
       background: transparent;
-      border: 1px solid var(--a2ui-color-border);
-      color: var(--a2ui-color-on-surface);
+      color: var(--a2ui-color-on-surface, #1e293b);
+      cursor: pointer;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 650;
     }
-    .btn-reset:hover { background: color-mix(in oklab, var(--a2ui-color-surface) 90%, black); }
+    .btn:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 7%, var(--a2ui-color-surface, #fff));
+    }
+    .submit {
+      border-color: var(--a2ui-color-primary, #2563eb);
+      background: var(--a2ui-color-primary, #2563eb);
+      color: var(--a2ui-color-on-primary, #fff);
+    }
+    .submit:hover:not(:disabled) {
+      filter: brightness(1.06);
+      background: var(--a2ui-color-primary, #2563eb);
+    }
+    .btn:disabled { cursor: not-allowed; opacity: 0.48; }
+
+    @media (max-width: 680px) {
+      .matching-columns { grid-template-columns: 1fr; gap: 16px; padding: 16px; }
+      footer { padding: 16px; }
+      .feedback { margin-left: 16px; margin-right: 16px; }
+    }
   `;
 
   @state() private selectedLeftId: string | null = null;
-  @state() private selectedRightId: string | null = null;
-  @state() private localMatches: Record<string, string> = {}; // { leftId: rightId }
-  @state() private localStatus: 'idle' | 'correct' | 'incorrect' = 'idle';
+  @state() private matches: Record<string, string> = {};
+  @state() private status: "idle" | "correct" | "incorrect" = "idle";
 
   protected createController() {
     return new A2uiController(this, DragAndDropMatchApi);
   }
 
-  private resolveString(value: unknown): string {
+  private text(value: unknown): string {
     if (typeof value === "string") return value;
-    if (
-      value &&
-      typeof value === "object" &&
-      "literalString" in (value as Record<string, unknown>)
-    ) {
+    if (value && typeof value === "object" && "literalString" in (value as Record<string, unknown>)) {
       const literal = (value as { literalString?: unknown }).literalString;
       return typeof literal === "string" ? literal : "";
     }
@@ -156,141 +220,87 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
   }
 
   private handleLeftClick(id: string) {
-    if (this.localStatus !== 'idle') return;
-    
-    // Toggle selection or select new
-    this.selectedLeftId = this.selectedLeftId === id ? null : id;
-    (this as any).requestUpdate();
-    
-    // If right was already selected, make a match
-    if (this.selectedLeftId && this.selectedRightId) {
-      this.createMatch();
-    }
-  }
-
-  private handleRightClick(id: string) {
-    if (this.localStatus !== 'idle') return;
-
-    // Toggle selection or select new
-    this.selectedRightId = this.selectedRightId === id ? null : id;
-    (this as any).requestUpdate();
-    
-    // If left was already selected, make a match
-    if (this.selectedLeftId && this.selectedRightId) {
-      this.createMatch();
-    }
-  }
-
-  private createMatch() {
-    if (!this.selectedLeftId || !this.selectedRightId) return;
-
-    // Remove any existing matches for these items
-    const newMatches = { ...this.localMatches };
-    
-    // Remove if left was matched elsewhere
-    delete newMatches[this.selectedLeftId];
-    
-    // Remove if right was matched elsewhere
-    for (const [lId, rId] of Object.entries(newMatches)) {
-      if (rId === this.selectedRightId) {
-        delete newMatches[lId];
-      }
-    }
-
-    // Add new match
-    newMatches[this.selectedLeftId] = this.selectedRightId;
-    this.localMatches = newMatches;
-    
-    // Clear selections
-    this.selectedLeftId = null;
-    this.selectedRightId = null;
-    
-    // Force re-render to update SVG lines
-    (this as any).requestUpdate();
-  }
-
-  private handleReset() {
-    this.localMatches = {};
-    this.selectedLeftId = null;
-    this.selectedRightId = null;
-    this.localStatus = 'idle';
-    (this as any).requestUpdate();
-  }
-
-  private handleSubmit(correctMatches: Record<string, string> | undefined) {
-    if (this.localStatus !== 'idle') return;
-    
-    const props = (this as any).controller?.props;
-    if (!props) return;
-
-    let isAllCorrect = true;
-    if (correctMatches && Object.keys(correctMatches).length > 0) {
-      // 前端闭环校验逻辑
-      for (const [leftId, expectedRightId] of Object.entries(correctMatches)) {
-        if (this.localMatches[leftId] !== expectedRightId) {
-          isAllCorrect = false;
-          break;
-        }
-      }
-      this.localStatus = isAllCorrect ? 'correct' : 'incorrect';
+    if (this.status !== "idle") return;
+    if (this.selectedLeftId === id) {
+      this.selectedLeftId = null;
     } else {
-      // 如果没有配置标准答案，当做匹配成功
-      this.localStatus = 'correct';
+      this.selectedLeftId = id;
     }
-    (this as any).requestUpdate();
+    this.requestUpdate();
+  }
 
-    if (props.onMatchComplete) {
+  private handleRightClick(rightId: string) {
+    if (this.status !== "idle") return;
+
+    // If a left item is selected, pair them up!
+    if (this.selectedLeftId) {
+      const next = { ...this.matches };
+
+      // Remove any existing pairing that points to this rightId
+      for (const [key, val] of Object.entries(next)) {
+        if (val === rightId) delete next[key];
+      }
+
+      next[this.selectedLeftId] = rightId;
+      this.matches = next;
+      this.selectedLeftId = null;
+      this.requestUpdate();
+      return;
+    }
+
+    // If no left item is selected, but rightId is already paired, clicking unpairs it!
+    for (const [key, val] of Object.entries(this.matches)) {
+      if (val === rightId) {
+        const next = { ...this.matches };
+        delete next[key];
+        this.matches = next;
+        this.requestUpdate();
+        return;
+      }
+    }
+  }
+
+  private reset() {
+    this.selectedLeftId = null;
+
+    this.matches = {};
+    this.status = "idle";
+    this.requestUpdate();
+  }
+
+  private submit(correct: Record<string, string>) {
+    if (this.status !== "idle") return;
+    const isCorrect = Object.entries(correct).every(([left, right]) => this.matches[left] === right);
+    this.status = isCorrect ? "correct" : "incorrect";
+    this.requestUpdate();
+    const props = (this as any).controller?.props;
+    if (props?.onMatchComplete) {
       (this as any).context.dispatchAction({
         ...(props.onMatchComplete as Record<string, unknown>),
-        context: { isCorrect: isAllCorrect, userMatches: this.localMatches },
+        context: { isCorrect, userMatches: this.matches },
       });
     }
   }
 
-  // --- SVG Drawing Logic ---
-  // Note: For a robust implementation, we would use ResizeObserver and getBoundingClientRect,
-  // but for this conceptual Lit element, we'll use approximate fixed percentages.
-  private renderConnections(correctMatches: Record<string, string>) {
-    const props = (this as any).controller?.props;
-    if (!props) return nothing;
+  // Drag & drop handlers
+  private handleDragStart(e: DragEvent, leftId: string) {
+    if (this.status !== "idle") return;
+    e.dataTransfer?.setData("text/plain", leftId);
+    this.selectedLeftId = leftId;
+    this.requestUpdate();
+  }
 
-    const leftItems = props.leftItems || [];
-    const rightItems = props.rightItems || [];
+  private handleDragOver(e: DragEvent) {
+    e.preventDefault();
+  }
 
-    return html`
-      <svg class="connections">
-        ${Object.entries(this.localMatches).map(([leftId, rightId]) => {
-          const leftIndex = leftItems.findIndex((i: any) => i.id === leftId);
-          const rightIndex = rightItems.findIndex((i: any) => i.id === rightId);
-          
-          if (leftIndex === -1 || rightIndex === -1) return nothing;
-
-          // Approximate positions based on gap=16px and padding
-          // A real implementation would calculate actual DOM coordinates
-          const itemHeight = 60; 
-          const gap = 16;
-          const topOffset = 24 + (itemHeight / 2); // padding + half item height
-          
-          const y1 = topOffset + leftIndex * (itemHeight + gap);
-          const y2 = topOffset + rightIndex * (itemHeight + gap);
-          
-          const x1 = '45%'; // End of left column
-          const x2 = '55%'; // Start of right column
-          
-          // Curve path for aesthetics
-          const path = `M ${x1} ${y1} C 50% ${y1}, 50% ${y2}, ${x2} ${y2}`;
-
-          // Determine line style if answered
-          let lineClass = 'line';
-          if (this.localStatus === 'incorrect') {
-            const isCorrectMatch = correctMatches[leftId] === rightId;
-            if (!isCorrectMatch) lineClass += ' wrong';
-          }
-
-          return html`<path class="${lineClass}" d="${path}" />`;
-        })}
-      </svg>
-    `;
+  private handleDrop(e: DragEvent, rightId: string) {
+    e.preventDefault();
+    const leftId = e.dataTransfer?.getData("text/plain") || this.selectedLeftId;
+    if (leftId) {
+      this.selectedLeftId = leftId;
+      this.handleRightClick(rightId);
+    }
   }
 
   render() {
@@ -299,88 +309,138 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
 
     const leftItems = props.leftItems || [];
     const rightItems = props.rightItems || [];
-    const correctMatches = props.correctMatches || {};
-    
-    const status = this.localStatus;
-    const hasAnswered = status !== 'idle';
-    
-    const isReadyToSubmit = Object.keys(this.localMatches).length === leftItems.length;
+    const correct = props.correctMatches || {};
+    const answered = this.status !== "idle";
+    const complete = leftItems.length > 0 && Object.keys(this.matches).length === leftItems.length;
+
+    const title = this.text(props.title) || uiText("连线匹配练习", "Matching Exercise");
+    const instruction =
+      this.text(props.instruction) ||
+      uiText("点击左侧项目高亮，再点击右侧对应选项进行连线配对（也可拖拽匹配）。", "Click a left item, then click its matching right item (or drag & drop).");
+    const leftLabel = this.text(props.leftLabel) || uiText("待匹配项", "Items");
+    const rightLabel = this.text(props.rightLabel) || uiText("对应选项", "Options");
+
+    const feedback =
+      this.status === "correct"
+        ? this.text(props.successMessage) || uiText("全部匹配正确！", "All items matched correctly!")
+        : this.text(props.incorrectMessage) ||
+          uiText("匹配存在错误，请核对红色标记项。", "Some matches are incorrect. Please check the red items.");
+
+    const explanations =
+      props.matchExplanations && answered
+        ? leftItems
+            .map((item: any) => ({ label: this.text(item.content), content: this.text(props.matchExplanations[item.id]) }))
+            .filter((item: { content: string }) => item.content)
+        : [];
+
+    // Helper map to assign index numbers (1, 2, 3...) to pairings
+    const leftIdsOrder = leftItems.map((i: any) => i.id);
+    const getPairNumber = (leftId: string): number => leftIdsOrder.indexOf(leftId) + 1;
 
     return html`
-      <div class="match-board ${status}">
-        <div class="columns-container">
-          ${this.renderConnections(correctMatches)}
-          
-          <!-- Left Column -->
-          <div class="column left-col">
-            ${leftItems.map((item: any) => {
-              const isSelected = this.selectedLeftId === item.id;
-              const isMatched = !!this.localMatches[item.id];
-              
-              let itemClass = 'item';
-              if (isSelected) itemClass += ' selected';
-              if (isMatched) itemClass += ' matched';
-              if (hasAnswered) {
-                itemClass += ' disabled';
-                if (status === 'incorrect') {
-                  const actualRight = this.localMatches[item.id];
-                  const expectedRight = correctMatches[item.id];
-                  itemClass += actualRight === expectedRight ? ' matched-correct' : ' matched-wrong';
-                }
-              }
+      <section class="board ${this.status}" aria-label=${title}>
+        <header>
+          <h3>${title}</h3>
+          <p class="instruction">${instruction}</p>
+          <span class="progress">${uiText("已连接", "Connected")} ${Object.keys(this.matches).length} / ${leftItems.length}</span>
+        </header>
 
-              return html`
-                <div class="${itemClass}" @click=${() => this.handleLeftClick(item.id)}>
-                  ${this.resolveString(item.content)}
-                </div>
-              `;
-            })}
+        <div class="matching-columns">
+          <!-- Left Column -->
+          <div class="column-box">
+            <div class="column-title">${leftLabel}</div>
+            <div class="items-stack">
+              ${leftItems.map((item: any) => {
+                const isSelected = this.selectedLeftId === item.id;
+                const pairedRightId = this.matches[item.id];
+                const isPaired = Boolean(pairedRightId);
+                const pairNum = getPairNumber(item.id);
+
+                let statusClass = isSelected ? "active-selected" : isPaired ? "paired" : "";
+                if (answered && isPaired) {
+                  statusClass = correct[item.id] === pairedRightId ? "correct" : "incorrect";
+                }
+
+                return html`
+                  <div
+                    class="match-card ${statusClass}"
+                    draggable=${!answered ? "true" : "false"}
+                    @dragstart=${(e: DragEvent) => this.handleDragStart(e, item.id)}
+                    @click=${() => this.handleLeftClick(item.id)}
+                  >
+                    <span>${this.text(item.content)}</span>
+                    ${isPaired
+                      ? html`<span class="pair-badge ${answered ? (correct[item.id] === pairedRightId ? "correct" : "incorrect") : ""}">
+                          #${pairNum}
+                        </span>`
+                      : isSelected
+                      ? html`<span class="pair-badge">点击选择右侧 →</span>`
+                      : nothing}
+                  </div>
+                `;
+              })}
+            </div>
           </div>
 
           <!-- Right Column -->
-          <div class="column right-col">
-            ${rightItems.map((item: any) => {
-              const isSelected = this.selectedRightId === item.id;
-              // Check if any left item is matched to this right item
-              const isMatched = Object.values(this.localMatches).includes(item.id);
-              
-              let itemClass = 'item';
-              if (isSelected) itemClass += ' selected';
-              if (isMatched) itemClass += ' matched';
-              if (hasAnswered) {
-                itemClass += ' disabled';
-                if (status === 'incorrect') {
-                  // Find which left item matched this right item
-                  const matchedLeftId = Object.keys(this.localMatches).find(lId => this.localMatches[lId] === item.id);
-                  if (matchedLeftId) {
-                    const expectedRight = correctMatches[matchedLeftId];
-                    itemClass += item.id === expectedRight ? ' matched-correct' : ' matched-wrong';
-                  }
-                }
-              }
+          <div class="column-box">
+            <div class="column-title">${rightLabel}</div>
+            <div class="items-stack">
+              ${rightItems.map((rItem: any) => {
+                // Find which left item is paired with this rItem.id
+                const pairedLeftEntry = Object.entries(this.matches).find(([_, val]) => val === rItem.id);
+                const pairedLeftId = pairedLeftEntry ? pairedLeftEntry[0] : null;
+                const isPaired = Boolean(pairedLeftId);
+                const pairNum = pairedLeftId ? getPairNumber(pairedLeftId) : null;
 
-              return html`
-                <div class="${itemClass}" @click=${() => this.handleRightClick(item.id)}>
-                  ${this.resolveString(item.content)}
-                </div>
-              `;
-            })}
+                let statusClass = isPaired ? "paired" : "";
+                if (answered && pairedLeftId) {
+                  statusClass = correct[pairedLeftId] === rItem.id ? "correct" : "incorrect";
+                }
+
+                return html`
+                  <div
+                    class="match-card ${statusClass}"
+                    @dragover=${this.handleDragOver}
+                    @drop=${(e: DragEvent) => this.handleDrop(e, rItem.id)}
+                    @click=${() => this.handleRightClick(rItem.id)}
+                  >
+                    <span>${this.text(rItem.content)}</span>
+                    ${isPaired
+                      ? html`<span class="pair-badge ${answered ? (correct[pairedLeftId!] === rItem.id ? "correct" : "incorrect") : ""}">
+                          #${pairNum}
+                        </span>`
+                      : nothing}
+                  </div>
+                `;
+              })}
+            </div>
           </div>
         </div>
 
-        ${!hasAnswered ? html`
-          <div class="actions">
-            <button class="btn btn-reset" @click=${this.handleReset}>Reset</button>
-            <button class="btn btn-submit" @click=${() => this.handleSubmit(correctMatches)} ?disabled=${!isReadyToSubmit}>
-              Check Matches
-            </button>
-          </div>
-        ` : html`
-          <div class="actions">
-             <button class="btn btn-reset" @click=${this.handleReset}>Try Again</button>
-          </div>
-        `}
-      </div>
+        ${answered
+          ? html`
+              <div class="feedback ${this.status}" role="status" aria-live="polite">
+                <strong>${this.status === "correct" ? uiText("匹配完成", "Complete") : uiText("再想一想", "Try again")}</strong>
+                ${feedback}
+                ${explanations.length
+                  ? html`<ul>
+                      ${explanations.map((item: { label: string; content: string }) => html`<li><b>${item.label}</b>：${item.content}</li>`)}
+                    </ul>`
+                  : nothing}
+              </div>
+            `
+          : nothing}
+
+        <footer>
+          <button type="button" class="btn" @click=${this.reset}>${uiText("重置", "Reset")}</button>
+          ${answered
+            ? html`<button type="button" class="btn submit" @click=${this.reset}>${uiText("再试一次", "Try again")}</button>`
+            : html`<button type="button" class="btn submit" ?disabled=${!complete} @click=${() => this.submit(correct)}>
+                ${uiText("核对匹配", "Check matches")}
+              </button>`}
+        </footer>
+      </section>
     `;
   }
 }
@@ -389,7 +449,4 @@ if (!customElements.get("a2learn-drag-drop-match")) {
   customElements.define("a2learn-drag-drop-match", A2learnDragAndDropMatchElement as any);
 }
 
-export const A2learnDragAndDropMatch = {
-  ...DragAndDropMatchApi,
-  tagName: "a2learn-drag-drop-match",
-};
+export const A2learnDragAndDropMatch = { ...DragAndDropMatchApi, tagName: "a2learn-drag-drop-match" };

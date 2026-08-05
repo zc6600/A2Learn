@@ -187,6 +187,19 @@ async function splitTextToFit(
   return [first, remaining ? { ...item, text: remaining } : null];
 }
 
+function isHeaderItem(surface: Surface, item: PresentationItem): boolean {
+  const id = item.componentId ?? getReferenceId(item.reference);
+  if (!id) return false;
+  const comp = surface.componentsModel.get(id);
+  if (!comp) return false;
+  if (comp.type === "Text") {
+    const variant = comp.properties?.variant;
+    if (variant === "h1" || variant === "h2" || variant === "h3") return true;
+    if (typeof id === "string" && id.endsWith("-title")) return true;
+  }
+  return false;
+}
+
 /**
  * Measures real rendered blocks, then greedily fills a 1280×720 page. Text
  * blocks may be split at paragraphs/sentences; other components remain whole.
@@ -203,6 +216,19 @@ export async function paginateSurface(source: Surface): Promise<PresentationPage
     const candidateHeight = await measurePage(source, [...current, item]);
 
     if (candidateHeight <= CANVAS_HEIGHT + 1) {
+      // Prevent orphan headers at the bottom of a slide:
+      // If `item` is a section header and the following component won't fit on this slide,
+      // move the header to the next slide together with its component.
+      if (current.length > 0 && isHeaderItem(source, item) && pending.length > 0) {
+        const nextItem = pending[0];
+        const combinedHeight = await measurePage(source, [...current, item, nextItem]);
+        if (combinedHeight > CANVAS_HEIGHT + 1) {
+          pages.push({ items: current, scale: 1 });
+          current = [item];
+          continue;
+        }
+      }
+
       current.push(item);
       continue;
     }

@@ -15,7 +15,7 @@ All A2Learn-generated content (both LLM-generated and hand-crafted examples) fol
 | **Step 1: Pain Point Hook** | `AnalogyCard` + `ScenarioDialogue` | Establish *why* this matters with a real engineering or research pain point. Use **peer researcher dialogue** — two experts exploring a problem together — rather than a teacher-student explanation style. |
 | **Step 2: Mental Model** | `MentalModel` + `ConceptCard` | Build intuition via real-world analogies, ASCII architecture diagrams, and structural pillars (the "3 pillars of X" pattern). |
 | **Step 3: Deep Implementation** | `DetailedExplanation` / `InteractiveFormula` | Go deep with **clean, runnable code** — always prefer direct library calls (`hash()`, `Promise.all`) or minimal pseudocode over fake simulations. |
-| **Step 4: Self-Assessment** | `QuizCard` / `ClozeTest` / `DragAndDropMatch` | Reinforce with interactive problems that have insightful explanations, not just correct/wrong answers. |
+| **Step 4: Self-Assessment** | `QuizCard` / `ClozeTest` | Reinforce with interactive problems that have insightful explanations, not just correct/wrong answers. |
 | **Step 5: Dual-Layer Summary** | `AnalogyCard` (summary variant) | Part 1: a plain-English one-paragraph recap. Part 2: a `📌 术语总结` glossary block with `<dfn title="...">` hover annotations on all key terms. |
 
 > [!IMPORTANT]
@@ -68,8 +68,6 @@ All A2Learn-generated content (both LLM-generated and hand-crafted examples) fol
 
 - **`ClozeTest`**: Fill-in-the-blank challenge with inline `___` blanks that the learner fills from a word bank.
 
-- **`DragAndDropMatch`**: Drag-and-drop matching exercise for term-to-definition or concept-to-example pairing.
-
 ### 2.5 Reference
 
 - **`ResourceList`**: External references, articles, videos, or documentation links with icon labels.
@@ -88,7 +86,7 @@ A2Learn ships with 7 fully-realized reference examples in `skill/references/exam
 | `conversational.json` | JS Closures & Lexical Scope | `AnalogyCard`, `ScenarioDialogue`, `MentalModel`, `ConceptCard`, `DetailedExplanation`, `QuizCard` |
 | `non-linear.json` | CSS Grid 2D Layout | `AnalogyCard`, `ScenarioDialogue`, `MentalModel`, `ConceptCard`, `DetailedExplanation`, `QuizCard` |
 | `paper-attention.json` | Transformer Attention | `PaperAbstract`, `AnalogyCard`, `ScenarioDialogue`, `MentalModel`, `InteractiveFormula`, `QuizCard` |
-| `biophysics-ai.json` | AI-Driven Biophysics (AlphaFold) | `AnalogyCard`, `ScenarioDialogue`, `MentalModel`, `ConceptCard`, `DragAndDropMatch`, `ClozeTest` |
+| `biophysics-ai.json` | AI-Driven Biophysics (AlphaFold) | `AnalogyCard`, `ScenarioDialogue`, `MentalModel`, `ConceptCard`, `ClozeTest` |
 
 Each example file is automatically synced to three locations:
 - `skill/references/examples/<name>.json` — canonical source

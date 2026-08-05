@@ -10,8 +10,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from agent.engine import run_agent
-from agent.validate import validate_a2ui_messages
+from agent.core.validate import validate_a2ui_messages
+from agent.generation.engine import run_agent
 
 
 def _now_iso() -> str:

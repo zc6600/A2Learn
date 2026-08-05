@@ -12,12 +12,11 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       :host {
       display: block;
       margin: var(--a2ui-spacing-l, 20px) 0;
-      font-family: var(--a2ui-font-family, sans-serif);
+      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family, sans-serif));
     }
     .explanation-card {
       border: 1px solid var(--a2ui-color-border, #e2e8f0);
-      border-left: 5px solid var(--a2ui-color-primary, #3b82f6);
-      border-radius: 8px var(--a2ui-border-radius, 16px) var(--a2ui-border-radius, 16px) 8px;
+      border-radius: var(--a2ui-border-radius, 16px);
       background: var(--a2ui-color-surface, #ffffff);
       padding: var(--a2ui-spacing-xl, 32px);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
@@ -58,11 +57,20 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       font-weight: 800;
       color: var(--a2ui-color-on-surface, #1e293b);
       letter-spacing: -0.5px;
+      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family, sans-serif));
     }
     .content-body {
       font-size: 16px;
       line-height: 1.8;
       color: var(--a2ui-color-on-surface, #334155);
+      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family, sans-serif));
+      text-align: var(--a2learn-detailed-content-align, start);
+    }
+    .content-body.centered {
+      text-align: center;
+    }
+    .content-body.centered blockquote {
+      text-align: left;
     }
     .content-body p {
       margin: 0 0 6px 0;
@@ -72,7 +80,7 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
       margin-bottom: 0;
     }
     .content-body strong {
-      color: var(--a2ui-color-primary, #0d9488);
+      color: inherit;
       font-weight: 700;
     }
     .content-body ul, .content-body ol {
@@ -352,6 +360,7 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
     const icon = props.icon ? this.resolveString(props.icon) : "";
 
     const parsedContent = this.renderMarkdown(content);
+    const centered = props.contentAlign === "center";
 
     return html`
       <div class="explanation-card">
@@ -364,7 +373,7 @@ export class A2learnDetailedExplanationElement extends A2uiLitElement<typeof Det
             `
           : nothing}
 
-        <div class="content-body" @click=${this.handleContentClick}>
+            <div class="content-body ${centered ? "centered" : ""}" @click=${this.handleContentClick}>
           ${unsafeHTML(sanitizeHtml(parsedContent))}
         </div>
       </div>

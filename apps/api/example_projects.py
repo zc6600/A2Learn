@@ -8,7 +8,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, Literal
 
-from agent.page_document import PageDocument
+from agent.document.page_document import PageDocument
 
 ExampleLanguage = Literal["zh", "en"]
 
@@ -21,6 +21,7 @@ EXAMPLE_IDS = frozenset(
         "non-linear",
         "paper-attention",
         "biophysics-ai",
+        "poetry-social",
     }
 )
 

@@ -5,14 +5,16 @@ from unittest.mock import patch
 from langchain_openai import ChatOpenAI
 from langgraph.types import Command
 
-from agent.page_editor_agent import (
-    PAGE_EDITOR_TOOLS,
-    PAGE_QUESTION_TOOLS,
+from agent.editor.agent import (
     build_page_editor_agent,
     build_page_question_agent,
     create_page_editor_agent,
     create_page_question_agent,
-    stream_page_editor_agent,
+)
+from agent.editor.stream import stream_page_editor_agent
+from agent.editor.tools import (
+    PAGE_EDITOR_TOOLS,
+    PAGE_QUESTION_TOOLS,
 )
 from apps.api.page_document_store import PageDocumentStore
 
@@ -30,6 +32,7 @@ class PageEditorAgentTests(unittest.TestCase):
         self.assertEqual([tool.name for tool in PAGE_EDITOR_TOOLS], [
             "get_page_document",
             "get_page_history",
+            "generate_page_narration",
             "ask_user",
             "apply_page_operations",
         ])
@@ -37,7 +40,7 @@ class PageEditorAgentTests(unittest.TestCase):
     def test_build_page_editor_agent_uses_editor_specific_llm_factory(self) -> None:
         model = ChatOpenAI(model="test-model", api_key="test-key", base_url="https://example.invalid/v1")
 
-        with patch("agent.page_editor_agent.build_page_editor_llm", return_value=model) as factory:
+        with patch("agent.editor.agent.build_page_editor_llm", return_value=model) as factory:
             agent = build_page_editor_agent("visitor-key")
 
         factory.assert_called_once_with("visitor-key")
@@ -55,7 +58,7 @@ class PageEditorAgentTests(unittest.TestCase):
     def test_build_page_question_agent_uses_the_same_tool_calling_llm_factory(self) -> None:
         model = ChatOpenAI(model="test-model", api_key="test-key", base_url="https://example.invalid/v1")
 
-        with patch("agent.page_editor_agent.build_page_editor_llm", return_value=model) as factory:
+        with patch("agent.editor.agent.build_page_editor_llm", return_value=model) as factory:
             agent = build_page_question_agent("visitor-key")
 
         factory.assert_called_once_with("visitor-key")

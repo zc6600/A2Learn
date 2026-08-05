@@ -9,78 +9,78 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
   static styles = [
     tooltipStyles,
     css`
-      :host {
+    :host {
       display: block;
-      margin: var(--a2ui-spacing-m) 0;
+      margin: var(--a2ui-spacing-l, 20px) 0;
+      font-family: var(--a2ui-font-family, sans-serif);
     }
     .concept-card {
-      border: 1px solid var(--a2ui-color-border);
-      border-radius: var(--a2ui-border-radius);
-      background: var(--a2ui-color-surface);
-      overflow: visible;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      transition: box-shadow 0.2s ease;
+      border: 1px solid var(--a2ui-color-border, #e2e8f0);
+      border-left: 4px solid var(--a2ui-color-primary, #0d9488);
+      border-radius: var(--a2ui-border-radius, 12px);
+      background: var(--a2ui-color-surface, #ffffff);
+      padding: 24px 28px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      transition: all 0.25s ease;
     }
     .concept-card:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
     }
     .header {
-      background: color-mix(in oklab, var(--a2ui-color-primary) 5%, var(--a2ui-color-surface));
-      padding: var(--a2ui-spacing-l);
-      border-bottom: 1px solid var(--a2ui-color-border);
+      margin-bottom: 16px;
     }
     .title {
-      margin: 0;
-      font-size: 24px;
+      margin: 0 0 10px 0;
+      font-size: 20px;
       font-weight: 700;
-      color: var(--a2ui-color-on-surface);
+      line-height: 1.4;
+      color: var(--a2ui-color-on-surface, #1e293b);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
-    .title::before {
-      content: "💡";
-      font-size: 20px;
+    .title-icon {
+      font-size: 22px;
+      display: inline-flex;
+      align-items: center;
     }
     .tags {
       display: flex;
-      gap: 8px;
-      margin-top: 12px;
+      gap: 6px;
       flex-wrap: wrap;
     }
     .tag {
-      background: #f3f4f6;
-      color: #0f766e;
-      border: 1px solid #e5e7eb;
-      padding: 4px 10px;
+      background: color-mix(in oklab, var(--a2ui-color-primary, #0d9488) 10%, var(--a2ui-color-surface, #ffffff));
+      color: var(--a2ui-color-primary, #0d9488);
+      border: 1px solid color-mix(in oklab, var(--a2ui-color-primary, #0d9488) 20%, transparent);
+      padding: 3px 10px;
       border-radius: 12px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
     .body {
-      padding: var(--a2ui-spacing-l);
+      padding: 0;
     }
     .section-title {
-      font-size: 14px;
+      font-size: 12.5px;
       font-weight: 700;
-      color: #6b7280;
+      color: color-mix(in oklab, var(--a2ui-color-on-surface, #111827) 50%, transparent);
       text-transform: uppercase;
-      letter-spacing: 1px;
-      margin: 0 0 12px 0;
+      letter-spacing: 0.8px;
+      margin: 16px 0 8px 0;
       display: flex;
       align-items: center;
     }
     .definition {
-      font-size: 16px;
-      line-height: 1.6;
-      color: var(--a2ui-color-on-surface, #111827);
-      margin-bottom: var(--a2ui-spacing-l, 20px);
+      font-size: 15.5px;
+      line-height: 1.7;
+      color: var(--a2ui-color-on-surface, #334155);
+      margin-bottom: 12px;
     }
     .definition p {
       margin: 0 0 6px 0;
-      line-height: 1.6;
+      line-height: 1.7;
     }
     .definition ul, .definition ol {
       margin: 4px 0 8px 0;
@@ -94,21 +94,20 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       font-family: "JetBrains Mono", "Fira Code", monospace;
       padding: 2px 6px;
       border-radius: 6px;
-      background: #f3f4f6;
-      color: #0d9488;
+      background: color-mix(in oklab, var(--a2ui-color-primary, #0d9488) 8%, var(--a2ui-color-surface, #ffffff));
+      color: var(--a2ui-color-primary, #0d9488);
       font-size: 0.9em;
-      border: 1px solid #e5e7eb;
+      border: 1px solid var(--a2ui-color-border, #e5e7eb);
     }
     .example-box {
-      background: var(--a2ui-color-surface-subtle, #f9fafb);
-      border: 1px solid var(--a2ui-color-border, #e5e7eb);
-      border-left: 4px solid var(--a2ui-color-primary, #0d9488);
-      padding: var(--a2ui-spacing-m) var(--a2ui-spacing-l);
-      border-radius: 0 var(--a2ui-border-radius) var(--a2ui-border-radius) 0;
-      margin-bottom: var(--a2ui-spacing-xl);
-      font-size: 14px;
-      overflow-x: auto;
-      color: var(--a2ui-color-on-surface, #111827);
+      background: color-mix(in oklab, var(--a2ui-color-primary, #0d9488) 4%, var(--a2ui-color-surface, #ffffff));
+      border: 1px solid color-mix(in oklab, var(--a2ui-color-primary, #0d9488) 15%, transparent);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-top: 14px;
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: var(--a2ui-color-on-surface, #1e293b);
     }
     .example-box pre {
       margin: 0;
@@ -285,7 +284,7 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
     .related-summary {
       font-size: 13.5px;
       font-weight: 700;
-      color: #0d9488;
+      color: var(--a2ui-color-primary, #0d9488);
       cursor: pointer;
       user-select: none;
       display: inline-flex;
@@ -293,13 +292,13 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       gap: 6px;
       padding: 6px 12px;
       border-radius: 8px;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
+      background: var(--a2ui-color-surface-subtle, #f9fafb);
+      border: 1px solid var(--a2ui-color-border, #e5e7eb);
       transition: all 0.2s ease;
     }
     .related-summary:hover {
-      background: #f3f4f6;
-      border-color: #0d9488;
+      background: color-mix(in oklab, var(--a2ui-color-primary, #0d9488) 10%, var(--a2ui-color-surface, #ffffff));
+      border-color: var(--a2ui-color-primary, #0d9488);
     }
     .related-links {
       display: flex;
@@ -312,9 +311,9 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      color: #0f766e;
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
+      color: var(--a2ui-color-primary, #0d9488);
+      background: var(--a2ui-color-surface, #ffffff);
+      border: 1px solid var(--a2ui-color-border, #e5e7eb);
       padding: 6px 14px;
       border-radius: 20px;
       font-size: 13px;
@@ -323,9 +322,9 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       transition: all 0.2s ease;
     }
     .related-link:hover {
-      background: #0d9488;
-      color: #ffffff;
-      border-color: #0d9488;
+      background: var(--a2ui-color-primary, #0d9488);
+      color: var(--a2ui-color-on-primary, #ffffff);
+      border-color: var(--a2ui-color-primary, #0d9488);
       transform: scale(1.03);
     }
   `
@@ -571,7 +570,14 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
     if (!props) return nothing;
 
     const title = this.resolveString(props.title);
+    const icon = props.icon ? this.resolveString(props.icon) : "";
+    const definitionTitle = props.definitionTitle !== undefined
+      ? this.resolveString(props.definitionTitle)
+      : "";
     const definition = this.resolveString(props.definition);
+    const exampleTitle = props.exampleTitle !== undefined
+      ? this.resolveString(props.exampleTitle)
+      : "";
     const example = props.example ? this.resolveString(props.example) : "";
     const tags = props.tags ? (props.tags as unknown[]).map(t => this.resolveString(t)) : [];
     const relatedConcepts = props.relatedConcepts ? (props.relatedConcepts as unknown[]).map(c => this.resolveString(c)) : [];
@@ -579,7 +585,10 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
     return html`
       <div class="concept-card">
         <div class="header">
-          <h2 class="title">${title}</h2>
+          <h2 class="title">
+            ${icon ? html`<span class="title-icon">${icon}</span>` : nothing}
+            <span>${title}</span>
+          </h2>
           ${tags.length > 0 ? html`
             <div class="tags">
               ${tags.map((tag: string) => html`<span class="tag">${tag}</span>`)}
@@ -588,11 +597,11 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
         </div>
         
         <div class="body">
-          <h3 class="section-title">${uiText("核心定义", "Core Definition")}</h3>
+          ${definitionTitle ? html`<h3 class="section-title">${definitionTitle}</h3>` : nothing}
           <div class="definition">${unsafeHTML(sanitizeHtml(definition))}</div>
 
           ${example ? html`
-            <h3 class="section-title">${this.exampleSectionTitle()}</h3>
+            ${exampleTitle ? html`<h3 class="section-title">${exampleTitle}</h3>` : nothing}
             ${this.renderExample(example)}
           ` : nothing}
 

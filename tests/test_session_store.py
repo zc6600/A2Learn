@@ -3,7 +3,7 @@ import time
 import unittest
 from unittest.mock import patch
 
-from agent.config import DEFAULT_CATALOG_ID
+from agent.core.config import DEFAULT_CATALOG_ID
 from apps.api.session_store import SessionStore
 
 

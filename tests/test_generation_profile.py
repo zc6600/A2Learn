@@ -1,13 +1,14 @@
 import unittest
 
-from agent.generation_profile import (
+from agent.core.validate import validate_a2ui_messages
+from agent.generation.parser import parse_json_to_a2ui
+from agent.generation.profile import (
+    MAX_AUTO_GENERATED_IMAGES,
     MAX_ENABLED_COMPONENTS,
     load_reference_examples,
     normalize_generation_profile,
 )
-from agent.llm import _a2ui_system_prompt
-from agent.parser import parse_json_to_a2ui
-from agent.validate import validate_a2ui_messages
+from agent.generation.prompts import _a2ui_system_prompt
 
 
 def _messages(component: str) -> list[dict]:
@@ -80,6 +81,16 @@ class GenerationProfileTests(unittest.TestCase):
         self.assertIn("Reference example (hash-table)", examples)
         self.assertNotIn("paper-attention", examples)
 
+    def test_poetry_example_combines_reading_and_narrative_path(self) -> None:
+        profile = normalize_generation_profile(
+            {
+                "enabledComponents": ["DetailedExplanation", "DragAndDropMatch", "RelationshipMatch", "ScenarioDialogue", "Timeline"],
+                "exampleIds": ["poetry-social"],
+            }
+        )
+        self.assertEqual(profile.example_ids, ("poetry-social",))
+        self.assertIn("Timeline", load_reference_examples(profile.example_ids, "zh"))
+
     def test_prompt_uses_the_selected_components_and_examples(self) -> None:
         prompt = _a2ui_system_prompt(
             "zh",
@@ -91,6 +102,37 @@ class GenerationProfileTests(unittest.TestCase):
         self.assertIn("ConceptCard, QuizCard", prompt)
         self.assertIn("Reference example (hash-table)", prompt)
         self.assertIn("诗词赏析", prompt)
+
+    def test_social_narrative_components_are_selectable_and_described(self) -> None:
+        profile = normalize_generation_profile(
+            {"enabledComponents": ["ScenarioDialogue", "SocialMoments"], "exampleIds": []}
+        )
+        self.assertEqual(profile.enabled_components, ("ScenarioDialogue", "SocialMoments"))
+        prompt = _a2ui_system_prompt("zh", "Return one page.", profile.enabled_components)
+        self.assertIn("wechat-group", prompt)
+        self.assertIn("correspondence", prompt)
+        self.assertIn("SocialMoments", prompt)
+
+    def test_prompt_keeps_matching_component_generic(self) -> None:
+        prompt = _a2ui_system_prompt("zh", "Return one page.", ("DragAndDropMatch",))
+        self.assertIn("genuine one-to-one relationships", prompt)
+        self.assertIn("matchExplanations", prompt)
+
+    def test_image_generation_limit_is_bounded_and_reaches_prompt(self) -> None:
+        profile = normalize_generation_profile(
+            {
+                "enabledComponents": ["SocialMoments"],
+                "exampleIds": [],
+                "imageGenerationLimit": 4,
+            }
+        )
+        self.assertEqual(profile.image_generation_limit, 4)
+        prompt = _a2ui_system_prompt("zh", "Return one page.", image_generation_limit=4)
+        self.assertIn("at most 4 images", prompt)
+        with self.assertRaisesRegex(ValueError, "between 0"):
+            normalize_generation_profile(
+                {"enabledComponents": [], "exampleIds": [], "imageGenerationLimit": MAX_AUTO_GENERATED_IMAGES + 1}
+            )
 
     def test_validator_rejects_unselected_custom_component(self) -> None:
         validate_a2ui_messages(_messages("ConceptCard"), permitted_custom_components=("ConceptCard",))

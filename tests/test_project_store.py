@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from agent.page_document import A2uiCompiler, PageDocument
+from agent.document.page_document import A2uiCompiler, PageDocument
 from apps.api.example_projects import load_example_documents
 from apps.api.page_document_store import (
     DocumentNotFoundError,

@@ -27,6 +27,7 @@ type FloatingAgentOptions = {
 
 export type FloatingAgentController = {
   onLanguageChanged: () => void;
+  ask: (question: string) => void;
 };
 
 function headers(apiKey: string, json = false): HeadersInit {
@@ -644,6 +645,15 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   });
 
   return {
+    ask: (question: string) => {
+      if (!question.trim() || waitingForHumanInput) return;
+      agentMode = "ask";
+      approvalMode = "direct";
+      updateLabels();
+      panel.classList.add("open");
+      input.value = question.trim();
+      form.requestSubmit();
+    },
     onLanguageChanged: () => {
       // A language-specific example points to a different PageDocument. Do
       // not carry its conversation target or LangGraph thread into the next

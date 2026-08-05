@@ -32,41 +32,42 @@ export const tooltipStyles = css`
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    color: #0d9488 !important;
+    color: var(--a2learn-tooltip-accent, #0d9488) !important;
     font-weight: 700 !important;
-    text-decoration: underline dotted #0d9488 !important;
+    text-decoration: var(--a2learn-tooltip-decoration, underline dotted var(--a2learn-tooltip-accent, #0d9488)) !important;
     text-underline-offset: 4px;
     cursor: help;
-    padding: 0 4px;
-    border-radius: 4px;
-    background: rgba(13, 148, 136, 0.08);
+    padding: var(--a2learn-tooltip-term-padding, 0 4px);
+    border-radius: var(--a2learn-tooltip-term-radius, 4px);
+    background: var(--a2learn-tooltip-term-background, rgba(13, 148, 136, 0.08));
     transition: all 0.2s ease;
   }
   .a2learn-term-tooltip:hover,
   .a2learn-term-tooltip:focus,
   .a2learn-term-tooltip:focus-within {
-    background: rgba(13, 148, 136, 0.18);
+    background: var(--a2learn-tooltip-term-hover-background, rgba(13, 148, 136, 0.18));
   }
   .a2learn-term-tooltip .term-badge {
     font-size: 11px;
     opacity: 0.8;
+    display: var(--a2learn-tooltip-badge-display, inline);
   }
   .a2learn-term-tooltip .tooltip-popup {
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
     position: absolute;
-    bottom: 130%;
+    bottom: 100%;
     left: 50%;
     transform: translateX(-50%) translateY(6px);
-    width: 250px;
+    width: var(--a2learn-tooltip-width, 250px);
     padding: 14px;
-    background: #ffffff !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 14px !important;
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16) !important;
+    background: var(--a2learn-tooltip-surface, #ffffff) !important;
+    border: 1px solid var(--a2learn-tooltip-border, #e5e7eb) !important;
+    border-radius: var(--a2learn-tooltip-popup-radius, 14px) !important;
+    box-shadow: var(--a2learn-tooltip-shadow, 0 12px 32px rgba(15, 23, 42, 0.16)) !important;
     z-index: 9999 !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -74,7 +75,7 @@ export const tooltipStyles = css`
     white-space: normal;
     font-weight: normal;
     text-decoration: none;
-    color: #111827 !important;
+    color: var(--a2learn-tooltip-text, #111827) !important;
     line-height: 1.5;
   }
   .a2learn-term-tooltip .tooltip-popup::after {
@@ -85,7 +86,7 @@ export const tooltipStyles = css`
     transform: translateX(-50%);
     border-width: 6px;
     border-style: solid;
-    border-color: #ffffff transparent transparent transparent;
+    border-color: var(--a2learn-tooltip-surface, #ffffff) transparent transparent transparent;
   }
   .a2learn-term-tooltip:hover .tooltip-popup,
   .a2learn-term-tooltip:focus .tooltip-popup,
@@ -94,29 +95,33 @@ export const tooltipStyles = css`
     opacity: 1;
     pointer-events: auto;
     transform: translateX(-50%) translateY(0);
+    transition-delay: 0s;
   }
   .a2learn-term-tooltip .tooltip-title {
     display: block !important;
     font-size: 14px;
     font-weight: 800;
-    color: #0d9488 !important;
+    color: var(--a2learn-tooltip-accent, #0d9488) !important;
     margin: 0 0 2px 0;
   }
   .a2learn-term-tooltip .tooltip-desc {
     display: block !important;
     font-size: 12.5px;
     line-height: 1.5;
-    color: #374151 !important;
+    color: var(--a2learn-tooltip-description, #374151) !important;
     margin: 0;
   }
   .a2learn-term-tooltip .tooltip-explore-btn {
-    margin-top: 4px;
-    background: #f9fafb !important;
-    color: #0d9488 !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 12px;
+    align-self: flex-end;
+    min-width: 24px;
+    margin-top: 2px;
+    background: var(--a2learn-tooltip-button-background, #f9fafb) !important;
+    color: var(--a2learn-tooltip-accent, #0d9488) !important;
+    border: 1px solid var(--a2learn-tooltip-border, #e5e7eb) !important;
+    border-radius: var(--a2learn-tooltip-button-radius, 8px);
+    padding: 2px 6px;
+    font-size: 11px;
+    line-height: 1.35;
     font-weight: 700;
     cursor: pointer;
     display: inline-flex;
@@ -126,7 +131,7 @@ export const tooltipStyles = css`
     transition: all 0.2s ease;
   }
   .a2learn-term-tooltip .tooltip-explore-btn:hover {
-    background: #0d9488 !important;
+    background: var(--a2learn-tooltip-accent, #0d9488) !important;
     color: #ffffff !important;
     border-color: #0d9488 !important;
   }
@@ -189,6 +194,9 @@ export function renderMathInHtml(input: string): string {
 
 export function parseTermTooltips(htmlInput: string): string {
   if (!htmlInput) return "";
+  const english = typeof document !== "undefined" && document.documentElement.lang.startsWith("en");
+  const askLabel = english ? "Ask" : "问";
+  const askDescription = english ? "Ask the learning assistant" : "向学习助手追问";
   
   // 1. Transform <dfn title="annotation">term</dfn> into Term Tooltip
   let processed = htmlInput.replace(
@@ -196,7 +204,7 @@ export function parseTermTooltips(htmlInput: string): string {
     (_, title, term) => {
       const annotation = (title || "生僻概念注解").trim();
       const cleanTerm = term.trim();
-      return `<span class="a2learn-term-tooltip" tabindex="0" data-term="${cleanTerm}"><span class="term-text">${cleanTerm}</span><span class="term-badge">💬</span><span class="tooltip-popup"><span class="tooltip-title">${cleanTerm}</span><span class="tooltip-desc">${annotation}</span><button type="button" class="tooltip-explore-btn" data-term="${cleanTerm}">深入探索此概念 →</button></span></span>`;
+      return `<span class="a2learn-term-tooltip" tabindex="0" data-term="${cleanTerm}"><span class="term-text">${cleanTerm}</span><span class="term-badge">💬</span><span class="tooltip-popup"><span class="tooltip-title">${cleanTerm}</span><span class="tooltip-desc">${annotation}</span><button type="button" class="tooltip-explore-btn" data-term="${cleanTerm}" aria-label="${askDescription}" title="${askDescription}">${askLabel}</button></span></span>`;
     }
   );
 
@@ -206,7 +214,7 @@ export function parseTermTooltips(htmlInput: string): string {
     (_, term, annotation) => {
       const cleanTerm = term.trim();
       const cleanAnnotation = annotation.trim();
-      return `<span class="a2learn-term-tooltip" tabindex="0" data-term="${cleanTerm}"><span class="term-text">${cleanTerm}</span><span class="term-badge">💬</span><span class="tooltip-popup"><span class="tooltip-title">${cleanTerm}</span><span class="tooltip-desc">${cleanAnnotation}</span><button type="button" class="tooltip-explore-btn" data-term="${cleanTerm}">深入探索此概念 →</button></span></span>`;
+      return `<span class="a2learn-term-tooltip" tabindex="0" data-term="${cleanTerm}"><span class="term-text">${cleanTerm}</span><span class="term-badge">💬</span><span class="tooltip-popup"><span class="tooltip-title">${cleanTerm}</span><span class="tooltip-desc">${cleanAnnotation}</span><button type="button" class="tooltip-explore-btn" data-term="${cleanTerm}" aria-label="${askDescription}" title="${askDescription}">${askLabel}</button></span></span>`;
     }
   );
 

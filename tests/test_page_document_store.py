@@ -2,8 +2,8 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from agent.page_document import PageDocument, SyncMode
-from agent.page_operations import PageOperationError
+from agent.document.page_document import PageDocument, SyncMode
+from agent.document.page_operations import PageOperationError
 from apps.api.page_document_store import (
     PageDocumentStore,
     RevisionConflictError,

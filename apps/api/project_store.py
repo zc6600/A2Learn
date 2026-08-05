@@ -14,7 +14,7 @@ from datetime import UTC, datetime
 from threading import Lock
 from typing import Literal, Protocol
 
-from agent.page_document import PageDocument
+from agent.document.page_document import PageDocument
 
 from .page_document_store import (
     DocumentAlreadyExistsError,

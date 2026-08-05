@@ -156,10 +156,15 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
       ],
     },
   ],
+  RelationshipMatch: [
+    { prop: "leftItems", zh: "左侧项目", en: "Left items", itemFields: [{ prop: "content", zh: "内容", en: "Content" }] },
+    { prop: "rightItems", zh: "右侧项目", en: "Right items", itemFields: [{ prop: "content", zh: "内容", en: "Content" }] },
+  ],
   DragAndDropMatch: [
     { prop: "leftItems", zh: "左侧项目", en: "Left items", itemFields: [{ prop: "content", zh: "内容", en: "Content" }] },
     { prop: "rightItems", zh: "右侧项目", en: "Right items", itemFields: [{ prop: "content", zh: "内容", en: "Content" }] },
   ],
+
   LiteratureReference: [
     { prop: "citation", zh: "引用", en: "Citation" },
     { prop: "title", zh: "标题", en: "Title" },

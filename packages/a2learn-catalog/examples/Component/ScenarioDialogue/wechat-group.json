@@ -1,0 +1,32 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": { "surfaceId": "wechat-poetry-demo", "catalogId": "https://a2learn.ai/spec/v1/catalog.json" }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "wechat-poetry-demo",
+      "components": [
+        { "id": "root", "component": "Column", "children": ["group"] },
+        {
+          "id": "group",
+          "component": "ScenarioDialogue",
+          "variant": "wechat-group",
+          "groupName": { "literalString": "《春江花月夜》夜读群" },
+          "groupNotice": { "literalString": "只从原句出发：先说你看见的画面，再说它让你感到什么。" },
+          "characters": {
+            "zhang": { "name": { "literalString": "张若虚" }, "avatar": { "literalString": "🌙" }, "alignment": "left" },
+            "reader": { "name": { "literalString": "现代读者" }, "avatar": { "literalString": "📖" }, "alignment": "right" },
+            "annotator": { "name": { "literalString": "批注同学" }, "avatar": { "literalString": "✍️" }, "alignment": "left" }
+          },
+          "messages": [
+            { "characterId": "reader", "content": { "literalString": "“春江潮水连海平”，我先看到的是一条没有边的江。" }, "delayMs": 0 },
+            { "characterId": "annotator", "content": { "literalString": "对，“连海平”把水面推到天边；下一句的月亮因此不只是景物，而像从大海里升起的时间。" }, "delayMs": 0 },
+            { "characterId": "zhang", "content": { "literalString": "我想问的不是月亮有多美，而是：江月年年照着谁？" }, "delayMs": 0 }
+          ]
+        }
+      ]
+    }
+  }
+]

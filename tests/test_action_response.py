@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from agent.action_response import build_action_response
+from agent.generation.action_response import build_action_response
 
 
 class ActionResponseTests(unittest.TestCase):
@@ -21,7 +21,7 @@ class ActionResponseTests(unittest.TestCase):
         }
 
     def test_fallback_is_used_when_llm_call_fails(self) -> None:
-        with patch("agent.action_response._build_llm_messages", side_effect=RuntimeError("llm down")):
+        with patch("agent.generation.action_response._build_llm_messages", side_effect=RuntimeError("llm down")):
             messages = build_action_response(
                 action=self.action,
                 components=self.components,
@@ -35,7 +35,7 @@ class ActionResponseTests(unittest.TestCase):
         self.assertEqual(comp["activeStepId"], "step2")
 
     def test_fallback_is_used_when_llm_returns_invalid_incremental_payload(self) -> None:
-        with patch("agent.action_response._build_llm_messages", return_value=[{"version": "v0.9"}]):
+        with patch("agent.generation.action_response._build_llm_messages", return_value=[{"version": "v0.9"}]):
             messages = build_action_response(
                 action=self.action,
                 components=self.components,

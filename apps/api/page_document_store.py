@@ -19,9 +19,9 @@ from threading import Lock
 from types import TracebackType
 from typing import Any, Protocol, TypeVar
 
-from agent.page_document import A2uiCompiler, PageDocument, SyncPlan
-from agent.page_operations import apply_page_operations
-from agent.validate import validate_a2ui_messages
+from agent.core.validate import validate_a2ui_messages
+from agent.document.page_document import A2uiCompiler, PageDocument, SyncPlan
+from agent.document.page_operations import apply_page_operations
 
 _TransactionResult = TypeVar("_TransactionResult")
 

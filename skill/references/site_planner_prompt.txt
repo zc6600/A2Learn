@@ -5,4 +5,4 @@ Requirements:
 - Use the target language specified by the caller for all learner-facing strings.
 - Include: siteTitle, surfaces (array).
 - Each surface: surfaceId, title, description, moduleId (optional), recommendedComponents (array).
-- recommendedComponents must be chosen from: LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue, Timeline, ClozeTest, DragAndDropMatch, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.
+- recommendedComponents must be chosen from: LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue, Timeline, ClozeTest, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula.

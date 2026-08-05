@@ -1,0 +1,41 @@
+[
+  {"version":"v0.9","createSurface":{"surfaceId":"poetry-social","catalogId":"https://a2learn.ai/spec/v1/catalog.json"}},
+  {"version":"v0.9","updateComponents":{"surfaceId":"poetry-social","components":[
+    {"id":"root","component":"Column","children":["title","poem","journey-title","journey","voices-title","voices","concept-title","philosophical-concept","moon-role-title","moon-role","reading-note","deep-dive-prompts"]},
+    {"id":"title","component":"Text","variant":"h1","text":"《春江花月夜》· 从读懂一字，到走进一夜"},
+    {"id":"poem","component":"DetailedExplanation","title":"张若虚 · 原文","content":"春江潮水连海平，海上明月共潮生。\n\n<dfn title=\"波光闪耀、随波荡漾的样子\">滟滟</dfn>随波千万里，何处春江无月明！\n\n江流宛转绕<dfn title=\"开满鲜花的郊野\">芳甸</dfn>，月照花林皆似<dfn title=\"小雪粒，借以形容月光洁白细碎\">霰</dfn>；\n\n空里流霜不觉飞，<dfn title=\"水边平地或小洲\">汀</dfn>上白沙看不见。\n\n江天一色无<dfn title=\"极细的尘土\">纤尘</dfn>，皎皎空中孤月轮。\n\n江畔何人初见月？江月何年初照人？\n\n人生代代无穷已，江月年年望相似。\n\n不知江月待何人，但见长江送流水。\n\n白云一片去悠悠，<dfn title=\"长满青枫的水边渡口\">青枫浦</dfn>上不胜愁。\n\n谁家今夜<dfn title=\"乘小船远行的游子\">扁舟子</dfn>？何处相思明月楼？\n\n可怜楼上月徘徊，应照离人妆镜台。\n\n玉户帘中卷不去，<dfn title=\"捣洗寒衣的石砧，常与秋夜、离愁相连\">捣衣砧</dfn>上拂还来。\n\n此时相望不相闻，愿逐<dfn title=\"月光\">月华</dfn>流照君。\n\n鸿雁长飞光不度，<dfn title=\"传说中在水中潜游跳跃的鱼与龙，这里借以想象传信\">鱼龙潜跃</dfn>水成文。\n\n昨夜闲潭梦落花，可怜春半不还家。\n\n江水流春去欲尽，江潭落月复西斜。\n\n斜月沉沉藏海雾，<dfn title=\"碣石潇湘\">无限路。</dfn>\n\n不知乘月几人归，落月摇情满江树。"},
+    {"id":"journey-title","component":"Text","variant":"h2","text":"沿着月光，再走一遍这首诗"},
+    {"id":"journey","component":"Timeline","variant":"journey","orientation":"vertical","events":[
+      {"id":"moon-rises","time":"第一幕 · 月起江天","title":"春江潮水连海平，海上明月共潮生。","description":"<b>眼前</b>江潮、海面与明月一同升起，画幅一下铺到天地尽头。<br><b>转折</b>诗不从一个人的心事开场，而先让人站进无边的春夜。"},
+      {"id":"moon-travels","time":"第二幕 · 月照万里","title":"滟滟随波千万里，何处春江无月明！","description":"<b>眼前</b>月光跟着水波延伸，仿佛每一段江流都被照亮。<br><b>转折</b>“一处夜景”变成“天下共见的月”，为后面的相思埋下距离。"},
+      {"id":"moon-asks","time":"第三幕 · 月问千年","title":"江畔何人初见月？江月何年初照人？","description":"<b>眼前</b>人忽然停下来，望着看似永恒的月亮发问。<br><b>转折</b>视线从风景转进时间：人代代更替，月却年年相似。"},
+      {"id":"moon-separates","time":"第四幕 · 月分两地","title":"白云一片去悠悠，青枫浦上不胜愁。","description":"<b>眼前</b>白云飘远，江边渡口留下不能排遣的愁绪。<br><b>转折</b>宏阔的“人间”收拢成一个将要远行、或正在等待的人。"},
+      {"id":"moon-connects","time":"第五幕 · 月照离人","title":"此时相望不相闻，愿逐月华流照君。","description":"<b>眼前</b>楼上人与舟中人隔着江水，只能把月光当作信使。<br><b>转折</b>月亮不再只是景物；它替不能抵达的人，抵达对方。"},
+      {"id":"moon-sets","time":"第六幕 · 月落余情","title":"不知乘月几人归，落月摇情满江树。","description":"<b>眼前</b>月将落，树影随余光摇动，江夜没有给出答案。<br><b>转折</b>诗把相思留在景中：人未必归来，但情意仍铺满江树。"}
+    ]},
+    {"id":"voices-title","component":"Text","variant":"h2","text":"如果月光能替人传信"},
+    {"id":"voices","component":"ScenarioDialogue","variant":"correspondence","topic":"同一轮月，两个夜晚","characters":{"tower":{"name":"明月楼 · 楼上人","avatar":"🌙","alignment":"left"},"boat":{"name":"江上舟 · 江上人","avatar":"⛵","alignment":"right"}},"messages":[
+      {"characterId":"tower","content":"月光又落在妆镜前。帘子怎么卷也卷不走，它好像替你站在门外。"},
+      {"characterId":"boat","content":"我在江上看见的是同一轮月。可船越往前走，离你的楼越远。"},
+      {"characterId":"tower","content":"诗里说“此时相望不相闻”——能彼此望见同一件事，却不能真的抵达。"},
+      {"characterId":"boat","content":"所以才愿“逐月华流照君”。月光不是消息本身，却成了我唯一能托付的方向。"}
+    ]},
+    {"id":"concept-title","component":"Text","variant":"h2","text":"当个人站进千年的月光"},
+    {"id":"philosophical-concept","component":"DetailedExplanation","title":"第三视角 · 宇宙与人生的问答","content":"<p><b>眼前</b> 诗走到“江畔何人初见月？江月何年初照人？”，镜头忽然从楼上与舟中的相思，猛地拉向了千年的时间长河。</p><p><b>转折</b> 寻常诗歌写离别，往往陷在红颜易老、凄凄惨惨的凄凉里；张若虚却在这里驻足向月发问。<b>“人生代代无穷已，江月年年望相似”</b>——个体的一生虽短暂如过客，但一代代人的繁衍生息，却与年年相似的江月一样绵延不绝。</p><p><b>余韵</b> 离愁不再是狭隘的伤感，而是有了宇宙般辽阔的胸襟：此时的月光照着今人，曾照过古人，也必将照亮后人。</p>"},
+    {"id":"moon-role-title","component":"Text","variant":"h2","text":"把月亮放回诗里"},
+    {"id":"moon-role","component":"DragAndDropMatch","title":"月亮在诗中做什么？","instruction":"点击左侧诗句高亮，再点击右侧对应的作用进行配对（也可直接拖拽）。","leftLabel":"诗句","rightLabel":"月亮的作用","successMessage":"你已经看见：同一轮月在诗里不断变换角色。","incorrectMessage":"可以回到上面的“月行”再看一看：这一句的月光究竟照见的到底是什么？","matchExplanations":{"rise":"月亮与江潮共生，首先负责铺开整首诗的夜景。","time":"月的年年相似，让人生的代代更替变得格外可感。","message":"月光不能替人真的传话，却承载着穿越距离的愿望。"},"leftItems":[
+      {"id":"rise","content":"“海上明月共潮生”"},
+      {"id":"time","content":"“江月年年望相似”"},
+      {"id":"message","content":"“愿逐月华流照君”"}
+    ],"rightItems":[
+      {"id":"messenger","content":"信使：替不能抵达的人把心意送向对岸"},
+      {"id":"eternal","content":"时间：映出人会更替、月却年年相似"},
+      {"id":"scene","content":"景物：与江潮一同升起，铺开整夜的画面"}
+    ],"correctMatches":{"rise":"scene","time":"eternal","message":"messenger"}},
+    {"id":"reading-note","component":"DetailedExplanation","title":"读法","content":"不妨把六幕当作一次镜头运动：<b>远景 → 万里 → 千年 → 两地 → 一人 → 余韵</b>。这段对话不是原诗原话，而是把“相望不相闻”的处境具体化。下一次读到“月”时，可以向学习助手追问：它在这一句里是景物、时间，还是人与人之间的联系？"},
+    {"id":"deep-dive-prompts","component":"DeepDivePrompt","prompts":[
+      {"id":"p1","label":"为什么张若虚写离别愁绪，却没有颓废伤感的感觉，反而非常壮阔？","icon":"🌌"},
+      {"id":"p2","label":"诗中的‘月亮’是如何从远景的自然景物，一步步变成人与人之间的情感纽带的？","icon":"🌙"}
+    ]}
+  ]}}
+]

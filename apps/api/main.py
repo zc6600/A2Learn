@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import uuid
 from collections.abc import Iterator
 from pathlib import Path
@@ -9,20 +10,23 @@ from typing import Any, Literal
 
 from fastapi import FastAPI, File, Form, Header, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field, model_validator
 
-from agent.action_response import build_action_response
-from agent.engine import run_agent
-from agent.generation_profile import normalize_generation_profile
-from agent.page_document import PageDocument
-from agent.page_editor_agent import (
+from agent.core.validate import validate_a2ui_messages
+from agent.document.page_document import PageDocument
+from agent.document.page_operations import PageOperationError
+from agent.editor.agent import (
     build_page_editor_agent,
     build_page_question_agent,
-    stream_page_editor_agent,
 )
-from agent.page_operations import PageOperationError
-from agent.validate import validate_a2ui_messages
+from agent.editor.stream import stream_page_editor_agent
+from agent.generation.action_response import build_action_response
+from agent.generation.engine import run_agent
+from agent.generation.llm import build_page_editor_llm
+from agent.generation.media.image_generation import GeneratedImageStore
+from agent.generation.media.narration import audio_dir, rewrite_page_narration, synthesize
+from agent.generation.profile import normalize_generation_profile
 from apps.api.agent_thread_store import (
     AgentThreadConflictError,
     AgentThreadNotFoundError,
@@ -226,6 +230,7 @@ store = SessionStore()
 page_document_store = build_page_document_store(os.getenv("A2LEARN_PAGE_DOCUMENT_DB_PATH"))
 project_store = build_project_store(page_document_store, os.getenv("A2LEARN_PAGE_DOCUMENT_DB_PATH"))
 knowledge_store = KnowledgeStore.from_env()
+generated_image_store = GeneratedImageStore.from_env()
 # Human-in-the-loop pauses must survive a process restart. If the PageDocument
 # database is configured, keep checkpoints beside the documents; deployments
 # may override this independently with A2LEARN_AGENT_CHECKPOINT_DB_PATH.
@@ -357,6 +362,89 @@ def root() -> dict[str, str]:
 @app.get("/healthz")
 def healthz() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/api/generated-images/{image_id}.png")
+def get_generated_image(image_id: str) -> FileResponse:
+    """Serve a cached automatic illustration without exposing its provider key."""
+    if not re.fullmatch(r"[a-f0-9]{64}", image_id):
+        raise HTTPException(status_code=404, detail="GENERATED_IMAGE_NOT_FOUND")
+    image_path = generated_image_store.path_for(image_id)
+    if not image_path.is_file():
+        raise HTTPException(status_code=404, detail="GENERATED_IMAGE_NOT_FOUND")
+    return FileResponse(
+        image_path,
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )
+
+
+@app.get("/api/audio/{audio_id}.mp3")
+def get_audio(audio_id: str) -> FileResponse:
+    if not re.fullmatch(r"[a-f0-9]{64}", audio_id):
+        raise HTTPException(status_code=404, detail="AUDIO_NOT_FOUND")
+    path = audio_dir() / f"{audio_id}.mp3"
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="AUDIO_NOT_FOUND")
+    return FileResponse(path, media_type="audio/mpeg", headers={"Cache-Control": "public, max-age=31536000, immutable"})
+
+
+@app.post("/api/page-documents/{document_id}/narration")
+def generate_narration(
+    document_id: str,
+    language: Literal["zh", "en"] = "zh",
+    authorization: str | None = Header(default=None),
+    x_openrouter_api_key: str | None = Header(default=None),
+    x_api_key: str | None = Header(default=None),
+) -> dict[str, Any]:
+    try:
+        document = page_document_store.get(document_id)
+        api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
+        script = rewrite_page_narration(document.to_dict(), llm=build_page_editor_llm(api_key), language=language)
+        audio_id, _ = synthesize(script, language=language, api_key=api_key)
+        return {"script": script, "audioUrl": f"/api/audio/{audio_id}.mp3"}
+    except DocumentNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="PAGE_DOCUMENT_NOT_FOUND") from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/projects/{project_id}/narration")
+def generate_project_narration(
+    project_id: str,
+    language: Literal["zh", "en"] = "zh",
+    authorization: str | None = Header(default=None),
+    x_openrouter_api_key: str | None = Header(default=None),
+    x_api_key: str | None = Header(default=None),
+) -> dict[str, Any]:
+    try:
+        _, documents = project_store.get(project_id)
+    except ProjectNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="PROJECT_NOT_FOUND") from exc
+    api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
+    llm = build_page_editor_llm(api_key)
+    # Narration is a course-level artifact: give the narration model one
+    # ordered projection of the whole project and synthesize one continuous
+    # audio file. PageDocuments remain separate for rendering/editing.
+    combined_document = {
+        "documentId": project_id,
+        "revision": max((document.revision for document in documents), default=1),
+        "surfaceId": "project",
+        "components": [
+            component
+            for document in documents
+            for component in document.to_dict().get("components", [])
+        ],
+    }
+    try:
+        script = rewrite_page_narration(combined_document, llm=llm, language=language)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    try:
+        audio_id, _ = synthesize(script, language=language, api_key=api_key)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return {"script": script, "audioUrl": f"/api/audio/{audio_id}.mp3"}
 
 
 @app.post("/api/knowledge/sources", response_model=KnowledgeSourceResponse, status_code=201)
@@ -624,6 +712,7 @@ def run_project_editor_agent(
                 page_document_store=page_document_store,
                 thread_id=thread_id,
                 selected_component_id=payload.component_id,
+                api_key=api_key,
             ):
                 yield _encode_sse(event.event, event.data)
         except Exception as exc:  # noqa: BLE001 - provider errors can occur after response headers are sent.
@@ -689,6 +778,7 @@ def resume_project_editor_agent(
                 thread_id=payload.thread_id,
                 human_response=payload.response,
                 human_decision=payload.decision,
+                api_key=api_key,
             ):
                 yield _encode_sse(event.event, event.data)
         except Exception as exc:  # noqa: BLE001 - provider errors can occur after response headers are sent.
@@ -816,6 +906,7 @@ def run_page_document_editor_agent(
                 user_id="anonymous",
                 page_document_store=page_document_store,
                 thread_id=thread_id,
+                api_key=api_key,
             ):
                 yield _encode_sse(event.event, event.data)
         except Exception as exc:  # noqa: BLE001 - provider errors can occur after response headers are sent.

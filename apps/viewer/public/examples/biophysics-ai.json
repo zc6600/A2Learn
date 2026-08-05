@@ -60,28 +60,32 @@
               "title": "AlphaFold 与结构预测",
               "description": "从 AlphaFold2 到 AlphaFold3：蛋白质折叠问题的终结",
               "icon": "🔵",
-              "status": "current"
+              "status": "current",
+              "targetComponentId": "concept-alphafold2"
             },
             {
               "id": "plm",
               "title": "蛋白质语言模型",
               "description": "ESMFold、OmegaFold 等单序列预测新范式",
               "icon": "🟣",
-              "status": "available"
+              "status": "available",
+              "targetComponentId": "concept-plm"
             },
             {
               "id": "drug",
               "title": "AI 药物发现",
               "description": "分子生成、虚拟筛选与靶点识别",
               "icon": "🟢",
-              "status": "available"
+              "status": "available",
+              "targetComponentId": "deep-dive"
             },
             {
               "id": "cryoem-ai",
               "title": "冷冻电镜 + AI",
               "description": "DeepEMhancer、ModelAngelo 加速结构解析",
               "icon": "🟡",
-              "status": "available"
+              "status": "available",
+              "targetComponentId": "detailed-explanation-alphafold3"
             },
             {
               "id": "md-ai",

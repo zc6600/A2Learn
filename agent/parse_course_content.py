@@ -10,9 +10,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .io import export_messages, write_json
-from .parser import parse_json_to_a2ui
-from .validate import validate_a2ui_messages
+from .core.io import export_messages, write_json
+from .core.validate import validate_a2ui_messages
+from .generation.parser import parse_json_to_a2ui
 
 
 def convert_course_content(

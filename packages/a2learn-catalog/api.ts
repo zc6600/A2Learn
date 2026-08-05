@@ -99,9 +99,12 @@ export const ConceptCardApi = {
     .object({
       ...CommonProps,
       title: DynamicStringSchema.describe("概念名称"),
-      tags: z.array(DynamicStringSchema).optional().describe("概念标签列表"),
+      icon: DynamicStringSchema.optional().describe("可选的概念图标或 Emoji"),
+      definitionTitle: DynamicStringSchema.optional().describe("定义/解析小节标题（如 '哲思升华'），省略时默认为 '核心定义'"),
       definition: DynamicStringSchema.describe("核心定义（支持 Markdown）"),
+      exampleTitle: DynamicStringSchema.optional().describe("示例/案例小节标题（如 '对比解析'），省略时默认为 '实践示例'"),
       example: DynamicStringSchema.optional().describe("相关案例或代码（支持 Markdown）"),
+      tags: z.array(DynamicStringSchema).optional().describe("概念标签列表"),
       relatedConcepts: z.array(DynamicStringSchema).optional().describe("关联概念名称列表"),
       onConceptClick: ActionSchema.optional().describe("点击关联概念时触发的操作"),
     })
@@ -210,6 +213,10 @@ export const DragAndDropMatchApi = {
   schema: z
     .object({
       ...CommonProps,
+      title: DynamicStringSchema.optional().describe("练习标题；省略时使用通用标题"),
+      instruction: DynamicStringSchema.optional().describe("简短操作说明或本题目标"),
+      leftLabel: DynamicStringSchema.optional().describe("左侧项目栏标题"),
+      rightLabel: DynamicStringSchema.optional().describe("右侧项目栏标题"),
       leftItems: z.array(z.object({
         id: z.string(),
         content: DynamicStringSchema.describe("左侧项目内容"),
@@ -219,6 +226,35 @@ export const DragAndDropMatchApi = {
         content: DynamicStringSchema.describe("右侧项目内容（应乱序）"),
       })).describe("右侧项目列表"),
       correctMatches: z.record(z.string()).describe("正确的匹配关系映射 {leftId: rightId}，用于前端闭环校验"),
+      successMessage: DynamicStringSchema.optional().describe("全部匹配正确后的反馈文案"),
+      incorrectMessage: DynamicStringSchema.optional().describe("存在错误匹配时的反馈文案"),
+      matchExplanations: z.record(DynamicStringSchema).optional().describe("可选的逐项匹配说明，key 为左侧项目 id，在核对后展示"),
+      onMatchComplete: ActionSchema.optional().describe("用户完成连线校验时触发，参数为 { isCorrect }，用于向 Agent 汇报结果"),
+    })
+    .strict(),
+} satisfies ComponentApi;
+
+export const RelationshipMatchApi = {
+  name: "RelationshipMatch",
+  schema: z
+    .object({
+      ...CommonProps,
+      title: DynamicStringSchema.optional().describe("练习标题；省略时使用通用标题"),
+      instruction: DynamicStringSchema.optional().describe("简短操作说明或本题目标"),
+      leftLabel: DynamicStringSchema.optional().describe("左侧项目栏标题"),
+      rightLabel: DynamicStringSchema.optional().describe("右侧项目栏标题"),
+      leftItems: z.array(z.object({
+        id: z.string(),
+        content: DynamicStringSchema.describe("左侧项目内容"),
+      })).describe("左侧项目列表"),
+      rightItems: z.array(z.object({
+        id: z.string(),
+        content: DynamicStringSchema.describe("右侧项目内容（应乱序）"),
+      })).describe("右侧项目列表"),
+      correctMatches: z.record(z.string()).describe("正确的匹配关系映射 {leftId: rightId}，用于前端闭环校验"),
+      successMessage: DynamicStringSchema.optional().describe("全部匹配正确后的反馈文案"),
+      incorrectMessage: DynamicStringSchema.optional().describe("存在错误匹配时的反馈文案"),
+      matchExplanations: z.record(DynamicStringSchema).optional().describe("可选的逐项匹配说明，key 为左侧项目 id，在核对后展示"),
       onMatchComplete: ActionSchema.optional().describe("用户完成连线校验时触发，参数为 { isCorrect }，用于向 Agent 汇报结果"),
     })
     .strict(),
@@ -236,6 +272,7 @@ export const TimelineApi = {
         description: DynamicStringSchema.optional().describe("事件描述"),
       })).describe("时间轴节点列表"),
       orientation: z.enum(["vertical", "horizontal"]).default("vertical").optional().describe("布局方向"),
+      variant: z.enum(["default", "journey"]).default("default").optional().describe("呈现样式；journey 适合叙事、阅读路径或场景推进"),
       onEventSelect: ActionSchema.optional().describe("点击事件节点时触发"),
     })
     .strict(),
@@ -271,7 +308,10 @@ export const ScenarioDialogueApi = {
   schema: z
     .object({
       ...CommonProps,
+      variant: z.enum(["dialogue", "wechat-group", "correspondence"]).default("dialogue").optional().describe("呈现方式。wechat-group 用微信群界面呈现多人讨论；correspondence 用两地书信呈现彼此呼应的两位角色；普通讲解使用 dialogue。"),
       topic: DynamicStringSchema.optional().describe("对话主题（如 '关于 Virtual DOM 的探讨'）"),
+      groupName: DynamicStringSchema.optional().describe("微信群名称；仅 variant=wechat-group 时使用。"),
+      groupNotice: DynamicStringSchema.optional().describe("可选群公告，用一句话说明讨论规则或诗歌阅读任务。"),
       characters: z.record(
         z.string(),
         z.object({
@@ -284,9 +324,37 @@ export const ScenarioDialogueApi = {
         z.object({
           characterId: z.string().describe("发言角色的 ID"),
           content: DynamicStringSchema.describe("发言内容（支持 Markdown）"),
+          imageUrl: DynamicStringSchema.optional().describe("可选的图片链接。只在确实有助于理解原作意境、文物或场景时使用。"),
+          imagePrompt: DynamicStringSchema.optional().describe("供自动配图服务使用的简短画面描述。它不是 URL；服务未生成图片或超出上限时，前端会忽略它。"),
+          imageAlt: DynamicStringSchema.optional().describe("图片的简短替代说明"),
           delayMs: z.number().optional().describe("可选：此消息弹出前的延迟毫秒数，用于模拟真实打字停顿"),
         })
       ).describe("对话消息列表"),
+    })
+    .strict(),
+} satisfies ComponentApi;
+
+export const SocialMomentsApi = {
+  name: "SocialMoments",
+  schema: z
+    .object({
+      ...CommonProps,
+      title: DynamicStringSchema.optional().describe("朋友圈栏目标题；为空时使用默认标题。"),
+      posts: z.array(
+        z.object({
+          id: z.string().describe("动态的稳定 ID"),
+          author: DynamicStringSchema.describe("发布者名称，可以是诗人、作品人物或现代读者"),
+          avatar: DynamicStringSchema.optional().describe("头像 Emoji 或图片 URL"),
+          content: DynamicStringSchema.describe("动态正文，适合写原文片段、感受或叙事现场（支持 Markdown）"),
+          imageUrls: z.array(DynamicStringSchema).max(4).optional().describe("0–4 张配图的公开 URL；没有可靠图片时省略，绝不编造链接。"),
+          imagePrompt: DynamicStringSchema.optional().describe("供自动配图服务使用的简短画面描述。它不是 URL；服务未生成图片或超出上限时，前端会忽略它。"),
+          imageAlt: DynamicStringSchema.optional().describe("配图整体的简短替代说明"),
+          location: DynamicStringSchema.optional().describe("可选地点或时空标签"),
+          time: DynamicStringSchema.optional().describe("可选发布时间或诗中时刻"),
+          likes: z.array(DynamicStringSchema).max(12).optional().describe("点赞者名称，简短即可"),
+          comments: z.array(z.object({ author: DynamicStringSchema, content: DynamicStringSchema })).max(8).optional().describe("评论区，用于补充典故、反问或不同视角"),
+        })
+      ).min(1).max(6).describe("1–6 条朋友圈动态，按诗意或叙事推进排序"),
     })
     .strict(),
 } satisfies ComponentApi;
@@ -407,6 +475,7 @@ export const DetailedExplanationApi = {
       content: DynamicStringSchema.describe("深入讲解的核心 Markdown 文本内容"),
       icon: DynamicStringSchema.optional().describe("讲解卡片的图标 (Emoji)"),
       estimatedReadTime: DynamicStringSchema.optional().describe("预计阅读时间，例如 '5 分钟阅读'"),
+      contentAlign: z.enum(["start", "center"]).default("start").optional().describe("正文对齐方式。center 适合诗歌、引文等需要居中阅读的短行文本。"),
     })
     .strict(),
 } satisfies ComponentApi;
@@ -470,6 +539,3 @@ export const InteractiveFormulaApi = {
     })
     .strict(),
 } satisfies ComponentApi;
-
-
-

@@ -23,7 +23,7 @@ All A2Learn-generated content follows a structured 5-step pedagogical flow:
 | 1 | `AnalogyCard` + `ScenarioDialogue` | Hook learner with a **real pain point**, then explore via **peer researcher dialogue** |
 | 2 | `MentalModel` + `ConceptCard` | Build intuition with analogies, ASCII diagrams, and structural pillars |
 | 3 | `DetailedExplanation` | Go deep with **clean code examples** (direct library calls + minimal pseudocode) |
-| 4 | `QuizCard` / `ClozeTest` / `DragAndDropMatch` | Reinforce with interactive self-assessment and instant explanations |
+| 4 | `QuizCard` / `ClozeTest` | Reinforce with interactive self-assessment and instant explanations |
 | 5 | `AnalogyCard` (summary mode) | Dual-layer summary: plain-English recap + `📌 术语总结` with `<dfn>` hover annotations |
 
 > [!NOTE]

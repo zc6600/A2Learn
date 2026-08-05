@@ -10,7 +10,7 @@ export class A2learnTimelineElement extends A2uiLitElement<typeof TimelineApi> {
     :host {
       display: block;
       margin: var(--a2ui-spacing-l) 0;
-      font-family: var(--a2ui-font-family);
+      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));
     }
     .timeline-container {
       position: relative;
@@ -102,6 +102,113 @@ export class A2learnTimelineElement extends A2uiLitElement<typeof TimelineApi> {
     .timeline-horizontal .timeline-content {
       min-height: 120px;
     }
+    /* A reading / story path. This remains a Timeline, but gives narrative
+       sequences a spatial rhythm instead of a list-of-cards appearance. */
+    .timeline-journey {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr);
+      column-gap: 20px;
+      padding: 20px 0 4px;
+    }
+    .timeline-journey::before {
+      left: calc(50% - 1px);
+      width: 2px;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        color-mix(in srgb, var(--a2ui-color-primary) 32%, transparent) 5%,
+        color-mix(in srgb, var(--a2ui-color-primary) 58%, transparent) 50%,
+        color-mix(in srgb, var(--a2ui-color-primary) 32%, transparent) 95%,
+        transparent
+      );
+    }
+    .timeline-journey .timeline-item {
+      grid-column: 1;
+      padding-left: 0;
+      margin: 0 0 46px;
+    }
+    .timeline-journey .timeline-item:nth-of-type(even) {
+      grid-column: 3;
+      margin-top: 68px;
+      margin-bottom: -22px;
+    }
+    .timeline-journey .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+    .timeline-journey .timeline-dot {
+      left: auto;
+      right: -45px;
+      top: 28px;
+      width: 14px;
+      height: 14px;
+      border-width: 4px;
+      background: var(--a2ui-color-surface);
+      box-shadow: 0 0 0 2px var(--a2ui-color-primary), 0 0 18px color-mix(in srgb, var(--a2ui-color-primary) 38%, transparent);
+    }
+    .timeline-journey .timeline-item:nth-of-type(even) .timeline-dot {
+      right: auto;
+      left: -45px;
+    }
+    .timeline-journey .timeline-content {
+      position: relative;
+      overflow: hidden;
+      min-height: 122px;
+      padding: 22px 24px 20px;
+      border-radius: 18px 4px 18px 4px;
+      box-shadow: 0 10px 28px color-mix(in srgb, var(--a2ui-color-primary) 9%, transparent);
+    }
+    .timeline-journey .timeline-content::after {
+      content: "";
+      position: absolute;
+      width: 86px;
+      height: 86px;
+      right: -36px;
+      bottom: -48px;
+      border: 1px solid color-mix(in srgb, var(--a2ui-color-primary) 16%, transparent);
+      border-radius: 50%;
+      box-shadow: 0 0 0 14px color-mix(in srgb, var(--a2ui-color-primary) 5%, transparent), 0 0 0 30px color-mix(in srgb, var(--a2ui-color-primary) 3%, transparent);
+      pointer-events: none;
+    }
+    .timeline-journey .timeline-time {
+      letter-spacing: .16em;
+      font-size: 11px;
+    }
+    .timeline-journey .timeline-title {
+      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));
+      font-size: 19px;
+      line-height: 1.55;
+      font-weight: 700;
+    }
+    .timeline-journey .timeline-desc {
+      position: relative;
+      z-index: 1;
+      line-height: 1.75;
+    }
+    .timeline-journey .timeline-desc b {
+      color: var(--a2ui-color-primary);
+      font-size: .88em;
+      letter-spacing: .06em;
+      margin-right: .4em;
+    }
+    @media (max-width: 680px) {
+      .timeline-journey {
+        display: block;
+        padding-left: 36px;
+      }
+      .timeline-journey::before {
+        left: 13px;
+      }
+      .timeline-journey .timeline-item,
+      .timeline-journey .timeline-item:nth-of-type(even) {
+        margin: 0 0 24px;
+      }
+      .timeline-journey .timeline-dot,
+      .timeline-journey .timeline-item:nth-of-type(even) .timeline-dot {
+        left: -31px;
+        right: auto;
+        top: 28px;
+      }
+    }
   `;
 
   protected createController() {
@@ -137,9 +244,10 @@ export class A2learnTimelineElement extends A2uiLitElement<typeof TimelineApi> {
 
     const events = props.events || [];
     const orientation = props.orientation === "horizontal" ? "horizontal" : "vertical";
+    const variant = props.variant === "journey" && orientation === "vertical" ? "journey" : "default";
 
     return html`
-      <div class="timeline-container ${orientation === "horizontal" ? "timeline-horizontal" : "timeline-vertical"}">
+      <div class="timeline-container ${variant === "journey" ? "timeline-journey" : orientation === "horizontal" ? "timeline-horizontal" : "timeline-vertical"}">
         ${events.map((event: any) => html`
           <div class="timeline-item">
             <div class="timeline-dot"></div>

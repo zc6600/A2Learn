@@ -1,0 +1,44 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": { "surfaceId": "moments-poetry-demo", "catalogId": "https://a2learn.ai/spec/v1/catalog.json" }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "moments-poetry-demo",
+      "components": [
+        { "id": "root", "component": "Column", "children": ["moments"] },
+        {
+          "id": "moments",
+          "component": "SocialMoments",
+          "title": { "literalString": "朋友圈 · 《送杜少府之任蜀州》" },
+          "posts": [
+            {
+              "id": "wang",
+              "author": { "literalString": "王勃" },
+              "avatar": { "literalString": "🛶" },
+              "content": { "literalString": "城阙辅三秦，风烟望五津。今天送朋友远行。" },
+              "location": { "literalString": "长安城外" },
+              "time": { "literalString": "黄昏" },
+              "likes": [{ "literalString": "杜少府" }, { "literalString": "岑参" }],
+              "comments": [
+                { "author": { "literalString": "现代读者" }, "content": { "literalString": "开头先把离别放进辽阔的地理里。" } }
+              ]
+            },
+            {
+              "id": "friend",
+              "author": { "literalString": "远行的朋友" },
+              "avatar": { "literalString": "🌫️" },
+              "content": { "literalString": "海内存知己，天涯若比邻。原来不是不难过，而是不让距离决定我们。" },
+              "time": { "literalString": "临别前" },
+              "comments": [
+                { "author": { "literalString": "批注同学" }, "content": { "literalString": "“若比邻”不是事实判断，而是用想象抵抗离别。" } }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -126,12 +126,6 @@ To prevent users from getting lost when entering the gallery, A2Learn provides t
   - **Knowledge Point Completion** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/ClozeTest/basic.json)): "The core advantages of React are ___ and ___."
   - **Code Completion** (🔗 [Code Snippet Example](../packages/a2learn-catalog/examples/Component/ClozeTest/code.json)): Provides a function with missing core logic for users to fill in key API method names.
 
-### 2.8 DragAndDropMatch [✅ Refactored & Implemented]
-**Product Goal**: Enhances the gamified experience of question types.
-- **Usage Scenarios**:
-  - **Cross-language Translation** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/DragAndDropMatch/basic.json)): A column of English words on the left and a scrambled column of Chinese on the right, requiring matching.
-  - **Process Sorting (Variant)** (🔗 [Sorting Example](../packages/a2learn-catalog/examples/Component/DragAndDropMatch/sorting.json)): Fixed sequence 1-4 on the left and scrambled algorithm execution steps on the right, requiring matching.
-
 ### 2.9 Timeline [✅ Implemented]
 **Product Goal**: Structurally displays historical events, development history, or process steps.
 - **Usage Scenarios**:

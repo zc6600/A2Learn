@@ -9,6 +9,7 @@ import {
   showState,
   type AppChromeStrings,
   type ExampleCardItem,
+  type ExampleCardGroup,
 } from "@a2learn/viewer-kit/page-shell";
 import { bootstrapGallery } from "@a2learn/viewer-kit/gallery/gallery-ui";
 import { pickRenderedComponent } from "./component-picker";
@@ -25,13 +26,17 @@ import {
 import { recentProjects, rememberProject, type RecentProject } from "./recent-projects";
 import {
   GENERATION_COMPONENTS,
+  GENERATION_TEMPLATES,
   LOCAL_EXAMPLES,
   MAX_ENABLED_COMPONENTS,
   MAX_EXAMPLE_CASES,
+  MAX_AUTO_GENERATED_IMAGES,
   RENDER_THEMES,
   getRenderTheme,
+  getGenerationTemplate,
   getStoredGenerationProfile,
   normalizeGenerationProfile,
+  profileForTemplate,
   setStoredGenerationProfile,
   type GenerationProfile,
   type Lang,
@@ -45,6 +50,156 @@ let activeRuntime: {
 
 let presentationRenderVersion = 0;
 let activePresentationPage: PresentationSurface | null = null;
+let activeNarrationAudio: HTMLAudioElement | null = null;
+let activeNarrationUrl: string | null = null;
+let activeNarrationScript: string | null = null;
+
+function stopNarrationAudio() {
+  if (activeNarrationAudio) {
+    try {
+      activeNarrationAudio.pause();
+      activeNarrationAudio.currentTime = 0;
+    } catch {}
+    activeNarrationAudio = null;
+  }
+  activeNarrationUrl = null;
+  const card = document.getElementById("narration-script-overlay");
+  if (card) card.style.display = "none";
+  const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
+  if (narrationButton) {
+    narrationButton.textContent = "🔊";
+    narrationButton.title = (window.location.search.includes("lang=en") ? "Play narration" : "播放讲稿");
+  }
+}
+
+function renderScriptOverlay(scriptText: string) {
+  let card = document.getElementById("narration-script-overlay");
+  if (!card) {
+    card = document.createElement("div");
+    card.id = "narration-script-overlay";
+    card.style.cssText =
+      "position:fixed;right:22px;bottom:122px;z-index:998;max-width:380px;max-height:240px;overflow-y:auto;background:rgba(15,23,42,0.92);backdrop-filter:blur(8px);color:#f8fafc;padding:12px 16px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-size:13px;line-height:1.6;border:1px solid rgba(255,255,255,0.15);transition:opacity 0.2s ease;";
+    document.body.appendChild(card);
+  }
+  const isEn = window.location.search.includes("lang=en");
+  const headerTitle = isEn ? "🎙 Presenter Script" : "🎙 AI 讲稿文稿";
+  card.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.15);">
+      <strong style="color:#2dd4bf;font-size:12px;">${headerTitle}</strong>
+      <button type="button" id="close-script-overlay" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;padding:0 4px;">✕</button>
+    </div>
+    <div style="white-space:pre-wrap;color:#e2e8f0;">${scriptText}</div>
+  `;
+  card.style.display = "block";
+  const closeBtn = card.querySelector("#close-script-overlay");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      if (card) card.style.display = "none";
+    });
+  }
+}
+
+async function handleNarrationToggle(
+  narrationButton: HTMLButtonElement,
+  fetchNarrationIfNeeded?: () => Promise<{ script?: string; audioUrl: string }>
+) {
+  const currentDatasetUrl = narrationButton.dataset.audioUrl || null;
+  const isEn = window.location.search.includes("lang=en");
+
+  if (activeNarrationAudio && activeNarrationUrl && (activeNarrationUrl === currentDatasetUrl || !fetchNarrationIfNeeded)) {
+    if (!activeNarrationAudio.paused) {
+      activeNarrationAudio.pause();
+      narrationButton.textContent = "▶";
+      narrationButton.title = isEn ? "Resume narration" : "继续播放讲稿";
+    } else {
+      void activeNarrationAudio.play();
+      narrationButton.textContent = "⏸";
+      narrationButton.title = isEn ? "Pause narration" : "暂停讲稿音频";
+    }
+    return;
+  }
+
+  if (currentDatasetUrl) {
+    stopNarrationAudio();
+    activeNarrationUrl = currentDatasetUrl;
+    const audio = new Audio(currentDatasetUrl);
+    activeNarrationAudio = audio;
+
+    audio.addEventListener("play", () => {
+      narrationButton.textContent = "⏸";
+      narrationButton.title = isEn ? "Pause narration" : "暂停讲稿音频";
+    });
+    audio.addEventListener("pause", () => {
+      if (activeNarrationAudio === audio) {
+        narrationButton.textContent = "▶";
+        narrationButton.title = isEn ? "Resume narration" : "继续播放讲稿";
+      }
+    });
+    audio.addEventListener("ended", () => {
+      narrationButton.textContent = "🔊";
+      narrationButton.title = isEn ? "Play narration" : "播放讲稿";
+      activeNarrationAudio = null;
+    }, { once: true });
+
+    try {
+      await audio.play();
+      if (activeNarrationScript) renderScriptOverlay(activeNarrationScript);
+    } catch (err) {
+      narrationButton.textContent = "🔊";
+      alert(isEn ? `Audio playback failed: ${String(err)}` : `音频播放失败：${String(err)}`);
+    }
+    return;
+  }
+
+  if (fetchNarrationIfNeeded) {
+    stopNarrationAudio();
+    narrationButton.disabled = true;
+    const idleLabel = "🔊";
+    narrationButton.textContent = "⏳";
+    narrationButton.title = isEn ? "Generating narration…" : "正在生成讲稿和音频…";
+
+    try {
+      const payload = await fetchNarrationIfNeeded();
+      if (!payload.audioUrl) throw new Error("The narration response did not include an audio URL.");
+
+      const fullAudioUrl = payload.audioUrl.startsWith("http")
+        ? payload.audioUrl
+        : payload.audioUrl;
+
+      narrationButton.dataset.audioUrl = fullAudioUrl;
+      activeNarrationUrl = fullAudioUrl;
+      activeNarrationScript = payload.script || null;
+
+      const audio = new Audio(fullAudioUrl);
+      activeNarrationAudio = audio;
+
+      audio.addEventListener("play", () => {
+        narrationButton.textContent = "⏸";
+        narrationButton.title = isEn ? "Pause narration" : "暂停讲稿音频";
+      });
+      audio.addEventListener("pause", () => {
+        if (activeNarrationAudio === audio) {
+          narrationButton.textContent = "▶";
+          narrationButton.title = isEn ? "Resume narration" : "继续播放讲稿";
+        }
+      });
+      audio.addEventListener("ended", () => {
+        narrationButton.textContent = idleLabel;
+        narrationButton.title = isEn ? "Play narration" : "播放讲稿";
+        activeNarrationAudio = null;
+      }, { once: true });
+
+      await audio.play();
+      if (payload.script) renderScriptOverlay(payload.script);
+    } catch (error) {
+      narrationButton.textContent = idleLabel;
+      narrationButton.title = isEn ? "Play narration" : "播放讲稿";
+      alert(isEn ? `Narration failed: ${String(error)}` : `讲稿生成失败：${String(error)}`);
+    } finally {
+      narrationButton.disabled = false;
+    }
+  }
+}
 
 type SessionStatus = "pending" | "ready" | "error";
 
@@ -189,11 +344,30 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
+const AUDIO_ENABLED_STORAGE_KEY = "a2learn.audio.enabled";
+const STATIC_EXAMPLE_AUDIO: Record<string, Partial<Record<Lang, string>>> = {
+  "hash-table": { zh: "/examples/audio/hash-table.zh.mp3" },
+};
+function isAudioEnabled(): boolean {
+  return window.localStorage.getItem(AUDIO_ENABLED_STORAGE_KEY) === "true";
+}
+
+function staticExampleAudioUrl(exampleId: string, language: Lang): string | null {
+  return STATIC_EXAMPLE_AUDIO[exampleId]?.[language]
+    || STATIC_EXAMPLE_AUDIO[exampleId]?.zh
+    || null;
+}
+
 function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string {
   const copy = lang === "zh"
     ? {
         heading: "生成配置",
         note: "这些偏好会保存在当前浏览器，并用于定制下一次生成。",
+        templates: "选择生成模板",
+        templatesCopy: "先选一个与你的内容最接近的模板；它会自动配置组件、案例和页面风格。",
+        preview: "预览",
+        advanced: "高级自定义",
+        advancedCopy: "需要精细控制时，再展开修改组件、案例、风格和配图预算。修改后会成为自定义配置。",
         components: "本次可生成的组件",
         componentsCopy: "选择本次页面可使用的组件；全部关闭时只会保留基础文字与布局。",
         examples: "参考案例",
@@ -207,15 +381,27 @@ function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string 
         standardModeCopy: "页面连续阅读，使用原有页签切换。",
         presentationMode: "自动分页演示",
         presentationModeCopy: "将当前内容排入 16:9 页面，可全屏展示。",
+        imageLimit: "自动配图上限",
+        imageLimitCopy: "一次生成最多自动创建多少张意境配图。超出上限的图片请求会被跳过，页面不会保留空白图片框。",
+        paperExamples: "论文详解",
+        computingExamples: "计算机专区",
+        poetryExamples: "诗词赏析",
         intent: "视觉与内容意图（可选）",
         intentPlaceholder: "例如：古典诗词赏析，突出原文、逐句注释与留白，避免科技感卡片堆叠。",
         explain: "讲解",
         practice: "练习",
         explore: "探索",
+        audio: "生成并播放讲稿音频",
+        audioCopy: "开启后，选择案例时会额外生成一份完整讲稿和 MP3。",
       }
     : {
         heading: "Generation settings",
         note: "These preferences are saved in this browser and customize your next generation.",
+        templates: "Choose a generation template",
+        templatesCopy: "Start with the template closest to your content. It configures components, references, and page style together.",
+        preview: "Preview",
+        advanced: "Advanced customization",
+        advancedCopy: "Expand only when you need to tune components, references, style, or the image budget. Changes become a custom configuration.",
         components: "Components available for this run",
         componentsCopy: "Choose the components available for this page. With none selected, only basic text and layout remain.",
         examples: "Reference examples",
@@ -229,11 +415,18 @@ function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string 
         standardModeCopy: "Continuous reading with the existing page tabs.",
         presentationMode: "Auto-paginated presentation",
         presentationModeCopy: "Fits the current content into 16:9 pages for presenting.",
+        imageLimit: "Automatic image limit",
+        imageLimitCopy: "Maximum atmospheric images created per generation. Requests over the limit are skipped without leaving empty image frames.",
+        paperExamples: "Paper deep dives",
+        computingExamples: "Computing",
+        poetryExamples: "Poetry reading",
         intent: "Visual and content intent (optional)",
         intentPlaceholder: "For example: classical poetry analysis with prominent verses, line-by-line annotations, and generous whitespace.",
         explain: "Explain",
         practice: "Practice",
         explore: "Explore",
+        audio: "Generate and play narration audio",
+        audioCopy: "When enabled, selecting a case also generates a complete script and MP3.",
       };
 
   const groupLabels: Record<string, string> = {
@@ -284,7 +477,25 @@ function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string 
       </span>
     </label>`;
 
-  const exampleOptions = LOCAL_EXAMPLES.map((example) => {
+  const templateOptions = GENERATION_TEMPLATES.map((template) => `
+    <div class="generation-template-option">
+      <label class="generation-template-copy">
+        <input class="generation-template-input" type="radio" name="generation-template" value="${template.id}" ${profile.templateId === template.id ? "checked" : ""} />
+        <span>
+          <span class="generation-theme-label">${escapeHtml(template.label[lang])}</span>
+          <span class="generation-theme-description">${escapeHtml(template.description[lang])}</span>
+        </span>
+      </label>
+      <button class="generation-template-preview" type="button" data-template-preview="${template.id}">${copy.preview}</button>
+    </div>`).join("");
+
+  const exampleCategoryLabels = {
+    paper: copy.paperExamples,
+    computing: copy.computingExamples,
+    poetry: copy.poetryExamples,
+  };
+  const exampleOptions = (["paper", "computing", "poetry"] as const).map((category) => {
+    const options = LOCAL_EXAMPLES.filter((example) => example.category === category).map((example) => {
     const selected = profile.exampleIds.includes(example.id);
     const componentLabels = example.componentIds
       .map((id) => GENERATION_COMPONENTS.find((component) => component.id === id)?.label[lang] || id)
@@ -298,6 +509,8 @@ function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string 
           <span class="generation-example-components">${copy.exampleUses}${escapeHtml(componentLabels)}</span>
         </span>
       </label>`;
+    }).join("");
+    return options ? `<section class="generation-example-category"><p class="generation-component-group-title">${exampleCategoryLabels[category]}</p><div class="generation-example-grid">${options}</div></section>` : "";
   }).join("");
 
   return `
@@ -307,6 +520,14 @@ function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string 
         <p class="generation-settings-note">${copy.note}</p>
       </div>
       <section class="generation-settings-section">
+        <p class="generation-settings-section-title">${copy.templates}</p>
+        <p class="generation-settings-section-copy">${copy.templatesCopy}</p>
+        <div class="generation-template-grid">${templateOptions}</div>
+      </section>
+      <details class="generation-advanced-settings">
+        <summary>${copy.advanced}</summary>
+        <p class="generation-advanced-copy">${copy.advancedCopy}</p>
+      <section class="generation-settings-section">
         <p class="generation-settings-section-title">${copy.components} <span id="generation-enabled-count" class="generation-counter">${profile.enabledComponents.length}/${MAX_ENABLED_COMPONENTS}</span></p>
         <p class="generation-settings-section-copy">${copy.componentsCopy}</p>
         <div class="generation-component-groups">${componentGroups}</div>
@@ -314,7 +535,7 @@ function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string 
       <section class="generation-settings-section">
         <p class="generation-settings-section-title">${copy.examples} <span id="generation-example-count" class="generation-counter">${profile.exampleIds.length}/${MAX_EXAMPLE_CASES}</span></p>
         <p class="generation-settings-section-copy">${copy.examplesCopy}</p>
-        <div class="generation-example-grid">${exampleOptions}</div>
+        <div class="generation-example-categories">${exampleOptions}</div>
       </section>
       <section class="generation-settings-section">
         <p class="generation-settings-section-title">${copy.theme}</p>
@@ -327,9 +548,24 @@ function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string 
         <div class="generation-theme-grid">${displayModeOptions}</div>
       </section>
       <section class="generation-settings-section">
+        <label class="generation-theme-option">
+          <input id="generation-audio-enabled" type="checkbox" ${isAudioEnabled() ? "checked" : ""} />
+          <span class="generation-theme-copy">
+            <span class="generation-theme-label">${copy.audio}</span>
+            <span class="generation-theme-description">${copy.audioCopy}</span>
+          </span>
+        </label>
+      </section>
+      <section class="generation-settings-section">
+        <label class="generation-settings-section-title" for="generation-image-limit">${copy.imageLimit}</label>
+        <p class="generation-settings-section-copy">${copy.imageLimitCopy}</p>
+        <input id="generation-image-limit" class="app-modal-input" type="number" min="0" max="${MAX_AUTO_GENERATED_IMAGES}" step="1" value="${profile.imageGenerationLimit}" inputmode="numeric" />
+      </section>
+      <section class="generation-settings-section">
         <label class="generation-settings-section-title" for="generation-visual-intent">${copy.intent}</label>
         <textarea id="generation-visual-intent" class="app-modal-input generation-intent-input" maxlength="500" placeholder="${escapeHtml(copy.intentPlaceholder)}">${escapeHtml(profile.visualIntent)}</textarea>
       </section>
+      </details>
     </section>`;
 }
 
@@ -340,8 +576,10 @@ function profileFromSettingsInputs(): GenerationProfile {
     .map((input) => input.dataset.exampleId || "");
   const themeId = document.querySelector<HTMLInputElement>("input[name='generation-theme']:checked")?.value;
   const displayMode = document.querySelector<HTMLInputElement>("input[name='generation-display-mode']:checked")?.value;
+  const templateId = document.querySelector<HTMLInputElement>("input[name='generation-template']:checked")?.value || "custom";
+  const imageGenerationLimit = (document.getElementById("generation-image-limit") as HTMLInputElement | null)?.valueAsNumber;
   const visualIntent = (document.getElementById("generation-visual-intent") as HTMLTextAreaElement | null)?.value || "";
-  return normalizeGenerationProfile({ version: 1, enabledComponents, exampleIds, themeId, displayMode, visualIntent });
+  return normalizeGenerationProfile({ version: 1, templateId, enabledComponents, exampleIds, themeId, displayMode, imageGenerationLimit, visualIntent });
 }
 
 function syncGenerationSettingsInputs(profile: GenerationProfile): void {
@@ -361,6 +599,17 @@ function syncGenerationSettingsInputs(profile: GenerationProfile): void {
   if (selectedTheme) selectedTheme.checked = true;
   const selectedDisplayMode = document.querySelector<HTMLInputElement>(`input[name='generation-display-mode'][value='${profile.displayMode}']`);
   if (selectedDisplayMode) selectedDisplayMode.checked = true;
+  document.querySelectorAll<HTMLInputElement>(".generation-template-input").forEach((input) => {
+    input.checked = input.value === profile.templateId;
+  });
+  const imageLimit = document.getElementById("generation-image-limit") as HTMLInputElement | null;
+  if (imageLimit) imageLimit.value = String(profile.imageGenerationLimit);
+}
+
+function markSettingsAsCustom(): void {
+  document.querySelectorAll<HTMLInputElement>(".generation-template-input").forEach((input) => {
+    input.checked = false;
+  });
 }
 
 function getLocalExampleComponents(exampleId: string): string[] {
@@ -568,7 +817,6 @@ const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
     modalBodyIntroHtml:
       "输入你的 <strong>OpenRouter API Key</strong>。你的 Key 将仅保存在浏览器本地（<code>localStorage</code>），每次交互时透传给后端，绝不上交服务器保存。",
     modalBodyFooter: "无 API Key？你也可以直接点击主页顶部的热门推荐，预览预置的精美 Showcase。",
-    modalClearLabel: "清空 Key",
     modalSaveLabel: "保存配置",
   },
   en: {
@@ -590,7 +838,6 @@ const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
     modalBodyIntroHtml:
       "Enter your <strong>OpenRouter API Key</strong>. It's stored only in your browser (<code>localStorage</code>) and passed through to the backend on each request — it is never saved on our servers.",
     modalBodyFooter: "No API key? You can still click the popular picks above, or browse the pre-generated example gallery below.",
-    modalClearLabel: "Clear Key",
     modalSaveLabel: "Save",
   },
 };
@@ -1283,6 +1530,22 @@ async function pollSessionUntilReady(
   throw new Error("Timed out waiting for generation to complete.");
 }
 
+/** Generated-image URLs are API-relative so the backend can serve cached
+ * assets. Resolve only that narrow URL form before handing messages to A2UI;
+ * ordinary text and external image links remain untouched. */
+function resolveGeneratedImageUrls(messages: A2uiMessage[], apiBaseUrl: string): A2uiMessage[] {
+  const base = apiBaseUrl.replace(/\/+$/, "");
+  const generatedImagePath = /^\/api\/generated-images\/[a-f0-9]{64}\.png$/;
+  const visit = (value: any): any => {
+    if (typeof value === "string") return generatedImagePath.test(value) ? `${base}${value}` : value;
+    if (Array.isArray(value)) return value.map(visit);
+    if (!value || typeof value !== "object") return value;
+    for (const [key, child] of Object.entries(value)) value[key] = visit(child);
+    return value;
+  };
+  return messages.map((message) => visit(message));
+}
+
 async function bootstrapOnline(
   container: HTMLElement,
   source: ViewerSourceOnline,
@@ -1317,6 +1580,7 @@ async function bootstrapOnline(
   } else {
     initialMessages = await pollSessionUntilReady(source.apiBaseUrl, buildHeaders(source.headers), sessionId);
   }
+  initialMessages = resolveGeneratedImageUrls(initialMessages, source.apiBaseUrl);
 
   let isSendingAction = false;
 
@@ -1352,8 +1616,9 @@ async function bootstrapOnline(
       }
       const data = (await res.json()) as SessionActionResponse;
       if (Array.isArray(data.messages) && data.messages.length > 0) {
-        processor.processMessages(data.messages);
-        const lastCreatedId = extractLastCreatedSurfaceId(data.messages);
+        const messages = resolveGeneratedImageUrls(data.messages, source.apiBaseUrl);
+        processor.processMessages(messages);
+        const lastCreatedId = extractLastCreatedSurfaceId(messages);
         if (lastCreatedId) {
           window.location.hash = `#/${lastCreatedId}`;
         }
@@ -1562,6 +1827,36 @@ function getExampleItems(lang: Lang): ExampleCardItem[] {
   }));
 }
 
+function getExampleGroups(lang: Lang): ExampleCardGroup[] {
+  const labels = lang === "zh"
+    ? {
+        paper: { title: "论文详解", description: "从摘要、公式到研究脉络" },
+        computing: { title: "计算机专区", description: "算法、前端与 Agent 实战" },
+        poetry: { title: "诗词赏析", description: "从词注阅读到意象与情绪的行进" },
+      }
+    : {
+        paper: { title: "Paper deep dives", description: "Abstracts, formulas, and research context" },
+        computing: { title: "Computing", description: "Algorithms, frontend, and Agent practice" },
+        poetry: { title: "Poetry reading", description: "Move from glossed reading into imagery and feeling" },
+      };
+  return (["paper", "computing", "poetry"] as const).map((category) => ({
+    id: category,
+    ...labels[category],
+    items: getExampleItems(lang).filter((item) => LOCAL_EXAMPLES.find((example) => example.id === item.id)?.category === category),
+  })).filter((group) => group.items.length > 0);
+}
+
+function renderCollapsibleExampleGallery(lang: Lang): string {
+  const summary = lang === "zh" ? "浏览模板案例" : "Browse template examples";
+  const detail = lang === "zh"
+    ? "按内容方向查看可直接打开的示例"
+    : "Open a ready-made example by content direction";
+  return `<details class="template-example-gallery">
+    <summary><span>${summary}</span><small>${detail}</small></summary>
+    ${renderExamplesStrip(T[lang].examplesStripTitle, getExampleGroups(lang))}
+  </details>`;
+}
+
 const LOCAL_STORAGE_KEY = "a2learn_user_api_key";
 
 function getStoredApiKey(): string {
@@ -1630,11 +1925,12 @@ function bindShellControls(
   const modal = document.getElementById("app-settings-modal");
   const closeBtn = document.getElementById("app-modal-close");
   const saveBtn = document.getElementById("app-modal-save");
-  const clearBtn = document.getElementById("app-modal-clear");
   const keyInput = document.getElementById("app-api-key-input") as HTMLInputElement | null;
   const form = document.getElementById("app-prompt-form") as HTMLFormElement | null;
   const promptInput = document.getElementById("app-prompt-input") as HTMLInputElement | null;
   const sourceLibraryButton = document.getElementById("app-source-library-btn");
+  const templateInputs = document.querySelectorAll<HTMLInputElement>(".generation-template-input");
+  const templatePreviewButtons = document.querySelectorAll<HTMLButtonElement>(".generation-template-preview");
   const componentInputs = document.querySelectorAll<HTMLInputElement>(".generation-component-input");
   const exampleInputs = document.querySelectorAll<HTMLInputElement>(".generation-example-input");
 
@@ -1650,6 +1946,10 @@ function bindShellControls(
       updateKeyPillStatus();
     }
     const profile = setStoredGenerationProfile(profileFromSettingsInputs());
+    const audioInput = document.getElementById("generation-audio-enabled") as HTMLInputElement | null;
+    if (audioInput) window.localStorage.setItem(AUDIO_ENABLED_STORAGE_KEY, String(audioInput.checked));
+    const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
+    if (narrationButton) narrationButton.hidden = !isAudioEnabled();
     applyGenerationTheme(profile.themeId, profile.displayMode);
     if (activeRuntime) {
       renderSurfaces(activeRuntime.container, activeRuntime.processor, activeRuntime.modeHint);
@@ -1657,15 +1957,26 @@ function bindShellControls(
     closeSettingsModal();
   });
 
-  clearBtn?.addEventListener("click", () => {
-    setStoredApiKey("");
-    if (keyInput) keyInput.value = "";
-    updateKeyPillStatus();
-    closeSettingsModal();
+  templateInputs.forEach((input) => {
+    input.addEventListener("change", () => {
+      if (input.checked) {
+        syncGenerationSettingsInputs(profileForTemplate(input.value));
+        document.querySelector<HTMLDetailsElement>(".generation-advanced-settings")?.removeAttribute("open");
+      }
+    });
+  });
+
+  templatePreviewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const template = getGenerationTemplate(button.dataset.templatePreview || "");
+      closeSettingsModal();
+      onSelectExample(template.previewExampleId);
+    });
   });
 
   componentInputs.forEach((input) => {
     input.addEventListener("change", () => {
+      markSettingsAsCustom();
       if (!input.checked) {
         // A reference case is only meaningful while all of the components it
         // demonstrates remain available. Turning one off therefore removes
@@ -1683,6 +1994,7 @@ function bindShellControls(
 
   exampleInputs.forEach((input) => {
     input.addEventListener("change", () => {
+      markSettingsAsCustom();
       const selectedProfile = profileFromSettingsInputs();
       const selectedExampleCount = document.querySelectorAll<HTMLInputElement>(".generation-example-input:checked").length;
       if (input.checked && selectedExampleCount > MAX_EXAMPLE_CASES) {
@@ -1701,6 +2013,10 @@ function bindShellControls(
       syncGenerationSettingsInputs(profileFromSettingsInputs());
     });
   });
+
+  document.querySelectorAll<HTMLInputElement>("input[name='generation-theme'], input[name='generation-display-mode'], #generation-image-limit")
+    .forEach((input) => input.addEventListener("change", markSettingsAsCustom));
+  document.getElementById("generation-visual-intent")?.addEventListener("input", markSettingsAsCustom);
 
   form?.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -1750,7 +2066,7 @@ function bindShellControls(
 // re-querying #app-prompt-input fresh each time it fires) — so they're bound
 // exactly once for the page's lifetime instead of once per render.
 let globalListenersBound = false;
-function bindGlobalListenersOnce(openExploreInNewTab: (promptText: string) => void): void {
+function bindGlobalListenersOnce(askAgent: (promptText: string) => void): void {
   if (globalListenersBound) return;
   globalListenersBound = true;
 
@@ -1765,7 +2081,7 @@ function bindGlobalListenersOnce(openExploreInNewTab: (promptText: string) => vo
       alert(T[lang].needApiKeyExplore);
       return;
     }
-    openExploreInNewTab(promptText);
+    askAgent(promptText);
   });
 
   document.addEventListener("click", (e: MouseEvent) => {
@@ -1848,7 +2164,7 @@ async function bootstrapViewer() {
 
     const examplesHtml = initialConfig.embed
       ? ""
-      : renderExamplesStrip(T[lang].examplesStripTitle, getExampleItems(lang));
+      : renderCollapsibleExampleGallery(lang);
 
     const chrome: AppChromeStrings = {
       ...CHROME_STRINGS[lang],
@@ -1860,10 +2176,18 @@ async function bootstrapViewer() {
       subtitle,
       `${examplesHtml}<section id="surface-container" aria-live="polite">
         <p class="viewer-state loading">${T[lang].loadingShowcase}</p>
-      </section>`,
+      </section><button id="page-narration-button" type="button" hidden aria-label="播放讲稿">🔊</button>`,
       initialConfig.embed ? undefined : { lang, chrome },
     );
-    container = document.getElementById("surface-container");
+  container = document.getElementById("surface-container");
+    const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
+    if (narrationButton) {
+      narrationButton.style.cssText = "position:fixed;right:22px;bottom:78px;z-index:999;border:0;border-radius:50%;width:34px;height:34px;cursor:pointer;background:#0d9488;color:white;box-shadow:0 3px 12px #0003";
+      narrationButton.title = lang === "en" ? "Play narration" : "播放讲稿";
+      narrationButton.addEventListener("click", () => {
+        void handleNarrationToggle(narrationButton);
+      });
+    }
   };
 
   renderShell(getLang());
@@ -1904,6 +2228,7 @@ async function bootstrapViewer() {
       },
       onOpenProject: async (project) => openProject(project),
     });
+    bindGlobalListenersOnce((promptText) => floatingAgent.ask(promptText));
     const inlineEditor = mountInlineComponentEditor({
       getContainer: () => container,
       getLanguage: () => (getLang() === "en" ? "en" : "zh"),
@@ -1983,7 +2308,47 @@ async function bootstrapViewer() {
     if (!item) return;
     currentContent = { kind: "example", id };
     updateProjectUrl(null);
+    const staticAudioUrl = staticExampleAudioUrl(id, getLang());
+    // Bundled examples with a pre-generated asset must stay fully offline:
+    // selecting audio should bind the shipped MP3, never regenerate it.
+    if (isAudioEnabled() && staticAudioUrl) {
+      await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } });
+      const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
+      if (narrationButton) {
+        narrationButton.dataset.audioUrl = staticAudioUrl;
+        narrationButton.hidden = false;
+        narrationButton.title = getLang() === "en" ? "Play narration" : "播放讲稿音频";
+      }
+      return;
+    }
+    const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
+    if (isAudioEnabled() && apiBaseUrl) {
+      try {
+        const projectId = `example-${getLang()}-${id}`;
+        const ensure = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(projectId)}/ensure-example`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ language: getLang(), exampleId: id, actor: "human" }),
+        });
+        if (ensure.ok) {
+          await openProject({ id: projectId, title: item.label, openedAt: new Date().toISOString() });
+          return;
+        }
+      } catch {
+        // Audio is optional; a backend failure must not prevent the static
+        // example from opening normally.
+      }
+    }
     await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } });
+    const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
+    if (narrationButton) {
+      const audioUrl = staticAudioUrl;
+      narrationButton.dataset.audioUrl = audioUrl || "";
+      narrationButton.hidden = !isAudioEnabled() || !audioUrl;
+      narrationButton.title = audioUrl
+        ? (getLang() === "en" ? "Play narration" : "播放讲稿音频")
+        : (getLang() === "en" ? "No narration available" : "暂无预生成音频");
+    }
   };
 
   const openProject = async (project: RecentProject) => {
@@ -2010,6 +2375,24 @@ async function bootstrapViewer() {
     const firstSurface = extractFirstCreatedSurfaceId(payload.messages);
     if (firstSurface) window.location.hash = `#/${firstSurface}`;
     renderSurfaces(target, processor, "Project editor mode.");
+    const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
+    if (narrationButton) {
+      narrationButton.hidden = !isAudioEnabled();
+      narrationButton.onclick = () => {
+        const language = getLang() === "en" ? "en" : "zh";
+        void handleNarrationToggle(narrationButton, async () => {
+          const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(project.id)}/narration?language=${language}`, {
+            method: "POST",
+            headers: { ...(getStoredApiKey() ? { "X-OpenRouter-API-Key": getStoredApiKey() } : {}) },
+          });
+          if (!response.ok) {
+            const detail = await response.text();
+            throw new Error(`${response.status}: ${detail || response.statusText}`);
+          }
+          return (await response.json()) as { script?: string; audioUrl: string };
+        });
+      };
+    }
   };
 
   const onGenerate = (promptText: string) => {
@@ -2083,30 +2466,6 @@ async function bootstrapViewer() {
     languageChangeControllers.push(sourceLibrary);
   }
 
-  // "Explore this concept" (tooltip button) opens the generated deep-dive in
-  // a new tab instead of replacing the page the visitor is currently reading
-  // — swapping it in place would discard their spot in the showcase they
-  // came from. The new tab re-runs bootstrapViewer() via mode=online/
-  // resourceText query params, which already picks up the stored API key
-  // itself (see startWithConfig's storedKey merge above).
-  const openExploreInNewTab = (promptText: string) => {
-    const currentApiUrl =
-      initialConfig.source.mode === "online"
-        ? initialConfig.source.apiBaseUrl
-        : (import.meta.env.VITE_A2LEARN_API_URL || "").trim();
-
-    if (!currentApiUrl) {
-      alert(T[getLang()].noBackendConfigured);
-      return;
-    }
-
-    const url = new URL(window.location.pathname, window.location.origin);
-    url.searchParams.set("mode", "online");
-    url.searchParams.set("apiBaseUrl", normalizeBaseUrl(currentApiUrl));
-    url.searchParams.set("resourceText", promptText);
-    window.open(url.toString(), "_blank", "noopener");
-  };
-
   const switchLanguage = async (newLang: Lang) => {
     if (newLang === getLang()) return;
     setLang(newLang);
@@ -2135,7 +2494,6 @@ async function bootstrapViewer() {
 
   if (!initialConfig.embed) {
     bindShellControls(onGenerate, switchLanguage, selectExample, sourceLibrary?.open);
-    bindGlobalListenersOnce(openExploreInNewTab);
   }
 
   const onMessage = (event: MessageEvent) => {

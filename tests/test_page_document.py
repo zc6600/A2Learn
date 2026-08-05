@@ -1,6 +1,6 @@
 import unittest
 
-from agent.page_document import A2uiCompiler, PageDocument, SyncMode
+from agent.document.page_document import A2uiCompiler, PageDocument, SyncMode
 
 
 def page(revision: int, *, title: str = "Initial", include_card: bool = True, data=None) -> PageDocument:

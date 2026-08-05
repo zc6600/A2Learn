@@ -277,11 +277,53 @@ export function injectBaseTheme(): void {
     .examples-strip {
       margin-bottom: 20px;
     }
+    .template-example-gallery {
+      margin: 0 0 20px;
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: var(--a2learn-control-radius);
+      background: color-mix(in oklab, var(--a2ui-color-surface) 92%, transparent);
+    }
+    .template-example-gallery > summary {
+      display: flex;
+      align-items: baseline;
+      gap: 9px;
+      padding: 11px 14px;
+      color: var(--app-text);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 750;
+    }
+    .template-example-gallery > summary small {
+      color: var(--app-muted);
+      font-size: 11px;
+      font-weight: 400;
+    }
+    .template-example-gallery[open] > .examples-strip {
+      padding: 0 14px;
+    }
     .examples-strip-title {
       margin: 0 0 10px;
       font-size: 13px;
       font-weight: 700;
       color: var(--app-muted);
+    }
+    .examples-category + .examples-category {
+      margin-top: 18px;
+    }
+    .examples-category-heading {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin: 0 0 8px;
+    }
+    .examples-category-title {
+      color: var(--app-text);
+      font-size: 15px;
+      font-weight: 750;
+    }
+    .examples-category-description {
+      color: var(--app-muted);
+      font-size: 12px;
     }
     .examples-grid {
       display: grid;
@@ -465,6 +507,74 @@ export function injectBaseTheme(): void {
       color: var(--a2ui-color-primary);
       font-weight: 750;
     }
+    .generation-template-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .generation-template-option {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--a2ui-color-surface);
+    }
+    .generation-template-option:has(input:checked) {
+      border-color: var(--a2ui-color-primary);
+      background: color-mix(in oklab, var(--a2ui-color-primary) 7%, var(--a2ui-color-surface));
+    }
+    .generation-template-copy {
+      display: flex;
+      flex: 1;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px;
+      color: var(--app-text);
+      cursor: pointer;
+      min-width: 0;
+    }
+    .generation-template-copy input {
+      margin: 3px 0 0;
+      accent-color: var(--a2ui-color-primary);
+      flex: none;
+    }
+    .generation-template-copy > span {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .generation-template-preview {
+      align-self: center;
+      margin-right: 8px;
+      border: 0;
+      background: transparent;
+      color: var(--a2ui-color-primary);
+      cursor: pointer;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .generation-advanced-settings {
+      border-top: 1px solid var(--a2ui-color-border);
+      padding-top: 14px;
+    }
+    .generation-advanced-settings > summary {
+      color: var(--app-text);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 750;
+    }
+    .generation-advanced-copy {
+      margin: 8px 0 0;
+      color: var(--app-muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .generation-advanced-settings .generation-settings-section:first-of-type {
+      margin-top: 14px;
+    }
     .generation-component-groups {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -524,6 +634,14 @@ export function injectBaseTheme(): void {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
+    }
+    .generation-example-categories {
+      display: grid;
+      gap: 14px;
+    }
+    .generation-example-category {
+      display: grid;
+      gap: 7px;
     }
     .generation-example-option {
       padding: 9px;
@@ -763,6 +881,9 @@ export function injectBaseTheme(): void {
       .generation-theme-grid {
         grid-template-columns: 1fr;
       }
+      .generation-template-grid {
+        grid-template-columns: 1fr;
+      }
       .generation-example-grid {
         grid-template-columns: 1fr;
       }
@@ -795,7 +916,6 @@ export interface AppChromeStrings {
   modalTitle: string;
   modalBodyIntroHtml: string;
   modalBodyFooter: string;
-  modalClearLabel: string;
   modalSaveLabel: string;
   settingsContentHtml?: string;
 }
@@ -819,7 +939,6 @@ const DEFAULT_CHROME_ZH: AppChromeStrings = {
   modalBodyIntroHtml:
     "输入你的 <strong>OpenRouter API Key</strong>。你的 Key 将仅保存在浏览器本地（<code>localStorage</code>），每次交互时透传给后端，绝不上交服务器保存。",
   modalBodyFooter: "无 API Key？你也可以直接点击主页顶部的热门推荐，预览预置的精美 Showcase。",
-  modalClearLabel: "清空 Key",
   modalSaveLabel: "保存配置",
 };
 
@@ -903,7 +1022,6 @@ export function renderAppFrame(
           ${chrome.settingsContentHtml || ""}
         </div>
         <div class="app-modal-footer">
-          <button id="app-modal-clear" class="app-btn-secondary">${chrome.modalClearLabel}</button>
           <button id="app-modal-save" class="app-btn-primary">${chrome.modalSaveLabel}</button>
         </div>
       </div>
@@ -920,20 +1038,32 @@ export interface ExampleCardItem {
   messagesUrl: string;
 }
 
-export function renderExamplesStrip(title: string, items: ExampleCardItem[]): string {
-  const cards = items
-    .map(
-      (item) => `
+export interface ExampleCardGroup {
+  id: string;
+  title: string;
+  description: string;
+  items: ExampleCardItem[];
+}
+
+export function renderExamplesStrip(title: string, groups: ExampleCardGroup[]): string {
+  const sections = groups.map((group) => {
+    const cards = group.items.map((item) => `
       <button class="example-card" type="button" data-example-id="${item.id}" data-messages-url="${item.messagesUrl}">
         <span class="example-card-title">${item.title}</span>
         <span class="example-card-desc">${item.description}</span>
-      </button>`,
-    )
-    .join("");
+      </button>`).join("");
+    return `<section class="examples-category" aria-label="${group.title}">
+      <div class="examples-category-heading">
+        <span class="examples-category-title">${group.title}</span>
+        <span class="examples-category-description">${group.description}</span>
+      </div>
+      <div class="examples-grid">${cards}</div>
+    </section>`;
+  }).join("");
   return `
     <section class="examples-strip" aria-label="${title}">
       <p class="examples-strip-title">${title}</p>
-      <div class="examples-grid" id="examples-grid">${cards}</div>
+      <div id="examples-grid">${sections}</div>
     </section>`;
 }
 

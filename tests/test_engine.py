@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from agent.engine import _validate_or_repair
+from agent.generation.engine import _validate_or_repair
 
 
 VALID_MESSAGES = [
@@ -28,7 +28,7 @@ INVALID_MESSAGES = [
 
 class ValidateOrRepairTests(unittest.TestCase):
     def test_returns_messages_unchanged_when_already_valid(self) -> None:
-        with patch("agent.engine.repair_a2ui_messages") as repair:
+        with patch("agent.generation.engine.repair_a2ui_messages") as repair:
             result = _validate_or_repair(object(), VALID_MESSAGES, max_repair_attempts=2)
 
         repair.assert_not_called()
@@ -36,7 +36,7 @@ class ValidateOrRepairTests(unittest.TestCase):
 
     def test_repairs_once_then_succeeds(self) -> None:
         with patch(
-            "agent.engine.repair_a2ui_messages", return_value=VALID_MESSAGES
+            "agent.generation.engine.repair_a2ui_messages", return_value=VALID_MESSAGES
         ) as repair:
             result = _validate_or_repair(object(), INVALID_MESSAGES, max_repair_attempts=2)
 
@@ -48,7 +48,7 @@ class ValidateOrRepairTests(unittest.TestCase):
 
     def test_raises_after_exhausting_repair_attempts(self) -> None:
         with patch(
-            "agent.engine.repair_a2ui_messages", return_value=INVALID_MESSAGES
+            "agent.generation.engine.repair_a2ui_messages", return_value=INVALID_MESSAGES
         ) as repair:
             with self.assertRaises(ValueError):
                 _validate_or_repair(object(), INVALID_MESSAGES, max_repair_attempts=2)
@@ -56,7 +56,7 @@ class ValidateOrRepairTests(unittest.TestCase):
         self.assertEqual(repair.call_count, 2)
 
     def test_zero_max_attempts_fails_immediately_without_repair_call(self) -> None:
-        with patch("agent.engine.repair_a2ui_messages") as repair:
+        with patch("agent.generation.engine.repair_a2ui_messages") as repair:
             with self.assertRaises(ValueError):
                 _validate_or_repair(object(), INVALID_MESSAGES, max_repair_attempts=0)
 

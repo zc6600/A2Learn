@@ -22,6 +22,11 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
         display: flex;
         flex-direction: column;
       }
+      .chat-container.wechat-group {
+        background: #ededed;
+        border-color: #d6d6d6;
+        border-radius: 8px;
+      }
     .chat-header {
       background: var(--a2ui-color-surface);
       padding: 12px 16px;
@@ -30,6 +35,29 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
       font-weight: 600;
       font-size: 15px;
       color: var(--a2ui-color-on-surface);
+    }
+    .wechat-group .chat-header {
+      display: flex;
+      min-height: 44px;
+      box-sizing: border-box;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 52px;
+      background: #f7f7f7;
+      border-bottom-color: #dedede;
+      color: #111;
+      font-size: 16px;
+      font-weight: 650;
+    }
+    .group-notice {
+      margin: 12px 16px -2px;
+      padding: 7px 10px;
+      border-radius: 5px;
+      background: rgba(255,255,255,.58);
+      color: #777;
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: center;
     }
     .chat-body {
       padding: 20px 16px;
@@ -55,6 +83,12 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
     .message-row.right {
       align-self: flex-end;
       flex-direction: row-reverse;
+    }
+    .wechat-group .message-row,
+    .wechat-group .message-row.right {
+      align-self: flex-start;
+      flex-direction: row;
+      max-width: 92%;
     }
 
     /* Avatar */
@@ -89,6 +123,10 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
     }
     .message-row.right .message-content {
       align-items: flex-end;
+    }
+    .wechat-group .message-row .message-content,
+    .wechat-group .message-row.right .message-content {
+      align-items: flex-start;
     }
     
     .character-name {
@@ -137,6 +175,21 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
       border: 1px solid #89d961;
       border-top-right-radius: 4px;
     }
+    .wechat-group .message-row .bubble,
+    .wechat-group .message-row.right .bubble {
+      background: #fff;
+      color: #191919;
+      border: 0;
+      border-radius: 4px;
+    }
+    .message-image {
+      display: block;
+      width: min(260px, 100%);
+      max-height: 260px;
+      margin-top: 6px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
 
     /* Typing Indicator */
     .typing-indicator {
@@ -160,6 +213,154 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
     .dot:nth-child(1) { animation-delay: 0s; }
     .dot:nth-child(2) { animation-delay: 0.2s; }
     .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    /* Correspondence keeps the same dialogue data model, but makes a
+       two-person exchange read like paired letters across a shared distance. */
+    .chat-container.correspondence {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--a2ui-color-primary) 38%, var(--a2ui-color-border));
+      border-radius: 4px;
+      background:
+        radial-gradient(circle at 50% -20px, color-mix(in srgb, var(--a2ui-color-primary) 13%, transparent) 0 72px, transparent 73px),
+        linear-gradient(90deg, color-mix(in srgb, var(--a2ui-color-primary) 3%, var(--a2ui-color-surface)), var(--a2ui-color-surface) 50%, color-mix(in srgb, var(--a2ui-color-secondary) 4%, var(--a2ui-color-surface)));
+      box-shadow: 0 16px 38px color-mix(in srgb, var(--a2ui-color-primary) 10%, transparent);
+    }
+    .correspondence .chat-header {
+      position: relative;
+      z-index: 1;
+      padding: 34px 20px 12px;
+      background: transparent;
+      border: 0;
+      color: var(--a2ui-color-primary);
+      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+    .correspondence-mark {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--a2ui-color-primary);
+      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));
+      font-size: 12px;
+      letter-spacing: .16em;
+    }
+    .correspondence-mark::before,
+    .correspondence-mark::after {
+      content: "";
+      width: min(90px, 18vw);
+      height: 1px;
+      background: color-mix(in srgb, var(--a2ui-color-primary) 34%, transparent);
+    }
+    .correspondence-moon {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border: 1px solid color-mix(in srgb, var(--a2ui-color-primary) 48%, transparent);
+      border-radius: 50%;
+      font-size: 15px;
+      line-height: 1;
+    }
+    .correspondence .chat-body {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: clamp(34px, 8vw, 100px);
+      row-gap: 28px;
+      padding: 34px clamp(18px, 5vw, 54px) 42px;
+    }
+    .correspondence .chat-body::before {
+      content: "";
+      position: absolute;
+      top: 22px;
+      bottom: 26px;
+      left: 50%;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--a2ui-color-primary) 31%, transparent) 8%, color-mix(in srgb, var(--a2ui-color-primary) 24%, transparent) 92%, transparent);
+    }
+    .correspondence .message-row,
+    .correspondence .message-row.left,
+    .correspondence .message-row.right {
+      position: relative;
+      z-index: 1;
+      display: block;
+      max-width: none;
+      margin: 0;
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+    .correspondence .message-row.left { grid-column: 1; }
+    .correspondence .message-row.right { grid-column: 2; }
+    .correspondence .message-content,
+    .correspondence .message-row.left .message-content,
+    .correspondence .message-row.right .message-content {
+      align-items: stretch;
+    }
+    .correspondence .character-name {
+      margin: 0 0 8px;
+      color: var(--a2ui-color-primary);
+      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+    .correspondence .message-row.right .character-name { text-align: right; color: var(--a2ui-color-secondary); }
+    .correspondence .bubble,
+    .correspondence .message-row.left .bubble,
+    .correspondence .message-row.right .bubble {
+      min-height: 94px;
+      box-sizing: border-box;
+      padding: 18px 18px 20px;
+      border: 1px solid color-mix(in srgb, var(--a2ui-color-primary) 24%, var(--a2ui-color-border));
+      border-radius: 2px 16px 2px 16px;
+      background: color-mix(in srgb, var(--a2ui-color-surface) 90%, #fffef8);
+      color: var(--a2ui-color-on-surface);
+      box-shadow: 5px 6px 0 color-mix(in srgb, var(--a2ui-color-primary) 7%, transparent);
+      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));
+      font-size: 15px;
+      line-height: 1.8;
+    }
+    .correspondence .message-row.right .bubble {
+      border-color: color-mix(in srgb, var(--a2ui-color-secondary) 28%, var(--a2ui-color-border));
+      border-radius: 16px 2px 16px 2px;
+      background: color-mix(in srgb, var(--a2ui-color-surface) 89%, var(--a2ui-color-secondary));
+      box-shadow: -5px 6px 0 color-mix(in srgb, var(--a2ui-color-secondary) 8%, transparent);
+    }
+    .correspondence .message-row.left::after,
+    .correspondence .message-row.right::after {
+      content: "·";
+      position: absolute;
+      top: 38px;
+      color: var(--a2ui-color-primary);
+      font-size: 28px;
+      line-height: 1;
+    }
+    .correspondence .message-row.left::after { right: calc(-1 * clamp(23px, 4vw, 51px)); }
+    .correspondence .message-row.right::after { left: calc(-1 * clamp(23px, 4vw, 51px)); color: var(--a2ui-color-secondary); }
+    @media (max-width: 640px) {
+      .correspondence .chat-body {
+        display: block;
+        padding: 26px 22px 32px 42px;
+      }
+      .correspondence .chat-body::before { left: 19px; top: 20px; bottom: 20px; }
+      .correspondence .message-row,
+      .correspondence .message-row.left,
+      .correspondence .message-row.right { margin: 0 0 24px; }
+      .correspondence .message-row:last-child { margin-bottom: 0; }
+      .correspondence .message-row.right .character-name { text-align: left; }
+      .correspondence .message-row.left::after,
+      .correspondence .message-row.right::after {
+        left: -31px;
+        right: auto;
+      }
+    }
 
     @keyframes popIn {
       to {
@@ -188,12 +389,12 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
     // Use a small timeout to ensure controller is fully initialized
     setTimeout(() => {
       const props = (this as any).controller?.props;
-      const messagesJson = JSON.stringify(props?.messages || []);
+      const messagesJson = JSON.stringify({ variant: props?.variant, messages: props?.messages || [] });
       if (props?.messages && this._currentMessagesJson !== messagesJson) {
         this._currentMessagesJson = messagesJson;
-        this.visibleMessageCount = 0;
+        this.visibleMessageCount = props.variant === "correspondence" ? props.messages.length : 0;
         (this as any).requestUpdate();
-        this.playNextMessage();
+        if (props.variant !== "correspondence") this.playNextMessage();
       }
     }, 0);
   }
@@ -213,16 +414,16 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
     const props = (this as any).controller?.props;
     
     // If messages change, restart playback
-    const messagesJson = JSON.stringify(props?.messages || []);
+    const messagesJson = JSON.stringify({ variant: props?.variant, messages: props?.messages || [] });
     if (props?.messages && this._currentMessagesJson !== messagesJson) {
       this._currentMessagesJson = messagesJson;
-      this.visibleMessageCount = 0;
+      this.visibleMessageCount = props.variant === "correspondence" ? props.messages.length : 0;
       (this as any).requestUpdate();
       if (this.playbackTimer) {
         window.clearTimeout(this.playbackTimer);
         this.playbackTimer = null;
       }
-      this.playNextMessage();
+      if (props.variant !== "correspondence") this.playNextMessage();
     }
 
     // Auto scroll to bottom
@@ -242,6 +443,12 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
 
   private playNextMessage() {
     const props = (this as any).controller?.props;
+    if (props?.variant === "correspondence") {
+      this.isTyping = false;
+      this.visibleMessageCount = props.messages?.length || 0;
+      (this as any).requestUpdate();
+      return;
+    }
     if (!props?.messages || this.visibleMessageCount >= props.messages.length) {
       this.isTyping = false;
       (this as any).requestUpdate();
@@ -284,37 +491,46 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
     if (!props || !props.messages || !props.characters) return nothing;
 
     const topic = props.topic ? this.resolveString(props.topic) : null;
+    const groupName = props.groupName ? this.resolveString(props.groupName) : null;
+    const groupNotice = props.groupNotice ? this.resolveString(props.groupNotice) : null;
+    const isWechatGroup = props.variant === "wechat-group";
+    const isCorrespondence = props.variant === "correspondence";
     const messages = props.messages;
     const characters = props.characters;
 
     return html`
-      <div class="chat-container">
-        ${topic ? html`<div class="chat-header">${topic}</div>` : nothing}
+      <div class="chat-container ${isWechatGroup ? "wechat-group" : ""} ${isCorrespondence ? "correspondence" : ""}">
+        ${topic || groupName ? html`<div class="chat-header">${groupName || topic}</div>` : nothing}
+        ${isWechatGroup && groupNotice ? html`<div class="group-notice">${unsafeHTML(sanitizeHtml(groupNotice))}</div>` : nothing}
+        ${isCorrespondence ? html`<div class="correspondence-mark"><span class="correspondence-moon">月</span><span>同一轮月</span></div>` : nothing}
         
         <div class="chat-body">
-          ${messages.slice(0, this.visibleMessageCount).map((msg: any) => {
+          ${(isCorrespondence ? messages : messages.slice(0, this.visibleMessageCount)).map((msg: any) => {
             const char = characters[msg.characterId];
             if (!char) return nothing;
             
-            const alignment = char.alignment === "right" ? "right" : "left";
+            const alignment = !isWechatGroup && char.alignment === "right" ? "right" : "left";
             const name = this.resolveString(char.name);
             const avatar = char.avatar ? this.resolveString(char.avatar) : undefined;
             const content = this.resolveString(msg.content);
+            const imageUrl = msg.imageUrl ? this.resolveString(msg.imageUrl) : "";
+            const imageAlt = msg.imageAlt ? this.resolveString(msg.imageAlt) : "";
 
             return html`
               <div class="message-row ${alignment}">
-                ${this.renderAvatar(avatar)}
+                ${isCorrespondence ? nothing : this.renderAvatar(avatar)}
                 <div class="message-content">
                   <span class="character-name">${name}</span>
                   <div class="bubble">
                     ${unsafeHTML(sanitizeHtml(content))}
+                    ${imageUrl ? html`<img class="message-image" src=${imageUrl} alt=${imageAlt || ""} loading="lazy" />` : nothing}
                   </div>
                 </div>
               </div>
             `;
           })}
 
-          ${this.isTyping ? html`
+          ${this.isTyping && !isCorrespondence ? html`
             <div class="message-row left">
               <div class="avatar">💬</div>
               <div class="message-content">
