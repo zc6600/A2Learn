@@ -1,0 +1,15 @@
+# Kamal destination config for Azure Server (azureserver / 20.6.131.6)
+# Used with: kamal deploy -d azure
+
+servers:
+  web:
+    - 20.6.131.6
+
+ssh:
+  user: zhuchen
+  keys:
+    - ~/.ssh/B2fvm_key.pem
+
+builder:
+  arch: amd64
+  remote: ssh://zhuchen@20.6.131.6

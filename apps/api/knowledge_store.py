@@ -312,8 +312,32 @@ class KnowledgeStore:
 
     def list(self) -> list[KnowledgeSource]:
         with closing(self._connection()) as connection:
-            rows = connection.execute("SELECT * FROM knowledge_sources ORDER BY created_at DESC").fetchall()
-            return [self._source_from_row(connection, row) for row in rows]
+            rows = connection.execute(
+                """
+                SELECT s.*, COUNT(c.chunk_id) AS chunk_count
+                FROM knowledge_sources s
+                LEFT JOIN knowledge_chunks c ON s.source_id = c.source_id
+                GROUP BY s.source_id
+                ORDER BY s.created_at DESC
+                """
+            ).fetchall()
+            return [
+                KnowledgeSource(
+                    source_id=row["source_id"],
+                    title=row["title"],
+                    filename=row["filename"],
+                    media_type=row["media_type"],
+                    size_bytes=row["size_bytes"],
+                    checksum=row["checksum"],
+                    extraction_mode=row["extraction_mode"],
+                    extraction_status=row["extraction_status"],
+                    page_count=row["page_count"],
+                    chunk_count=row["chunk_count"],
+                    error=row["error"],
+                    created_at=row["created_at"],
+                )
+                for row in rows
+            ]
 
     def chunks(self, source_id: str, query: str | None = None, limit: int = 20) -> list[KnowledgeChunk]:
         self.get(source_id)

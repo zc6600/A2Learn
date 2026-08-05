@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+
+# Deploy A2Learn backend API to Azure Server (20.6.131.6) via Kamal
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+
+echo "=========================================="
+echo "🚀 Deploying A2Learn API to Azure Server (20.6.131.6)"
+echo "=========================================="
+
+# Ensure SSH key is added to ssh-agent if present
+if [ -f "$HOME/.ssh/B2fvm_key.pem" ]; then
+    ssh-add "$HOME/.ssh/B2fvm_key.pem" 2>/dev/null || true
+fi
+
+ACTION="${1:-deploy}"
+
+if [ "$ACTION" == "setup" ]; then
+    echo "[deploy-azure] Executing: kamal setup -d azure"
+    kamal setup -d azure "${@:2}"
+elif [ "$ACTION" == "config" ]; then
+    echo "[deploy-azure] Executing: kamal config -d azure"
+    kamal config -d azure "${@:2}"
+else
+    echo "[deploy-azure] Executing: kamal deploy -d azure"
+    kamal deploy -d azure "$@"
+fi

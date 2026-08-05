@@ -12,6 +12,7 @@ from fastapi import FastAPI, File, Form, Header, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field, model_validator
+from starlette.concurrency import run_in_threadpool
 
 from agent.core.validate import validate_a2ui_messages
 from agent.document.page_document import PageDocument
@@ -57,7 +58,7 @@ from apps.api.project_store import (
     ProjectSource,
     build_project_store,
 )
-from apps.api.session_store import SessionState, SessionStore
+from apps.api.session_store import SessionState, SessionStore, build_session_store
 
 
 class SessionStartRequest(BaseModel):
@@ -224,7 +225,8 @@ class ExampleProjectRequest(BaseModel):
 
 
 app = FastAPI(title="A2Learn Session API", version="0.1.0")
-store = SessionStore()
+session_db_path = os.getenv("A2LEARN_SESSION_DB_PATH") or os.getenv("A2LEARN_PAGE_DOCUMENT_DB_PATH")
+store = build_session_store(session_db_path)
 # Set A2LEARN_PAGE_DOCUMENT_DB_PATH to use SQLite persistence.  Tests and the
 # zero-config POC intentionally keep the lightweight in-memory repository.
 page_document_store = build_page_document_store(os.getenv("A2LEARN_PAGE_DOCUMENT_DB_PATH"))
@@ -390,7 +392,7 @@ def get_audio(audio_id: str) -> FileResponse:
 
 
 @app.post("/api/page-documents/{document_id}/narration")
-def generate_narration(
+async def generate_narration(
     document_id: str,
     language: Literal["zh", "en"] = "zh",
     authorization: str | None = Header(default=None),
@@ -400,8 +402,9 @@ def generate_narration(
     try:
         document = page_document_store.get(document_id)
         api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
-        script = rewrite_page_narration(document.to_dict(), llm=build_page_editor_llm(api_key), language=language)
-        audio_id, _ = synthesize(script, language=language, api_key=api_key)
+        llm = build_page_editor_llm(api_key)
+        script = await run_in_threadpool(rewrite_page_narration, document.to_dict(), llm=llm, language=language)
+        audio_id, _ = await run_in_threadpool(synthesize, script, language=language, api_key=api_key)
         return {"script": script, "audioUrl": f"/api/audio/{audio_id}.mp3"}
     except DocumentNotFoundError as exc:
         raise HTTPException(status_code=404, detail="PAGE_DOCUMENT_NOT_FOUND") from exc
@@ -410,7 +413,7 @@ def generate_narration(
 
 
 @app.post("/api/projects/{project_id}/narration")
-def generate_project_narration(
+async def generate_project_narration(
     project_id: str,
     language: Literal["zh", "en"] = "zh",
     authorization: str | None = Header(default=None),
@@ -423,9 +426,6 @@ def generate_project_narration(
         raise HTTPException(status_code=404, detail="PROJECT_NOT_FOUND") from exc
     api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
     llm = build_page_editor_llm(api_key)
-    # Narration is a course-level artifact: give the narration model one
-    # ordered projection of the whole project and synthesize one continuous
-    # audio file. PageDocuments remain separate for rendering/editing.
     combined_document = {
         "documentId": project_id,
         "revision": max((document.revision for document in documents), default=1),
@@ -437,11 +437,11 @@ def generate_project_narration(
         ],
     }
     try:
-        script = rewrite_page_narration(combined_document, llm=llm, language=language)
+        script = await run_in_threadpool(rewrite_page_narration, combined_document, llm=llm, language=language)
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     try:
-        audio_id, _ = synthesize(script, language=language, api_key=api_key)
+        audio_id, _ = await run_in_threadpool(synthesize, script, language=language, api_key=api_key)
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     return {"script": script, "audioUrl": f"/api/audio/{audio_id}.mp3"}
@@ -716,7 +716,7 @@ def run_project_editor_agent(
             ):
                 yield _encode_sse(event.event, event.data)
         except Exception as exc:  # noqa: BLE001 - provider errors can occur after response headers are sent.
-            yield _encode_sse("error", {"message": str(exc)})
+            yield _encode_sse("error", {"message": _sanitize_error_message(exc)})
 
     return StreamingResponse(
         events(),
@@ -782,7 +782,7 @@ def resume_project_editor_agent(
             ):
                 yield _encode_sse(event.event, event.data)
         except Exception as exc:  # noqa: BLE001 - provider errors can occur after response headers are sent.
-            yield _encode_sse("error", {"message": str(exc)})
+            yield _encode_sse("error", {"message": _sanitize_error_message(exc)})
 
     return StreamingResponse(
         events(),
@@ -869,6 +869,13 @@ def apply_page_document_operations(document_id: str, payload: PageOperationsRequ
         raise HTTPException(status_code=422, detail=f"INVALID_PAGE_OPERATION: {exc}") from exc
 
 
+def _sanitize_error_message(exc: Exception) -> str:
+    msg = str(exc)
+    msg = re.sub(r"/(?:[a-zA-Z0-9_\.-]+/)+[a-zA-Z0-9_\.-]+", "[path]", msg)
+    msg = re.sub(r"sk-[a-zA-Z0-9_-]{20,}", "[redacted_key]", msg)
+    return msg
+
+
 def _encode_sse(event: str, data: dict[str, Any]) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
@@ -910,7 +917,7 @@ def run_page_document_editor_agent(
             ):
                 yield _encode_sse(event.event, event.data)
         except Exception as exc:  # noqa: BLE001 - provider errors can occur after response headers are sent.
-            yield _encode_sse("error", {"message": str(exc)})
+            yield _encode_sse("error", {"message": _sanitize_error_message(exc)})
 
     return StreamingResponse(
         events(),

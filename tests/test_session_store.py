@@ -76,6 +76,40 @@ class SessionStoreAsyncGenerationTests(unittest.TestCase):
         self.assertIn("boom", failed.error or "")
         self.assertEqual(failed.messages, [])
 
+    def test_sqlite_session_store_persistence_and_factory(self) -> None:
+        from apps.api.session_store import SqliteSessionStore, build_session_store
+
+        messages = [
+            {
+                "version": "v0.9",
+                "createSurface": {"surfaceId": "main", "catalogId": DEFAULT_CATALOG_ID},
+            },
+            {
+                "version": "v0.9",
+                "updateComponents": {
+                    "surfaceId": "main",
+                    "components": [{"id": "c1", "component": "Text"}],
+                },
+            },
+        ]
+
+        def fake_run_agent(**kwargs):
+            return {"a2ui_messages": messages}
+
+        # Factory returns SqliteSessionStore when path provided
+        store1 = build_session_store(":memory:")
+        self.assertIsInstance(store1, SqliteSessionStore)
+
+        with patch("apps.api.session_store.run_agent", side_effect=fake_run_agent):
+            session = store1.create(resource_text="hello world")
+            _wait_until_not_pending(store1, session.session_id)
+
+        fetched = store1.get(session.session_id)
+        self.assertIsNotNone(fetched)
+        self.assertEqual(fetched.status, "ready")
+        self.assertEqual(fetched.messages, messages)
+        self.assertEqual(fetched.surface_ids, ["main"])
+
 
 if __name__ == "__main__":
     unittest.main()
