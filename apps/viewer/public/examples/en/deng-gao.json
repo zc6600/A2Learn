@@ -1,0 +1,73 @@
+[
+  {"version":"v0.9","createSurface":{"surfaceId":"deng-gao","catalogId":"https://a2learn.ai/spec/v1/catalog.json"}},
+  {"version":"v0.9","updateComponents":{"surfaceId":"deng-gao","components":[
+    {"id":"root","component":"Column","children":["title","poem","moments-title","moments","structure-title","structure-timeline","dialogue-title","dialogue","match-title","match","symmetry-title","symmetry-match","explanation-title","artistic-explanation","deep-dive-prompts"]},
+    {"id":"title","component":"Text","variant":"h1","text":"Climbing the Height (《登高》) · Desolation and Grandeur"},
+    {"id":"poem","component":"DetailedExplanation","title":"Du Fu · Text & Glosses","content":"The wind so swift, sky high, apes wail in sorrow;  \n<dfn title=\"Clear islet in the river\">Islets clear</dfn>, white sands, birds swirl in air.  \n\nLeaves endless fall with <dfn title=\"Rustling sound of autumn foliage\">rustling sound</dfn>;  \nThe ceaseless Yangtze rolls on bound.  \n\n<dfn title=\"Far in space, far from home\">Ten thousand leagues</dfn> in autumn sad, <dfn title=\"A perpetual traveler\">always a guest</dfn>;  \n<dfn title=\"In old age, a lifetime's struggle\">A hundred years</dfn> of illness, <dfn title=\"Ascending the high terrace alone\">alone I climb</dfn>.  \n\nHardships and bitter grief <dfn title=\"Frosty white hair at temples\">frost my temples</dfn>;  \n<dfn title=\"Desolate and frail, forced to give up wine due to illness\">Frustrated, newly forced to drop the murky wine cup</dfn>."},
+    {"id":"moments-title","component":"Text","variant":"h2","text":"Historical Moments · Echoes from the Kuizhou High Terrace"},
+    {"id":"moments","component":"SocialMoments","title":"Immortal Post · Kuizhou High Terrace","posts":[
+      {
+        "id":"post-1",
+        "author":"Old Du (Du Fu)",
+        "avatar":"👴",
+        "location":"Kuizhou High Terrace · Yangtze Gorges",
+        "time":"Double Ninth Festival, 767 AD",
+        "content":"Ascending the high terrace alone on Double Ninth. Swift winds, high sky, leaves rustling, Yangtze rolling east.\nCarrying the weight of national turmoil and personal illness, I compose 'Climbing the Height'.",
+        "imagePrompt":"Traditional Chinese ink painting of an elderly lone poet standing on a high cliff above a wide misty river with falling leaves and soaring birds, atmospheric melancholic aesthetic",
+        "imageAlt":"Ink wash painting of lone poet on high terrace",
+        "likes":["Bai Juyi", "Yuan Zhen", "Hu Yinglin", "Su Shi"],
+        "comments":[
+          {"author":"Bai Juyi","content":"'Every pair of lines antithetical, every phrase abiding by strict meter' — Du Fu's octave reigns supreme for all time!"},
+          {"author":"Hu Yinglin (Ming Dynasty)","content":"Channeling endless rivers into infinite cosmos. Nothing surpasses this grandeur and tragic dignity."}
+        ]
+      }
+    ]},
+    {"id":"structure-title","component":"Text","variant":"h2","text":"Four Couplets Lens: From Cosmic Autumn to Solitary White Hair"},
+    {"id":"structure-timeline","component":"Timeline","variant":"journey","orientation":"vertical","events":[
+      {"id":"scene-1","time":"Opening Couplet · Sharp Sensory Tension","title":"The wind so swift, sky high, apes wail in sorrow; Islets clear, white sands, birds swirl in air.","description":"<b>Before eyes</b> Swift wind, high sky, wailing apes, cold islet, white sand, swirling birds.<br><b>Lens</b> Dense integration of 6 vivid imagery elements capturing Kuizhou's rugged autumn atmosphere."},
+      {"id":"scene-2","time":"Second Couplet · Cosmic & Temporal Scale","title":"Leaves endless fall with rustling sound; The ceaseless Yangtze rolls on bound.","description":"<b>Looking up</b> Boundless leaves falling endlessly; <b>Looking down</b> Rolling Yangtze flowing ceaselessly.<br><b>Lens</b> Wide panoramic shot embedding fragile human lifespan into eternal cosmic and historical time."},
+      {"id":"scene-3","time":"Third Couplet · Fourteen Characters of Sorrows","title":"Ten thousand leagues in autumn sad, always a guest; A hundred years of illness, alone I climb.","description":"<b>Gazing</b> Spatial distance, seasonal gloom, traveler status, passing lifetime, failing health, total solitude.<br><b>Lens</b> Rapid zoom from cosmic scale down to a single frail figure on the terrace."},
+      {"id":"scene-4","time":"Closing Couplet · Reality & Unavoidable Resignation","title":"Hardships and bitter grief frost my temples; Frustrated, newly forced to drop the murky wine cup.","description":"<b>Focus</b> National conflict, frosty white temples, and the bitter resignation of abstaining even from wine.<br><b>Lens</b> Pausing on the poet holding his temples and putting down the cup, reaching solemn grandeur."}
+    ]},
+    {"id":"dialogue-title","component":"Text","variant":"h2","text":"Gorge Monologue: Putting Down the Wine Cup"},
+    {"id":"dialogue","component":"ScenarioDialogue","variant":"correspondence","topic":"High Terrace Monologue","characters":{"poet":{"name":"Du Fu","avatar":"👴","alignment":"left"},"wind":{"name":"Gorge Wind","avatar":"🌪️","alignment":"right"}},"messages":[
+      {"characterId":"poet","content":"Climbing the high terrace alone on Double Ninth Festival. Hearing the wind and wailing apes, every sound pierces the heart."},
+      {"characterId":"wind","content":"Look at the endless falling leaves and the rolling Yangtze. The cosmos is wide — why be so sorrowful?"},
+      {"characterId":"poet","content":"It is not a choice. Wandering ten thousand leagues, a perpetual guest; suffering from malaria and rheumatism. In this vast world, where is my road home?"},
+      {"characterId":"wind","content":"Others drink to drown sorrow. Why have you put down even your wine cup?"},
+      {"characterId":"poet","content":"My health is failing and doctors forbid it. National crises persist, my hair turns to frost. Dropping the cup lets me see the full solemn grandeur of autumn clearly."}
+    ]},
+    {"id":"match-title","component":"Text","variant":"h2","text":"Deep Decoding: Six Dimensions of Sorrows"},
+    {"id":"match","component":"DragAndDropMatch","title":"Analyzing the Sorrows in 'Ten thousand leagues... alone I climb'","instruction":"Click keywords on the left and match them to the corresponding dimension of sorrow.","leftLabel":"Phrases","rightLabel":"Sorrow Dimensions","successMessage":"Excellent! You have unlocked the layered depth of Du Fu's sorrow.","incorrectMessage":"Try again: Think about spatial distance, passing years, and personal isolation.","matchExplanations":{"wanli":"'Ten thousand leagues' expresses immense spatial distance from home.","beiqiu":"'Autumn sad' reflects seasonal gloom and passing time.","zuoke":"'Always a guest' depicts a life of perpetual wandering and reliance on others.","bainian":"'Hundred years' signifies old age and irreversible time.","du":"'Alone I climb' conveys ultimate personal isolation."},"leftItems":[
+      {"id":"wanli","content":"“Ten thousand leagues”"},
+      {"id":"beiqiu","content":"“Autumn sad”"},
+      {"id":"zuoke","content":"“Always a guest”"},
+      {"id":"bainian","content":"“Hundred years”"},
+      {"id":"du","content":"“Alone I climb”"}
+    ],"rightItems":[
+      {"id":"space","content":"Spatial Dimension: Deep in Kuizhou, ten thousand leagues from hometown"},
+      {"id":"season","content":"Seasonal Dimension: Facing bleak autumn, triggering profound melancholy"},
+      {"id":"fate","content":"Existential Dimension: Wandering for decades, living as a perpetual guest"},
+      {"id":"age","content":"Temporal Dimension: Twilight years of life, time slipping away"},
+      {"id":"isolation","content":"Psychological Dimension: Companions gone, standing solitary on high terrace"}
+    ],"correctMatches":{"wanli":"space","beiqiu":"season","zuoke":"fate","bainian":"age","du":"isolation"}},
+    {"id":"symmetry-title","component":"Text","variant":"h2","text":"Symmetry Aesthetics · Perfect Parallelism"},
+    {"id":"symmetry-match","component":"RelationshipMatch","title":"Decoding Parallel Pairs in 'Climbing the Height'","instruction":"Match left phrases with their corresponding symmetrical counterpart on the right.","leftLabel":"First Half","rightLabel":"Parallel Counterpart","successMessage":"Perfect! You experienced the meticulous parallelism of the peak 7-character octave.","incorrectMessage":"Tip: Look for pairs matching in part of speech, motion, sound, and scale.","matchExplanations":{"fengji":"'Wind swift' matches 'Sky high', natural and lofty.","yuanxiao":"'Apes wail in sorrow' (auditory) matches 'Birds swirl in air' (visual).","luomu":"'Boundless leaves' (spatial) matches 'Ceaseless Yangtze' (temporal).","xiaoxiao":"'Rustling sound' matches 'Rolling on bound', grand atmospheric rhythm."},"leftItems":[
+      {"id":"fengji","content":"“Wind swift”"},
+      {"id":"yuanxiao","content":"“Apes wail in sorrow”"},
+      {"id":"luomu","content":"“Boundless leaves”"},
+      {"id":"xiaoxiao","content":"“Rustling sound”"}
+    ],"rightItems":[
+      {"id":"tiangao","content":"“Sky high” (Sky matches earth, wind matches sky)"},
+      {"id":"niaofei","content":"“Birds swirl in air” (Auditory wail matches visual swirling)"},
+      {"id":"changjiang","content":"“Ceaseless Yangtze” (Spatial leaves match temporal river)"},
+      {"id":"gungun","content":"“Rolling on bound” (Rustling foliage matches surging waves)"}
+    ],"correctMatches":{"fengji":"tiangao","yuanxiao":"niaofei","luomu":"changjiang","xiaoxiao":"gungun"}},
+    {"id":"explanation-title","component":"Text","variant":"h2","text":"Why is this the 'Peak Seven-Character Octave'?"},
+    {"id":"artistic-explanation","component":"DetailedExplanation","title":"Third-Person Perspective · Artistic Legacy","content":"<p><b>1. Unbroken Parallelism Across All Four Couplets</b></p><p>Ming Dynasty scholar Hu Yinglin praised 《登高》 as the <b>'Peak Seven-Character Octave in History'</b>. All eight lines form four strict parallel couplets without a single forced phrase.</p><p><b>2. Interweaving Motion, Sound, Space, and Time</b></p><p>Lines 3–4 ('Leaves endless fall with rustling sound; The ceaseless Yangtze rolls on bound') contrast <b>transient falling foliage</b> against <b>eternal rolling waters</b>, merging human fragility with cosmic permanence.</p><p><b>3. Heroic Dignity Rather Than Fragile Melancholy</b></p><p>Du Fu's grief transcends personal petty distress — it encompasses deep concern for a war-torn nation. Even in frailty and abstinence, the voice remains resonant, majestic, and sublime.</p>"},
+    {"id":"deep-dive-prompts","component":"DeepDivePrompt","prompts":[
+      {"id":"p1","label":"How do 'Boundless leaves' and 'Ceaseless Yangtze' evoke cosmic scale in time and space?","icon":"🌊"},
+      {"id":"p2","label":"Why is Du Fu's sorrow in 'Climbing the Height' described as heroic dignity rather than weak melancholy?","icon":"🏔️"}
+    ]}
+  ]}}
+]
