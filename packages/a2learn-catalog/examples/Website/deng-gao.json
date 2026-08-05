@@ -11,7 +11,7 @@
         "author":"老杜 (杜甫)",
         "avatar":"👴",
         "location":"夔州高台 · 峡江之畔",
-        "time":"大历二年重阳",
+        "time":"大历二年重阳 (公元 767 年)",
         "content":"重阳独登夔州高台。风急天高，落叶萧萧，长江滚滚东去。\n兼抱家国战乱之难与一身风痹之疾，聊作《登高》一首。",
         "imagePrompt":"Traditional Chinese ink painting of an elderly lone poet standing on a high cliff above a wide misty river with falling leaves and soaring birds, atmospheric melancholic aesthetic",
         "imageAlt":"高台独立水墨意境图",
@@ -27,7 +27,7 @@
       {"id":"scene-1","time":"首联 · 听觉与视角的急遽张力","title":"风急天高猿啸哀，渚清沙白鸟飞回。","description":"<b>眼前</b>风声呼啸、天高地迥、峡猿哀鸣，小洲清冷、沙滩洁白、水鸟盘旋。<br><b>镜头</b>一开篇即密集融入六种意象，声色并茂，勾勒出夔州秋日极为高急狭肃的天地全景。"},
       {"id":"scene-2","time":"颔联 · 时空的宇宙级宏大","title":"无边落木萧萧下，不尽长江滚滚来。","description":"<b>仰观</b>无边落叶萧萧而下，岁月飞逝；<b>俯瞰</b>不尽长江奔流不息，历史滚滚。<br><b>镜头</b>视界猛地拉开至极大，将个人渺小凄凉的身世，置于永恒无尽的宇宙与历史长河之中。"},
       {"id":"scene-3","time":"颈联 · 十四周沉重身世","title":"万里悲秋常作客，百年多病独登台。","description":"<b>凝视</b>空间之远（万里）、季节之肃（悲秋）、身世之苦（常作客）、时光之逝（百年）、身体之衰（多病）、孤独之至（独登台）。<br><b>镜头</b>从宏大宇宙猛地收缩到高台上孤身一人，十四字无一字不叠愁。"},
-      {"id":"scene-4","time":"尾联 · 现实困顿与无可奈何","title":"艰难苦恨繁霜鬓，潦倒新停浊酒杯。","description":"<b>落脚</b>家国战乱苦难（艰难苦恨）、满头如霜白发（繁霜鬓），以及衰颓潦倒中因病不得不新近戒掉浊酒（新停浊酒杯）。<br><b>镜头</b>停留在诗人抚鬓停杯的无柰瞬间，将苍凉壮阔推向了情感与现实的极峰。"}
+      {"id":"scene-4","time":"尾联 · 现实困顿与无可奈何","title":"艰难苦恨繁霜鬓，潦倒新停浊酒杯。","description":"<b>落脚</b>家国战乱苦难（艰难苦恨）、满头如霜白发（繁霜鬓），以及衰颓潦倒中因病不得不新近戒掉浊酒（新停浊酒杯）。<br><b>镜头</b>停留在诗人抚鬓停杯的无奈瞬间，将苍凉壮阔推向了情感与现实的极峰。"}
     ]},
     {"id":"dialogue-title","component":"Text","variant":"h2","text":"峡江独白：当诗人在高台停下酒杯"},
     {"id":"dialogue","component":"ScenarioDialogue","variant":"correspondence","topic":"夔州高台上的心境独白","characters":{"poet":{"name":"杜甫 (老杜)","avatar":"👴","alignment":"left"},"wind":{"name":"峡江秋风","avatar":"🌪️","alignment":"right"}},"messages":[
@@ -38,7 +38,7 @@
       {"characterId":"poet","content":"身体潦倒衰颓，大夫叮嘱不可再饮。家国艰难未平，个人白发渐繁。停下酒杯，反倒看得更清楚这满地的秋意与苍凉。"}
     ]},
     {"id":"match-title","component":"Text","variant":"h2","text":"沉浸解码：颈联十四字，字字皆是愁"},
-    {"id":"match","component":"DragAndDropMatch","title":"剖析‘万里悲秋常作客，百年多病独登台’的六重愁苦维度","instruction":"点击左侧诗中关键词，配对右侧对应的悲苦维度（亦可直接拖拽）。","leftLabel":"诗中词句","rightLabel":"悲苦维度","successMessage":"太棒了！你已经洞察到这十四个字里层层叠加的无尽悲凉。","incorrectMessage":"可以重新读一读颈联：想一想‘万里’代表空间，‘百年’代表岁月，‘独’代表什么？","matchExplanations":{"wanli":"‘万里’写尽空间之辽阔远隔，离蜀陇家乡何止万里。","beiqiu":"‘悲秋’写季节之萧瑟，感伤岁月不居。","zuoke":"‘常作客’写长年漂泊羁旅、寄人篱下的羁旅之苦。","bainian":"‘百年’写暮年迟暮，人生忽已暮。","du":"‘独登台’写亲朋离散、形单影只的极致孤独。"},"leftItems":[
+    {"id":"match","component":"DragAndDropMatch","title":"剖析‘万里悲秋常作客，百年多病独登台’的五重愁苦维度","instruction":"点击左侧诗中关键词，配对右侧对应的悲苦维度（亦可直接拖拽）。","leftLabel":"诗中词句","rightLabel":"悲苦维度","successMessage":"太棒了！你已经洞察到这十四个字里层层叠加的无尽悲凉。","incorrectMessage":"可以重新读一读颈联：想一想‘万里’代表空间，‘百年’代表岁月，‘独’代表什么？","matchExplanations":{"wanli":"‘万里’写尽空间之辽阔远隔，离蜀陇家乡何止万里。","beiqiu":"‘悲秋’写季节之萧瑟，感伤岁月不居。","zuoke":"‘常作客’写长年漂泊羁旅、寄人篱下的羁旅之苦。","bainian":"‘百年’写暮年迟暮，人生忽已暮。","du":"‘独登台’写亲朋离散、形单影只的极致孤独。"},"leftItems":[
       {"id":"wanli","content":"“万里”"},
       {"id":"beiqiu","content":"“悲秋”"},
       {"id":"zuoke","content":"“常作客”"},
