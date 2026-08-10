@@ -32,4 +32,4 @@ COPY apps/viewer/public/examples/en ./apps/viewer/public/examples/en
 ENV A2LEARN_ALLOWED_ORIGINS=*
 
 EXPOSE 8008
-CMD ["uvicorn", "apps.api.main:app", "--host", "0.0.0.0", "--port", "8008"]
+CMD ["sh", "-c", "uvicorn apps.api.main:app --host 0.0.0.0 --port ${PORT:-8008}"]

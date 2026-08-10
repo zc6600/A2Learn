@@ -57,6 +57,35 @@ Re-upload the new `apps/viewer/dist/` output. The "⚡ 实时生成 Showcase" bu
 - `curl https://your-api-host.example.com/healthz` should return `{"status": "ok"}`.
 - Open your homepage, click "⚙️ API Key", paste a real OpenRouter key, click a preset chip — it should generate a new showcase.
 
+### Path B.1 — MCP compiler endpoint
+
+The same FastAPI container also exposes an MCP Streamable HTTP endpoint at
+`/mcp`. It does not call an LLM: the connected Agent requests the course JSON
+contract, generates JSON itself, and then calls `compile_course_json` to turn
+that JSON into validated A2UI messages.
+
+For a public deployment, configure the host name used in the submitted URL:
+
+```text
+A2LEARN_MCP_ALLOWED_HOSTS=your-api-host.example.com
+```
+
+If a browser-based MCP client will connect, also set its trusted origin(s):
+
+```text
+A2LEARN_MCP_ALLOWED_ORIGINS=https://your-client.example.com
+```
+
+The competition submission value should be the full endpoint, for example:
+`https://your-api-host.example.com/mcp`. Do not submit `/healthz` or one of the
+`/api/...` REST routes; those are not MCP endpoints.
+
+To verify locally after installing dependencies, connect an MCP Inspector to
+`http://127.0.0.1:8008/mcp` and confirm that `tools/list` shows
+`get_course_generation_spec` and `compile_course_json`. Then call
+`compile_course_json` with a small object containing `siteTitle` and
+`conceptCard`.
+
 ---
 
 ## Path C — Kamal + Aliyun ECS + Cloudflare Tunnel

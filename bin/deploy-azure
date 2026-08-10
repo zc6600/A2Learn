@@ -24,6 +24,11 @@ elif [ "$ACTION" == "config" ]; then
     echo "[deploy-azure] Executing: kamal config -d azure"
     kamal config -d azure "${@:2}"
 else
+    # Treat an explicit `deploy` argument as the action selector rather than
+    # forwarding it to `kamal deploy`, which accepts no positional arguments.
+    if [ "$ACTION" == "deploy" ]; then
+        shift || true
+    fi
     echo "[deploy-azure] Executing: kamal deploy -d azure"
     kamal deploy -d azure "$@"
 fi

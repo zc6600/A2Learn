@@ -16,6 +16,7 @@ builder:
 
 env:
   clear:
+    A2LEARN_MCP_ALLOWED_HOSTS: api.a2learn.zc6600.wiki
     A2LEARN_PAGE_DOCUMENT_DB_PATH: /data/a2learn.sqlite3
     A2LEARN_SESSION_DB_PATH: /data/a2learn.sqlite3
     A2LEARN_KNOWLEDGE_DB_PATH: /data/knowledge.sqlite3

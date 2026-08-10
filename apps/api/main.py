@@ -5,6 +5,7 @@ import os
 import re
 import uuid
 from collections.abc import Iterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Literal
 
@@ -26,7 +27,11 @@ from agent.generation.action_response import build_action_response
 from agent.generation.engine import run_agent
 from agent.generation.llm import build_page_editor_llm
 from agent.generation.media.image_generation import GeneratedImageStore
-from agent.generation.media.narration import audio_dir, rewrite_page_narration, synthesize
+from agent.generation.media.narration import (
+    audio_dir,
+    rewrite_page_narration,
+    synthesize,
+)
 from agent.generation.profile import normalize_generation_profile
 from apps.api.agent_thread_store import (
     AgentThreadConflictError,
@@ -41,6 +46,7 @@ from apps.api.knowledge_store import (
     KnowledgeSourceNotReadyError,
     KnowledgeStore,
 )
+from apps.api.mcp_server import mcp, mcp_http_app
 from apps.api.page_document_store import (
     DocumentAlreadyExistsError,
     DocumentNotFoundError,
@@ -224,7 +230,13 @@ class ExampleProjectRequest(BaseModel):
     actor: Literal["human", "ai"] = "human"
 
 
-app = FastAPI(title="A2Learn Session API", version="0.1.0")
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):
+    async with mcp.session_manager.run():
+        yield
+
+
+app = FastAPI(title="A2Learn Session API", version="0.1.0", lifespan=_lifespan)
 session_db_path = os.getenv("A2LEARN_SESSION_DB_PATH") or os.getenv("A2LEARN_PAGE_DOCUMENT_DB_PATH")
 store = build_session_store(session_db_path)
 # Set A2LEARN_PAGE_DOCUMENT_DB_PATH to use SQLite persistence.  Tests and the
@@ -1070,3 +1082,9 @@ def stateless_action(payload: StatelessActionRequest) -> StatelessActionResponse
         return StatelessActionResponse(messages=messages or [])
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"STATELESS_ACTION_FAILED: {exc}") from exc
+
+
+# Keep this mount after the normal application routes.  The MCP app itself
+# owns the /mcp route, so mounting it at / avoids the /mcp -> /mcp/ redirect
+# produced by mounting a slash-rooted sub-application at /mcp.
+app.mount("/", mcp_http_app)
