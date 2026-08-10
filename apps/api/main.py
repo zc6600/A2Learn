@@ -46,7 +46,7 @@ from apps.api.knowledge_store import (
     KnowledgeSourceNotReadyError,
     KnowledgeStore,
 )
-from apps.api.mcp_server import mcp, mcp_http_app
+from apps.api.mcp_server import configure_mcp_publisher, mcp, mcp_http_app
 from apps.api.page_document_store import (
     DocumentAlreadyExistsError,
     DocumentNotFoundError,
@@ -243,6 +243,10 @@ store = build_session_store(session_db_path)
 # zero-config POC intentionally keep the lightweight in-memory repository.
 page_document_store = build_page_document_store(os.getenv("A2LEARN_PAGE_DOCUMENT_DB_PATH"))
 project_store = build_project_store(page_document_store, os.getenv("A2LEARN_PAGE_DOCUMENT_DB_PATH"))
+configure_mcp_publisher(
+    project_store,
+    os.getenv("A2LEARN_VIEWER_PUBLIC_URL", "https://a2learn.zc6600.wiki"),
+)
 knowledge_store = KnowledgeStore.from_env()
 generated_image_store = GeneratedImageStore.from_env()
 # Human-in-the-loop pauses must survive a process restart. If the PageDocument

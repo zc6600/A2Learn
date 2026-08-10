@@ -227,6 +227,7 @@ type ViewerSourceOffline = {
   mode: "offline";
   messagesUrl: string;
   themeVars?: Record<string, string>;
+  themeId?: string;
 };
 
 type ViewerSourceOnline = {
@@ -239,6 +240,7 @@ type ViewerSourceOnline = {
   language?: Lang;
   headers?: Record<string, string>;
   themeVars?: Record<string, string>;
+  themeId?: string;
 };
 
 type ViewerRuntimeConfig = {
@@ -253,6 +255,7 @@ type InitMessage = {
         mode: "offline";
         messagesUrl?: string;
         themeVars?: Record<string, string>;
+        themeId?: string;
       }
     | {
         mode: "online";
@@ -262,6 +265,7 @@ type InitMessage = {
         language?: Lang;
         headers?: Record<string, string>;
         themeVars?: Record<string, string>;
+        themeId?: string;
       };
 };
 
@@ -306,6 +310,10 @@ function normalizeThemeVars(input: unknown): Record<string, string> | undefined 
   return Object.fromEntries(entries);
 }
 
+function normalizeThemeId(input: string): string | undefined {
+  return RENDER_THEMES.some((theme) => theme.id === input) ? input : undefined;
+}
+
 function applyThemeVars(vars?: Record<string, string>): void {
   if (!vars) {
     return;
@@ -333,6 +341,14 @@ function applyGenerationTheme(themeId: string, displayMode: GenerationProfile["d
   document.documentElement.dataset.a2learnTheme = theme.id;
   document.documentElement.dataset.a2learnDisplayMode = displayMode;
   applyThemeVars(theme.vars);
+}
+
+function applySourceTheme(source: ViewerSourceOffline | ViewerSourceOnline): void {
+  if (source.themeVars) {
+    applyThemeVars(source.themeVars);
+  } else if (source.themeId) {
+    applyGenerationTheme(source.themeId);
+  }
 }
 
 function escapeHtml(value: string): string {
@@ -648,6 +664,7 @@ function configFromLocation(): ViewerRuntimeConfig {
   const resourceTextParam = params.get("resourceText") || "";
   const headersParam = params.get("headers") || "";
   const themeParam = params.get("themeVars") || params.get("theme") || "";
+  const themeId = normalizeThemeId(params.get("themeId") || "");
   const parsedHeaders = headersParam ? safeJsonParse(headersParam) : undefined;
   const parsedTheme = themeParam ? safeJsonParse(themeParam) : undefined;
   const headers = isPlainObject(parsedHeaders)
@@ -696,6 +713,7 @@ function configFromLocation(): ViewerRuntimeConfig {
         language: getLang(),
         headers,
         themeVars,
+        themeId,
       },
     };
   }
@@ -705,6 +723,7 @@ function configFromLocation(): ViewerRuntimeConfig {
       mode: "offline",
       messagesUrl,
       themeVars,
+      themeId,
     },
   };
 }
@@ -1846,11 +1865,23 @@ function getExampleGroups(lang: Lang): ExampleCardGroup[] {
   })).filter((group) => group.items.length > 0);
 }
 
-function renderCollapsibleExampleGallery(lang: Lang): string {
+function renderCollapsibleExampleGallery(lang: Lang, expandedCategory?: ExampleCardGroup["id"]): string {
   const summary = lang === "zh" ? "浏览模板案例" : "Browse template examples";
   const detail = lang === "zh"
     ? "按内容方向查看可直接打开的示例"
     : "Open a ready-made example by content direction";
+
+  if (expandedCategory) {
+    const groups = getExampleGroups(lang);
+    const featuredGroups = groups.filter((group) => group.id === expandedCategory);
+    const otherGroups = groups.filter((group) => group.id !== expandedCategory);
+    return `${renderExamplesStrip("", featuredGroups)}
+      <details class="template-example-gallery">
+        <summary><span>${summary}</span><small>${detail}</small></summary>
+        ${renderExamplesStrip("", otherGroups, false)}
+      </details>`;
+  }
+
   return `<details class="template-example-gallery">
     <summary><span>${summary}</span><small>${detail}</small></summary>
     ${renderExamplesStrip(T[lang].examplesStripTitle, getExampleGroups(lang))}
@@ -1934,7 +1965,10 @@ function bindShellControls(
   const componentInputs = document.querySelectorAll<HTMLInputElement>(".generation-component-input");
   const exampleInputs = document.querySelectorAll<HTMLInputElement>(".generation-example-input");
 
+  const keyPill = document.getElementById("app-key-pill");
+
   settingsBtn?.addEventListener("click", openSettingsModal);
+  keyPill?.addEventListener("click", openSettingsModal);
   closeBtn?.addEventListener("click", closeSettingsModal);
   modal?.addEventListener("click", (e) => {
     if (e.target === modal) closeSettingsModal();
@@ -2053,11 +2087,13 @@ function bindShellControls(
   zhBtn?.addEventListener("click", () => onSwitchLang("zh"));
   enBtn?.addEventListener("click", () => onSwitchLang("en"));
 
-  document.getElementById("examples-grid")?.addEventListener("click", (e: MouseEvent) => {
-    const card = (e.target as HTMLElement)?.closest<HTMLElement>(".example-card");
-    const id = card?.dataset.exampleId;
-    if (!id) return;
-    onSelectExample(id);
+  document.querySelectorAll<HTMLElement>("[data-example-gallery]").forEach((gallery) => {
+    gallery.addEventListener("click", (e: MouseEvent) => {
+      const card = (e.target as HTMLElement)?.closest<HTMLElement>(".example-card");
+      const id = card?.dataset.exampleId;
+      if (!id) return;
+      onSelectExample(id);
+    });
   });
 }
 
@@ -2112,8 +2148,8 @@ async function bootstrapViewer() {
   }
   const initialConfig = configFromLocation();
   applyEmbedFlag(initialConfig.embed);
-  applyThemeVars(initialConfig.source.themeVars);
-  if (!initialConfig.embed && !initialConfig.source.themeVars) {
+  applySourceTheme(initialConfig.source);
+  if (!initialConfig.embed && !initialConfig.source.themeVars && !initialConfig.source.themeId) {
     const profile = getStoredGenerationProfile();
     applyGenerationTheme(profile.themeId, profile.displayMode);
   }
@@ -2162,9 +2198,10 @@ async function bootstrapViewer() {
     const title = initialConfig.embed ? "" : "A2Learn Showcase Generator";
     const subtitle = initialConfig.embed ? "" : T[lang].subtitle;
 
+    const deepLinkedExample = LOCAL_EXAMPLES.find((example) => example.id === readCurrentSurfaceHash());
     const examplesHtml = initialConfig.embed
       ? ""
-      : renderCollapsibleExampleGallery(lang);
+      : renderCollapsibleExampleGallery(lang, deepLinkedExample?.category);
 
     const chrome: AppChromeStrings = {
       ...CHROME_STRINGS[lang],
@@ -2265,7 +2302,7 @@ async function bootstrapViewer() {
     const target = container;
     if (!target) return;
     applyEmbedFlag(cfg.embed);
-    applyThemeVars(cfg.source.themeVars);
+    applySourceTheme(cfg.source);
 
     // Merge stored API Key if present
     const storedKey = getStoredApiKey();
@@ -2555,7 +2592,8 @@ async function bootstrapViewer() {
     // Nothing explicit was requested (typical first visit to the static
     // deployment) — the placeholder "/generated/site_messages.json" would
     // just 404. Show a friendly, localized nudge toward the example gallery
-    // instead of a fetch-failure error.
+    // instead of a fetch-failure error. A known example hash only controls
+    // which gallery category is expanded; the visitor still chooses the case.
     showState(container, T[getLang()].pickExamplePrompt, "empty");
   }
 }
