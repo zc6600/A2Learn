@@ -915,6 +915,13 @@ function readCurrentSurfaceHash(): string {
   return window.location.hash.startsWith("#/") ? window.location.hash.slice(2) : "";
 }
 
+function readGalleryCategory(): ExampleCardGroup["id"] | undefined {
+  const category = new URLSearchParams(window.location.search).get("gallery");
+  return category === "paper" || category === "computing" || category === "poetry"
+    ? category
+    : undefined;
+}
+
 function injectRoutingTheme(): void {
   if (document.getElementById("a2learn-routing-theme")) {
     return;
@@ -2199,9 +2206,10 @@ async function bootstrapViewer() {
     const subtitle = initialConfig.embed ? "" : T[lang].subtitle;
 
     const deepLinkedExample = LOCAL_EXAMPLES.find((example) => example.id === readCurrentSurfaceHash());
+    const galleryCategory = readGalleryCategory() || deepLinkedExample?.category;
     const examplesHtml = initialConfig.embed
       ? ""
-      : renderCollapsibleExampleGallery(lang, deepLinkedExample?.category);
+      : renderCollapsibleExampleGallery(lang, galleryCategory);
 
     const chrome: AppChromeStrings = {
       ...CHROME_STRINGS[lang],
@@ -2592,8 +2600,9 @@ async function bootstrapViewer() {
     // Nothing explicit was requested (typical first visit to the static
     // deployment) — the placeholder "/generated/site_messages.json" would
     // just 404. Show a friendly, localized nudge toward the example gallery
-    // instead of a fetch-failure error. A known example hash only controls
-    // which gallery category is expanded; the visitor still chooses the case.
+    // instead of a fetch-failure error. A known example hash or gallery query
+    // only controls which gallery category is expanded; the visitor still
+    // chooses the case.
     showState(container, T[getLang()].pickExamplePrompt, "empty");
   }
 }
