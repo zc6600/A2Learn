@@ -20,3 +20,8 @@ Welcome to the A2Learn User Guide! This documentation is designed to help users 
    - JS SDK usage (`createA2LearnEmbed`).
    - Custom Elements (`<a2learn-embed>`).
    - Using stateless API endpoints (`/api/stateless/init` and `/api/stateless/action`).
+
+4. **[诗词赏析 App 使用方式](poetry-app-usage.md)**
+   - 浏览《春江花月夜》和《登高》内置案例。
+   - 使用诗词模板、资料上传和实时生成。
+   - 通过词注、时间线、情境对话、意象匹配和延伸探索完成一轮阅读。

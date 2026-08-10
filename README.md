@@ -67,6 +67,7 @@ For detailed setup, concepts, and usage instructions, please refer to the organi
 * **[User Guide (user-guide/)](docs/user-guide/README.md)**
   - [Getting Started & Installation](docs/user-guide/getting-started.md) (Prerequisites, env setup, and CLI commands)
   - [Features & Core Concepts](docs/user-guide/features-and-concepts.md) (Interactive component catalog and 5-Step Framework)
+  - [Poetry App Usage](docs/user-guide/poetry-app-usage.md) (A reader-facing walkthrough for the poetry experience)
   - [Integration Guide](docs/user-guide/integration.md) (iframe embedding, JS SDK, and Stateless API endpoints)
 
 * **[Developer Guide (developer-guide/)](docs/developer-guide/README.md)**

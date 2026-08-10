@@ -229,7 +229,7 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
     .correspondence .chat-header {
       position: relative;
       z-index: 1;
-      padding: 34px 20px 12px;
+      padding: 24px 20px 0;
       background: transparent;
       border: 0;
       color: var(--a2ui-color-primary);
@@ -237,35 +237,6 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
       font-size: 16px;
       font-weight: 700;
       letter-spacing: .08em;
-    }
-    .correspondence-mark {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      color: var(--a2ui-color-primary);
-      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));
-      font-size: 12px;
-      letter-spacing: .16em;
-    }
-    .correspondence-mark::before,
-    .correspondence-mark::after {
-      content: "";
-      width: min(90px, 18vw);
-      height: 1px;
-      background: color-mix(in srgb, var(--a2ui-color-primary) 34%, transparent);
-    }
-    .correspondence-moon {
-      display: grid;
-      place-items: center;
-      width: 28px;
-      height: 28px;
-      border: 1px solid color-mix(in srgb, var(--a2ui-color-primary) 48%, transparent);
-      border-radius: 50%;
-      font-size: 15px;
-      line-height: 1;
     }
     .correspondence .chat-body {
       position: relative;
@@ -502,7 +473,6 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
       <div class="chat-container ${isWechatGroup ? "wechat-group" : ""} ${isCorrespondence ? "correspondence" : ""}">
         ${topic || groupName ? html`<div class="chat-header">${groupName || topic}</div>` : nothing}
         ${isWechatGroup && groupNotice ? html`<div class="group-notice">${unsafeHTML(sanitizeHtml(groupNotice))}</div>` : nothing}
-        ${isCorrespondence ? html`<div class="correspondence-mark"><span class="correspondence-moon">月</span><span>同一轮月</span></div>` : nothing}
         
         <div class="chat-body">
           ${(isCorrespondence ? messages : messages.slice(0, this.visibleMessageCount)).map((msg: any) => {

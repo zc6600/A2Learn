@@ -123,15 +123,18 @@ export function injectBaseTheme(): void {
     .app-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     .lang-switch-group {
       display: inline-flex;
-      background: color-mix(in oklab, var(--a2ui-color-surface) 92%, black);
+      align-items: center;
+      background: color-mix(in srgb, var(--a2ui-color-surface-subtle, var(--a2ui-color-surface)) 85%, transparent);
       border: 1px solid var(--a2ui-color-border);
       border-radius: var(--a2learn-pill-radius);
       padding: 3px;
       gap: 2px;
+      height: 34px;
+      box-sizing: border-box;
     }
     .lang-btn {
       border: none;
@@ -139,43 +142,60 @@ export function injectBaseTheme(): void {
       color: var(--app-muted);
       font-size: 12px;
       font-weight: 700;
-      padding: 4px 12px;
+      padding: 0 12px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       border-radius: var(--a2learn-pill-radius);
       cursor: pointer;
       transition: all 0.2s ease;
     }
     .lang-btn.active {
       background: var(--a2ui-color-primary);
-      color: white;
+      color: #ffffff;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
     }
     .app-key-pill {
       font-size: 12px;
-      font-family: "JetBrains Mono", monospace;
+      font-family: inherit;
       font-weight: 600;
-      padding: 6px 14px;
+      padding: 0 14px;
+      height: 34px;
+      box-sizing: border-box;
       border-radius: var(--a2learn-pill-radius);
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      cursor: pointer;
       transition: all 0.2s ease;
+      user-select: none;
     }
     .app-key-pill.active {
-      background: #f9fafb;
-      color: #0d9488;
-      border: 1px solid #e5e7eb;
+      background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
+      color: var(--a2ui-color-primary);
+      border: 1px solid color-mix(in srgb, var(--a2ui-color-primary) 28%, var(--a2ui-color-border));
+    }
+    .app-key-pill.active:hover {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 15%, var(--a2ui-color-surface));
+      border-color: var(--a2ui-color-primary);
     }
     .app-key-pill.missing {
-      background: #fffbeb;
+      background: color-mix(in srgb, #f59e0b 10%, var(--a2ui-color-surface));
       color: #b45309;
-      border: 1px solid #fde68a;
+      border: 1px solid color-mix(in srgb, #f59e0b 35%, var(--a2ui-color-border));
+    }
+    .app-key-pill.missing:hover {
+      background: color-mix(in srgb, #f59e0b 18%, var(--a2ui-color-surface));
     }
     .app-btn-icon {
       background: var(--a2ui-color-surface);
-      color: var(--app-text);
+      color: var(--app-text, var(--a2ui-color-on-surface));
       border: 1px solid var(--a2ui-color-border);
-      border-radius: var(--a2learn-control-radius);
-      padding: 8px 16px;
+      border-radius: var(--a2learn-pill-radius);
+      padding: 0 14px;
+      height: 34px;
+      box-sizing: border-box;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
@@ -187,45 +207,58 @@ export function injectBaseTheme(): void {
     .app-btn-icon:hover {
       border-color: var(--a2ui-color-primary);
       color: var(--a2ui-color-primary);
-      transform: scale(1.03);
+      background: color-mix(in srgb, var(--a2ui-color-primary) 6%, var(--a2ui-color-surface));
+      transform: translateY(-1px);
     }
 
-    /* Prompt Input Bar (Clean Neutral Surface #f9fafb) & Hero Controls */
+    /* Prompt Input Bar & Hero Controls */
     .app-prompt-bar {
       display: flex;
       flex-direction: column;
       gap: 14px;
-      background: #f9fafb;
+      background: color-mix(in srgb, var(--a2ui-color-surface-subtle, var(--a2ui-color-surface)) 60%, transparent);
       padding: 16px;
-      border-radius: var(--a2learn-shell-radius);
-      border: 1px solid #e5e7eb;
+      border-radius: var(--a2learn-control-radius);
+      border: 1px solid var(--a2ui-color-border);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
     }
     .app-prompt-form {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       width: 100%;
     }
     .app-prompt-input {
       flex: 1;
       background: var(--a2ui-color-surface);
-      color: var(--app-text);
+      color: var(--app-text, var(--a2ui-color-on-surface));
       border: 1px solid var(--a2ui-color-border);
       border-radius: var(--a2learn-control-radius);
-      padding: 12px 18px;
+      padding: 0 16px;
+      height: 42px;
+      box-sizing: border-box;
       font-size: 14px;
       outline: none;
       transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     .app-prompt-input:focus {
       border-color: var(--a2ui-color-primary);
-      box-shadow: 0 0 0 3px color-mix(in oklab, var(--a2ui-color-primary) 18%, transparent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--a2ui-color-primary) 18%, transparent);
+    }
+    .app-source-library-btn {
+      height: 42px;
+      padding: 0 16px;
+      border-radius: var(--a2learn-control-radius);
+      white-space: nowrap;
     }
     .app-submit-btn {
       background: var(--a2ui-color-primary);
       color: #ffffff;
       border: none;
       border-radius: var(--a2learn-control-radius);
-      padding: 12px 22px;
+      padding: 0 20px;
+      height: 42px;
+      box-sizing: border-box;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
@@ -234,14 +267,14 @@ export function injectBaseTheme(): void {
       align-items: center;
       gap: 8px;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 14px color-mix(in oklab, var(--a2ui-color-primary) 25%, transparent);
+      box-shadow: 0 4px 14px color-mix(in srgb, var(--a2ui-color-primary) 28%, transparent);
     }
     .app-submit-btn:hover {
       filter: brightness(1.08);
-      transform: scale(1.02);
+      transform: translateY(-1px);
     }
     .app-submit-btn:active {
-      transform: scale(0.98);
+      transform: translateY(0);
     }
     .app-submit-btn:disabled {
       opacity: 0.6;
@@ -257,8 +290,8 @@ export function injectBaseTheme(): void {
       color: var(--app-muted);
     }
     .app-preset-chip {
-      background: var(--a2ui-color-surface);
-      color: var(--app-text);
+      background: color-mix(in srgb, var(--a2ui-color-surface) 95%, transparent);
+      color: var(--app-text, var(--a2ui-color-on-surface));
       border: 1px solid var(--a2ui-color-border);
       border-radius: var(--a2learn-pill-radius);
       padding: 5px 14px;
@@ -268,9 +301,10 @@ export function injectBaseTheme(): void {
       transition: all 0.2s ease;
     }
     .app-preset-chip:hover {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 10%, var(--a2ui-color-surface));
       border-color: var(--a2ui-color-primary);
       color: var(--a2ui-color-primary);
-      transform: scale(1.04);
+      transform: translateY(-1px);
     }
 
     /* Example Showcase Strip (static, no API key required) */
@@ -1045,7 +1079,7 @@ export interface ExampleCardGroup {
   items: ExampleCardItem[];
 }
 
-export function renderExamplesStrip(title: string, groups: ExampleCardGroup[]): string {
+export function renderExamplesStrip(title: string, groups: ExampleCardGroup[], showGroupHeadings = true): string {
   const sections = groups.map((group) => {
     const cards = group.items.map((item) => `
       <button class="example-card" type="button" data-example-id="${item.id}" data-messages-url="${item.messagesUrl}">
@@ -1053,17 +1087,17 @@ export function renderExamplesStrip(title: string, groups: ExampleCardGroup[]): 
         <span class="example-card-desc">${item.description}</span>
       </button>`).join("");
     return `<section class="examples-category" aria-label="${group.title}">
-      <div class="examples-category-heading">
+      ${showGroupHeadings ? `<div class="examples-category-heading">
         <span class="examples-category-title">${group.title}</span>
         <span class="examples-category-description">${group.description}</span>
-      </div>
+      </div>` : ""}
       <div class="examples-grid">${cards}</div>
     </section>`;
   }).join("");
   return `
-    <section class="examples-strip" aria-label="${title}">
-      <p class="examples-strip-title">${title}</p>
-      <div id="examples-grid">${sections}</div>
+    <section class="examples-strip" data-example-gallery aria-label="${title}">
+      ${title ? `<p class="examples-strip-title">${title}</p>` : ""}
+      <div class="examples-groups">${sections}</div>
     </section>`;
 }
 

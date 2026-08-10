@@ -12,6 +12,7 @@
     "viewer:gallery": "npm run gallery --workspace a2learn-viewer",
     "viewer:build": "npm run build --workspace a2learn-viewer",
     "embed:build": "npm run build --workspace @a2learn/embed",
+    "package": "./scripts/package_submission.py",
     "build": "npm run viewer:build && npm run embed:build"
   },
   "devDependencies": {

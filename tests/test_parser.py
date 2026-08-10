@@ -192,3 +192,56 @@ def test_parse_json_to_a2ui_empty_fields():
     root = next(c for c in components if c["id"] == "root")
     assert root["children"] == ["header"]
     assert len(components) == 2  # root + header
+
+
+def test_parse_json_to_a2ui_poetry_components():
+    messages = parse_json_to_a2ui(
+        {
+            "siteTitle": "《春江花月夜》",
+            "detailedExplanation": {"title": "原文与微注", "content": "春江潮水连海平。"},
+            "timeline": {
+                "variant": "journey",
+                "events": [{"id": "rise", "time": "第一幕", "title": "明月共潮生"}],
+            },
+            "scenarioDialogue": {
+                "variant": "correspondence",
+                "topic": "同一轮月",
+                "characters": {
+                    "tower": {"name": "楼上人", "avatar": "🌙", "alignment": "left"},
+                    "boat": {"name": "江上人", "avatar": "⛵", "alignment": "right"},
+                },
+                "messages": [{"characterId": "tower", "content": "此时相望不相闻。"}],
+            },
+            "dragAndDropMatch": {
+                "title": "月亮的作用",
+                "leftItems": [{"id": "rise", "content": "海上明月共潮生"}],
+                "rightItems": [{"id": "scene", "content": "铺开夜景"}],
+                "correctMatches": {"rise": "scene"},
+            },
+            "relationshipMatch": {
+                "title": "意象关系",
+                "leftItems": [{"id": "moon", "content": "月"}],
+                "rightItems": [{"id": "time", "content": "时间"}],
+                "correctMatches": {"moon": "time"},
+            },
+            "deepDivePrompt": {
+                "prompts": [{"id": "p1", "label": "月亮如何承载相思？", "icon": "🌙"}],
+            },
+        }
+    )
+    validate_a2ui_messages(messages)
+
+    update = next(message["updateComponents"] for message in messages if "updateComponents" in message)
+    components = update["components"]
+    assert [component["component"] for component in components] == [
+        "Column",
+        "Text",
+        "DetailedExplanation",
+        "Timeline",
+        "ScenarioDialogue",
+        "DragAndDropMatch",
+        "RelationshipMatch",
+        "DeepDivePrompt",
+    ]
+    assert next(component for component in components if component["component"] == "Timeline")["variant"] == "journey"
+    assert next(component for component in components if component["component"] == "ScenarioDialogue")["variant"] == "correspondence"

@@ -2,528 +2,70 @@
   {
     "version": "v0.9",
     "createSurface": {
-      "surfaceId": "surface-module-1",
+      "surfaceId": "overview",
       "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
     }
   },
   {
     "version": "v0.9",
     "updateComponents": {
-      "surfaceId": "surface-module-1",
+      "surfaceId": "overview",
       "components": [
         {
-          "id": "root",
-          "component": "Column",
-          "children": [
-            "header-1",
-            "learning-path-1",
-            "step1-background",
-            "step1-chat",
-            "step2-naive",
-            "step3-mindset",
-            "step4-implementation",
-            "step4-sandbox",
-            "step5-summary"
-          ]
+          "id": "overview-learning-path",
+          "component": {
+            "componentType": "LearningPath",
+            "title": "快速排序学习路径",
+            "steps": [
+              {
+                "stepId": 1,
+                "title": "理解分治思想",
+                "description": "认识将大问题分解为小问题的核心策略。"
+              },
+              {
+                "stepId": 2,
+                "title": "掌握基准选择",
+                "description": "学习如何选取基准元素（pivot）来划分数组。"
+              },
+              {
+                "stepId": 3,
+                "title": "实现分区操作",
+                "description": "通过具体例子理解将元素按基准分到左右两侧的过程。"
+              },
+              {
+                "stepId": 4,
+                "title": "递归排序子数组",
+                "description": "对左右两部分递归应用快速排序，直到完全有序。"
+              },
+              {
+                "stepId": 5,
+                "title": "分析性能与优化",
+                "description": "了解平均与最坏情况时间复杂度，学习随机化等优化技巧。"
+              }
+            ]
+          }
         },
         {
-          "id": "header-1",
-          "component": "Text",
-          "variant": "h1",
-          "text": "如何在海量数据中实现 O(1) 极速定位？"
+          "id": "overview-concept-card",
+          "component": {
+            "componentType": "ConceptCard",
+            "title": "快速排序是什么",
+            "definition": "快速排序是一种基于<dfn title=\"将问题分解为更小的子问题，分别解决后合并结果\">分治</dfn>思想的高效排序算法。它通过选择一个基准元素，将数组划分为小于基准和大于基准的两部分，然后递归地对这两部分排序。",
+            "example": "对数组 [3, 6, 2, 8, 1, 5] 进行快速排序：\n1. 选基准 3\n2. 分区后得到 [2, 1, 3, 6, 8, 5]\n3. 递归排序左边 [2, 1] 和右边 [6, 8, 5]\n4. 最终得到 [1, 2, 3, 5, 6, 8]",
+            "keyPoints": [
+              "平均时间复杂度 O(n log n)",
+              "原地排序（不需要额外大内存）",
+              "不稳定排序（相等元素可能交换顺序）"
+            ]
+          }
         },
         {
-          "id": "learning-path-1",
-          "component": "LearningPath",
-          "title": "哈希表四阶渐进学习路径",
-          "activeStepId": "1",
-          "steps": [
-            {
-              "id": "1",
-              "title": "1. 查找效率危机 (O(1)计算)",
-              "targetSurfaceId": "surface-module-1"
-            },
-            {
-              "id": "2",
-              "title": "2. 散列碰撞困境 (冲突解决)",
-              "targetSurfaceId": "surface-module-2"
-            },
-            {
-              "id": "3",
-              "title": "3. 空间性能妥协 (负载因子/Rehash)",
-              "targetSurfaceId": "surface-module-3"
-            },
-            {
-              "id": "4",
-              "title": "4. 工业安全防御 (HashDoS/红黑树)",
-              "targetSurfaceId": "surface-module-4"
-            }
-          ]
-        },
-        {
-          "id": "step1-background",
-          "component": "AnalogyCard",
-          "title": "海量数据检索的吞吐量瓶颈",
-          "analogy": "<b>现实背景</b>：在现代分布式系统、高并发 Web 框架或数据库内核中，数据检索是最频繁的操作之一。无论是根据 Token 校验用户身份、在缓存中查找 Key，还是路由 HTTP 请求，都面临巨大的吞吐量压力。<br><br><b>核心痛点</b>：当内存中的数据规模增长到 100 万甚至 1 亿条时，传统的查找方式效率会极剧恶化。如果每次查询都需要扫描成千上万个数据节点，服务器 CPU 将迅速被无意义的比对指令占满，导致系统响应耗时飙升至数百毫秒甚至卡死瘫痪。如何才能实现不受数据总量规模影响的毫秒级极速定位？"
-        },
-        {
-          "id": "step1-chat",
-          "component": "ScenarioDialogue",
-          "topic": "💬 微信技术群：为什么遍历 100 万条数据会把服务器卡死？",
-          "characters": {
-            "alice": {
-              "name": "小白程序员 (Alice)",
-              "avatar": "👩‍💻",
-              "alignment": "left"
-            },
-            "boss_zhang": {
-              "name": "架构师老张",
-              "avatar": "👨‍💼",
-              "alignment": "right"
-            }
-          },
-          "messages": [
-            {
-              "characterId": "alice",
-              "content": "张老大！我在线上写了个用户查询功能，在内存的 100 万条数组里循环比对用户名。平时几百条数据挺快的，今天上线大促，CPU 瞬间飙到了 100%，一次查询居然耗时 800ms！"
-            },
-            {
-              "characterId": "boss_zhang",
-              "content": "你这是典型的 <dfn title=\"按顺序逐个比对数据的线性查找方式，最坏需要比对N次\">顺序查找 O(N)</dfn>！当数据规模 N 扩大 1000 倍，你的比较次数和 CPU 指令数也跟着翻了 1000 倍。海量数据下必须彻底改掉‘挨个比对’的直觉思路！"
-            },
-            {
-              "characterId": "alice",
-              "content": "那我如果先把数组按字母排序，用二分查找 O(log N) 呢？查找只需要 20 次，是不是就解决问题了？"
-            },
-            {
-              "characterId": "boss_zhang",
-              "content": "二分查找虽然查得快，但在内存里保持有序的代价极其昂贵！每次新用户注册插入数据时，你都得把后续几十万个节点在内存里整体平移，写性能会直接崩溃。我们需要的是一种兼顾读写且速度达到 O(1) 的全新范式！"
-            }
-          ]
-        },
-        {
-          "id": "step2-naive",
-          "component": "MentalModel",
-          "title": "物理内存本质与节点搬迁开销",
-          "description": "计算机物理内存 (RAM) 在硬件层面本质是一个连续的字节数组。RAM 硬件天生支持根据数字物理下标在常数时间内直接读取任意内存地址。所有高级数据结构的存取最终都建立在这个硬件特性上。",
-          "icon": "🧠",
-          "diagramTitle": "📊 物理内存数据流动与搬迁演推",
-          "diagram": "初始内存: [0:10 | 1:20 | 2:30 | 3:50 | 4:60]\n目标操作: 插入数字 25 到有序位置 (下标 2)\n步骤1 右移: 60->下标5, 50->下标4, 30->下标3  ==> [0:10 | 1:20 | 2:空 | 3:30 | 4:50 | 5:60]\n步骤2 写入: 25 写入已腾空的下标 2           ==> [0:10 | 1:20 | 2:25 | 3:30 | 4:50 | 5:60]",
-          "pillarsTitle": "硬件特性与传统方案缺陷",
-          "pillars": [
-            {
-              "title": "硬件存取特性",
-              "description": "RAM 物理总线天然支持按数字下标 O(1) 随机存取，耗时只与电信号传输有关，与数据总量无关。",
-              "icon": "⚡"
-            },
-            {
-              "title": "无序数组缺陷",
-              "description": "顺序遍历最坏比对 N 次，数据量越大耗时呈线性成倍剧增。",
-              "icon": "❌"
-            },
-            {
-              "title": "有序数组缺陷",
-              "description": "查找需 O(log N)，但插入与删除需要搬迁大量后续内存节点，内存总线开销达到 O(N)。",
-              "icon": "⚠️"
-            }
-          ],
-          "analogyTitle": "💡 真实数据搬迁开销步步演推",
-          "analogy": "<b>向已排序数组 [ 10, 20, 30, 50, 60 ] 中插入数字 25 的内存演推：</b><br><br>1. <b>定位槽位</b>：经过对比发现数字 25 应该插入到 20 和 30 之间（即目标下标 2）；<br>2. <b>内存搬迁</b>：由于物理数组内存空间必须连续，为了给 25 腾出物理空位，节点 60、50、30 必须在物理地址上整体右移 1 位（60 移动到下标 5，50 移动到 4，30 移动到 3）；<br>3. <b>数据写入</b>：将数字 25 写入已经腾空的物理下标 2。<br><br>💥 <b>痛感直击</b>：仅仅插入 1 个数字，就导致内存中 3 个元素被迫平移搬家！如果数组存有 100 万个数据，插入一次将在物理内存总线上搬迁 50 万个节点，性能极其低下！"
-        },
-        {
-          "id": "step3-mindset",
-          "component": "ConceptCard",
-          "title": "计算范式突破：让 Key 的名称直接算出内存下标",
-          "tags": [
-            "计算代替比对",
-            "O(1)寻址",
-            "范式突破"
-          ],
-          "definition": "彻底放弃‘逐个遍历比对 Key 值’的旧思维，转向<b>‘直接计算物理内存地址’</b>的新范式！<br><br>不要去遍历内存询问数据藏在哪里，而是设计一个高效的数学计算公式，传入 Key 的名称（如用户 ID），公式直接计算出该数据应该保存在数组的哪个物理下标中！",
-          "example": "// 传统搜索范式 (遍历比对): 查找 'Alice' -> 遍历比对 1,000,000 次\n// 哈希计算范式 (直接计算): 计算 'Alice' -> 算法直接得出 下标 5 -> 一步读取 arr[5]",
-          "relatedConcepts": [
-            "哈希函数",
-            "O(1)复杂度",
-            "散列映射"
-          ]
-        },
-        {
-          "id": "step4-implementation",
-          "component": "DetailedExplanation",
-          "title": "哈希函数与槽位数组实现 (含 Python 伪代码示例)",
-          "icon": "⚙️",
-          "estimatedReadTime": "4 分钟深度解析",
-          "content": "为了将“用计算代替比对”的思路落地到工程实践中，数据结构引入了两个核心基础设施：\n\n1. **<dfn title=\"将任意长度输入 Key 映射转换为固定范围无符号整数的数学算法\">哈希函数 (Hash Function)</dfn>**：负责接收任意格式的 Key（如字符串、身份证号、对象引用），计算出一个无符号整数。比如 `hash('Alice') = 154829`。\n2. **<dfn title=\"在物理内存中连续开辟的存储槽位数组\">槽位数组 (Bucket Array / Hash Table)</dfn>**：开辟容量为 `capacity` 的物理数组，将算出的哈希值对容量取模，得到物理下标：`index = hash(key) % capacity`。\n\n🐍 **Python 调库与伪代码示例**：\n```python\n# 方式 A: 直接调用 Python 内置 hash() 调库取模\nkey = \"Alice\"\ncapacity = 10\nslot_index = abs(hash(key)) % capacity  # 算出 0~9 槽位号\n\n# 方式 B: 极简哈希函数伪代码实现 (累加字符 ASCII 码)\ndef simple_hash(key: str, capacity: int = 10) -> int:\n    return sum(ord(char) for char in key) % capacity\n```\n\n**常数时间复杂度 O(1) 的物理保障**：\n无论数组里当前保存的是 10 条数据还是 1,000,000 条数据，只要哈希函数的计算过程极快，定位特定 Key 所在内存地址的总耗时都是固定的！这就是 **<dfn title=\"执行耗时与数据总量规模完全无关的极致性能界限\">常数时间复杂度 O(1)</dfn>** 的物理来源。"
-        },
-        {
-          "id": "step4-sandbox",
-          "component": "InteractiveSandbox",
-          "title": "代码演示：观察内存数组挪动与哈希直接定位的区别",
-          "description": "点击运行代码，对比在有序数组中插入元素（需搬迁后续内存）与哈希计算直接定位的执行开销：",
-          "language": "javascript",
-          "code": "// 演示 1：在有序数组 [10, 20, 30, 50, 60] 中插入数字 25\nlet arr = [10, 20, 30, 50, 60];\nlet insertVal = 25;\nlet shiftCount = 0;\n\n// 模拟物理内存平移：从后往前挪动元素\narr.push(undefined);\nfor (let i = arr.length - 1; i > 2; i--) {\n  arr[i] = arr[i - 1];\n  shiftCount++;\n}\narr[2] = insertVal;\n\nconsole.log(\"插入后数组:\", arr);\nconsole.log(\"被迫平移搬迁的内存块数量:\", shiftCount, \"次\");\nconsole.log(\"------------------------------------------\");\n\n// 演示 2：哈希函数直接计算内存下标 (O(1)定位)\nfunction simpleHash(key, capacity = 10) {\n  let hash = 0;\n  for (let i = 0; i < key.length; i++) {\n    hash = (hash * 31 + key.charCodeAt(i)) % capacity;\n  }\n  return hash;\n}\n\nconsole.log(\"Key 'Alice' 直接算出的槽位号:\", simpleHash('Alice'));\nconsole.log(\"Key 'Bob'   直接算出的槽位号:\", simpleHash('Bob'));",
-          "runLocally": true
-        },
-        {
-          "id": "step5-summary",
-          "component": "AnalogyCard",
-          "title": "总结：从搜索比对到公式计算",
-          "analogy": "实现 O(1) 极速查找的关键，在于利用物理内存可直接按数字下标存取的硬件特性，将<b>‘挨个搜索比对’</b>替换为<b>‘公式直接计算’</b>。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>要彻底破解海量数据检索的效率危机，核心在于从传统的 <dfn title=\"按顺序逐个比对元素的基准方案，耗时随数据量成正比\"><strong>顺序查找 O(N)</strong></dfn> 转向计算思想。通过精心设计的 <dfn title=\"将任意格式Key映射转换为固定范围整数索引的散列计算公式\"><strong>哈希函数 (Hash Function)</strong></dfn>，将任意 Key 直接转换为内存下标，从而将数据存取性能提升至与规模完全无关的 <dfn title=\"数据检索耗时与数据总量规模完全无关的极致性能表现\"><strong>常数时间复杂度 O(1)</strong></dfn>。</p></div>"
-        }
-      ]
-    }
-  },
-  {
-    "version": "v0.9",
-    "createSurface": {
-      "surfaceId": "surface-module-2",
-      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
-    }
-  },
-  {
-    "version": "v0.9",
-    "updateComponents": {
-      "surfaceId": "surface-module-2",
-      "components": [
-        {
-          "id": "root",
-          "component": "Column",
-          "children": [
-            "header-2",
-            "learning-path-2",
-            "step1-background-2",
-            "step1-chat-2",
-            "step2-naive-2",
-            "step3-mindset-2",
-            "step4-implementation-2",
-            "step5-summary-2",
-            "quiz-2"
-          ]
-        },
-        {
-          "id": "header-2",
-          "component": "Text",
-          "variant": "h1",
-          "text": "当不同的 Key 产生了相同的索引？"
-        },
-        {
-          "id": "learning-path-2",
-          "component": "LearningPath",
-          "title": "哈希表四阶渐进学习路径",
-          "activeStepId": "2",
-          "steps": [
-            {
-              "id": "1",
-              "title": "1. 查找效率危机 (O(1)计算)",
-              "targetSurfaceId": "surface-module-1"
-            },
-            {
-              "id": "2",
-              "title": "2. 散列碰撞困境 (冲突解决)",
-              "targetSurfaceId": "surface-module-2"
-            },
-            {
-              "id": "3",
-              "title": "3. 空间性能妥协 (负载因子/Rehash)",
-              "targetSurfaceId": "surface-module-3"
-            },
-            {
-              "id": "4",
-              "title": "4. 工业安全防御 (HashDoS/红黑树)",
-              "targetSurfaceId": "surface-module-4"
-            }
-          ]
-        },
-        {
-          "id": "step1-background-2",
-          "component": "AnalogyCard",
-          "title": "散列重号引发的数据覆盖危机",
-          "analogy": "<b>衍生新问题</b>：在 Module 1 中，我们利用哈希函数算出了数组下标。但在实际业务中，输入的 Key 组合是无限的（如无数的用户姓名），而开辟的数组槽位容量永远是有限的。<br><br><b>覆写灾难</b>：当系统存入多个不同 Key 时（如 'Alice' 与 'David'），哈希函数不可避免地算出了<b>完全相同的物理下标 5</b>！如果直接把数据写入 5 号槽位，后存入的 David 会把 Alice 的数据彻底覆盖抹掉，引发致命的数据丢失错误！"
-        },
-        {
-          "id": "step1-chat-2",
-          "component": "ScenarioDialogue",
-          "topic": "💬 微信技术群：老大！两个人算出了同一个下标，数据被覆盖了！",
-          "characters": {
-            "alice": {
-              "name": "小白程序员 (Alice)",
-              "avatar": "👩‍💻",
-              "alignment": "left"
-            },
-            "boss_zhang": {
-              "name": "架构师老张",
-              "avatar": "👨‍💼",
-              "alignment": "right"
-            }
-          },
-          "messages": [
-            {
-              "characterId": "alice",
-              "content": "张老大！不好了！用户 'Alice' 和 'David' 存入系统时，哈希函数居然算出了相同的下标 5！David 的数据直接把 Alice 覆盖掉了，线上出现了严重的数据覆盖 Bug！"
-            },
-            {
-              "characterId": "boss_zhang",
-              "content": "这就是必然发生的“哈希碰撞”！因为输出的数组槽位是有限的，而输入的 Key 是无限的。数学上早就证明了碰撞绝对无法被彻底避免。"
-            },
-            {
-              "characterId": "alice",
-              "content": "那能不能设计一个完美不碰撞的哈希函数？"
-            },
-            {
-              "characterId": "boss_zhang",
-              "content": "不可能的！鸽巢原理告诉我们，只要苹果数量大于抽屉数量，就必定有至少两个苹果挤在同一个抽屉里。工程上必须学会‘容忍碰撞’并建立冲突处理机制！"
-            }
-          ]
-        },
-        {
-          "id": "step2-naive-2",
-          "component": "MentalModel",
-          "title": "鸽巢原理与冲突解决流派",
-          "description": "根据数学上的鸽巢原理 (Pigeonhole Principle)，当 Key 的取值空间远大于数组容量 `capacity` 时，必定存在至少两个不同的 Key 映射到相同的物理下标。这是数学规律，而非代码 Bug。",
-          "icon": "🐦",
-          "diagramTitle": "📊 输入映射冲突与节点覆写示意",
-          "diagram": "Alice 映射: [0:空 | 1:空 | 5:Alice | 6:空]\nDavid 冲突: [0:空 | 1:空 | 5:冲突!  | 6:空]\n\n直接覆写: 5号槽位 Alice 数据丢失！ ❌",
-          "pillarsTitle": "数学原理与方案对比",
-          "pillars": [
-            {
-              "title": "鸽巢原理",
-              "description": "无限输入映射到有限槽位，哈希碰撞在数学逻辑上绝对不可避免。",
-              "icon": "📐"
-            },
-            {
-              "title": "直接覆写缺陷",
-              "description": "覆盖旧数据将导致致命的数据破坏与业务灾难。",
-              "icon": "💥"
-            }
-          ],
-          "analogyTitle": "💡 碰撞后覆写的灾难剖析",
-          "analogy": "当发生索引重号时，如果采用了直接用新值覆盖旧值的简单逻辑，会导致前面存入的数据彻底消失。用户在登录 Alice 账号时居然查到了 David 的信息！"
-        },
-        {
-          "id": "step3-mindset-2",
-          "component": "ConceptCard",
-          "title": "多节点挂载与规则顺延",
-          "tags": [
-            "容忍碰撞",
-            "多维存储",
-            "空间解耦"
-          ],
-          "definition": "承认碰撞必然发生，不再追求‘一个槽位只能存一个元素’。<br><br><b>两大流派思维</b>：<br>1. <b>纵向挂载 (Chaining)</b>：在槽位内部建立多节点挂载链表，同一个槽位挂载多个碰撞数据！<br>2. <b>横向探测 (Open Addressing)</b>：当槽位被占时，允许新数据按既定探测规则去附近寻址闲置槽位！",
-          "example": "// 思路 1 (链地址法): 槽位 5 内部挂载链表 -> [Alice] -> [David]\n// 思路 2 (开放寻址法): 槽位 5 被占 -> 顺延检查 6号槽位 -> 若空闲则存入 6号",
-          "relatedConcepts": [
-            "链地址法",
-            "开放寻址法",
-            "碰撞解决"
-          ]
-        },
-        {
-          "id": "step4-implementation-2",
-          "component": "DetailedExplanation",
-          "title": "链地址法 vs 开放寻址法及 Python dict 调库示例",
-          "icon": "⚙️",
-          "estimatedReadTime": "4 分钟深度解析",
-          "content": "工程实现中对碰撞处理形成了两大主流解法：\n\n1. **<dfn title=\"每个槽位维护一条单链表，冲突节点追加到链表末尾\">链地址法 (Separate Chaining)</dfn>**：Java HashMap 采用此法。每个数组槽位指向一条单向链表。发生碰撞时将新节点追加到链表末尾。缺点是链表节点在物理内存中随机分布，<dfn title=\"CPU预取连续内存数据的硬件加速机制\">CPU 缓存局部性</dfn> 较差。\n2. **<dfn title=\"不建链表，冲突时按线性或二次探测规则检查数组相邻闲置槽位\">开放寻址法 (Open Addressing)</dfn>**：Python dict 采用此法。所有数据都紧密平铺在连续数组空间里。当发生碰撞时，寻找下一个空闲槽位。\n\n🐍 **Python 原生字典 (dict) O(1) 调库与伪代码示例**：\n```python\n# 方式 1: 直接使用 Python 原生 dict (底层已自动处理冲突与扩展)\nuser_scores = {}\nuser_scores[\"Alice\"] = 95  # 内部自动通过 hash(\"Alice\") 找到槽位存入\nprint(user_scores[\"Alice\"])  # 极速 O(1) 查找\n\n# 方式 2: 开放寻址冲突顺延伪代码\ndef get_with_probe(buckets, key, capacity):\n    index = abs(hash(key)) % capacity\n    while buckets[index] is not None and buckets[index][0] != key:\n        index = (index + 1) % capacity  # 冲突时平滑顺延检查下一槽位\n    return buckets[index]\n```\n\n> 💡 工业权衡：Java HashMap 选链地址法求高容错；Python dict 选开放寻址法求极致物理内存与 CPU 缓存性能。"
-        },
-        {
-          "id": "step5-summary-2",
-          "component": "AnalogyCard",
-          "title": "总结：纵向链表 vs 横向连续槽位",
-          "analogy": "碰撞不可消除。链地址法通过纵向扩展链表解决冲突，开放寻址法通过横向寻找连续空槽解决冲突。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>在有限槽位中，不同 Key 映射到同一下标的 <dfn title=\"不同Key映射到完全相同数组下标的必然现象\"><strong>哈希碰撞 (Hash Collision)</strong></dfn> 在数学上不可避免。工程上，Java 采用在槽位后挂载单链表容纳冲突节点的 <dfn title=\"在槽位后挂载单链表容纳多冲突节点的解决技术\"><strong>链地址法 (Separate Chaining)</strong></dfn>；而 Python 字典则采用 <dfn title=\"在连续数组空间内探测寻找闲置槽位的缓存友好型技术\"><strong>开放寻址法 (Open Addressing)</strong></dfn>，通过紧密连续的内存布局充分触发硬件的 <dfn title=\"连续内存布局触发硬件 Cache Line 预取加速的性能特性\"><strong>CPU 缓存局部性 (Cache Locality)</strong></dfn> 加速。</p></div>"
-        },
-        {
-          "id": "quiz-2",
-          "component": "QuizCard",
-          "title": "🧠 碰撞处理策略选择",
-          "question": "当希望所有数据都紧密挨在连续内存中、获得最佳 CPU 缓存效率时，应该优先选择哪种方案？",
-          "options": [
-            {
-              "id": "opt1",
-              "text": "A. 链地址法 (Separate Chaining)"
-            },
-            {
-              "id": "opt2",
-              "text": "B. 开放寻址法 (Open Addressing)"
-            },
-            {
-              "id": "opt3",
-              "text": "C. 放弃存储"
-            },
-            {
-              "id": "opt4",
-              "text": "D. 重新排序数组"
-            }
-          ],
-          "correctOptionId": "opt2",
-          "explanation": "开放寻址法将所有数据直接连续存放在数组中，没有链表指针开销，因此具有极佳的 CPU 缓存局部性。"
-        }
-      ]
-    }
-  },
-  {
-    "version": "v0.9",
-    "createSurface": {
-      "surfaceId": "surface-module-3",
-      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
-    }
-  },
-  {
-    "version": "v0.9",
-    "updateComponents": {
-      "surfaceId": "surface-module-3",
-      "components": [
-        {
-          "id": "root",
-          "component": "Column",
-          "children": [
-            "header-3",
-            "learning-path-3",
-            "step1-background-3",
-            "step1-chat-3",
-            "step2-naive-3",
-            "step3-mindset-3",
-            "step4-implementation-3",
-            "step5-summary-3",
-            "cloze-3"
-          ]
-        },
-        {
-          "id": "header-3",
-          "component": "Text",
-          "variant": "h1",
-          "text": "负载因子与动态重散列 (Rehash)"
-        },
-        {
-          "id": "learning-path-3",
-          "component": "LearningPath",
-          "title": "哈希表四阶渐进学习路径",
-          "activeStepId": "3",
-          "steps": [
-            {
-              "id": "1",
-              "title": "1. 查找效率危机 (O(1)计算)",
-              "targetSurfaceId": "surface-module-1"
-            },
-            {
-              "id": "2",
-              "title": "2. 散列碰撞困境 (冲突解决)",
-              "targetSurfaceId": "surface-module-2"
-            },
-            {
-              "id": "3",
-              "title": "3. 空间性能妥协 (负载因子/Rehash)",
-              "targetSurfaceId": "surface-module-3"
-            },
-            {
-              "id": "4",
-              "title": "4. 工业安全防御 (HashDoS/红黑树)",
-              "targetSurfaceId": "surface-module-4"
-            }
-          ]
-        },
-        {
-          "id": "step1-background-3",
-          "component": "AnalogyCard",
-          "title": "满载情况下的性能滑坡",
-          "analogy": "<b>衍生新问题</b>：在 Module 2 中，我们用链地址法和开放寻址法解决了碰撞问题。但随着系统运行，存入的数据量越来越多，物理数组的利用率渐渐接近 100%。<br><br><b>性能滑坡危机</b>：当槽位几乎被填满时，链地址法的单链表变得越来越长，查找退化为遍历链表；开放寻址法则很难找到闲置空槽，探测寻找步数剧增！哈希表原本引以为傲的 O(1) 性能迅速滑坡坍塌。"
-        },
-        {
-          "id": "step1-chat-3",
-          "component": "ScenarioDialogue",
-          "topic": "💬 微信技术群：数组满了，查找速度又变慢了！",
-          "characters": {
-            "alice": {
-              "name": "小白程序员 (Alice)",
-              "avatar": "👩‍💻",
-              "alignment": "left"
-            },
-            "boss_zhang": {
-              "name": "架构师老张",
-              "avatar": "👨‍💼",
-              "alignment": "right"
-            }
-          },
-          "messages": [
-            {
-              "characterId": "alice",
-              "content": "张老大！我们的哈希表初始容量设了 100。现在写入了 90 个元素，结果每次读写都频繁碰撞，速度又慢成狗了！"
-            },
-            {
-              "characterId": "boss_zhang",
-              "content": "因为你的负载因子太高了！哈希表就像一个停车场，空位越少，找车位的耗时越长。必须引入拥挤度监控与动态扩容！"
-            }
-          ]
-        },
-        {
-          "id": "step2-naive-3",
-          "component": "MentalModel",
-          "title": "拥挤度对碰撞率的指数级影响",
-          "description": "哈希表的冲突概率与闲置槽位比例成反比。要维持低碰撞率与 O(1) 检索，必须保证足够的闲置空间比例。",
-          "icon": "📈",
-          "diagramTitle": "📊 满载分布与容量翻倍 Rehash 演推",
-          "diagram": "拥挤度90%: [0:占用 | 1:占用 | 2:占用 | 3:占用 | 4:空闲]\n容量翻倍:   [0:占用 | 1:空闲 | 2:占用 | 3:空闲 | ... | 9:空闲]",
-          "pillarsTitle": "核心原则",
-          "pillars": [
-            {
-              "title": "拥挤度与动态扩容",
-              "description": "闲置槽位越少，冲突概率呈指数级上升，必须动态维持安全水位。",
-              "icon": "📊"
-            },
-            {
-              "title": "静态大内存缺陷",
-              "description": "一开始就申请巨大的物理内存会造成极大的内存资源浪费。",
-              "icon": "⚠️"
-            }
-          ],
-          "analogyTitle": "💡 静态大内存预分配分析",
-          "analogy": "一开始就申请巨大内存空间（如 100 GB）会严重浪费内存资源，且无法预估应用实际需要存多少数据。"
-        },
-        {
-          "id": "step3-mindset-3",
-          "component": "ConceptCard",
-          "title": "按需监控与容量翻倍重散列",
-          "tags": [
-            "动态平衡",
-            "按需扩容",
-            "空间杠杆"
-          ],
-          "definition": "不静态死扣内存，而是设置一个<b>拥挤度监控指标</b>。<br><br>平时保持小内存，一旦拥挤度超过设定的安全警戒线，立即<b>申请双倍新数组空间，并将全量数据重新计算下标分布</b>！",
-          "example": "// 监控拥挤度指标: size / capacity > 0.75\n// 一旦超标: capacity = capacity * 2，并重新分布全量数据",
-          "relatedConcepts": [
-            "负载因子",
-            "重散列",
-            "动态扩容"
-          ]
-        },
-        {
-          "id": "step4-implementation-3",
-          "component": "DetailedExplanation",
-          "title": "0.75 负载因子、位运算加速与渐进式 Rehash",
-          "icon": "⚙️",
-          "estimatedReadTime": "4 分钟深度解析",
-          "content": "动态扩容的三大精妙设计：\n\n1. **<dfn title=\"已存元素总数与当前数组容量的比值 (size / capacity)\">负载因子 (Load Factor)</dfn>**：监控指标。Java HashMap 默认阈值选为 `0.75`（空间利用率与时间性能的最佳数学折中）。\n2. **<dfn title=\"容量保持为2的幂，用按位与运算替代慢速取模\">位运算优化 (Bitwise And)</dfn>**：容量总是保持为 2 的幂（如 16, 32, 64），取模 `hash % capacity` 被硬件极速指令 `<dfn title=\"位运算替代取模硬件加速\">hash & (capacity - 1)</dfn>` 替代！\n3. **<dfn title=\"将大规模数据搬迁平摊到日常读写中的高并发优化\">渐进式 Rehash (Incremental Rehash)</dfn>**：Redis 采用此法，维护 `ht[0]` 与 `ht[1]` 两个哈希表，避免一次性搬迁几百万数据导致系统瞬间卡死。"
-        },
-        {
-          "id": "step5-summary-3",
-          "component": "AnalogyCard",
-          "title": "总结：拥挤度监控与平摊搬迁",
-          "analogy": "负载因子是监控指标，动态 Rehash 是扩容手段，位运算是性能加速器。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>当数组逐渐填满，系统通过监控 <dfn title=\"已存元素总数与当前容量的比值 (size / capacity)\"><strong>负载因子 (Load Factor)</strong></dfn> 来评估拥挤程度。一旦超越警戒线，便触发容量翻倍与全量映射的 <dfn title=\"申请新容量空间后重新计算全量数据新下标的映射过程\"><strong>重散列 (Rehash)</strong></dfn>。为了防止高并发下大搬迁导致系统卡死，工业级实现常结合 <dfn title=\"将大规模扩容搬迁分批平摊到日常读写中的高并发优化技术\"><strong>渐进式 Rehash</strong></dfn> 将搬迁开销平摊到每次日常读写中。</p></div>"
-        },
-        {
-          "id": "cloze-3",
-          "component": "ClozeTest",
-          "title": "动态扩容机制巩固",
-          "instruction": "根据刚学到的知识，补全句子：",
-          "passage": "哈希表用 [blank1] 来表示拥挤程度。当已存元素比例超过阈值时会触发 [blank2]。为了用极速的位运算替代昂贵的取模，哈希表的容量通常保持为 [blank3]。",
-          "options": [
-            "负载因子",
-            "动态重散列 (Rehash)",
-            "2 的幂",
-            "二分查找"
-          ],
-          "correctAnswers": {
-            "blank1": "负载因子",
-            "blank2": "动态重散列 (Rehash)",
-            "blank3": "2 的幂"
+          "id": "overview-mental-model",
+          "component": {
+            "componentType": "MentalModel",
+            "title": "整理书架模型",
+            "model": "想象你要整理一排杂乱的书架。你随手拿起一本书作为基准，然后把所有比它薄的书放到左边，比它厚的放到右边。接着，对左右两堆书分别重复这个过程——每次选一本基准，再分堆。最终，整个书架就按厚度排好了。",
+            "explanation": "这个模型抓住了快速排序的核心：每次选一个基准，通过比较大小将问题一分为二，然后递归处理。基准的选择直接影响效率——如果每次选到中间厚度的书，分堆均匀，速度最快；如果总选到最厚或最薄的书，分堆不均，速度变慢。"
           }
         }
       ]
@@ -532,177 +74,206 @@
   {
     "version": "v0.9",
     "createSurface": {
-      "surfaceId": "surface-module-4",
+      "surfaceId": "module-1",
       "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
     }
   },
   {
     "version": "v0.9",
     "updateComponents": {
-      "surfaceId": "surface-module-4",
+      "surfaceId": "module-1",
       "components": [
         {
-          "id": "root",
-          "component": "Column",
-          "children": [
-            "header-4",
-            "learning-path-4",
-            "step1-background-4",
-            "step1-chat-4",
-            "step2-naive-4",
-            "step3-mindset-4",
-            "step4-implementation-4",
-            "step5-summary-4",
-            "quiz-4"
-          ]
+          "id": "module1-concept-card",
+          "component": {
+            "componentType": "ConceptCard",
+            "title": "分治与分区",
+            "definition": "分治是快速排序的基石：将原数组分成两个规模更小的子数组，分别排序后合并。分区是实现分治的关键步骤——选定一个基准，通过交换元素使左侧所有元素 ≤ 基准，右侧所有元素 ≥ 基准。",
+            "example": "数组 [10, 80, 30, 90, 40, 50, 70] 选基准 70：\n1. 从左边找第一个大于70的数（80），从右边找第一个小于70的数（50），交换 → [10, 50, 30, 90, 40, 80, 70]\n2. 继续：左边找到90，右边找到40，交换 → [10, 50, 30, 40, 90, 80, 70]\n3. 左右指针相遇，将基准70与指针位置交换 → [10, 50, 30, 40, 70, 80, 90]",
+            "keyPoints": [
+              "分区后基准到达最终位置",
+              "分区过程是原地交换，不额外占用内存",
+              "基准的选择影响分区平衡"
+            ]
+          }
         },
         {
-          "id": "header-4",
-          "component": "Text",
-          "variant": "h1",
-          "text": "HashDoS 攻击与红黑树树化"
+          "id": "module1-detailed-explanation",
+          "component": {
+            "componentType": "DetailedExplanation",
+            "title": "快速排序的完整步骤",
+            "content": "**1. 背景与痛点**：面对大量无序数据，冒泡排序、插入排序等 O(n²) 算法在数据量增大时性能急剧下降。我们需要一种更快的通用排序方法。\n\n**2. 第一原理模型**：分治思想——将排序问题分解为两个规模更小的排序问题。如果每次都能将数组分成两个几乎等长的子数组，那么总工作量就是 O(n log n)。\n\n**3. 关键转变**：如何高效地“分”？答案是通过一个基准元素进行<dfn title=\"将数组按基准分为左右两部分，左边≤基准，右边≥基准\">分区</dfn>。分区操作本身是 O(n) 的，且不需要额外数组。\n\n**4. 实现细节**：以数组 [3,6,2,8,1,5] 为例，选最后一个元素 5 为基准。用两个指针 i 和 j，j 从左向右扫描，遇到小于基准的元素就与 i 交换并 i++。扫描结束后将基准与 i 位置交换，得到 [3,2,1,5,8,6]。然后递归排序左边 [3,2,1] 和右边 [8,6]。\n\n**5. 总结**：快速排序通过一次 O(n) 的分区将问题规模减半，递归深度为 O(log n)，总时间 O(n log n)。记住：基准选得好，排序快如飞；基准选得差，退化成 O(n²)。"
+          }
         },
         {
-          "id": "learning-path-4",
-          "component": "LearningPath",
-          "title": "哈希表四阶渐进学习路径",
-          "activeStepId": "4",
-          "steps": [
-            {
-              "id": "1",
-              "title": "1. 查找效率危机 (O(1)计算)",
-              "targetSurfaceId": "surface-module-1"
-            },
-            {
-              "id": "2",
-              "title": "2. 散列碰撞困境 (冲突解决)",
-              "targetSurfaceId": "surface-module-2"
-            },
-            {
-              "id": "3",
-              "title": "3. 空间性能妥协 (负载因子/Rehash)",
-              "targetSurfaceId": "surface-module-3"
-            },
-            {
-              "id": "4",
-              "title": "4. 工业安全防御 (HashDoS/红黑树)",
-              "targetSurfaceId": "surface-module-4"
-            }
-          ]
+          "id": "module1-sandbox",
+          "component": {
+            "componentType": "InteractiveSandbox",
+            "title": "动手实现快速排序",
+            "language": "python",
+            "code": "def quicksort(arr, low, high):\n    if low < high:\n        # 分区，返回基准的最终索引\n        pi = partition(arr, low, high)\n        # 递归排序左右两部分\n        quicksort(arr, low, pi - 1)\n        quicksort(arr, pi + 1, high)\n\ndef partition(arr, low, high):\n    pivot = arr[high]          # 选最后一个元素为基准\n    i = low - 1                # i 指向小于基准的区域的末尾\n    for j in range(low, high): # j 遍历除基准外的所有元素\n        if arr[j] <= pivot:\n            i += 1\n            arr[i], arr[j] = arr[j], arr[i]  # 将小元素换到左边\n    arr[i+1], arr[high] = arr[high], arr[i+1] # 基准归位\n    return i + 1\n\n# 测试\ntest = [10, 7, 8, 9, 1, 5]\nquicksort(test, 0, len(test)-1)\nprint(test)  # 输出 [1, 5, 7, 8, 9, 10]",
+            "explanation": "运行上述代码，观察分区函数如何将数组逐步整理。你可以修改数组内容，体会不同输入对排序过程的影响。注意：最坏情况发生在数组已经有序且每次选最后一个元素为基准时。"
+          }
         },
         {
-          "id": "step1-background-4",
-          "component": "AnalogyCard",
-          "title": "最坏散列分布与安全攻击",
-          "analogy": "<b>衍生极端问题</b>：在 Module 1~3 中，我们构建了完备的动态哈希表。<br><br><b>最坏情况危机</b>：然而，黑客可以恶意利用哈希函数的公开确定性规则，事先在本地构造几万个哈希值完全相等的 Key 并一次性发送给服务器！所有的 Key 全部挤在同一个槽位里，单链表长达几万节点，O(1) 暴跌退化为 O(N)，导致线上服务器 CPU 100% 瘫痪！"
+          "id": "module1-quiz",
+          "component": {
+            "componentType": "QuizCard",
+            "title": "快速排序基础测验",
+            "question": "在快速排序的一次分区操作后，基准元素的位置有什么特点？",
+            "options": [
+              {
+                "id": "A",
+                "text": "基准元素一定在数组的中间位置"
+              },
+              {
+                "id": "B",
+                "text": "基准元素到达了它在最终有序数组中的正确位置"
+              },
+              {
+                "id": "C",
+                "text": "基准元素被移到了数组的最左端"
+              },
+              {
+                "id": "D",
+                "text": "基准元素被移到了数组的最右端"
+              }
+            ],
+            "correctOptionId": "B",
+            "explanation": "分区操作确保基准左侧所有元素 ≤ 基准，右侧所有元素 ≥ 基准，因此基准已经处于它最终应该在的位置。后续递归只处理左右两侧，不再移动基准。"
+          }
         },
         {
-          "id": "step1-chat-4",
-          "component": "ScenarioDialogue",
-          "topic": "💬 微信技术群：预警！有人利用哈希碰撞攻击了我们的服务器！",
-          "characters": {
-            "alice": {
-              "name": "小白程序员 (Alice)",
-              "avatar": "👩‍💻",
-              "alignment": "left"
-            },
-            "boss_zhang": {
-              "name": "架构师老张",
-              "avatar": "👨‍💼",
-              "alignment": "right"
-            }
-          },
-          "messages": [
-            {
-              "characterId": "alice",
-              "content": "老张！不好了！刚才线上 API 突然收到几万个精心构造的请求，结果槽位 5 下面的链表居然挂了 1 万个节点，O(1) 变成了 O(N)，整个服务全卡死了！"
-            },
-            {
-              "characterId": "boss_zhang",
-              "content": "这是经典的 <dfn title=\"黑客故意发送大量同哈希值的Key使哈希表退化为链表以瘫痪服务器的攻击\">HashDoS 攻击</dfn>！必须从算法散列随机化与底层数据结构双重防御！"
-            }
-          ]
+          "id": "module1-cloze",
+          "component": {
+            "componentType": "ClozeTest",
+            "title": "填空练习",
+            "sentences": [
+              {
+                "before": "快速排序的核心思想是",
+                "blank": "分治",
+                "after": "，它将数组分成两个子数组分别排序。"
+              },
+              {
+                "before": "分区操作中，通常选择数组的",
+                "blank": "最后一个元素",
+                "after": "作为基准（pivot）。"
+              },
+              {
+                "before": "如果每次分区都能将数组均匀分成两半，快速排序的时间复杂度为",
+                "blank": "O(n log n)",
+                "after": "。"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "module-2",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "module-2",
+      "components": [
+        {
+          "id": "module2-detailed-explanation",
+          "component": {
+            "componentType": "DetailedExplanation",
+            "title": "快速排序的性能分析",
+            "content": "**1. 背景**：快速排序的平均性能很好，但最坏情况可能退化到 O(n²)。理解其性能边界对实际选型至关重要。\n\n**2. 第一原理模型**：快速排序的时间由分区次数和每次分区的扫描开销决定。每次分区扫描整个子数组，开销 O(k)，其中 k 是子数组长度。递归树的总开销等于所有层级的扫描长度之和。\n\n**3. 关键转变**：递归树的形状取决于基准选择。如果每次基准恰好是中位数，树高 log n，总开销 O(n log n)。如果每次基准是最大或最小值，树高 n，总开销 O(n²)。\n\n**4. 具体数据推演**：假设数组 [1,2,3,4,5] 已升序，每次选最后一个元素为基准。\n- 第一轮：基准5，分区后左边 [1,2,3,4]，右边空，扫描5个元素。\n- 第二轮：基准4，扫描4个元素。\n- 第三轮：基准3，扫描3个元素。\n- 第四轮：基准2，扫描2个元素。\n- 第五轮：基准1，扫描1个元素。\n总扫描次数 = 5+4+3+2+1 = 15 ≈ O(n²)。\n\n**5. 优化与总结**：随机化基准选择（随机选一个元素与最后一个交换）可以避免最坏情况以高概率出现。实际中，快速排序通常比归并排序快，因为它的常数因子小且缓存友好。记住：快速排序是“平均快，最坏慢”，随机化让它更可靠。"
+          }
         },
         {
-          "id": "step2-naive-4",
-          "component": "MentalModel",
-          "title": "最坏情况下的复杂度退化",
-          "description": "哈希表的 O(1) 性能依赖于“输入随机分布”假设。当输入分布被恶心操纵时，性能界限面临最坏情况考验。",
-          "icon": "⚠️",
-          "diagramTitle": "📊 恶劣散列退化示意",
-          "diagram": "均匀分布: [0:Node | 1:Node | 2:Node | 3:Node]\n退化倾斜: [0:Node->Node->Node...10000个! | 1:空 | 2:空 | 3:空]",
-          "pillarsTitle": "性能界限",
-          "pillars": [
-            {
-              "title": "最坏复杂度",
-              "description": "算法设计必须考虑最坏情况下的渐进性能界限。",
-              "icon": "📉"
-            },
-            {
-              "title": "盲信风险",
-              "description": "盲目假设输入均匀会导致系统极易被拒绝服务攻击瘫痪。",
-              "icon": "❌"
-            }
-          ],
-          "analogyTitle": "💡 盲目信任输入随机性的风险",
-          "analogy": "黑客可以事先在本地计算好几万个哈希值相同的 Key（HashDoS），一秒击垮防线。"
+          "id": "module2-quiz",
+          "component": {
+            "componentType": "QuizCard",
+            "title": "性能理解测验",
+            "question": "以下哪种情况会导致快速排序的时间复杂度退化为 O(n²)？",
+            "options": [
+              {
+                "id": "A",
+                "text": "数组元素全部相等"
+              },
+              {
+                "id": "B",
+                "text": "每次选择的基准都是当前子数组的中位数"
+              },
+              {
+                "id": "C",
+                "text": "数组已经有序且每次选择第一个或最后一个元素为基准"
+              },
+              {
+                "id": "D",
+                "text": "数组完全逆序且每次选择中间元素为基准"
+              }
+            ],
+            "correctOptionId": "C",
+            "explanation": "当数组已经有序且每次选择第一个或最后一个元素为基准时，分区极不平衡，导致递归深度为 n，时间复杂度退化为 O(n²)。"
+          }
         },
         {
-          "id": "step3-mindset-4",
-          "component": "ConceptCard",
-          "title": "算法随机化与底层结构升级",
-          "tags": [
-            "SipHash随机化",
-            "最坏情况保底",
-            "安全防御"
-          ],
-          "definition": "双重保底！<br><br>1. <b>入口随机化</b>：使用带随机 Seed 的散列算法，让黑客在本地无法预测线上哈希值！<br>2. <b>底层结构升级</b>：当单槽位节点数过多时，自动将单链表升级为高级平衡树，强行锁死最坏查找复杂度！",
-          "example": "// 防御 1 (算法随机化): 每次启动进程注入随机种子 SipHash(Key, Seed)\n// 防御 2 (结构升级): 当单链表长度 >= 8 时，链表 -> 自平衡红黑树 (最坏 O(log N))",
-          "relatedConcepts": [
-            "HashDoS",
-            "红黑树树化",
-            "SipHash"
-          ]
+          "id": "module2-deepdive",
+          "component": {
+            "componentType": "DeepDive",
+            "title": "快速排序的优化策略",
+            "content": "**随机化基准**：在 partition 前随机选择一个元素与最后一个交换，使最坏情况概率极低。\n**三数取中**：从首、中、尾三个元素中取中位数作为基准，进一步降低退化概率。\n**小数组切换**：当子数组长度小于某个阈值（如10）时，改用插入排序，减少递归开销。\n**尾递归优化**：先递归处理较短的子数组，再处理较长的，控制栈深度。"
+          }
         },
         {
-          "id": "step4-implementation-4",
-          "component": "DetailedExplanation",
-          "title": "Java 8 红黑树树化与 SipHash 随机种子",
-          "icon": "⚙️",
-          "estimatedReadTime": "4 分钟深度解析",
-          "content": "工业级哈希表的两大防线：\n\n1. **<dfn title=\"链表长度达到阈值8时自动升级为自平衡二叉查找树的机制\">红黑树树化 (Treeify Threshold)</dfn>**：Java 8+ HashMap 规定，当单槽位链表长度 ≥ 8 且容量 ≥ 64 时，链表自动转换为红黑树。哪怕挂了 1,000,000 个碰撞节点，最坏查找步数也只需 log(1000000) ≈ 20 次，强行锁定在 **O(log N)**！\n2. **<dfn title=\"采用随机密钥防预测的工业级安全散列算法\">SipHash 随机加盐</dfn>**：Python 3.4+ 和 Rust 默认采用 SipHash，每次启动随机生成哈希 Seed，使外部黑客完全无法预测碰撞 Key。\n\n> 💡 工业总结：数据结构树化解决极端退化；随机 SipHash 解决攻击预测。"
+          "id": "module2-formula",
+          "component": {
+            "componentType": "InteractiveFormula",
+            "title": "快速排序的递推公式",
+            "formula": "T(n) = T(k) + T(n-k-1) + O(n)",
+            "variables": [
+              {
+                "symbol": "n",
+                "description": "当前子数组的长度"
+              },
+              {
+                "symbol": "k",
+                "description": "分区后左侧子数组的长度（即小于基准的元素个数）"
+              },
+              {
+                "symbol": "T(n)",
+                "description": "对长度为 n 的数组排序所需的时间"
+              }
+            ],
+            "explanation": "公式表示：排序 n 个元素的时间 = 排序左侧 k 个元素的时间 + 排序右侧 n-k-1 个元素的时间 + 分区扫描 n 个元素的时间。当 k ≈ n/2 时，T(n) = 2T(n/2) + O(n) → O(n log n)。当 k = 0 或 k = n-1 时，T(n) = T(n-1) + O(n) → O(n²)。"
+          }
         },
         {
-          "id": "step5-summary-4",
-          "component": "AnalogyCard",
-          "title": "总结：算法随机化与自适应兜底",
-          "analogy": "工业级哈希表通过算法随机化和数据结构自适应兜底，彻底封死了黑客攻击与最坏退化的漏洞。<hr><div class=\"terms-section\"><h5 class=\"terms-section-title\">📌 术语总结</h5><p>面对黑客故意构造同哈希 Key 瘫痪服务器的 <dfn title=\"黑客构造同哈希Key使哈希表退化为链表以瘫痪服务器的攻击\"><strong>HashDoS 攻击</strong></dfn>，工业级系统构建了两道硬核防线：入口层采用带随机 Seed 的 <dfn title=\"利用进程随机Seed阻止外部预测哈希值的工业级安全散列算法\"><strong>SipHash 算法</strong></dfn> 阻止黑客预测；数据结构层则引入 <dfn title=\"单槽位链表长度达到阈值8时升级为自平衡红黑树的兜底防御\"><strong>树化机制 (Treeify)</strong></dfn>，在冲突过多时将单链表自动升级为自平衡红黑树，强行把最坏查找复杂度锁死在 O(log N)。</p></div>"
-        },
-        {
-          "id": "quiz-4",
-          "component": "QuizCard",
-          "title": "🧠 工业级哈希表安全理解",
-          "question": "Java 8 HashMap 为什么选择在单个槽位链表长度达到 8 时将其转换为红黑树？",
-          "options": [
-            {
-              "id": "opt1",
-              "text": "A. 因为 8 是幸运数字"
-            },
-            {
-              "id": "opt2",
-              "text": "B. 防止 HashDoS 攻击或极罕见碰撞导致查找退化为 O(N)"
-            },
-            {
-              "id": "opt3",
-              "text": "C. 为了节省内存"
-            },
-            {
-              "id": "opt4",
-              "text": "D. 红黑树占用的空间比链表更小"
-            }
-          ],
-          "correctOptionId": "opt2",
-          "explanation": "当碰撞节点过多时，链表查找复杂度为 O(N)。转换为红黑树能将最坏查找复杂度锁定在 O(log N)，有效防止性能剧烈退化和 HashDoS 攻击。"
+          "id": "module2-resources",
+          "component": {
+            "componentType": "ResourceList",
+            "title": "推荐学习资源",
+            "resources": [
+              {
+                "title": "《算法导论》第7章：快速排序",
+                "type": "book",
+                "description": "经典教材，详细分析快速排序的正确性、性能及随机化版本。"
+              },
+              {
+                "title": "VisuAlgo - 排序算法可视化",
+                "type": "website",
+                "url": "https://visualgo.net/en/sorting",
+                "description": "交互式可视化工具，可直观观察快速排序的分区过程和递归树。"
+              },
+              {
+                "title": "Khan Academy: Quick Sort",
+                "type": "video",
+                "url": "https://www.khanacademy.org/computing/computer-science/algorithms/quick-sort",
+                "description": "英文视频讲解，适合初学者理解分治和分区逻辑。"
+              }
+            ]
+          }
         }
       ]
     }

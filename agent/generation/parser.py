@@ -164,6 +164,73 @@ def _parse_resource_list(rl: Any) -> dict[str, Any] | None:
     return None
 
 
+def _parse_timeline(timeline: Any) -> dict[str, Any] | None:
+    if isinstance(timeline, dict) and timeline.get("events"):
+        return {
+            "id": "timeline",
+            "component": "Timeline",
+            "events": timeline["events"],
+            "orientation": timeline.get("orientation", "vertical"),
+            "variant": timeline.get("variant", "default"),
+            "onEventSelect": {"name": "timeline_event_select", "context": {}},
+        }
+    return None
+
+
+def _parse_scenario_dialogue(dialogue: Any) -> dict[str, Any] | None:
+    if isinstance(dialogue, dict) and dialogue.get("characters") and dialogue.get("messages"):
+        parsed: dict[str, Any] = {
+            "id": "scenario-dialogue",
+            "component": "ScenarioDialogue",
+            "characters": dialogue["characters"],
+            "messages": dialogue["messages"],
+        }
+        for key in ("variant", "topic", "groupName", "groupNotice"):
+            if key in dialogue:
+                parsed[key] = dialogue[key]
+        return parsed
+    return None
+
+
+def _parse_match(data: Any, component: str, component_id: str) -> dict[str, Any] | None:
+    if isinstance(data, dict) and data.get("leftItems") and data.get("rightItems") and data.get("correctMatches"):
+        parsed: dict[str, Any] = {
+            "id": component_id,
+            "component": component,
+            "leftItems": data["leftItems"],
+            "rightItems": data["rightItems"],
+            "correctMatches": data["correctMatches"],
+        }
+        for key in (
+            "title",
+            "instruction",
+            "leftLabel",
+            "rightLabel",
+            "successMessage",
+            "incorrectMessage",
+            "matchExplanations",
+        ):
+            if key in data:
+                parsed[key] = data[key]
+        parsed["onMatchComplete"] = {"name": "match_complete", "context": {}}
+        return parsed
+    return None
+
+
+def _parse_deep_dive_prompt(deep_dive: Any) -> dict[str, Any] | None:
+    if isinstance(deep_dive, dict) and deep_dive.get("prompts"):
+        parsed: dict[str, Any] = {
+            "id": "deep-dive-prompts",
+            "component": "DeepDivePrompt",
+            "prompts": deep_dive["prompts"],
+            "onPromptSelect": {"name": "deep_dive_prompt_select", "context": {}},
+        }
+        if "selectedId" in deep_dive:
+            parsed["selectedId"] = deep_dive["selectedId"]
+        return parsed
+    return None
+
+
 def parse_json_to_a2ui(
     data: dict[str, Any],
     permitted_custom_components: tuple[str, ...] | None = None,
@@ -192,6 +259,11 @@ def parse_json_to_a2ui(
         ("quiz", _parse_quiz_card(data.get("quizCard")) if is_enabled("QuizCard") else None),
         ("detailed-explanation", _parse_detailed_explanation(data.get("detailedExplanation")) if is_enabled("DetailedExplanation") else None),
         ("resources", _parse_resource_list(data.get("resourceList")) if is_enabled("ResourceList") else None),
+        ("timeline", _parse_timeline(data.get("timeline")) if is_enabled("Timeline") else None),
+        ("scenario-dialogue", _parse_scenario_dialogue(data.get("scenarioDialogue")) if is_enabled("ScenarioDialogue") else None),
+        ("drag-and-drop-match", _parse_match(data.get("dragAndDropMatch"), "DragAndDropMatch", "drag-and-drop-match") if is_enabled("DragAndDropMatch") else None),
+        ("relationship-match", _parse_match(data.get("relationshipMatch"), "RelationshipMatch", "relationship-match") if is_enabled("RelationshipMatch") else None),
+        ("deep-dive-prompts", _parse_deep_dive_prompt(data.get("deepDivePrompt")) if is_enabled("DeepDivePrompt") else None),
     ]
 
     for comp_id, parsed in mappings:
