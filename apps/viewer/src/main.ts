@@ -101,7 +101,8 @@ function renderScriptOverlay(scriptText: string) {
 
 async function handleNarrationToggle(
   narrationButton: HTMLButtonElement,
-  fetchNarrationIfNeeded?: () => Promise<{ script?: string; audioUrl: string }>
+  fetchNarrationIfNeeded?: () => Promise<{ script?: string; audioUrl: string }>,
+  audioBaseUrl?: string,
 ) {
   const currentDatasetUrl = narrationButton.dataset.audioUrl || null;
   const isEn = window.location.search.includes("lang=en");
@@ -162,9 +163,14 @@ async function handleNarrationToggle(
       const payload = await fetchNarrationIfNeeded();
       if (!payload.audioUrl) throw new Error("The narration response did not include an audio URL.");
 
-      const fullAudioUrl = payload.audioUrl.startsWith("http")
-        ? payload.audioUrl
-        : payload.audioUrl;
+      // API narration responses use paths such as `/api/audio/<id>.mp3`.
+      // Resolve those against the API origin when the viewer and API are
+      // deployed separately; static example audio remains frontend-relative
+      // because it does not go through this branch.
+      const fullAudioUrl = new URL(
+        payload.audioUrl,
+        audioBaseUrl || window.location.href,
+      ).toString();
 
       narrationButton.dataset.audioUrl = fullAudioUrl;
       activeNarrationUrl = fullAudioUrl;
@@ -2435,7 +2441,7 @@ async function bootstrapViewer() {
             throw new Error(`${response.status}: ${detail || response.statusText}`);
           }
           return (await response.json()) as { script?: string; audioUrl: string };
-        });
+        }, apiBaseUrl);
       };
     }
   };
