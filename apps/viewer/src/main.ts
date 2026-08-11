@@ -16,6 +16,7 @@ import { pickRenderedComponent } from "./component-picker";
 import { mountFloatingAgent } from "./floating-agent";
 import { mountInlineComponentEditor } from "./inline-component-editor";
 import { mountSourceLibrary } from "./source-library";
+import { NarrationController } from "./narration-controller";
 import {
   createPresentationSurface,
   findPresentationPageIndex,
@@ -50,162 +51,7 @@ let activeRuntime: {
 
 let presentationRenderVersion = 0;
 let activePresentationPage: PresentationSurface | null = null;
-let activeNarrationAudio: HTMLAudioElement | null = null;
-let activeNarrationUrl: string | null = null;
-let activeNarrationScript: string | null = null;
-
-function stopNarrationAudio() {
-  if (activeNarrationAudio) {
-    try {
-      activeNarrationAudio.pause();
-      activeNarrationAudio.currentTime = 0;
-    } catch {}
-    activeNarrationAudio = null;
-  }
-  activeNarrationUrl = null;
-  const card = document.getElementById("narration-script-overlay");
-  if (card) card.style.display = "none";
-  const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
-  if (narrationButton) {
-    narrationButton.textContent = "🔊";
-    narrationButton.title = (window.location.search.includes("lang=en") ? "Play narration" : "播放讲稿");
-  }
-}
-
-function renderScriptOverlay(scriptText: string) {
-  let card = document.getElementById("narration-script-overlay");
-  if (!card) {
-    card = document.createElement("div");
-    card.id = "narration-script-overlay";
-    card.style.cssText =
-      "position:fixed;right:22px;bottom:122px;z-index:998;max-width:380px;max-height:240px;overflow-y:auto;background:rgba(15,23,42,0.92);backdrop-filter:blur(8px);color:#f8fafc;padding:12px 16px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-size:13px;line-height:1.6;border:1px solid rgba(255,255,255,0.15);transition:opacity 0.2s ease;";
-    document.body.appendChild(card);
-  }
-  const isEn = window.location.search.includes("lang=en");
-  const headerTitle = isEn ? "🎙 Presenter Script" : "🎙 AI 讲稿文稿";
-  card.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.15);">
-      <strong style="color:#2dd4bf;font-size:12px;">${headerTitle}</strong>
-      <button type="button" id="close-script-overlay" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;padding:0 4px;">✕</button>
-    </div>
-    <div style="white-space:pre-wrap;color:#e2e8f0;">${scriptText}</div>
-  `;
-  card.style.display = "block";
-  const closeBtn = card.querySelector("#close-script-overlay");
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      if (card) card.style.display = "none";
-    });
-  }
-}
-
-async function handleNarrationToggle(
-  narrationButton: HTMLButtonElement,
-  fetchNarrationIfNeeded?: () => Promise<{ script?: string; audioUrl: string }>,
-  audioBaseUrl?: string,
-) {
-  const currentDatasetUrl = narrationButton.dataset.audioUrl || null;
-  const isEn = window.location.search.includes("lang=en");
-
-  if (activeNarrationAudio && activeNarrationUrl && (activeNarrationUrl === currentDatasetUrl || !fetchNarrationIfNeeded)) {
-    if (!activeNarrationAudio.paused) {
-      activeNarrationAudio.pause();
-      narrationButton.textContent = "▶";
-      narrationButton.title = isEn ? "Resume narration" : "继续播放讲稿";
-    } else {
-      void activeNarrationAudio.play();
-      narrationButton.textContent = "⏸";
-      narrationButton.title = isEn ? "Pause narration" : "暂停讲稿音频";
-    }
-    return;
-  }
-
-  if (currentDatasetUrl) {
-    stopNarrationAudio();
-    activeNarrationUrl = currentDatasetUrl;
-    const audio = new Audio(currentDatasetUrl);
-    activeNarrationAudio = audio;
-
-    audio.addEventListener("play", () => {
-      narrationButton.textContent = "⏸";
-      narrationButton.title = isEn ? "Pause narration" : "暂停讲稿音频";
-    });
-    audio.addEventListener("pause", () => {
-      if (activeNarrationAudio === audio) {
-        narrationButton.textContent = "▶";
-        narrationButton.title = isEn ? "Resume narration" : "继续播放讲稿";
-      }
-    });
-    audio.addEventListener("ended", () => {
-      narrationButton.textContent = "🔊";
-      narrationButton.title = isEn ? "Play narration" : "播放讲稿";
-      activeNarrationAudio = null;
-    }, { once: true });
-
-    try {
-      await audio.play();
-      if (activeNarrationScript) renderScriptOverlay(activeNarrationScript);
-    } catch (err) {
-      narrationButton.textContent = "🔊";
-      alert(isEn ? `Audio playback failed: ${String(err)}` : `音频播放失败：${String(err)}`);
-    }
-    return;
-  }
-
-  if (fetchNarrationIfNeeded) {
-    stopNarrationAudio();
-    narrationButton.disabled = true;
-    const idleLabel = "🔊";
-    narrationButton.textContent = "⏳";
-    narrationButton.title = isEn ? "Generating narration…" : "正在生成讲稿和音频…";
-
-    try {
-      const payload = await fetchNarrationIfNeeded();
-      if (!payload.audioUrl) throw new Error("The narration response did not include an audio URL.");
-
-      // API narration responses use paths such as `/api/audio/<id>.mp3`.
-      // Resolve those against the API origin when the viewer and API are
-      // deployed separately; static example audio remains frontend-relative
-      // because it does not go through this branch.
-      const fullAudioUrl = new URL(
-        payload.audioUrl,
-        audioBaseUrl || window.location.href,
-      ).toString();
-
-      narrationButton.dataset.audioUrl = fullAudioUrl;
-      activeNarrationUrl = fullAudioUrl;
-      activeNarrationScript = payload.script || null;
-
-      const audio = new Audio(fullAudioUrl);
-      activeNarrationAudio = audio;
-
-      audio.addEventListener("play", () => {
-        narrationButton.textContent = "⏸";
-        narrationButton.title = isEn ? "Pause narration" : "暂停讲稿音频";
-      });
-      audio.addEventListener("pause", () => {
-        if (activeNarrationAudio === audio) {
-          narrationButton.textContent = "▶";
-          narrationButton.title = isEn ? "Resume narration" : "继续播放讲稿";
-        }
-      });
-      audio.addEventListener("ended", () => {
-        narrationButton.textContent = idleLabel;
-        narrationButton.title = isEn ? "Play narration" : "播放讲稿";
-        activeNarrationAudio = null;
-      }, { once: true });
-
-      await audio.play();
-      if (payload.script) renderScriptOverlay(payload.script);
-    } catch (error) {
-      narrationButton.textContent = idleLabel;
-      narrationButton.title = isEn ? "Play narration" : "播放讲稿";
-      alert(isEn ? `Narration failed: ${String(error)}` : `讲稿生成失败：${String(error)}`);
-    } finally {
-      narrationButton.disabled = false;
-    }
-  }
-}
+const narrationController = new NarrationController(() => getLang() === "en");
 
 type SessionStatus = "pending" | "ready" | "error";
 
@@ -1581,6 +1427,7 @@ function resolveGeneratedImageUrls(messages: A2uiMessage[], apiBaseUrl: string):
 async function bootstrapOnline(
   container: HTMLElement,
   source: ViewerSourceOnline,
+  isCurrent: () => boolean = () => true,
 ): Promise<boolean> {
   const startPayload = {
     resource_path: source.resourcePath || undefined,
@@ -1612,6 +1459,7 @@ async function bootstrapOnline(
   } else {
     initialMessages = await pollSessionUntilReady(source.apiBaseUrl, buildHeaders(source.headers), sessionId);
   }
+  if (!isCurrent()) return false;
   initialMessages = resolveGeneratedImageUrls(initialMessages, source.apiBaseUrl);
 
   let isSendingAction = false;
@@ -1620,7 +1468,7 @@ async function bootstrapOnline(
   const MAX_PENDING_ACTIONS = 50;
 
   const processor = new MessageProcessor([a2learnCatalog], (action: any) => {
-    if (!sessionId || !action) return;
+    if (!isCurrent() || !sessionId || !action) return;
     pendingActions.push(action);
     if (pendingActions.length > MAX_PENDING_ACTIONS) {
       pendingActions.shift();
@@ -1630,6 +1478,10 @@ async function bootstrapOnline(
   });
 
   const flushPendingActions = async () => {
+    if (!isCurrent()) {
+      pendingActions.length = 0;
+      return;
+    }
     if (isSendingAction) return;
     const next = pendingActions.shift();
     if (!next) {
@@ -1638,6 +1490,7 @@ async function bootstrapOnline(
     }
     isSendingAction = true;
     try {
+      if (!isCurrent()) return;
       const res = await fetch(`${source.apiBaseUrl}/api/session/${sessionId}/action`, {
         method: "POST",
         headers: buildHeaders(source.headers),
@@ -1647,6 +1500,7 @@ async function bootstrapOnline(
         throw new Error(`Interaction callback failed (${res.status})`);
       }
       const data = (await res.json()) as SessionActionResponse;
+      if (!isCurrent()) return;
       if (Array.isArray(data.messages) && data.messages.length > 0) {
         const messages = resolveGeneratedImageUrls(data.messages, source.apiBaseUrl);
         processor.processMessages(messages);
@@ -1657,6 +1511,7 @@ async function bootstrapOnline(
         renderSurfaces(container, processor, "Online mode connected, supporting interaction callbacks and incremental updates.");
       }
     } catch (err) {
+      if (!isCurrent()) return;
       showState(
         container,
         `Online interaction callback failed: ${String(err)}\nPlease check API service status and retry.`,
@@ -1664,6 +1519,7 @@ async function bootstrapOnline(
       );
     } finally {
       isSendingAction = false;
+      if (!isCurrent()) return;
       if (pendingActions.length === 0) {
         modeHintForSending(container, false);
         return;
@@ -1672,6 +1528,7 @@ async function bootstrapOnline(
     }
   };
 
+  if (!isCurrent()) return false;
   activeRuntime = {
     container,
     processor,
@@ -1806,10 +1663,15 @@ function applyStaticNavigation(
   }
 }
 
-async function bootstrapOffline(container: HTMLElement, source: ViewerSourceOffline): Promise<void> {
+async function bootstrapOffline(
+  container: HTMLElement,
+  source: ViewerSourceOffline,
+  isCurrent: () => boolean = () => true,
+): Promise<void> {
   const configuredUrl = source.messagesUrl || "/generated/site_messages.json";
   const separator = configuredUrl.includes("?") ? "&" : "?";
   const res = await fetch(`${configuredUrl}${separator}ts=${Date.now()}`);
+  if (!isCurrent()) return;
   if (!res.ok) {
     showState(container, "Unable to load A2UI messages, please run Agent to generate messages first.", "error");
     return;
@@ -1827,6 +1689,8 @@ async function bootstrapOffline(container: HTMLElement, source: ViewerSourceOffl
     showState(container, `A2UI message processing failed: ${String(err)}`, "error");
     return;
   }
+
+  if (!isCurrent()) return;
 
   activeRuntime = {
     container,
@@ -2177,6 +2041,7 @@ async function bootstrapViewer() {
 
   type ContentState = { kind: "example" | "project"; id: string } | { kind: "other" };
   let currentContent: ContentState = { kind: "other" };
+  let loadVersion = 0;
   const locationParams = new URLSearchParams(window.location.search);
   const initialProjectId = locationParams.get("project");
   const initialEditorExample = locationParams.get("example");
@@ -2236,7 +2101,7 @@ async function bootstrapViewer() {
       narrationButton.style.cssText = "position:fixed;right:22px;bottom:78px;z-index:999;border:0;border-radius:50%;width:34px;height:34px;cursor:pointer;background:#0d9488;color:white;box-shadow:0 3px 12px #0003";
       narrationButton.title = lang === "en" ? "Play narration" : "播放讲稿";
       narrationButton.addEventListener("click", () => {
-        void handleNarrationToggle(narrationButton);
+        void narrationController.toggle(narrationButton);
       });
     }
   };
@@ -2309,7 +2174,13 @@ async function bootstrapViewer() {
   // was immediately overwritten by the offline demo's first surface
   // ("surface-module-1"), so failures looked like the app silently
   // redirecting to unrelated content instead of surfacing what went wrong.
-  const startWithConfig = async (cfg: ViewerRuntimeConfig, fallbackToOffline: boolean = true) => {
+  const startWithConfig = async (
+    cfg: ViewerRuntimeConfig,
+    fallbackToOffline: boolean = true,
+    expectedVersion?: number,
+  ) => {
+    const requestVersion = expectedVersion ?? ++loadVersion;
+    const isCurrent = () => requestVersion === loadVersion;
     // Snapshot container for the duration of this call: it's a `let` that
     // renderShell() can reassign (on a language switch), and it shouldn't
     // move out from under an in-flight load.
@@ -2330,12 +2201,14 @@ async function bootstrapViewer() {
     try {
       if (cfg.source.mode === "online") {
         showState(target, T[getLang()].agentPlanning, "loading");
-        await bootstrapOnline(target, cfg.source);
+        await bootstrapOnline(target, cfg.source, isCurrent);
+        if (!isCurrent()) return;
         stopResize();
         stopResize = setupAutoResize(target, () => parentOrigin);
         return;
       }
     } catch (err) {
+      if (!isCurrent()) return;
       const tr = T[getLang()];
       const errorLine = getLang() === "zh" ? `错误信息: ${String(err)}` : `Error: ${String(err)}`;
       const fallbackNote = fallbackToOffline ? `\n${tr.onlineFailedFallback}` : "";
@@ -2349,21 +2222,27 @@ async function bootstrapViewer() {
       cfg.source.mode === "offline"
         ? cfg.source
         : { mode: "offline", messagesUrl: "/generated/site_messages.json" },
+      isCurrent,
     );
+    if (!isCurrent()) return;
     stopResize();
     stopResize = setupAutoResize(target, () => parentOrigin);
   };
 
   const selectExample = async (id: string) => {
+    const requestVersion = ++loadVersion;
+    const isCurrent = () => requestVersion === loadVersion;
     const item = getExampleItems(getLang()).find((i) => i.id === id);
     if (!item) return;
+    narrationController.stop();
     currentContent = { kind: "example", id };
     updateProjectUrl(null);
     const staticAudioUrl = staticExampleAudioUrl(id, getLang());
     // Bundled examples with a pre-generated asset must stay fully offline:
     // selecting audio should bind the shipped MP3, never regenerate it.
     if (isAudioEnabled() && staticAudioUrl) {
-      await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } });
+      await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } }, true, requestVersion);
+      if (!isCurrent()) return;
       const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
       if (narrationButton) {
         narrationButton.dataset.audioUrl = staticAudioUrl;
@@ -2382,7 +2261,8 @@ async function bootstrapViewer() {
           body: JSON.stringify({ language: getLang(), exampleId: id, actor: "human" }),
         });
         if (ensure.ok) {
-          await openProject({ id: projectId, title: item.label, openedAt: new Date().toISOString() });
+          if (!isCurrent()) return;
+          await openProject({ id: projectId, title: item.title, openedAt: new Date().toISOString() }, requestVersion);
           return;
         }
       } catch {
@@ -2390,7 +2270,9 @@ async function bootstrapViewer() {
         // example from opening normally.
       }
     }
-    await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } });
+    if (!isCurrent()) return;
+    await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } }, true, requestVersion);
+    if (!isCurrent()) return;
     const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
     if (narrationButton) {
       const audioUrl = staticAudioUrl;
@@ -2402,7 +2284,9 @@ async function bootstrapViewer() {
     }
   };
 
-  const openProject = async (project: RecentProject) => {
+  const openProject = async (project: RecentProject, expectedVersion?: number) => {
+    const requestVersion = expectedVersion ?? ++loadVersion;
+    const isCurrent = () => requestVersion === loadVersion;
     const target = container;
     if (!target) return;
     const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
@@ -2414,6 +2298,7 @@ async function bootstrapViewer() {
       throw new Error(getLang() === "en" ? `Could not open the page (${response.status})` : `打开页面失败 (${response.status})`);
     }
     const payload = await response.json() as { messages?: A2uiMessage[] };
+    if (!isCurrent()) return;
     if (!Array.isArray(payload.messages)) {
       throw new Error(getLang() === "en" ? "Invalid page data" : "页面数据无效");
     }
@@ -2431,7 +2316,7 @@ async function bootstrapViewer() {
       narrationButton.hidden = !isAudioEnabled();
       narrationButton.onclick = () => {
         const language = getLang() === "en" ? "en" : "zh";
-        void handleNarrationToggle(narrationButton, async () => {
+        void narrationController.toggle(narrationButton, async () => {
           const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(project.id)}/narration?language=${language}`, {
             method: "POST",
             headers: { ...(getStoredApiKey() ? { "X-OpenRouter-API-Key": getStoredApiKey() } : {}) },
@@ -2519,7 +2404,9 @@ async function bootstrapViewer() {
 
   const switchLanguage = async (newLang: Lang) => {
     if (newLang === getLang()) return;
+    const requestVersion = ++loadVersion;
     setLang(newLang);
+    narrationController.stop();
     languageChangeControllers.forEach((controller) => controller.onLanguageChanged());
     renderShell(newLang);
     const target = container;
@@ -2528,14 +2415,16 @@ async function bootstrapViewer() {
     stopResize = setupAutoResize(target, () => parentOrigin);
     bindShellControls(onGenerate, switchLanguage, selectExample, sourceLibrary?.open);
 
-    if (currentContent.kind === "example") {
-      const item = getExampleItems(newLang).find((i) => i.id === currentContent.id);
+    const content = currentContent;
+    if (content.kind === "example") {
+      const item = getExampleItems(newLang).find((i) => i.id === content.id);
       if (item) {
-        await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } });
+        await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } }, true, requestVersion);
         return;
       }
     }
-    if (currentContent.kind === "project" && activeRuntime) {
+    if (requestVersion !== loadVersion) return;
+    if (content.kind === "project" && activeRuntime) {
       activeRuntime = { ...activeRuntime, container: target };
       renderSurfaces(target, activeRuntime.processor, activeRuntime.modeHint);
       return;
