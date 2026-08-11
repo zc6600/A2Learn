@@ -17,6 +17,7 @@ import { mountFloatingAgent } from "./floating-agent";
 import { mountInlineComponentEditor } from "./inline-component-editor";
 import { mountSourceLibrary } from "./source-library";
 import { NarrationController } from "./narration-controller";
+import { sendOnlineSessionAction, startOnlineSession } from "./online-session";
 import {
   clearExamplesUsingComponent,
   generationSettingsHtml,
@@ -33,7 +34,6 @@ import {
   applyEmbedFlag,
   applyGenerationTheme,
   applySourceTheme,
-  buildHeaders,
   configFromLocation,
   getLang,
   isPlainObject,
@@ -45,9 +45,6 @@ import type {
   InitMessage,
   ReadyMessage,
   ResizeMessage,
-  SessionActionResponse,
-  SessionStartResponse,
-  SessionStatusResponse,
   ViewerRuntimeConfig,
   ViewerSourceOffline,
   ViewerSourceOnline,
@@ -839,89 +836,15 @@ function setupAutoResize(container: HTMLElement, getTargetOrigin: () => string):
   };
 }
 
-// /api/session/start returns "pending" immediately — the 3-step LLM pipeline
-// (plan_curriculum -> build_site -> generate_a2ui_messages) keeps running
-// server-side in a background thread, since it routinely takes well over
-// Cloudflare's ~100s edge timeout for a single synchronous request/response.
-// Poll /status until the backend flips it to "ready" (or "error").
-async function pollSessionUntilReady(
-  apiBaseUrl: string,
-  headers: Record<string, string>,
-  sessionId: string,
-): Promise<A2uiMessage[]> {
-  const POLL_INTERVAL_MS = 2500;
-  const MAX_WAIT_MS = 15 * 60 * 1000;
-  const deadline = Date.now() + MAX_WAIT_MS;
-  while (Date.now() < deadline) {
-    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
-    const res = await fetch(`${apiBaseUrl}/api/session/${sessionId}/status`, { headers });
-    if (!res.ok) {
-      throw new Error(`Session status check failed (${res.status})`);
-    }
-    const data = (await res.json()) as SessionStatusResponse;
-    if (data.status === "ready") {
-      return data.messages;
-    }
-    if (data.status === "error") {
-      throw new Error(data.error || "Generation failed on the server.");
-    }
-  }
-  throw new Error("Timed out waiting for generation to complete.");
-}
-
-/** Generated-image URLs are API-relative so the backend can serve cached
- * assets. Resolve only that narrow URL form before handing messages to A2UI;
- * ordinary text and external image links remain untouched. */
-function resolveGeneratedImageUrls(messages: A2uiMessage[], apiBaseUrl: string): A2uiMessage[] {
-  const base = apiBaseUrl.replace(/\/+$/, "");
-  const generatedImagePath = /^\/api\/generated-images\/[a-f0-9]{64}\.png$/;
-  const visit = (value: any): any => {
-    if (typeof value === "string") return generatedImagePath.test(value) ? `${base}${value}` : value;
-    if (Array.isArray(value)) return value.map(visit);
-    if (!value || typeof value !== "object") return value;
-    for (const [key, child] of Object.entries(value)) value[key] = visit(child);
-    return value;
-  };
-  return messages.map((message) => visit(message));
-}
-
 async function bootstrapOnline(
   container: HTMLElement,
   source: ViewerSourceOnline,
   isCurrent: () => boolean = () => true,
 ): Promise<boolean> {
-  const startPayload = {
-    resource_path: source.resourcePath || undefined,
-    resource_text: source.resourceText || undefined,
-    sourceIds: source.sourceIds || undefined,
-    resourceQuery: source.resourceQuery || undefined,
-    language: source.language || getLang(),
-    generationProfile: getStoredGenerationProfile(),
-  };
-  const startResponse = await fetch(`${source.apiBaseUrl}/api/session/start`, {
-    method: "POST",
-    headers: buildHeaders(source.headers),
-    body: JSON.stringify(startPayload),
-  });
-  if (!startResponse.ok) {
-    throw new Error(`Online session initialization failed (${startResponse.status})`);
-  }
-  const startData = (await startResponse.json()) as SessionStartResponse;
-  const sessionId = startData.session_id;
-  if (!sessionId) {
-    throw new Error("Online session response format error.");
-  }
-
-  let initialMessages: A2uiMessage[];
-  if (startData.status === "error") {
-    throw new Error("Generation failed on the server.");
-  } else if (startData.status === "ready" && Array.isArray(startData.messages) && startData.messages.length > 0) {
-    initialMessages = startData.messages;
-  } else {
-    initialMessages = await pollSessionUntilReady(source.apiBaseUrl, buildHeaders(source.headers), sessionId);
-  }
+  const session = await startOnlineSession(source, getStoredGenerationProfile());
+  const sessionId = session.sessionId;
+  const initialMessages = session.messages;
   if (!isCurrent()) return false;
-  initialMessages = resolveGeneratedImageUrls(initialMessages, source.apiBaseUrl);
 
   let isSendingAction = false;
 
@@ -952,18 +875,9 @@ async function bootstrapOnline(
     isSendingAction = true;
     try {
       if (!isCurrent()) return;
-      const res = await fetch(`${source.apiBaseUrl}/api/session/${sessionId}/action`, {
-        method: "POST",
-        headers: buildHeaders(source.headers),
-        body: JSON.stringify({ action: next }),
-      });
-      if (!res.ok) {
-        throw new Error(`Interaction callback failed (${res.status})`);
-      }
-      const data = (await res.json()) as SessionActionResponse;
+      const messages = await sendOnlineSessionAction(source, sessionId, next);
       if (!isCurrent()) return;
-      if (Array.isArray(data.messages) && data.messages.length > 0) {
-        const messages = resolveGeneratedImageUrls(data.messages, source.apiBaseUrl);
+      if (messages.length > 0) {
         processor.processMessages(messages);
         const lastCreatedId = extractLastCreatedSurfaceId(messages);
         if (lastCreatedId) {
