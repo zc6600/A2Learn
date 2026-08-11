@@ -19,6 +19,7 @@ import { mountSourceLibrary } from "./source-library";
 import { NarrationController } from "./narration-controller";
 import { sendOnlineSessionAction, startOnlineSession } from "./online-session";
 import { CHROME_STRINGS, T } from "./viewer-copy";
+import { loadViewerSource } from "./viewer-loader";
 import {
   clearExamplesUsingComponent,
   generationSettingsHtml,
@@ -1450,15 +1451,6 @@ async function bootstrapViewer() {
     postToParent({ type: "a2learn:ready" }, parentOrigin);
   }
 
-  // `fallbackToOffline` controls what happens when an online request throws:
-  // true silently swaps in the static demo (site_messages.json) after showing
-  // the error for a frame — appropriate for a config-driven initial load,
-  // where "something" beats a dead page. But reusing that same fallback for a
-  // user-triggered onGenerate() call was actively misleading: the visitor's
-  // real prompt failed (bad key, CORS, backend down/timed out), yet the error
-  // was immediately overwritten by the offline demo's first surface
-  // ("surface-module-1"), so failures looked like the app silently
-  // redirecting to unrelated content instead of surfacing what went wrong.
   const startWithConfig = async (
     cfg: ViewerRuntimeConfig,
     fallbackToOffline: boolean = true,
@@ -1471,47 +1463,20 @@ async function bootstrapViewer() {
     // move out from under an in-flight load.
     const target = container;
     if (!target) return;
-    applyEmbedFlag(cfg.embed);
-    applySourceTheme(cfg.source);
-
-    // Merge stored API Key if present
-    const storedKey = getStoredApiKey();
-    if (cfg.source.mode === "online" && storedKey) {
-      cfg.source.headers = {
-        ...(cfg.source.headers || {}),
-        Authorization: `Bearer ${storedKey}`,
-      };
-    }
-
-    try {
-      if (cfg.source.mode === "online") {
-        showState(target, T[getLang()].agentPlanning, "loading");
-        await bootstrapOnline(target, cfg.source, isCurrent);
-        if (!isCurrent()) return;
+    await loadViewerSource({
+      config: cfg,
+      target,
+      fallbackToOffline,
+      isCurrent,
+      getApiKey: getStoredApiKey,
+      getLanguage: getLang,
+      bootstrapOnline,
+      bootstrapOffline,
+      onLoaded: () => {
         stopResize();
         stopResize = setupAutoResize(target, () => parentOrigin);
-        return;
-      }
-    } catch (err) {
-      if (!isCurrent()) return;
-      const tr = T[getLang()];
-      const errorLine = getLang() === "zh" ? `错误信息: ${String(err)}` : `Error: ${String(err)}`;
-      const fallbackNote = fallbackToOffline ? `\n${tr.onlineFailedFallback}` : "";
-      showState(target, `${tr.onlineFailedPrefix}\n${errorLine}${fallbackNote}`, "error");
-      if (!fallbackToOffline) {
-        return;
-      }
-    }
-    await bootstrapOffline(
-      target,
-      cfg.source.mode === "offline"
-        ? cfg.source
-        : { mode: "offline", messagesUrl: "/generated/site_messages.json" },
-      isCurrent,
-    );
-    if (!isCurrent()) return;
-    stopResize();
-    stopResize = setupAutoResize(target, () => parentOrigin);
+      },
+    });
   };
 
   const selectExample = async (id: string) => {
