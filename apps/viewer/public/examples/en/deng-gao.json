@@ -12,13 +12,14 @@
         "avatar":"👴",
         "location":"Kuizhou High Terrace · Yangtze Gorges",
         "time":"Double Ninth Festival, 767 AD",
-        "content":"Ascending the high terrace alone on Double Ninth. Swift winds, high sky, leaves rustling, Yangtze rolling east.\nCarrying the weight of national turmoil and personal illness, I compose 'Climbing the Height'.",
+        "content":"Ascending the high terrace alone on Double Ninth. <dfn title=\"Swift winds, boundless high sky\">Swift winds, high sky</dfn>, leaves rustling, Yangtze rolling east.\nCarrying the weight of national turmoil and personal illness, I compose 'Climbing the Height'.",
         "imagePrompt":"Traditional Chinese ink painting of an elderly lone poet standing on a high cliff above a wide misty river with falling leaves and soaring birds, atmospheric melancholic aesthetic",
         "imageAlt":"Ink wash painting of lone poet on high terrace",
-        "likes":["Bai Juyi", "Yuan Zhen", "Hu Yinglin", "Su Shi"],
+        "likes":["Bai Juyi", "Yuan Zhen", "Su Shi", "Hu Yinglin", "Florence Chia-ying Yeh"],
         "comments":[
-          {"author":"Bai Juyi","content":"'Every pair of lines antithetical, every phrase abiding by strict meter' — Du Fu's octave reigns supreme for all time!"},
-          {"author":"Hu Yinglin (Ming Dynasty)","content":"Channeling endless rivers into infinite cosmos. Nothing surpasses this grandeur and tragic dignity."}
+          {"author":"Bai Juyi","role":"Tang Dynasty Admirer","content":"'Every pair of lines antithetical, every phrase abiding by strict meter' — Du Fu's octave reigns supreme for all time!"},
+          {"author":"Su Shi","role":"Song Dynasty Soulmate","content":"Brother Zimei, no ascension poem in history equals this. Even in Huangzhou exile, I salute you from afar!"},
+          {"author":"Hu Yinglin (Ming)","role":"Poetic Critique","content":"Channeling endless rivers into infinite cosmos. Nothing surpasses this grandeur and tragic dignity."}
         ]
       }
     ]},

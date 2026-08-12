@@ -1,0 +1,25 @@
+/* Raw palette values. Components must consume semantic or component tokens. */
+:root {
+  --a2-color-green-700: #15803d;
+  --a2-color-amber-700: #b45309;
+  --a2-color-red-700: #b91c1c;
+  --a2-color-slate-900: #0f172a;
+  --a2-color-slate-200: #e2e8f0;
+  --a2-color-slate-400: #94a3b8;
+  --a2-color-code-header: #2d2d2d;
+  --a2-color-code-border: #333;
+  --a2-color-code-muted: #888;
+  --a2-color-code-info: #4fc1ff;
+  --a2-color-achievement-surface: #fff5e6;
+  --a2-color-achievement-surface-end: #fffbf2;
+  --a2-color-achievement-border: #fbe6c4;
+  --a2-color-achievement-accent: #ffb300;
+  --a2-color-achievement-text: #b37700;
+  --a2-color-wechat-surface: #ededed;
+  --a2-color-wechat-border: #d6d6d6;
+  --a2-color-wechat-header: #f7f7f7;
+  --a2-color-wechat-bubble: #95ec69;
+  --a2-color-sandbox-run: #34a853;
+  --a2-color-sandbox-run-end: #2d8a46;
+  --a2-color-sandbox-run-disabled: #a5d6a7;
+}

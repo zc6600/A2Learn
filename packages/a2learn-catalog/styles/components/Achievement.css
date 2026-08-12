@@ -8,8 +8,8 @@
       gap: var(--a2ui-spacing-l);
       padding: var(--a2ui-spacing-l);
       border-radius: var(--a2ui-border-radius);
-      background: linear-gradient(135deg, var(--a2learn-achievement-surface) 0%, var(--a2learn-achievement-surface-end) 100%);
-      border: 1px solid var(--a2learn-achievement-border);
+      background: linear-gradient(135deg, var(--a2learn-achievement-surface, #fff5e6) 0%, var(--a2learn-achievement-surface-end, #fffbf2) 100%);
+      border: 1px solid var(--a2learn-achievement-border, #fbe6c4);
       box-shadow: 0 4px 12px rgba(255, 160, 0, 0.1);
       position: relative;
       overflow: hidden;
@@ -33,7 +33,7 @@
       width: 64px;
       height: 64px;
       border-radius: 50%;
-      background: var(--a2learn-achievement-accent);
+      background: var(--a2learn-achievement-accent, #ffb300);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -51,7 +51,7 @@
     .title {
       font-size: var(--a2ui-font-size-l);
       font-weight: 700;
-      color: var(--a2learn-achievement-text);
+      color: var(--a2learn-achievement-text, #b37700);
       margin: 0 0 4px 0;
     }
     .description {

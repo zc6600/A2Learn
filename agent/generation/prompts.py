@@ -166,7 +166,9 @@ def a2ui_system_prompt(
           `characterId`, `content`, optional `imagePrompt`, optional `imageUrl`, and optional `delayMs`.
           SocialMoments accepts a `posts` array. Each post needs `id`, `author`,
           and `content`; it may have `avatar`, `imagePrompt`, `imageUrls` (at most four),
-          `location`, `time`, `likes`, and `comments` ({{author, content}}).
+          `location`, `time`, `likes`, and `comments` ({{author, role, content}}).
+          Comments can bring historical contemporaries, later dynasty admirers, or
+          readers together with descriptive `role` tags (e.g. "唐代挚友", "宋代知音", "诗家点评").
           Use these only when they help learners enter a concrete scene or hear
           distinct interpretations; social UI is never a substitute for close
           reading of the source text.

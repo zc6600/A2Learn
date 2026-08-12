@@ -70,6 +70,25 @@ GLOBAL_EXCLUDE_PATTERNS = [
     "*.bak",
     "*.swp",
     "*.swo",
+    "*.zip",
+    "*.tar",
+    "*.tar.gz",
+    "*.tgz",
+    "*.rar",
+    "*.7z",
+    "*.iso",
+]
+
+# Media file extensions (large binary files that cannot be compressed well)
+MEDIA_PATTERNS = [
+    "*.mp3",
+    "*.wav",
+    "*.ogg",
+    "*.mp4",
+    "*.mov",
+    "*.webm",
+    "*.avi",
+    "*.mkv",
 ]
 
 # Patterns that should NOT be excluded even if matching above
@@ -98,6 +117,8 @@ def should_exclude(
     include_third_party: bool = False,
     include_scratch: bool = False,
     include_draft: bool = False,
+    exclude_media: bool = False,
+    exclude_lockfiles: bool = False,
     output_zip_name: str = "",
 ) -> tuple[bool, str]:
     """Determine if a relative path should be excluded, returning (should_exclude, reason)."""
@@ -121,6 +142,18 @@ def should_exclude(
     for pat in GLOBAL_EXCLUDE_PATTERNS:
         if fnmatch.fnmatch(rel_path.name, pat):
             return True, f"Matches pattern '{pat}'"
+
+    # Check media files if exclude_media is enabled
+    if exclude_media:
+        if "audio" in parts or "video" in parts:
+            return True, "Media directory excluded (--exclude-media / --lite)"
+        for pat in MEDIA_PATTERNS:
+            if fnmatch.fnmatch(rel_path.name, pat):
+                return True, f"Media file excluded '{pat}' (--exclude-media / --lite)"
+
+    # Check lockfiles if exclude_lockfiles is enabled
+    if exclude_lockfiles and rel_path.name in ["uv.lock", "package-lock.json"]:
+        return True, "Dependency lockfile excluded (--no-lockfiles / --lite)"
 
     # Check third_party
     if not include_third_party and parts[0] == "third_party":
@@ -188,22 +221,40 @@ def package_project(
     include_third_party: bool = False,
     include_scratch: bool = False,
     include_draft: bool = False,
+    exclude_media: bool = False,
+    exclude_lockfiles: bool = False,
+    compression: str = "deflate",
     dry_run: bool = False,
     strict: bool = False,
 ) -> int:
     """Main packaging routine."""
+    # Resolve compression method
+    comp_map = {
+        "deflate": zipfile.ZIP_DEFLATED,
+        "lzma": zipfile.ZIP_LZMA,
+        "bzip2": zipfile.ZIP_BZIP2,
+    }
+    zip_compression = comp_map.get(compression.lower(), zipfile.ZIP_DEFLATED)
+    comp_kwargs = {}
+    if zip_compression == zipfile.ZIP_DEFLATED:
+        comp_kwargs["compresslevel"] = 9
+
     print("=" * 60)
     print(" 📦 A2Learn Competition Submission Packager")
     print("=" * 60)
-    print(f"📁 Source Root:   {REPO_ROOT}")
-    print(f"🎯 Output Target: {output_path}")
-    print(f"⚙️  Third Party:   {'Included' if include_third_party else 'Excluded (downloaded via setup.sh)'}")
-    print(f"⚙️  Scratch / Draft: {'Included' if (include_scratch or include_draft) else 'Excluded'}")
+    print(f"📁 Source Root:       {REPO_ROOT}")
+    print(f"🎯 Output Target:     {output_path}")
+    print(f"🗜️  Compression Method: {compression.upper()} ({'Ultra-tight LZMA' if compression == 'lzma' else 'Deflate Level 9'})")
+    print(f"⚙️  Third Party:       {'Included' if include_third_party else 'Excluded (downloaded via setup.sh)'}")
+    print(f"⚙️  Media / Audio:     {'Excluded (--exclude-media / --lite)' if exclude_media else 'Included'}")
+    print(f"⚙️  Lockfiles:         {'Excluded (--no-lockfiles / --lite)' if exclude_lockfiles else 'Included'}")
+    print(f"⚙️  Scratch / Draft:   {'Included' if (include_scratch or include_draft) else 'Excluded'}")
     print("-" * 60)
 
     files_to_pack: list[tuple[Path, Path]] = []
     excluded_count = 0
     total_uncompressed_bytes = 0
+    media_bytes = 0
     secret_warnings: list[tuple[str, int, str, str]] = []
 
     # Collect files
@@ -219,6 +270,8 @@ def package_project(
                 include_third_party=include_third_party,
                 include_scratch=include_scratch,
                 include_draft=include_draft,
+                exclude_media=exclude_media,
+                exclude_lockfiles=exclude_lockfiles,
                 output_zip_name=output_path.name,
             )[0]
         ]
@@ -232,6 +285,8 @@ def package_project(
                 include_third_party=include_third_party,
                 include_scratch=include_scratch,
                 include_draft=include_draft,
+                exclude_media=exclude_media,
+                exclude_lockfiles=exclude_lockfiles,
                 output_zip_name=output_path.name,
             )
 
@@ -246,6 +301,9 @@ def package_project(
 
             size = file_path.stat().st_size
             total_uncompressed_bytes += size
+            if any(fnmatch.fnmatch(rel_file.name, pat) for pat in MEDIA_PATTERNS) or "audio" in rel_file.parts:
+                media_bytes += size
+
             files_to_pack.append((file_path, rel_file))
 
     # Handle secret scan results
@@ -275,6 +333,11 @@ def package_project(
     print(f"   • Total Excluded Files:  {excluded_count}")
     print(f"   • Total Raw Size:        {total_uncompressed_bytes / (1024 * 1024):.2f} MB")
 
+    if not exclude_media and media_bytes > 5 * 1024 * 1024:
+        print(f"\n💡 [Size Optimization Tip] Media/audio files occupy {media_bytes / (1024 * 1024):.2f} MB (pre-compressed binary).")
+        print("   Run with '--lite' or '--exclude-media' to produce an ultra-lightweight (~700 KB) pure code submission.")
+        print("   Or use '--compression lzma' for maximum archive compression.")
+
     if dry_run:
         print("\n🔍 Dry-run complete. No zip archive was created.")
         return 0
@@ -283,8 +346,8 @@ def package_project(
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Write Zip Archive
-    print(f"\n🚀 Creating zip archive: {output_path} ...")
-    with zipfile.ZipFile(output_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zipf:
+    print(f"\n🚀 Creating zip archive: {output_path} (compression={compression.upper()}) ...")
+    with zipfile.ZipFile(output_path, "w", compression=zip_compression, **comp_kwargs) as zipf:
         for abs_file, rel_file in files_to_pack:
             # Package with clean normalized relative path
             zipf.write(abs_file, arcname=str(rel_file))
@@ -300,22 +363,48 @@ def package_project(
     ratio = (1 - (zip_size / total_uncompressed_bytes)) * 100 if total_uncompressed_bytes else 0
 
     print(f"✅ Zip Created Successfully!")
-    print(f"   • Archive Path: {output_path.resolve()}")
-    print(f"   • Zip File Size: {zip_size / (1024 * 1024):.2f} MB (Compression: {ratio:.1f}%)")
-    print(f"   • Integrity Check: PASSED")
+    print(f"   • Archive Path:     {output_path.resolve()}")
+    if zip_size >= 1024 * 1024:
+        print(f"   • Zip File Size:    {zip_size / (1024 * 1024):.2f} MB (Space Saved: {ratio:.1f}%)")
+    else:
+        print(f"   • Zip File Size:    {zip_size / 1024:.1f} KB (Space Saved: {ratio:.1f}%)")
+    print(f"   • Compression Mode: {compression.upper()}")
+    print(f"   • Integrity Check:  PASSED")
     print("=" * 60)
     return 0
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Package A2Learn repository into a clean zip archive for competition submission."
+        description="Package A2Learn repository into a clean, compact zip archive for competition submission."
     )
     parser.add_argument(
         "-o", "--output",
         type=str,
         default="A2Learn-submission.zip",
         help="Output zip file path (default: A2Learn-submission.zip in repo root)",
+    )
+    parser.add_argument(
+        "-c", "--compression",
+        type=str,
+        choices=["deflate", "lzma", "bzip2"],
+        default="deflate",
+        help="Compression algorithm: 'deflate' (standard, max compatibility), 'lzma' (highest compression ratio), 'bzip2'",
+    )
+    parser.add_argument(
+        "--exclude-media",
+        action="store_true",
+        help="Exclude sample audio/video files (drops archive size from ~17 MB to ~700 KB)",
+    )
+    parser.add_argument(
+        "--no-lockfiles",
+        action="store_true",
+        help="Exclude package manager lockfiles (uv.lock, package-lock.json)",
+    )
+    parser.add_argument(
+        "--lite",
+        action="store_true",
+        help="Ultra-compact mode: excludes sample audio/media and lockfiles for minimum archive size",
     )
     parser.add_argument(
         "--include-third-party",
@@ -348,11 +437,18 @@ def main():
     if not output_path.is_absolute():
         output_path = REPO_ROOT / output_path
 
+    # If --lite is specified, enable media and lockfile exclusions
+    exclude_media = args.exclude_media or args.lite
+    exclude_lockfiles = args.no_lockfiles or args.lite
+
     code = package_project(
         output_path=output_path,
         include_third_party=args.include_third_party,
         include_scratch=args.include_scratch,
         include_draft=args.include_draft,
+        exclude_media=exclude_media,
+        exclude_lockfiles=exclude_lockfiles,
+        compression=args.compression,
         dry_run=args.dry_run,
         strict=args.strict,
     )

@@ -351,8 +351,14 @@ export const SocialMomentsApi = {
           imageAlt: DynamicStringSchema.optional().describe("配图整体的简短替代说明"),
           location: DynamicStringSchema.optional().describe("可选地点或时空标签"),
           time: DynamicStringSchema.optional().describe("可选发布时间或诗中时刻"),
-          likes: z.array(DynamicStringSchema).max(12).optional().describe("点赞者名称，简短即可"),
-          comments: z.array(z.object({ author: DynamicStringSchema, content: DynamicStringSchema })).max(8).optional().describe("评论区，用于补充典故、反问或不同视角"),
+          likes: z.array(DynamicStringSchema).max(16).optional().describe("点赞者名称，简短即可"),
+          comments: z.array(
+            z.object({
+              author: DynamicStringSchema,
+              content: DynamicStringSchema,
+              role: DynamicStringSchema.optional().describe("可选身份标签，如 '唐代挚友'、'宋代知己'、'现代读者'"),
+            })
+          ).max(12).optional().describe("评论区，用于补充典故、反问或不同视角"),
         })
       ).min(1).max(6).describe("1–6 条朋友圈动态，按诗意或叙事推进排序"),
     })

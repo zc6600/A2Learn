@@ -12,8 +12,8 @@
         flex-direction: column;
       }
       .chat-container.wechat-group {
-        background: var(--a2learn-dialogue-wechat-surface);
-        border-color: var(--a2learn-dialogue-wechat-border);
+        background: var(--a2learn-dialogue-wechat-surface, #ededed);
+        border-color: var(--a2learn-dialogue-wechat-border, #d6d6d6);
         border-radius: 8px;
       }
     .chat-header {
@@ -32,7 +32,7 @@
       align-items: center;
       justify-content: center;
       padding: 10px 52px;
-      background: var(--a2learn-dialogue-wechat-header);
+      background: var(--a2learn-dialogue-wechat-header, #f7f7f7);
       border-bottom-color: #dedede;
       color: #111;
       font-size: 16px;
@@ -159,7 +159,7 @@
 
     /* Right Bubble Style (Like WeChat Green) */
     .message-row.right .bubble {
-      background: var(--a2learn-dialogue-wechat-bubble);
+      background: var(--a2learn-dialogue-wechat-bubble, #95ec69);
       color: #000;
       border: 1px solid #89d961;
       border-top-right-radius: 4px;

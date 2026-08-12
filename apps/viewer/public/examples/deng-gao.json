@@ -12,13 +12,14 @@
         "avatar":"👴",
         "location":"夔州高台 · 峡江之畔",
         "time":"大历二年重阳 (公元 767 年)",
-        "content":"重阳独登夔州高台。风急天高，落叶萧萧，长江滚滚东去。\n兼抱家国战乱之难与一身风痹之疾，聊作《登高》一首。",
+        "content":"重阳独登夔州高台。<dfn title=\"风势劲急，天高旷远\">风急天高</dfn>，落叶萧萧，长江滚滚东去。\n兼抱家国战乱之难与一身风痹之疾，聊作《登高》一首，聊以寄怀。",
         "imagePrompt":"Traditional Chinese ink painting of an elderly lone poet standing on a high cliff above a wide misty river with falling leaves and soaring birds, atmospheric melancholic aesthetic",
         "imageAlt":"高台独立水墨意境图",
-        "likes":["白居易", "元稹", "胡应麟", "苏轼"],
+        "likes":["白居易", "元稹", "苏轼", "胡应麟", "叶嘉莹"],
         "comments":[
-          {"author":"白居易","content":"‘句句皆对，一篇之中句句皆律’，老杜七律诚为古今之冠！"},
-          {"author":"胡应麟 (明)","content":"推不尽之江河，入无边之宇宙。千古雄浑悲壮莫过于此。"}
+          {"author":"白居易","role":"唐代粉丝","content":"‘句句皆对，一篇之中句句皆律’，老杜七律诚为古今之冠！"},
+          {"author":"苏轼","role":"宋代知音","content":"子美兄，千古登高之作，无出其右者。东坡在黄州亦遥拜！"},
+          {"author":"胡应麟 (明)","role":"诗家点评","content":"推不尽之江河，入无边之宇宙。千古雄浑悲壮莫过于此。"}
         ]
       }
     ]},

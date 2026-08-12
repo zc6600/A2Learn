@@ -8,14 +8,14 @@
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      border: 1px solid var(--a2learn-code-border);
+      border: 1px solid var(--a2learn-code-border, #333);
     }
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 8px 16px;
-      background: var(--a2learn-code-header);
+      background: var(--a2learn-code-header, #2d2d2d);
       border-bottom: 1px solid #444;
     }
     .mac-dots {
@@ -42,19 +42,19 @@
       font-family: monospace;
     }
     .language-badge {
-      color: var(--a2learn-code-info);
+      color: var(--a2learn-code-info, #4fc1ff);
       font-size: 11px;
       text-transform: uppercase;
       font-weight: 700;
       letter-spacing: 0.5px;
-      border: 1px solid var(--a2learn-code-info);
+      border: 1px solid var(--a2learn-code-info, #4fc1ff);
       padding: 2px 6px;
       border-radius: 4px;
     }
     .copy-btn {
       background: transparent;
       border: none;
-      color: var(--a2learn-code-muted);
+      color: var(--a2learn-code-muted, #888);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -66,7 +66,7 @@
       color: #fff;
     }
     .copy-btn.copied {
-      color: var(--a2learn-code-info);
+      color: var(--a2learn-code-info, #4fc1ff);
     }
     .code-content {
       padding: 16px;
