@@ -1,13 +1,19 @@
-@layer reset, primitives, tokens, components, themes;
+@layer reset, primitives, tokens, components;
 @import "./base/reset.css" layer(reset);
 @import "./base/primitives.css" layer(primitives);
 @import "./base/tokens.css" layer(tokens);
 @import "./components/app-shell.css" layer(components);
 @import "./components/gallery.css" layer(components);
-@import "./themes/learning-default.css" layer(themes);
-@import "./themes/teal-accent.css" layer(themes);
-@import "./themes/poetry-ink.css" layer(themes);
-@import "./themes/poetry-night.css" layer(themes);
-@import "./themes/editorial.css" layer(themes);
-@import "./themes/minimal.css" layer(themes);
-@import "./themes/ppt-stage.css" layer(themes);
+/*
+ * Keep themes out of a cascade layer. @a2ui/lit adds its default token sheet
+ * dynamically when a surface is first rendered. Its declarations are
+ * unlayered, so a layered theme would lose to the A2UI blue defaults as soon
+ * as an example is opened.
+ */
+@import "./themes/learning-default.css";
+@import "./themes/teal-accent.css";
+@import "./themes/poetry-ink.css";
+@import "./themes/poetry-night.css";
+@import "./themes/editorial.css";
+@import "./themes/minimal.css";
+@import "./themes/ppt-stage.css";
