@@ -499,7 +499,7 @@ async function bootstrapViewer() {
     const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
     if (narrationButton) {
       narrationButton.className = "a2learn-narration-button";
-      narrationButton.title = lang === "en" ? "Play narration" : "播放讲稿";
+      narrationButton.title = T[lang].playNarration;
       narrationButton.addEventListener("click", () => {
         void narrationController.toggle(narrationButton);
       });
@@ -587,7 +587,7 @@ async function bootstrapViewer() {
         if (!ic()) return;
         const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
         if (!apiBaseUrl) return;
-        const projectTitle = s.resourceText || s.resourceQuery || (getLang() === "en" ? "Generated Course" : "AI 生成课程");
+        const projectTitle = s.resourceText || s.resourceQuery || T[getLang()].defaultGeneratedTitle;
         try {
           const res = await fetch(`${apiBaseUrl}/api/projects/from-session`, {
             method: "POST",
@@ -640,7 +640,7 @@ async function bootstrapViewer() {
       if (narrationButton) {
         narrationButton.dataset.audioUrl = staticAudioUrl;
         narrationButton.hidden = false;
-        narrationButton.title = getLang() === "en" ? "Play narration" : "播放讲稿音频";
+        narrationButton.title = T[getLang()].playNarration;
       }
       return;
     }
@@ -672,8 +672,8 @@ async function bootstrapViewer() {
       narrationButton.dataset.audioUrl = audioUrl || "";
       narrationButton.hidden = !isAudioEnabled() || !audioUrl;
       narrationButton.title = audioUrl
-        ? (getLang() === "en" ? "Play narration" : "播放讲稿音频")
-        : (getLang() === "en" ? "No narration available" : "暂无预生成音频");
+        ? T[getLang()].playNarration
+        : T[getLang()].noNarrationAvailable;
     }
   };
 

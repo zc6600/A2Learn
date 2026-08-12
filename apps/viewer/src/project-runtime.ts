@@ -8,6 +8,7 @@ import { type ShellRuntime } from "./shell-controls";
 import { type RecentProject, rememberProject } from "./recent-projects";
 import { NarrationController } from "./narration-controller";
 import type { ActiveDocument } from "./viewer-types";
+import { T } from "./viewer-copy";
 
 export type ProjectRuntimeOptions = {
   project: RecentProject;
@@ -44,16 +45,16 @@ export async function openProject(options: ProjectRuntimeOptions): Promise<void>
 
   const apiBaseUrl = getApiBaseUrl().replace(/\/+$/, "");
   if (!apiBaseUrl) {
-    throw new Error(getLang() === "en" ? "The editing API is not configured." : "未配置编辑 API 服务。");
+    throw new Error(T[getLang()].editingApiNotConfigured);
   }
   const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(project.id)}/a2ui`);
   if (!response.ok) {
-    throw new Error(getLang() === "en" ? `Could not open the page (${response.status})` : `打开页面失败 (${response.status})`);
+    throw new Error(`${T[getLang()].openPageFailedPrefix} (${response.status})`);
   }
   const payload = await response.json() as { messages?: A2uiMessage[] };
   if (!isCurrent()) return;
   if (!Array.isArray(payload.messages)) {
-    throw new Error(getLang() === "en" ? "Invalid page data" : "页面数据无效");
+    throw new Error(T[getLang()].invalidPageData);
   }
 
   const processor = new MessageProcessor([a2learnCatalog], () => undefined);
@@ -83,7 +84,7 @@ function configureProjectNarration(options: {
   if (!button) return;
   button.hidden = !isAudioEnabled();
   button.onclick = () => {
-    const language = getLang() === "en" ? "en" : "zh";
+    const language = getLang();
     void narrationController.toggle(button, async () => {
       const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(project.id)}/narration?language=${language}`, {
         method: "POST",

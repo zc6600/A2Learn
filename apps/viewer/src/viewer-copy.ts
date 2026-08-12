@@ -13,6 +13,12 @@ export type ViewerCopy = {
   needApiKeyExplore: string;
   needApiKeyPreset: string;
   staticTreeLeafNote: string;
+  playNarration: string;
+  noNarrationAvailable: string;
+  defaultGeneratedTitle: string;
+  editingApiNotConfigured: string;
+  openPageFailedPrefix: string;
+  invalidPageData: string;
 };
 
 export const T: Record<Lang, ViewerCopy> = {
@@ -29,6 +35,12 @@ export const T: Record<Lang, ViewerCopy> = {
     needApiKeyExplore: "请先点击右上角配置你的 OpenRouter API Key 以调用 AI 引擎。",
     needApiKeyPreset: "请先配置你的 OpenRouter API Key 以开始生成流程！",
     staticTreeLeafNote: "静态案例陈列仅展示到这一层；连接 BYOK 在线后端后可继续深入生成完整内容。",
+    playNarration: "播放讲稿音频",
+    noNarrationAvailable: "暂无预生成音频",
+    defaultGeneratedTitle: "AI 生成课程",
+    editingApiNotConfigured: "未配置编辑 API 服务。",
+    openPageFailedPrefix: "打开页面失败",
+    invalidPageData: "页面数据无效",
   },
   en: {
     subtitle: "An AI-driven dynamic teaching showcase engine · auto-plans a curriculum outline and generates the A2UI interface live",
@@ -44,6 +56,12 @@ export const T: Record<Lang, ViewerCopy> = {
     needApiKeyExplore: "Please configure your OpenRouter API Key in the top right before using the AI engine.",
     needApiKeyPreset: "Please configure your OpenRouter API Key first to start generating!",
     staticTreeLeafNote: "This static example only goes this deep; connect a BYOK online backend to keep generating deeper content.",
+    playNarration: "Play narration audio",
+    noNarrationAvailable: "No narration available",
+    defaultGeneratedTitle: "Generated Course",
+    editingApiNotConfigured: "The editing API is not configured.",
+    openPageFailedPrefix: "Could not open the page",
+    invalidPageData: "Invalid page data",
   },
 };
 
