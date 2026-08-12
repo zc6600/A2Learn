@@ -20,15 +20,15 @@ export function getExampleItems(lang: Lang): ExampleCardItem[] {
 export function getExampleGroups(lang: Lang): ExampleCardGroup[] {
   const labels = lang === "zh"
     ? {
-        paper: { title: "论文详解", description: "从摘要、公式到研究脉络" },
-        computing: { title: "计算机专区", description: "算法、前端与 Agent 实战" },
-        poetry: { title: "诗词赏析", description: "从词注阅读到意象与情绪的行进" },
-      }
+      paper: { title: "论文详解", description: "从摘要、公式到研究脉络" },
+      computing: { title: "计算机专区", description: "算法、前端与 Agent 实战" },
+      poetry: { title: "诗词赏析", description: "从词注阅读到意象与情绪的行进" },
+    }
     : {
-        paper: { title: "Paper deep dives", description: "Abstracts, formulas, and research context" },
-        computing: { title: "Computing", description: "Algorithms, frontend, and Agent practice" },
-        poetry: { title: "Poetry reading", description: "Move from glossed reading into imagery and feeling" },
-      };
+      paper: { title: "Paper deep dives", description: "Abstracts, formulas, and research context" },
+      computing: { title: "Computing", description: "Algorithms, frontend, and Agent practice" },
+      poetry: { title: "Poetry reading", description: "Move from glossed reading into imagery and feeling" },
+    };
   return (["paper", "computing", "poetry"] as const).map((category) => ({
     id: category,
     ...labels[category],
@@ -40,10 +40,10 @@ export function renderCollapsibleExampleGallery(
   lang: Lang,
   expandedCategory?: ExampleCardGroup["id"],
 ): string {
-  const summary = lang === "zh" ? "浏览模板案例" : "Browse template examples";
+  const summary = lang === "zh" ? "现有案例" : "Existing examples";
   const detail = lang === "zh"
-    ? "按内容方向查看可直接打开的示例"
-    : "Open a ready-made example by content direction";
+    ? "点击打开"
+    : "Clikc to open";
 
   if (expandedCategory) {
     const groups = getExampleGroups(lang);

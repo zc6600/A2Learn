@@ -7,6 +7,8 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "npm run viewer:dev",
+    "gallery": "npm run viewer:gallery",
     "viewer:dev": "npm run dev --workspace a2learn-viewer",
     "viewer:editor": "npm run editor --workspace a2learn-viewer --",
     "viewer:gallery": "npm run gallery --workspace a2learn-viewer",

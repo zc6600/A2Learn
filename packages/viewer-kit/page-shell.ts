@@ -32,28 +32,6 @@ export interface AppChromeStrings {
   settingsContentHtml?: string;
 }
 
-const DEFAULT_CHROME_ZH: AppChromeStrings = {
-  promptPlaceholder: "输入你想学习的知识主题（例如：解释 Hash Map 机制...）",
-  sourceLibraryLabel: "📚 上传资料",
-  sourceLibraryTitle: "上传并选择资料",
-  submitLabel: "⚡ 实时生成 Showcase",
-  presetsLabel: "热门推荐：",
-  presets: [
-    { label: "Hash Map 原理", prompt: "Explain how a Hash Map works step by step in detail with visual mental model and code example" },
-    { label: "Transformer 架构", prompt: "Explain the Transformer architecture and attention mechanism in deep learning" },
-    { label: "HTTP/3 协议", prompt: "Explain HTTP/3 protocol QUIC features and advantages over HTTP/2" },
-    { label: "三体星系天体物理", prompt: "Explain the Three Body Problem orbital dynamics in astrophysics" },
-  ],
-  settingsBtnLabel: "⚙️ API Key",
-  settingsBtnTitle: "设置 OpenRouter API Key",
-  keyPillMissingLabel: "🔑 API Key 待配置",
-  modalTitle: "⚙️ 配置 API Key (BYOK 模式)",
-  modalBodyIntroHtml:
-    "输入你的 <strong>OpenRouter API Key</strong>。你的 Key 将仅保存在浏览器本地（<code>localStorage</code>），每次交互时透传给后端，绝不上交服务器保存。",
-  modalBodyFooter: "无 API Key？你也可以直接点击主页顶部的热门推荐，预览预置的精美 Showcase。",
-  modalSaveLabel: "保存配置",
-};
-
 export function renderAppFrame(
   root: HTMLElement,
   title: string,
@@ -62,19 +40,10 @@ export function renderAppFrame(
   options?: { lang?: AppLang; chrome?: AppChromeStrings },
 ): void {
   const lang = options?.lang ?? "zh";
-  const chrome = options?.chrome ?? DEFAULT_CHROME_ZH;
+  const chrome = options?.chrome;
 
-  const presetChips = chrome.presets
-    .map((p) => `<button class="app-preset-chip" data-preset="${p.prompt.replace(/"/g, "&quot;")}">${p.label}</button>`)
-    .join("");
-
-  root.innerHTML = `
-    <header class="app-header">
-      <div class="app-header-top">
-        <div class="app-brand">
-          <h1 class="app-title">${title.replace(/A2Learn/g, '<span class="brand-teal">A2</span>Learn')}</h1>
-          <p class="app-subtitle">${subtitle}</p>
-        </div>
+  const headerActionsHtml = chrome
+    ? `
         <div class="app-actions">
           <div id="app-lang-switcher" class="lang-switch-group">
             <button id="lang-zh-btn" class="lang-btn${lang === "zh" ? " active" : ""}">中文</button>
@@ -87,8 +56,11 @@ export function renderAppFrame(
             ${chrome.settingsBtnLabel}
           </button>
         </div>
-      </div>
+      `
+    : "";
 
+  const promptBarHtml = chrome
+    ? `
       <div class="app-prompt-bar">
         <form id="app-prompt-form" class="app-prompt-form">
           <input
@@ -107,11 +79,16 @@ export function renderAppFrame(
         </form>
         <div class="app-presets">
           <span>${chrome.presetsLabel}</span>
-          ${presetChips}
+          ${chrome.presets
+            .map((p) => `<button class="app-preset-chip" data-preset="${p.prompt.replace(/"/g, "&quot;")}">${p.label}</button>`)
+            .join("")}
         </div>
       </div>
-    </header>
+    `
+    : "";
 
+  const modalHtml = chrome
+    ? `
     <!-- Modal for Settings -->
     <div id="app-settings-modal" class="app-modal-backdrop hidden">
       <div class="app-modal">
@@ -138,6 +115,23 @@ export function renderAppFrame(
         </div>
       </div>
     </div>
+    `
+    : "";
+
+  root.innerHTML = `
+    <header class="app-header">
+      <div class="app-header-top">
+        <div class="app-brand">
+          <h1 class="app-title">${title.replace(/A2Learn/g, '<span class="brand-teal">A2</span>Learn')}</h1>
+          <p class="app-subtitle">${subtitle}</p>
+        </div>
+        ${headerActionsHtml}
+      </div>
+
+      ${promptBarHtml}
+    </header>
+
+    ${modalHtml}
 
     <main class="viewer-main">${contentHtml}</main>
   `;
