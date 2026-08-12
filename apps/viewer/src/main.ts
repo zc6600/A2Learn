@@ -512,9 +512,9 @@ async function bootstrapViewer() {
     if (narrationButton) {
       narrationButton.className = "a2learn-narration-button";
       narrationButton.title = T[lang].playNarration;
-      narrationButton.addEventListener("click", () => {
+      narrationButton.onclick = () => {
         void narrationController.toggle(narrationButton);
-      });
+      };
     }
 
     if (!initialConfig.embed) {
@@ -669,7 +669,9 @@ async function bootstrapViewer() {
     const isCurrent = () => requestVersion === loadVersion;
     const item = getExampleItems(getLang()).find((i) => i.id === id);
     if (!item) return;
-    narrationController.stop();
+    narrationController.resetForDocument(
+      document.getElementById("page-narration-button") as HTMLButtonElement | null,
+    );
     activeDoc = { type: "example", exampleId: id, title: item.title };
     workspaceStore.setActiveNode(id);
     updateProjectUrl(null);
@@ -723,6 +725,9 @@ async function bootstrapViewer() {
   const onGenerate = (promptText: string) => {
     const target = container;
     if (!target) return;
+    narrationController.resetForDocument(
+      document.getElementById("page-narration-button") as HTMLButtonElement | null,
+    );
     activeDoc = { type: "generated", promptText };
     updateProjectUrl(null);
     const currentApiUrl =
@@ -755,6 +760,9 @@ async function bootstrapViewer() {
   const onGenerateFromSources = (sourceIds: string[], resourceQuery: string) => {
     const target = container;
     if (!target) return;
+    narrationController.resetForDocument(
+      document.getElementById("page-narration-button") as HTMLButtonElement | null,
+    );
     activeDoc = { type: "generated", promptText: resourceQuery };
     updateProjectUrl(null);
     const currentApiUrl =

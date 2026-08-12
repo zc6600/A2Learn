@@ -34,9 +34,7 @@ export function setAudioEnabled(enabled: boolean): void {
 }
 
 export function staticExampleAudioUrl(exampleId: string, language: Lang): string | null {
-  return STATIC_EXAMPLE_AUDIO[exampleId]?.[language]
-    || STATIC_EXAMPLE_AUDIO[exampleId]?.zh
-    || null;
+  return STATIC_EXAMPLE_AUDIO[exampleId]?.[language] || null;
 }
 
 export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string {

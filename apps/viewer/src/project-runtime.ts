@@ -43,6 +43,10 @@ export async function openProject(options: ProjectRuntimeOptions): Promise<void>
   const target = getContainer();
   if (!target) return;
 
+  narrationController.resetForDocument(
+    document.getElementById("page-narration-button") as HTMLButtonElement | null,
+  );
+
   const apiBaseUrl = getApiBaseUrl().replace(/\/+$/, "");
   if (!apiBaseUrl) {
     throw new Error(T[getLang()].editingApiNotConfigured);

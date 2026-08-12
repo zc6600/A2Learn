@@ -453,19 +453,19 @@ async def generate_project_narration(
         _, documents = project_store.get(project_id)
     except ProjectNotFoundError as exc:
         raise HTTPException(status_code=404, detail="PROJECT_NOT_FOUND") from exc
-    api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
-    llm = build_page_editor_llm(api_key)
-    combined_document = {
-        "documentId": project_id,
-        "revision": max((document.revision for document in documents), default=1),
-        "surfaceId": "project",
-        "components": [
-            component
-            for document in documents
-            for component in document.to_dict().get("components", [])
-        ],
-    }
     try:
+        api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
+        llm = build_page_editor_llm(api_key)
+        combined_document = {
+            "documentId": project_id,
+            "revision": max((document.revision for document in documents), default=1),
+            "surfaceId": "project",
+            "components": [
+                component
+                for document in documents
+                for component in document.to_dict().get("components", [])
+            ],
+        }
         script = await run_in_threadpool(rewrite_page_narration, combined_document, llm=llm, language=language)
         audio_id, _ = await run_in_threadpool(synthesize, script, language=language, api_key=api_key)
         return {"script": script, "audioUrl": f"/api/audio/{audio_id}.mp3"}

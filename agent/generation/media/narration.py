@@ -7,8 +7,9 @@ import json
 import os
 import ssl
 import tempfile
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 from urllib.request import Request, urlopen
 
 import certifi
@@ -71,7 +72,18 @@ def rewrite_page_narration(
         {"role": "user", "content": prompt},
     ])
     content = getattr(response, "content", "")
-    script = "".join(str(item) for item in content) if isinstance(content, list) else str(content)
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, Mapping):
+                text = item.get("text")
+                if isinstance(text, str):
+                    parts.append(text)
+            elif isinstance(item, str):
+                parts.append(item)
+        script = "".join(parts)
+    else:
+        script = str(content)
     script = script.strip()
     if not script:
         raise RuntimeError("Narration model returned an empty script")
@@ -118,9 +130,23 @@ def synthesize(
             method="POST",
         )
         tls_context = ssl.create_default_context(cafile=certifi.where())
-        with urlopen(request, timeout=360, context=tls_context) as response:  # noqa: S310
-            with tempfile.NamedTemporaryFile(dir=path.parent, prefix=f".{audio_id}.", suffix=".tmp", delete=False) as temp:
-                temp.write(response.read())
+        temp_path: Path | None = None
+        try:
+            with urlopen(request, timeout=360, context=tls_context) as response:
+                audio_bytes = response.read()
+            if not audio_bytes:
+                raise RuntimeError("TTS provider returned an empty audio file")
+            with tempfile.NamedTemporaryFile(
+                dir=path.parent,
+                prefix=f".{audio_id}.",
+                suffix=".tmp",
+                delete=False,
+            ) as temp:
+                temp.write(audio_bytes)
                 temp_path = Path(temp.name)
             os.replace(temp_path, path)
+            temp_path = None
+        finally:
+            if temp_path is not None:
+                temp_path.unlink(missing_ok=True)
     return audio_id, path

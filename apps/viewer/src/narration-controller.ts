@@ -38,6 +38,16 @@ export class NarrationController {
     this.resetButton();
   }
 
+  /** Stop playback and remove the audio source when the displayed document changes. */
+  resetForDocument(button?: HTMLButtonElement | null): void {
+    this.stop();
+    const target = button || document.getElementById("page-narration-button") as HTMLButtonElement | null;
+    if (!target) return;
+    delete target.dataset.audioUrl;
+    target.hidden = true;
+    target.disabled = false;
+  }
+
   async toggle(
     narrationButton: HTMLButtonElement,
     fetchNarrationIfNeeded?: NarrationFetcher,
@@ -125,6 +135,13 @@ export class NarrationController {
       this.activeUrl = null;
       this.resetButton(narrationButton, idleLabel);
     }, { once: true });
+    audio.addEventListener("error", () => {
+      if (this.activeAudio !== audio) return;
+      this.activeAudio = null;
+      this.activeUrl = null;
+      this.resetButton(narrationButton, idleLabel);
+      this.showPlaybackError(audio.error?.message || "The audio could not be loaded.");
+    }, { once: true });
 
     try {
       await audio.play();
@@ -132,8 +149,9 @@ export class NarrationController {
       if (this.activeAudio === audio) {
         this.activeAudio = null;
         this.activeUrl = null;
+        this.resetButton(narrationButton, idleLabel);
+        throw error;
       }
-      throw error;
     }
   }
 
