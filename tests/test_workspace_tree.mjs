@@ -77,6 +77,11 @@ describe("Workspace Tree & Store Unit Tests", async () => {
     // Builtin node rename should fail
     const builtinFail = workspaceStore.renameNode("curated_ai_series", "修改内置标题");
     assert.equal(builtinFail, false, "Renaming built-in node should fail");
+
+    const generatedId = "project-generated-rename";
+    workspaceStore.recordNewGeneration(generatedId, "数据库基础知识");
+    assert.equal(workspaceStore.renameNode(generatedId, "数据库入门课"), true);
+    assert.equal(workspaceStore.getState().nodes[generatedId].title, "数据库入门课");
   });
 
   test("Does not persist or expose icon metadata", () => {

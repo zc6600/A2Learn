@@ -75,6 +75,14 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   root.id = "a2learn-floating-agent";
   root.innerHTML = `
     <section class="a2learn-agent-panel" aria-label="学习 Agent">
+      <div class="a2learn-agent-resize-handle a2learn-agent-resize-top" data-direction="top" aria-hidden="true"></div>
+      <div class="a2learn-agent-resize-handle a2learn-agent-resize-left" data-direction="left" aria-hidden="true"></div>
+      <div class="a2learn-agent-resize-handle a2learn-agent-resize-top-left" data-direction="top-left" aria-hidden="true">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="2" y1="8" x2="8" y2="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="2" y1="5" x2="5" y2="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
       <header class="a2learn-agent-head"><span class="a2learn-agent-title"></span><span class="a2learn-agent-actions"><button class="a2learn-agent-new a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-recent-toggle a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-history-toggle a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-close" type="button">×</button></span></header>
       <div class="a2learn-agent-target"><span class="a2learn-agent-target-label"></span><button class="a2learn-agent-pick a2learn-agent-text-button" type="button"></button></div>
       <div class="a2learn-agent-intent"><button class="a2learn-agent-intent-button" data-agent-mode="ask" type="button"></button><button class="a2learn-agent-intent-button" data-agent-mode="edit" type="button"></button></div>
@@ -91,6 +99,8 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   document.body.appendChild(root);
 
   const panel = root.querySelector<HTMLElement>(".a2learn-agent-panel")!;
+  const resizeHandles = Array.from(panel.querySelectorAll<HTMLElement>(".a2learn-agent-resize-handle"));
+  const resizeTopLeft = panel.querySelector<HTMLElement>(".a2learn-agent-resize-top-left");
   const launcher = root.querySelector<HTMLButtonElement>(".a2learn-agent-launcher")!;
   const close = root.querySelector<HTMLButtonElement>(".a2learn-agent-close")!;
   const title = root.querySelector<HTMLElement>(".a2learn-agent-title")!;
@@ -123,12 +133,83 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   let agentMode: "ask" | "edit" = "ask";
   let approvalMode: "direct" | "review" = "direct";
   let pageEpoch = 0;
+  let isResizing = false;
+  let resizeDirection = "";
+  let startX = 0;
+  let startY = 0;
+  let startWidth = 0;
+  let startHeight = 0;
+
+  try {
+    const rawSize = localStorage.getItem("a2learn:agent-panel-size");
+    if (rawSize) {
+      const parsed = JSON.parse(rawSize) as { width?: number; height?: number };
+      if (typeof parsed.width === "number" && parsed.width >= 280) {
+        panel.style.width = `${Math.min(window.innerWidth - 28, parsed.width)}px`;
+      }
+      if (typeof parsed.height === "number" && parsed.height >= 260) {
+        panel.style.height = `${Math.min(window.innerHeight - 80, parsed.height)}px`;
+      }
+    }
+  } catch {}
+
+  const onPointerMove = (event: PointerEvent) => {
+    if (!isResizing) return;
+    const minWidth = 280;
+    const maxWidth = Math.max(minWidth, window.innerWidth - 28);
+    const minHeight = 260;
+    const maxHeight = Math.max(minHeight, window.innerHeight - 80);
+
+    if (resizeDirection === "left" || resizeDirection === "top-left") {
+      const newWidth = Math.min(maxWidth, Math.max(minWidth, startWidth + (startX - event.clientX)));
+      panel.style.width = `${newWidth}px`;
+    }
+    if (resizeDirection === "top" || resizeDirection === "top-left") {
+      const newHeight = Math.min(maxHeight, Math.max(minHeight, startHeight + (startY - event.clientY)));
+      panel.style.height = `${newHeight}px`;
+    }
+  };
+
+  const stopResizing = () => {
+    if (!isResizing) return;
+    isResizing = false;
+    document.body.style.userSelect = "";
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerup", stopResizing);
+    window.removeEventListener("pointercancel", stopResizing);
+    try {
+      localStorage.setItem("a2learn:agent-panel-size", JSON.stringify({
+        width: panel.offsetWidth,
+        height: panel.offsetHeight,
+      }));
+    } catch {}
+  };
+
+  resizeHandles.forEach((handle) => {
+    handle.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      isResizing = true;
+      resizeDirection = handle.dataset.direction || "top-left";
+      startX = event.clientX;
+      startY = event.clientY;
+      startWidth = panel.offsetWidth;
+      startHeight = panel.offsetHeight;
+      document.body.style.userSelect = "none";
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("pointerup", stopResizing);
+      window.addEventListener("pointercancel", stopResizing);
+    });
+  });
 
   const text = (zh: string, en: string) => options.getLanguage() === "en" ? en : zh;
 
   const updateLabels = () => {
     const english = options.getLanguage() === "en";
     const isQuestionMode = agentMode === "ask";
+    if (resizeTopLeft) {
+      resizeTopLeft.setAttribute("title", english ? "Drag to resize" : "拖拽调整大小");
+    }
     launcher.textContent = isQuestionMode
       ? (english ? "✦ Ask about case" : "✦ 案例问答")
       : (english ? "✦ Edit case" : "✦ 修改案例");
@@ -563,9 +644,6 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
         }),
       });
       if (requestEpoch !== pageEpoch) return;
-      addMessage(events, "status", agentMode === "ask"
-        ? text("学习助手正在阅读当前案例…", "The learning assistant is reading this case…")
-        : text("Agent 正在修改当前案例…", "The Agent is editing this case…"));
       await consumeAgentStream(response, showHumanInput, requestEpoch);
     } catch (error) {
       if (requestEpoch === pageEpoch) {

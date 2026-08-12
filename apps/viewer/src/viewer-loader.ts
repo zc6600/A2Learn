@@ -1,6 +1,7 @@
 import { showState } from "@a2learn/viewer-kit/page-shell";
 import { applyEmbedFlag, applySourceTheme } from "./viewer-config";
 import { T } from "./viewer-copy";
+import { showGenerationProgress } from "./generation-progress";
 import type { Lang } from "./generation-profile";
 import type {
   ViewerRuntimeConfig,
@@ -57,7 +58,7 @@ export async function loadViewerSource(options: ViewerLoaderOptions): Promise<vo
 
   try {
     if (source.mode === "online") {
-      showState(target, T[getLanguage()].agentPlanning, "loading");
+      showGenerationProgress(target, getLanguage());
       await bootstrapOnline(target, source, isCurrent);
       if (!isCurrent()) return;
       onLoaded();

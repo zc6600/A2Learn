@@ -8,7 +8,11 @@ export type ViewerCopy = {
   welcomeTitle: string;
   welcomeDescription: string;
   loadingShowcase: string;
-  agentPlanning: string;
+  generationProgressEyebrow: string;
+  generationProgressTitle: string;
+  generationProgressDescription: string;
+  generationProgressStatus: string;
+  generationProgressMode: string;
   onlineFailedPrefix: string;
   onlineFailedFallback: string;
   noBackendConfigured: string;
@@ -54,7 +58,11 @@ export const T: Record<Lang, ViewerCopy> = {
     welcomeTitle: "你想学什么？",
     welcomeDescription: "输入一个主题，生成互动课件；或浏览精选案例。",
     loadingShowcase: "正在加载课程内容，请稍候...",
-    agentPlanning: "🧠 AI 正在规划学习大纲并生成互动内容，请稍候...",
+    generationProgressEyebrow: "正在生成",
+    generationProgressTitle: "正在生成课程",
+    generationProgressDescription: "正在整理知识结构，并准备互动内容。",
+    generationProgressStatus: "处理中",
+    generationProgressMode: "在线生成",
     onlineFailedPrefix: "生成失败（请检查 API Key 配置或网络连接）。",
     onlineFailedFallback: "已自动切换为预设示例展示。",
     noBackendConfigured:
@@ -99,7 +107,11 @@ export const T: Record<Lang, ViewerCopy> = {
     welcomeTitle: "What would you like to learn?",
     welcomeDescription: "Enter a topic to create an interactive lesson, or browse a featured case.",
     loadingShowcase: "Loading course content, please wait...",
-    agentPlanning: "🧠 AI is planning the outline and generating interactive content, please wait...",
+    generationProgressEyebrow: "Generating",
+    generationProgressTitle: "Building your lesson",
+    generationProgressDescription: "Organizing the topic and preparing the interactive content.",
+    generationProgressStatus: "In progress",
+    generationProgressMode: "Online generation",
     onlineFailedPrefix: "Generation failed (please check your API key or network connection).",
     onlineFailedFallback: "Switched to the preset example view.",
     noBackendConfigured:

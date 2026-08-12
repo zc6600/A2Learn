@@ -54,7 +54,7 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
             value="${node.title.replace(/"/g, "&quot;")}"
             autocomplete="off"
           />`
-        : `<span class="tree-title" title="${node.title}">${node.title}</span>`;
+        : `<span class="tree-title" data-action="rename-title" title="${node.title}">${node.title}</span>`;
 
       const actionBtnHtml = !isBuiltin && !isEditing
         ? `<button class="tree-action-btn" data-action="toggle-menu" data-node-id="${node.id}" title="更多操作">···</button>`
@@ -313,6 +313,20 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
       if (rootApp) {
         rootApp.classList.toggle("sidebar-collapsed");
       }
+    });
+
+    // Double-clicking a user lesson title is a direct, discoverable rename
+    // path. Built-in curated lessons stay read-only.
+    container.querySelectorAll(".workspace-tree-item:not(.is-builtin) .tree-title").forEach((titleEl) => {
+      titleEl.addEventListener("dblclick", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const nodeId = titleEl.closest<HTMLElement>(".workspace-tree-item")?.dataset.nodeId;
+        if (!nodeId) return;
+        activeActionMenuNodeId = null;
+        editingNodeId = nodeId;
+        render();
+      });
     });
 
     // Tree item clicks

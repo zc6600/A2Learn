@@ -272,7 +272,7 @@
       font-size: 12.5px;
     }
     .tree-action-btn {
-      opacity: 0;
+      opacity: .45;
       background: transparent;
       border: none;
       font-size: 12px;
