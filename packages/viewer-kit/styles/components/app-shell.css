@@ -105,6 +105,9 @@
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
     }
     .app-key-pill {
+      background: var(--a2ui-color-surface);
+      color: var(--app-text, var(--a2ui-color-on-surface));
+      border: 1px solid var(--a2ui-color-border);
       font-size: 12px;
       font-family: inherit;
       font-weight: 600;
@@ -129,12 +132,13 @@
       border-color: var(--a2ui-color-primary);
     }
     .app-key-pill.missing {
-      background: color-mix(in srgb, #f59e0b 10%, var(--a2ui-color-surface));
-      color: #b45309;
-      border: 1px solid color-mix(in srgb, #f59e0b 35%, var(--a2ui-color-border));
+      background: color-mix(in srgb, var(--a2ui-color-warning) 10%, var(--a2ui-color-surface));
+      color: var(--a2ui-color-warning);
+      border: 1px solid color-mix(in srgb, var(--a2ui-color-warning) 35%, var(--a2ui-color-border));
     }
     .app-key-pill.missing:hover {
-      background: color-mix(in srgb, #f59e0b 18%, var(--a2ui-color-surface));
+      background: color-mix(in srgb, var(--a2ui-color-warning) 18%, var(--a2ui-color-surface));
+      border-color: var(--a2ui-color-warning);
     }
     .app-btn-icon {
       background: var(--a2ui-color-surface);
