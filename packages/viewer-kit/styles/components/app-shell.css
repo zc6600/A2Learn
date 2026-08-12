@@ -270,25 +270,35 @@
       padding: 4px 0 6px;
       font-style: italic;
     }
-    .workspace-empty-hint {
-      font-size: 12px;
-      color: var(--app-muted);
-      padding: 8px 6px;
-      line-height: 1.5;
+    .tree-inline-input {
+      flex: 1;
+      min-width: 0;
+      height: 24px;
+      box-sizing: border-box;
+      padding: 2px 6px;
+      font-size: 12.5px;
+      font-family: inherit;
+      color: var(--app-text);
+      background: var(--a2ui-color-surface);
+      border: 1px solid var(--a2ui-color-primary);
+      border-radius: 4px;
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--a2ui-color-primary) 20%, transparent);
     }
-
-    /* Floating Action Popover Modal */
-    .sidebar-action-modal {
-      position: fixed;
+    .workspace-tree-item.is-editing {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
+    }
+    .tree-action-menu-dropdown {
+      position: absolute;
+      right: 4px;
+      top: 30px;
       z-index: 1000;
       background: var(--a2ui-color-surface);
       border: 1px solid var(--a2ui-color-border);
       border-radius: 8px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
       padding: 4px;
-      min-width: 140px;
-    }
-    .action-menu-content {
+      min-width: 130px;
       display: flex;
       flex-direction: column;
       gap: 2px;

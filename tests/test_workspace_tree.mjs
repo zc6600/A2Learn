@@ -46,7 +46,7 @@ describe("Workspace Tree & Store Unit Tests", async () => {
     const aiLessons = workspaceStore.getChildren("curated_ai_series");
     assert.ok(aiLessons.length >= 2, "AI series should have at least 2 curated lessons");
     assert.ok(aiLessons.some((l) => l.id === "paper-attention"), "Attention lesson should exist");
-    assert.ok(aiLessons.some((l) => l.id === "transformer"), "Transformer lesson should exist");
+    assert.ok(aiLessons.some((l) => l.id === "agent-react"), "ReAct Agent lesson should exist");
   });
 
   test("Creates and nests user folders", () => {

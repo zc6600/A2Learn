@@ -10,6 +10,8 @@ export type SidebarCallbacks = {
 
 export function renderWorkspaceSidebar(container: HTMLElement, callbacks: SidebarCallbacks): () => void {
   let activeActionMenuNodeId: string | null = null;
+  let editingNodeId: string | null = null;
+  let isCreatingFolder = false;
   let searchTerm = "";
 
   const render = () => {
@@ -24,6 +26,8 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
       const isCollapsed = state.collapsedFolderIds.includes(node.id);
       const isActive = activeId === node.id;
       const isBuiltin = Boolean(node.isBuiltin);
+      const isEditing = editingNodeId === node.id;
+      const isMenuOpen = activeActionMenuNodeId === node.id;
 
       // Filter check
       if (searchTerm && !isFolder) {
@@ -32,7 +36,7 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
         }
       }
 
-      const indentStyle = `padding-left: ${12 + depth * 14}px;`;
+      const indentStyle = `padding-left: ${10 + depth * 14}px;`;
 
       const chevronHtml = isFolder
         ? `<button class="tree-chevron" data-action="toggle-folder" data-node-id="${node.id}" title="${isCollapsed ? "展开" : "折叠"}">
@@ -41,13 +45,32 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
         : `<span class="tree-leaf-bullet"></span>`;
 
       const iconHtml = `<span class="tree-icon">${node.icon || (isFolder ? (isCollapsed ? "📁" : "📂") : "📄")}</span>`;
-      const titleHtml = `<span class="tree-title" title="${node.title}">${node.title}</span>`;
 
-      const actionBtnHtml = !isBuiltin
-        ? `<button class="tree-action-btn" data-action="open-menu" data-node-id="${node.id}" title="更多操作">···</button>`
+      const titleOrInputHtml = isEditing
+        ? `<input
+            type="text"
+            class="tree-inline-input"
+            id="tree-rename-input-${node.id}"
+            value="${node.title.replace(/"/g, "&quot;")}"
+            autocomplete="off"
+          />`
+        : `<span class="tree-title" title="${node.title}">${node.title}</span>`;
+
+      const actionBtnHtml = !isBuiltin && !isEditing
+        ? `<button class="tree-action-btn" data-action="toggle-menu" data-node-id="${node.id}" title="更多操作">···</button>`
         : "";
 
-      const nodeClass = `workspace-tree-item ${isFolder ? "is-folder" : "is-lesson"}${isActive ? " active" : ""}${isBuiltin ? " is-builtin" : ""}`;
+      const menuDropdownHtml = isMenuOpen
+        ? `
+          <div class="tree-action-menu-dropdown" id="dropdown-${node.id}">
+            <button class="action-menu-item" data-action="start-rename" data-node-id="${node.id}">✏️ ${copy.rename}</button>
+            <button class="action-menu-item" data-action="open-move" data-node-id="${node.id}">📁 ${copy.moveTo}</button>
+            <button class="action-menu-item danger" data-action="confirm-delete" data-node-id="${node.id}">🗑️ ${copy.deleteItem}</button>
+          </div>
+        `
+        : "";
+
+      const nodeClass = `workspace-tree-item ${isFolder ? "is-folder" : "is-lesson"}${isActive ? " active" : ""}${isBuiltin ? " is-builtin" : ""}${isEditing ? " is-editing" : ""}`;
 
       let childrenHtml = "";
       if (isFolder && !isCollapsed) {
@@ -55,7 +78,7 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
         if (children.length > 0) {
           childrenHtml = `<div class="tree-children">${children.map((c) => renderNode(c, depth + 1)).join("")}</div>`;
         } else if (!isBuiltin) {
-          childrenHtml = `<div class="tree-children-empty" style="padding-left: ${28 + depth * 14}px;">${copy.emptyFolder}</div>`;
+          childrenHtml = `<div class="tree-children-empty" style="padding-left: ${26 + depth * 14}px;">${copy.emptyFolder}</div>`;
         }
       }
 
@@ -64,8 +87,9 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
           <div class="${nodeClass}" style="${indentStyle}" data-node-id="${node.id}" data-node-type="${node.type}">
             ${chevronHtml}
             ${iconHtml}
-            ${titleHtml}
+            ${titleOrInputHtml}
             ${actionBtnHtml}
+            ${menuDropdownHtml}
           </div>
           ${childrenHtml}
         </div>
@@ -79,8 +103,28 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
     // User workspace section
     const userRootItems = workspaceStore.getChildren(null, false);
     let userSectionHtml = "";
-    if (userRootItems.length > 0) {
-      userSectionHtml = userRootItems.map((item) => renderNode(item, 0)).join("");
+
+    // Inline new folder row at top of user workspace if active
+    const inlineCreateFolderHtml = isCreatingFolder
+      ? `
+        <div class="workspace-tree-node-wrap">
+          <div class="workspace-tree-item is-folder is-editing" style="padding-left: 10px;">
+            <span class="tree-leaf-bullet"></span>
+            <span class="tree-icon">📁</span>
+            <input
+              type="text"
+              class="tree-inline-input"
+              id="tree-new-folder-input"
+              placeholder="${copy.newFolderPrompt}"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+      `
+      : "";
+
+    if (userRootItems.length > 0 || isCreatingFolder) {
+      userSectionHtml = inlineCreateFolderHtml + userRootItems.map((item) => renderNode(item, 0)).join("");
     } else {
       userSectionHtml = `<div class="workspace-empty-hint">${copy.noWorkspaceItems}</div>`;
     }
@@ -137,15 +181,6 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
           </div>
         </div>
 
-        <!-- Floating Action Popover Modal -->
-        <div id="sidebar-action-modal" class="sidebar-action-modal hidden">
-          <div class="action-menu-content">
-            <button class="action-menu-item" id="menu-rename-btn">✏️ ${copy.rename}</button>
-            <button class="action-menu-item" id="menu-move-btn">📁 ${copy.moveTo}</button>
-            <button class="action-menu-item danger" id="menu-delete-btn">🗑️ ${copy.deleteItem}</button>
-          </div>
-        </div>
-
         <!-- Move Folder Modal Dialog -->
         <div id="sidebar-move-modal" class="app-modal-backdrop hidden">
           <div class="app-modal small-modal">
@@ -174,13 +209,86 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
     const lang = callbacks.getLang();
     const copy = T[lang];
 
+    // Auto-focus inline rename input if present
+    if (editingNodeId) {
+      const renameInput = container.querySelector(`#tree-rename-input-${editingNodeId}`) as HTMLInputElement | null;
+      if (renameInput) {
+        renameInput.focus();
+        renameInput.select();
+
+        let isHandled = false;
+        const commitRename = () => {
+          if (isHandled) return;
+          isHandled = true;
+          const targetId = editingNodeId;
+          editingNodeId = null;
+          if (targetId) {
+            const newTitle = renameInput.value.trim();
+            if (newTitle) {
+              workspaceStore.renameNode(targetId, newTitle);
+            }
+          }
+          render();
+        };
+
+        renameInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            commitRename();
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            isHandled = true;
+            editingNodeId = null;
+            render();
+          }
+        });
+        renameInput.addEventListener("blur", () => {
+          commitRename();
+        });
+      }
+    }
+
+    // Auto-focus inline new folder input if creating folder
+    if (isCreatingFolder) {
+      const folderInput = container.querySelector("#tree-new-folder-input") as HTMLInputElement | null;
+      if (folderInput) {
+        folderInput.focus();
+
+        let isHandled = false;
+        const commitFolder = () => {
+          if (isHandled) return;
+          isHandled = true;
+          const folderName = folderInput.value.trim();
+          isCreatingFolder = false;
+          if (folderName) {
+            workspaceStore.createFolder(folderName);
+          }
+          render();
+        };
+
+        folderInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            commitFolder();
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            isHandled = true;
+            isCreatingFolder = false;
+            render();
+          }
+        });
+        folderInput.addEventListener("blur", () => {
+          commitFolder();
+        });
+      }
+    }
+
     // Search input
     const searchInput = container.querySelector("#sidebar-search-input") as HTMLInputElement | null;
     if (searchInput) {
       searchInput.addEventListener("input", () => {
         searchTerm = searchInput.value;
         render();
-        // Keep focus
         const nextInput = container.querySelector("#sidebar-search-input") as HTMLInputElement | null;
         if (nextInput) {
           nextInput.focus();
@@ -189,15 +297,15 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
       });
     }
 
-    // New folder button
-    const handleNewFolder = () => {
-      const folderName = prompt(copy.newFolderPrompt, copy.untitledFolder);
-      if (folderName && folderName.trim()) {
-        workspaceStore.createFolder(folderName.trim());
-      }
+    // New folder buttons
+    const triggerNewFolder = () => {
+      isCreatingFolder = true;
+      editingNodeId = null;
+      activeActionMenuNodeId = null;
+      render();
     };
-    container.querySelector("#sidebar-new-folder-btn")?.addEventListener("click", handleNewFolder);
-    container.querySelector("#user-section-add-folder")?.addEventListener("click", handleNewFolder);
+    container.querySelector("#sidebar-new-folder-btn")?.addEventListener("click", triggerNewFolder);
+    container.querySelector("#user-section-add-folder")?.addEventListener("click", triggerNewFolder);
 
     // Sidebar collapse toggle
     container.querySelector("#sidebar-collapse-toggle")?.addEventListener("click", () => {
@@ -215,87 +323,68 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
         const nodeType = el.getAttribute("data-node-type");
         if (!nodeId) return;
 
-        // If clicked action menu button
-        if (target.closest('[data-action="open-menu"]')) {
-          e.stopPropagation();
-          openActionMenu(nodeId, target.closest('[data-action="open-menu"]') as HTMLElement);
+        // If clicking inside input or inline editing, do not propagate
+        if (target.closest(".tree-inline-input")) {
           return;
         }
 
-        // If clicked toggle chevron
+        // Toggle action menu button
+        if (target.closest('[data-action="toggle-menu"]')) {
+          e.stopPropagation();
+          activeActionMenuNodeId = activeActionMenuNodeId === nodeId ? null : nodeId;
+          render();
+          return;
+        }
+
+        // Action menu item clicks
+        const actionItem = target.closest(".action-menu-item") as HTMLElement | null;
+        if (actionItem) {
+          e.stopPropagation();
+          const action = actionItem.getAttribute("data-action");
+          const targetNodeId = actionItem.getAttribute("data-node-id");
+          if (!targetNodeId) return;
+
+          if (action === "start-rename") {
+            activeActionMenuNodeId = null;
+            editingNodeId = targetNodeId;
+            render();
+          } else if (action === "open-move") {
+            activeActionMenuNodeId = null;
+            openMoveModal(targetNodeId);
+          } else if (action === "confirm-delete") {
+            activeActionMenuNodeId = null;
+            const node = workspaceStore.getState().nodes[targetNodeId];
+            if (node && confirm(`${copy.deleteConfirm} (${node.title})`)) {
+              workspaceStore.deleteNode(targetNodeId);
+            }
+          }
+          return;
+        }
+
+        // Toggle folder chevron
         if (target.closest('[data-action="toggle-folder"]') || nodeType === "folder") {
+          activeActionMenuNodeId = null;
           workspaceStore.toggleFolderCollapse(nodeId);
           return;
         }
 
         // Clicked a lesson -> select it
         if (nodeType === "lesson") {
+          activeActionMenuNodeId = null;
           workspaceStore.setActiveNode(nodeId);
           callbacks.onSelectLesson(nodeId);
         }
       });
     });
 
-    // Close action modal on click outside
+    // Close action menu on click outside
     document.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
-      if (!target.closest(".sidebar-action-modal") && !target.closest('[data-action="open-menu"]')) {
-        closeActionMenu();
+      if (activeActionMenuNodeId && !target.closest(".tree-action-menu-dropdown") && !target.closest('[data-action="toggle-menu"]')) {
+        activeActionMenuNodeId = null;
+        render();
       }
     });
-  };
-
-  const openActionMenu = (nodeId: string, anchorEl: HTMLElement) => {
-    activeActionMenuNodeId = nodeId;
-    const modal = container.querySelector("#sidebar-action-modal") as HTMLElement | null;
-    if (!modal) return;
-
-    const rect = anchorEl.getBoundingClientRect();
-    modal.style.top = `${rect.bottom + window.scrollY + 4}px`;
-    modal.style.left = `${Math.min(rect.left + window.scrollX, window.innerWidth - 180)}px`;
-    modal.classList.remove("hidden");
-
-    // Bind action menu buttons
-    const lang = callbacks.getLang();
-    const copy = T[lang];
-
-    const renameBtn = modal.querySelector("#menu-rename-btn");
-    const moveBtn = modal.querySelector("#menu-move-btn");
-    const deleteBtn = modal.querySelector("#menu-delete-btn");
-
-    renameBtn?.replaceWith(renameBtn.cloneNode(true));
-    moveBtn?.replaceWith(moveBtn.cloneNode(true));
-    deleteBtn?.replaceWith(deleteBtn.cloneNode(true));
-
-    modal.querySelector("#menu-rename-btn")?.addEventListener("click", () => {
-      closeActionMenu();
-      const node = workspaceStore.getState().nodes[nodeId];
-      if (!node) return;
-      const newTitle = prompt(copy.renamePrompt, node.title);
-      if (newTitle && newTitle.trim()) {
-        workspaceStore.renameNode(nodeId, newTitle.trim());
-      }
-    });
-
-    modal.querySelector("#menu-move-btn")?.addEventListener("click", () => {
-      closeActionMenu();
-      openMoveModal(nodeId);
-    });
-
-    modal.querySelector("#menu-delete-btn")?.addEventListener("click", () => {
-      closeActionMenu();
-      const node = workspaceStore.getState().nodes[nodeId];
-      if (!node) return;
-      if (confirm(`${copy.deleteConfirm} (${node.title})`)) {
-        workspaceStore.deleteNode(nodeId);
-      }
-    });
-  };
-
-  const closeActionMenu = () => {
-    activeActionMenuNodeId = null;
-    const modal = container.querySelector("#sidebar-action-modal");
-    modal?.classList.add("hidden");
   };
 
   const openMoveModal = (nodeId: string) => {

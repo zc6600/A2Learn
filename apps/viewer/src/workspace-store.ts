@@ -13,17 +13,17 @@ type Listener = (state: WorkspaceTreeState) => void;
 const listeners: Set<Listener> = new Set();
 
 /**
- * Builds the initial curated / built-in series nodes.
+ * Builds the initial curated / built-in series nodes mapped to real LOCAL_EXAMPLES.
  */
 function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const nodes: Record<string, WorkspaceNode> = {};
   const now = new Date().toISOString();
 
-  // 1. AI 极简通识系列
+  // 1. AI 核心与前沿系列 (AI & Frontiers)
   const aiFolderId = "curated_ai_series";
   nodes[aiFolderId] = {
     id: aiFolderId,
-    title: lang === "zh" ? "🤖 现代 AI 极简通识" : "🤖 Modern AI Essentials",
+    title: lang === "zh" ? "🤖 现代 AI 核心前沿" : "🤖 Modern AI & Frontiers",
     type: "folder",
     parentId: null,
     icon: "🤖",
@@ -37,13 +37,18 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const aiLessons = [
     {
       id: "paper-attention",
-      title: lang === "zh" ? "01. Attention 注意力机制可视化" : "01. Attention Mechanism Visualized",
+      title: lang === "zh" ? "01. Transformer 注意力机制" : "01. Transformer Attention",
       icon: "🔍",
     },
     {
-      id: "transformer",
-      title: lang === "zh" ? "02. Transformer 核心架构剖析" : "02. Transformer Architecture Deep Dive",
-      icon: "🧠",
+      id: "agent-react",
+      title: lang === "zh" ? "02. ReAct Agent 智能体架构" : "02. ReAct Agent Architecture",
+      icon: "🤖",
+    },
+    {
+      id: "biophysics-ai",
+      title: lang === "zh" ? "03. AlphaFold 生物物理 AI" : "03. AlphaFold Biophysics AI",
+      icon: "🧬",
     },
   ];
 
@@ -62,11 +67,11 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     };
   });
 
-  // 2. 计算机与系统专区
+  // 2. 计算机与核心算法 (Computing & Systems)
   const compFolderId = "curated_computing";
   nodes[compFolderId] = {
     id: compFolderId,
-    title: lang === "zh" ? "💻 计算机与核心算法" : "💻 Computer Systems & Algorithms",
+    title: lang === "zh" ? "💻 计算机与核心算法" : "💻 Computer Systems & Web",
     type: "folder",
     parentId: null,
     icon: "💻",
@@ -80,13 +85,23 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const compLessons = [
     {
       id: "hash-table",
-      title: lang === "zh" ? "Hash Map 底层机制与冲突解决" : "Hash Map Internals & Collisions",
+      title: lang === "zh" ? "Hash Table 哈希冲突机制" : "Hash Table & Collisions",
       icon: "⚡",
     },
     {
-      id: "http3",
-      title: lang === "zh" ? "HTTP/3 与 QUIC 协议演进" : "HTTP/3 & QUIC Protocol Evolution",
-      icon: "🌐",
+      id: "js-async",
+      title: lang === "zh" ? "JS 异步机制与事件循环" : "JS Async & Event Loop",
+      icon: "⏱️",
+    },
+    {
+      id: "conversational",
+      title: lang === "zh" ? "JS 闭包与作用域模块化" : "JS Closures & Scope",
+      icon: "📦",
+    },
+    {
+      id: "non-linear",
+      title: lang === "zh" ? "CSS Grid 二维响应式布局" : "CSS Grid 2D Layout",
+      icon: "🎨",
     },
   ];
 
@@ -105,16 +120,16 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     };
   });
 
-  // 3. 通识与文学探索
+  // 3. 诗词意境与文学赏析 (Poetry & Literature)
   const humFolderId = "curated_humanities";
   nodes[humFolderId] = {
     id: humFolderId,
-    title: lang === "zh" ? "📜 文学与通识探索" : "📜 Literature & Science",
+    title: lang === "zh" ? "🏮 经典诗词与文学赏析" : "🏮 Classical Poetry Reading",
     type: "folder",
     parentId: null,
-    icon: "📜",
+    icon: "🏮",
     isBuiltin: true,
-    category: "humanities",
+    category: "poetry",
     createdAt: now,
     updatedAt: now,
     order: 3,
@@ -122,14 +137,14 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
 
   const humLessons = [
     {
-      id: "tang-poetry",
-      title: lang === "zh" ? "唐诗格律与意象行进赏析" : "Tang Poetry Imagery & Meter",
-      icon: "🏮",
+      id: "deng-gao",
+      title: lang === "zh" ? "杜甫《登高》· 七律与镜头解码" : "Du Fu: Climbing the Height",
+      icon: "🏔️",
     },
     {
-      id: "three-body",
-      title: lang === "zh" ? "三体问题轨道动力学模拟" : "Three-Body Problem Orbital Dynamics",
-      icon: "🪐",
+      id: "poetry-social",
+      title: lang === "zh" ? "《春江花月夜》· 词境重现" : "Spring River Moon Night",
+      icon: "🌙",
     },
   ];
 
@@ -141,7 +156,7 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
       parentId: humFolderId,
       icon: lesson.icon,
       isBuiltin: true,
-      category: "humanities",
+      category: "poetry",
       createdAt: now,
       updatedAt: now,
       order: index + 1,
