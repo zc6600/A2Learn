@@ -473,7 +473,7 @@ async function bootstrapViewer() {
 
   const renderShell = (lang: Lang) => {
     document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
-    const title = initialConfig.embed ? "" : "A2Learn Showcase Generator";
+    const title = initialConfig.embed ? "" : "A2Learn";
     const subtitle = initialConfig.embed ? "" : T[lang].subtitle;
 
     const deepLinkedExample = LOCAL_EXAMPLES.find((example) => example.id === readCurrentSurfaceHash());

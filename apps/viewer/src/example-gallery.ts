@@ -40,10 +40,10 @@ export function renderCollapsibleExampleGallery(
   lang: Lang,
   expandedCategory?: ExampleCardGroup["id"],
 ): string {
-  const summary = lang === "zh" ? "现有案例" : "Existing examples";
+  const summary = lang === "zh" ? "更多示例课程" : "More Example Lessons";
   const detail = lang === "zh"
-    ? "点击打开"
-    : "Clikc to open";
+    ? "点击展开"
+    : "Click to view";
 
   if (expandedCategory) {
     const groups = getExampleGroups(lang);
