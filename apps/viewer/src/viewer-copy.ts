@@ -94,7 +94,7 @@ export const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
     keyPillMissingLabel: "🔑 API Key 待配置",
     modalTitle: "⚙️ 生成设置",
     modalBodyIntroHtml:
-      "输入你的 <strong>OpenRouter API Key</strong>。你的 Key 将仅保存在浏览器本地（<code>localStorage</code>），每次交互时透传给后端，绝不上交服务器保存。",
+      "输入你的 <strong>OpenRouter API Key</strong>。你的 Key 将本地保存。",
     modalBodyFooter: "无 API Key？你也可以直接选择下方的案例陈列，预览精美的 Showcase。",
     modalSaveLabel: "保存配置",
   },
@@ -108,7 +108,7 @@ export const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
     keyPillMissingLabel: "🔑 API Key not set",
     modalTitle: "⚙️ Generation Settings",
     modalBodyIntroHtml:
-      "Enter your <strong>OpenRouter API Key</strong>. It's stored only in your browser (<code>localStorage</code>) and passed through to the backend on each request — it is never saved on our servers.",
+      "Enter your <strong>OpenRouter API Key</strong>. It's stored only in your browser.",
     modalBodyFooter: "No API key? You can still browse the pre-generated example gallery below.",
     modalSaveLabel: "Save",
   },

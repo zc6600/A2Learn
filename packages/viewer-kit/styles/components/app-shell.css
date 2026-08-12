@@ -130,15 +130,18 @@
     .app-key-pill.active:hover {
       background: color-mix(in srgb, var(--a2ui-color-primary) 14%, var(--a2ui-color-surface));
       border-color: var(--a2ui-color-primary);
+      transform: translateY(-1px);
     }
     .app-key-pill.missing {
-      background: color-mix(in srgb, var(--a2ui-color-warning) 8%, var(--a2ui-color-surface));
-      color: var(--a2ui-color-warning);
-      border: 1px solid color-mix(in srgb, var(--a2ui-color-warning) 28%, var(--a2ui-color-border));
+      background: var(--a2ui-color-surface);
+      color: var(--app-muted, var(--a2ui-color-on-surface));
+      border: 1px solid var(--a2ui-color-border);
     }
     .app-key-pill.missing:hover {
-      background: color-mix(in srgb, var(--a2ui-color-warning) 14%, var(--a2ui-color-surface));
-      border-color: var(--a2ui-color-warning);
+      border-color: var(--a2ui-color-primary);
+      color: var(--app-text, var(--a2ui-color-on-surface));
+      background: color-mix(in srgb, var(--a2ui-color-primary) 4%, var(--a2ui-color-surface));
+      transform: translateY(-1px);
     }
     .app-btn-icon {
       background: var(--a2ui-color-surface);
