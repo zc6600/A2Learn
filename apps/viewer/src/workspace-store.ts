@@ -507,6 +507,10 @@ export class WorkspaceStore {
       });
   }
 
+  public getChildCount(folderId: string): number {
+    return Object.values(this.state.nodes).filter((n) => n.parentId === folderId).length;
+  }
+
   /**
    * Returns a flattened list of user-created folders for select dropdowns.
    */

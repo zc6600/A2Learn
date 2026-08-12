@@ -271,6 +271,17 @@
       text-overflow: ellipsis;
       font-size: 12.5px;
     }
+    .tree-count-badge {
+      font-size: 11px;
+      opacity: 0.45;
+      font-weight: 500;
+      padding: 0 4px;
+      border-radius: 8px;
+      background: color-mix(in srgb, currentColor 10%, transparent);
+      margin-left: auto;
+      margin-right: 4px;
+      flex-shrink: 0;
+    }
     .tree-action-btn {
       opacity: .45;
       background: transparent;
@@ -293,8 +304,10 @@
     .tree-children-empty {
       font-size: 11.5px;
       color: var(--app-muted);
-      padding: 4px 0 6px;
+      padding: 4px 8px 6px;
       font-style: italic;
+      border-radius: 4px;
+      transition: all 0.15s ease;
     }
     .tree-inline-input {
       flex: 1;
@@ -314,6 +327,32 @@
     .workspace-tree-item.is-editing {
       background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
     }
+    /* Drag and drop feedback */
+    .workspace-tree-item[draggable="true"] {
+      cursor: grab;
+    }
+    .workspace-tree-item.is-dragging {
+      opacity: 0.4;
+      border: 1px dashed var(--a2ui-color-primary);
+    }
+    .workspace-tree-item.drag-over-folder {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 20%, var(--a2ui-color-surface)) !important;
+      outline: 2px dashed var(--a2ui-color-primary);
+      outline-offset: -2px;
+      border-radius: 6px;
+    }
+    .workspace-tree-group.drag-over-root {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 6%, transparent);
+      outline: 2px dashed color-mix(in srgb, var(--a2ui-color-primary) 60%, transparent);
+      outline-offset: -2px;
+      border-radius: 8px;
+    }
+    .tree-children-empty.drag-over-folder {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 18%, var(--a2ui-color-surface));
+      color: var(--a2ui-color-primary);
+      font-weight: 600;
+      border: 1.5px dashed var(--a2ui-color-primary);
+    }
     .tree-action-menu-dropdown {
       position: absolute;
       right: 4px;
@@ -322,12 +361,17 @@
       background: var(--a2ui-color-surface);
       border: 1px solid var(--a2ui-color-border);
       border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
       padding: 4px;
-      min-width: 130px;
+      min-width: 140px;
       display: flex;
       flex-direction: column;
       gap: 2px;
+      animation: menuFadeIn 0.12s ease-out;
+    }
+    @keyframes menuFadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .action-menu-item {
       background: transparent;

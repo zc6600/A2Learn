@@ -224,4 +224,26 @@ describe("Workspace Tree & Store Unit Tests", async () => {
     second.createFolder("只影响第二个 store");
     assert.equal(firstCalls, 0);
   });
+
+  test("Accurately tracks child count and moves items across nested folders", () => {
+    const rootFolder = workspaceStore.createFolder("主分类");
+    assert.equal(workspaceStore.getChildCount(rootFolder), 0);
+
+    const subFolder = workspaceStore.createFolder("子分类", rootFolder);
+    assert.equal(workspaceStore.getChildCount(rootFolder), 1);
+
+    const lessonA = "lesson_child_1";
+    const lessonB = "lesson_child_2";
+    workspaceStore.recordNewGeneration(lessonA, "课程 1", subFolder);
+    workspaceStore.recordNewGeneration(lessonB, "课程 2", rootFolder);
+
+    assert.equal(workspaceStore.getChildCount(rootFolder), 2); // subFolder and lessonB
+    assert.equal(workspaceStore.getChildCount(subFolder), 1); // lessonA
+
+    // Move lessonA to root
+    workspaceStore.moveNode(lessonA, null);
+    assert.equal(workspaceStore.getChildCount(subFolder), 0);
+    assert.equal(workspaceStore.getState().nodes[lessonA].parentId, null);
+  });
 });
+

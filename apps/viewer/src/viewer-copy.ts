@@ -36,6 +36,8 @@ export type ViewerCopy = {
   curatedCourses: string;
   newFolder: string;
   newFolderPrompt: string;
+  newSubfolder: string;
+  newSubfolderPrompt: string;
   rename: string;
   renamePrompt: string;
   moveTo: string;
@@ -48,6 +50,8 @@ export type ViewerCopy = {
   emptyFolder: string;
   noWorkspaceItems: string;
   untitledFolder: string;
+  dropToFolder: string;
+  dropToRoot: string;
 };
 
 export const T: Record<Lang, ViewerCopy> = {
@@ -87,6 +91,8 @@ export const T: Record<Lang, ViewerCopy> = {
     curatedCourses: "官方精选课程",
     newFolder: "新建文件夹",
     newFolderPrompt: "请输入文件夹名称：",
+    newSubfolder: "新建子文件夹",
+    newSubfolderPrompt: "请输入子文件夹名称：",
     rename: "重命名",
     renamePrompt: "请输入新的名称：",
     moveTo: "移动到...",
@@ -96,9 +102,11 @@ export const T: Record<Lang, ViewerCopy> = {
     deleteConfirm: "确定要删除此项吗？",
     collapseSidebar: "收起侧边栏",
     expandSidebar: "展开侧边栏",
-    emptyFolder: "暂无内容",
+    emptyFolder: "暂无内容（可拖入课件）",
     noWorkspaceItems: "还没有生成课程。在上方输入主题开始学习吧！",
     untitledFolder: "新建文件夹",
+    dropToFolder: "释放以移入此文件夹",
+    dropToRoot: "释放以移至根目录",
   },
   en: {
     subtitle: "Interactive learning powered by AI · Enter any topic to generate a visual, hands-on lesson",
@@ -136,6 +144,8 @@ export const T: Record<Lang, ViewerCopy> = {
     curatedCourses: "Curated Lessons",
     newFolder: "New Folder",
     newFolderPrompt: "Enter folder name:",
+    newSubfolder: "New Subfolder",
+    newSubfolderPrompt: "Enter subfolder name:",
     rename: "Rename",
     renamePrompt: "Enter new name:",
     moveTo: "Move to...",
@@ -145,9 +155,11 @@ export const T: Record<Lang, ViewerCopy> = {
     deleteConfirm: "Are you sure you want to delete this item?",
     collapseSidebar: "Collapse sidebar",
     expandSidebar: "Expand sidebar",
-    emptyFolder: "Empty folder",
+    emptyFolder: "Empty folder (drag files here)",
     noWorkspaceItems: "No generated courses yet. Enter a topic above to begin!",
     untitledFolder: "New Folder",
+    dropToFolder: "Release to move into this folder",
+    dropToRoot: "Release to move to workspace root",
   },
 };
 
