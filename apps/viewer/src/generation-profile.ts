@@ -211,6 +211,11 @@ const KNOWN_COMPONENT_IDS = new Set(GENERATION_COMPONENTS.map((component) => com
 const KNOWN_EXAMPLE_IDS = new Set(LOCAL_EXAMPLES.map((example) => example.id));
 const KNOWN_THEME_IDS = new Set(RENDER_THEMES.map((theme) => theme.id));
 const KNOWN_TEMPLATE_IDS = new Set(GENERATION_TEMPLATES.map((template) => template.id));
+// Themes that were formerly auto-linked to specific templates. Now that templates
+// no longer drive theme switching, a stored profile with one of these IDs should
+// be silently migrated to the neutral default so old localStorage values do not
+// keep forcing an unexpected colour scheme on the user.
+const LEGACY_TEMPLATE_LINKED_THEMES = new Set(["poetry-ink", "editorial"]);
 
 function uniqueKnownComponentIds(value: unknown, limit: number): string[] {
   if (!Array.isArray(value)) return [];
@@ -248,7 +253,7 @@ export function normalizeGenerationProfile(value: unknown): GenerationProfile {
       : "custom",
     enabledComponents: allowedComponents,
     exampleIds,
-    themeId: typeof raw.themeId === "string" && KNOWN_THEME_IDS.has(raw.themeId)
+    themeId: typeof raw.themeId === "string" && KNOWN_THEME_IDS.has(raw.themeId) && !LEGACY_TEMPLATE_LINKED_THEMES.has(raw.themeId)
       ? raw.themeId
       : DEFAULT_GENERATION_PROFILE.themeId,
     // Before display modes were separate, selecting the old presentation theme
