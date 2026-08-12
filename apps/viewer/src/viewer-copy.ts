@@ -11,7 +11,6 @@ export type ViewerCopy = {
   onlineFailedFallback: string;
   noBackendConfigured: string;
   needApiKeyExplore: string;
-  needApiKeyPreset: string;
   staticTreeLeafNote: string;
   playNarration: string;
   noNarrationAvailable: string;
@@ -40,7 +39,6 @@ export const T: Record<Lang, ViewerCopy> = {
     noBackendConfigured:
       "尚未配置在线生成后端（VITE_A2LEARN_API_URL）。当前部署仅支持浏览左上方的静态案例陈列；如需 BYOK 实时生成，请先部署后端并在构建前端时设置该环境变量，详见 DEPLOY.md。",
     needApiKeyExplore: "请先点击右上角配置你的 OpenRouter API Key 以调用 AI 引擎。",
-    needApiKeyPreset: "请先配置你的 OpenRouter API Key 以开始生成流程！",
     staticTreeLeafNote: "静态案例陈列仅展示到这一层；连接 BYOK 在线后端后可继续深入生成完整内容。",
     playNarration: "播放讲稿音频",
     noNarrationAvailable: "暂无预生成音频",
@@ -68,7 +66,6 @@ export const T: Record<Lang, ViewerCopy> = {
     noBackendConfigured:
       "No live-generation backend is configured (VITE_A2LEARN_API_URL). This deployment only supports browsing the static example gallery above; to enable BYOK live generation, deploy the backend and set that environment variable when building the frontend — see DEPLOY.md.",
     needApiKeyExplore: "Please configure your OpenRouter API Key in the top right before using the AI engine.",
-    needApiKeyPreset: "Please configure your OpenRouter API Key first to start generating!",
     staticTreeLeafNote: "This static example only goes this deep; connect a BYOK online backend to keep generating deeper content.",
     playNarration: "Play narration audio",
     noNarrationAvailable: "No narration available",
@@ -91,21 +88,14 @@ export const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
     promptPlaceholder: "输入你想学习的知识主题（例如：解释 Hash Map 机制...）",
     sourceLibraryLabel: "📚 上传资料",
     sourceLibraryTitle: "上传并选择资料",
-    submitLabel: "⚡ 实时生成 Showcase",
-    presetsLabel: "热门推荐：",
-    presets: [
-      { label: "Hash Map 原理", prompt: "Explain how a Hash Map works step by step in detail with visual mental model and code example" },
-      { label: "Transformer 架构", prompt: "Explain the Transformer architecture and attention mechanism in deep learning" },
-      { label: "HTTP/3 协议", prompt: "Explain HTTP/3 protocol QUIC features and advantages over HTTP/2" },
-      { label: "三体星系天体物理", prompt: "Explain the Three Body Problem orbital dynamics in astrophysics" },
-    ],
+    submitLabel: "⚡ 生成",
     settingsBtnLabel: "⚙️ 设置",
     settingsBtnTitle: "配置 API Key、生成组件与页面主题",
     keyPillMissingLabel: "🔑 API Key 待配置",
     modalTitle: "⚙️ 生成设置",
     modalBodyIntroHtml:
       "输入你的 <strong>OpenRouter API Key</strong>。你的 Key 将仅保存在浏览器本地（<code>localStorage</code>），每次交互时透传给后端，绝不上交服务器保存。",
-    modalBodyFooter: "无 API Key？你也可以直接点击主页顶部的热门推荐，预览预置的精美 Showcase。",
+    modalBodyFooter: "无 API Key？你也可以直接选择下方的案例陈列，预览精美的 Showcase。",
     modalSaveLabel: "保存配置",
   },
   en: {
@@ -113,20 +103,13 @@ export const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
     sourceLibraryLabel: "📚 Upload sources",
     sourceLibraryTitle: "Upload and select sources",
     submitLabel: "⚡ Generate Showcase Live",
-    presetsLabel: "Popular picks:",
-    presets: [
-      { label: "Hash Map Internals", prompt: "Explain how a Hash Map works step by step in detail with visual mental model and code example" },
-      { label: "Transformer Architecture", prompt: "Explain the Transformer architecture and attention mechanism in deep learning" },
-      { label: "HTTP/3 Protocol", prompt: "Explain HTTP/3 protocol QUIC features and advantages over HTTP/2" },
-      { label: "Three-Body Problem Physics", prompt: "Explain the Three Body Problem orbital dynamics in astrophysics" },
-    ],
     settingsBtnLabel: "⚙️ Settings",
     settingsBtnTitle: "Configure API key, generation components, and page theme",
     keyPillMissingLabel: "🔑 API Key not set",
     modalTitle: "⚙️ Generation Settings",
     modalBodyIntroHtml:
       "Enter your <strong>OpenRouter API Key</strong>. It's stored only in your browser (<code>localStorage</code>) and passed through to the backend on each request — it is never saved on our servers.",
-    modalBodyFooter: "No API key? You can still click the popular picks above, or browse the pre-generated example gallery below.",
+    modalBodyFooter: "No API key? You can still browse the pre-generated example gallery below.",
     modalSaveLabel: "Save",
   },
 };

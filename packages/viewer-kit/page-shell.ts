@@ -10,18 +10,11 @@ export function injectBaseTheme(): void {
 
 export type AppLang = "zh" | "en";
 
-export interface AppPreset {
-  label: string;
-  prompt: string;
-}
-
 export interface AppChromeStrings {
   promptPlaceholder: string;
   sourceLibraryLabel: string;
   sourceLibraryTitle: string;
   submitLabel: string;
-  presetsLabel: string;
-  presets: AppPreset[];
   settingsBtnLabel: string;
   settingsBtnTitle: string;
   keyPillMissingLabel: string;
@@ -77,12 +70,6 @@ export function renderAppFrame(
             ${chrome.submitLabel}
           </button>
         </form>
-        <div class="app-presets">
-          <span>${chrome.presetsLabel}</span>
-          ${chrome.presets
-            .map((p) => `<button class="app-preset-chip" data-preset="${p.prompt.replace(/"/g, "&quot;")}">${p.label}</button>`)
-            .join("")}
-        </div>
       </div>
     `
     : "";

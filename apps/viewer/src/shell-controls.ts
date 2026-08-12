@@ -200,19 +200,6 @@ export function bindShellControls(options: ShellControlOptions): void {
   });
 
   sourceLibraryButton?.addEventListener("click", () => onOpenSourceLibrary?.());
-  document.querySelectorAll(".app-preset-chip").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      const preset = chip.getAttribute("data-preset");
-      if (!preset) return;
-      if (promptInput) promptInput.value = preset;
-      if (!getStoredApiKey()) {
-        openSettingsModal();
-        alert(T[getLang()].needApiKeyPreset);
-        return;
-      }
-      onGenerate(preset);
-    });
-  });
 
   document.getElementById("lang-zh-btn")?.addEventListener("click", () => onSwitchLang("zh"));
   document.getElementById("lang-en-btn")?.addEventListener("click", () => onSwitchLang("en"));
