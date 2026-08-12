@@ -125,12 +125,11 @@ export function configFromLocation(): ViewerRuntimeConfig {
   const envResourceText = (import.meta.env.VITE_A2LEARN_RESOURCE_TEXT || "").trim();
 
   const apiBaseUrl = (apiBaseUrlParam || envApiUrl).trim();
-  const editorMode = modeRaw === "editor" || import.meta.env.MODE === "editor";
-  const editorExample = params.get("example") || "hash-table";
-  const editorMessagesUrl = editorMode
-    ? (getLang() === "en" ? `/examples/en/${editorExample}.json` : `/examples/${editorExample}.json`)
+  const exampleParam = params.get("example") || (modeRaw === "editor" || import.meta.env.MODE === "editor" ? "hash-table" : "");
+  const exampleMessagesUrl = exampleParam
+    ? (getLang() === "en" ? `/examples/en/${exampleParam}.json` : `/examples/${exampleParam}.json`)
     : "/generated/site_messages.json";
-  const messagesUrl = (messagesUrlParam || envMessagesUrl || editorMessagesUrl).trim();
+  const messagesUrl = (messagesUrlParam || envMessagesUrl || exampleMessagesUrl).trim();
   const resourcePath = (resourcePathParam || envResourcePath).trim() || undefined;
   const resourceText = (resourceTextParam || envResourceText).trim() || undefined;
   const preferredMode = modeRaw === "online" || modeRaw === "offline"

@@ -27,26 +27,11 @@ EXAMPLE_IDS = frozenset(
 )
 
 
-def load_example_documents(
-    project_id: str,
-    language: ExampleLanguage = "zh",
-    *,
-    document_project_id: str | None = None,
+def parse_messages_to_page_documents(
+    messages: list[dict[str, Any]],
+    document_project_id: str,
 ) -> list[PageDocument]:
-    """Convert one bundled A2UI example into surface PageDocuments.
-
-    This is an import boundary only. Once imported, PageDocument becomes the
-    source of truth and later edits do not read or mutate the static JSON file.
-    """
-
-    if project_id not in EXAMPLE_IDS:
-        raise ValueError(f"Unknown example project: {project_id}")
-    document_project_id = document_project_id or project_id
-    root = Path(os.getenv("A2LEARN_EXAMPLES_ROOT", Path(__file__).resolve().parents[2] / "apps/viewer/public/examples"))
-    path = root / ("en" if language == "en" else "") / f"{project_id}.json"
-    if not path.is_file():
-        raise FileNotFoundError(f"Example source not found: {path}")
-    messages = json.loads(path.read_text(encoding="utf-8"))
+    """Convert a sequence of A2UI messages into surface PageDocuments."""
     surfaces: dict[str, dict[str, Any]] = {}
     for message in messages:
         if not isinstance(message, dict):
@@ -67,8 +52,18 @@ def load_example_documents(
     documents: list[PageDocument] = []
     for surface_id, surface in surfaces.items():
         components = surface["components"]
-        if not isinstance(components, list) or not any(item.get("id") == "root" for item in components if isinstance(item, dict)):
-            raise ValueError(f"Example surface {surface_id} does not contain a root component.")
+        if not isinstance(components, list) or not components:
+            continue
+        has_root = any(item.get("id") == "root" for item in components if isinstance(item, dict))
+        normalized_components = [item for item in components if isinstance(item, dict) and "id" in item and "component" in item]
+        if not normalized_components:
+            continue
+        if not has_root:
+            child_ids = [item["id"] for item in normalized_components]
+            normalized_components = [
+                {"id": "root", "component": "Column", "children": child_ids},
+                *normalized_components,
+            ]
         documents.append(
             PageDocument.from_dict(
                 {
@@ -86,13 +81,36 @@ def load_example_documents(
                                 if key not in {"id", "component"}
                             },
                         }
-                        for component in components
-                        if isinstance(component, dict)
+                        for component in normalized_components
                     ],
                     "data": {},
                 }
             )
         )
+    return documents
+
+
+def load_example_documents(
+    project_id: str,
+    language: ExampleLanguage = "zh",
+    *,
+    document_project_id: str | None = None,
+) -> list[PageDocument]:
+    """Convert one bundled A2UI example into surface PageDocuments.
+
+    This is an import boundary only. Once imported, PageDocument becomes the
+    source of truth and later edits do not read or mutate the static JSON file.
+    """
+
+    if project_id not in EXAMPLE_IDS:
+        raise ValueError(f"Unknown example project: {project_id}")
+    document_project_id = document_project_id or project_id
+    root = Path(os.getenv("A2LEARN_EXAMPLES_ROOT", Path(__file__).resolve().parents[2] / "apps/viewer/public/examples"))
+    path = root / ("en" if language == "en" else "") / f"{project_id}.json"
+    if not path.is_file():
+        raise FileNotFoundError(f"Example source not found: {path}")
+    messages = json.loads(path.read_text(encoding="utf-8"))
+    documents = parse_messages_to_page_documents(messages, document_project_id)
     if not documents:
-        raise ValueError(f"Example project {project_id} contains no surfaces.")
+        raise ValueError(f"Example project {project_id} contains no valid surfaces.")
     return documents

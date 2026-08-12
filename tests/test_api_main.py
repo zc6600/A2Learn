@@ -365,6 +365,26 @@ class ApiMainTests(unittest.TestCase):
         self.assertEqual(response.json()["project"]["projectId"], "example-en-hash-table")
         self.assertTrue(response.json()["documents"][0]["documentId"].startswith("example-en-hash-table:"))
 
+    def test_create_project_from_session(self) -> None:
+        session = SessionState(
+            session_id="sess_to_project",
+            resource_path="./docs",
+            messages=_initial_messages(),
+            surface_ids=["main"],
+            status="ready",
+        )
+        with patch("apps.api.main.store.get", return_value=session):
+            resp = self.client.post(
+                "/api/projects/from-session",
+                json={"sessionId": "sess_to_project", "projectId": "project-from-sess"},
+            )
+        self.assertEqual(resp.status_code, 201)
+        body = resp.json()
+        self.assertEqual(body["project"]["projectId"], "project-from-sess")
+        self.assertEqual(body["project"]["source"], "generated")
+        self.assertGreaterEqual(len(body["documents"]), 1)
+        self.assertEqual(body["documents"][0]["surfaceId"], "main")
+
     def test_project_agent_targets_requested_surface(self) -> None:
         document = {
             "documentId": "project-agent:main",

@@ -7,6 +7,7 @@ import { getStoredApiKey } from "./shell-controls";
 import { type ShellRuntime } from "./shell-controls";
 import { type RecentProject, rememberProject } from "./recent-projects";
 import { NarrationController } from "./narration-controller";
+import type { ActiveDocument } from "./viewer-types";
 
 export type ProjectRuntimeOptions = {
   project: RecentProject;
@@ -16,7 +17,7 @@ export type ProjectRuntimeOptions = {
   getContainer: () => HTMLElement | null;
   getApiBaseUrl: () => string;
   setRuntime: (runtime: ShellRuntime) => void;
-  setContent: (content: { kind: "project"; id: string }) => void;
+  setContent: (content: ActiveDocument) => void;
   updateProjectUrl: (projectId: string | null) => void;
   extractFirstSurfaceId: (messages: A2uiMessage[]) => string | null;
   narrationController: NarrationController;
@@ -58,7 +59,7 @@ export async function openProject(options: ProjectRuntimeOptions): Promise<void>
   const processor = new MessageProcessor([a2learnCatalog], () => undefined);
   processor.processMessages(payload.messages);
   setRuntime({ container: target, processor, modeHint: "Project editor mode." });
-  setContent({ kind: "project", id: project.id });
+  setContent({ type: "project", projectId: project.id, title: project.title });
   rememberProject(project.id, project.title);
   updateProjectUrl(project.id);
   const firstSurface = extractFirstSurfaceId(payload.messages);

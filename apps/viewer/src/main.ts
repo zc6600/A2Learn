@@ -45,6 +45,7 @@ import {
   setLang,
 } from "./viewer-config";
 import type {
+  ActiveDocument,
   ViewerRuntimeConfig,
   ViewerSourceOffline,
   ViewerSourceOnline,
@@ -152,6 +153,7 @@ async function bootstrapOnline(
   container: HTMLElement,
   source: ViewerSourceOnline,
   isCurrent: () => boolean = () => true,
+  onSessionReady?: (sessionId: string, messages: A2uiMessage[]) => void,
 ): Promise<boolean> {
   const session = await startOnlineSession(source, getStoredGenerationProfile());
   const sessionId = session.sessionId;
@@ -231,6 +233,7 @@ async function bootstrapOnline(
     window.location.hash = `#/${startCreatedId}`;
   }
   renderSurfaces(container, processor, "Online mode connected, supporting interaction callbacks and incremental updates.");
+  onSessionReady?.(sessionId, initialMessages);
   return true;
 }
 
@@ -422,17 +425,16 @@ async function bootstrapViewer() {
     initialConfig.source.mode === "online" ||
     (initialConfig.source.mode === "offline" && initialConfig.source.messagesUrl !== "/generated/site_messages.json");
 
-  type ContentState = { kind: "example" | "project"; id: string } | { kind: "other" };
-  let currentContent: ContentState = { kind: "other" };
+  let activeDoc: ActiveDocument = { type: "empty" };
   let loadVersion = 0;
   const locationParams = new URLSearchParams(window.location.search);
   const initialProjectId = locationParams.get("project");
-  const initialEditorExample = locationParams.get("example");
+  const initialExample = locationParams.get("example") || (locationParams.get("mode") === "editor" ? "hash-table" : "");
 
   if (initialProjectId) {
-    currentContent = { kind: "project", id: initialProjectId };
-  } else if (import.meta.env.MODE === "editor" || locationParams.get("mode") === "editor") {
-    currentContent = { kind: "example", id: initialEditorExample || "hash-table" };
+    activeDoc = { type: "project", projectId: initialProjectId };
+  } else if (initialExample) {
+    activeDoc = { type: "example", exampleId: initialExample };
   }
 
   let container: HTMLElement | null = null;
@@ -463,7 +465,7 @@ async function bootstrapViewer() {
     getContainer: () => container,
     getApiBaseUrl: editorApiBaseUrl,
     setRuntime: (runtime) => { activeRuntime = runtime; },
-    setContent: (content) => { currentContent = content; },
+    setContent: (content) => { activeDoc = content; },
     updateProjectUrl,
     extractFirstSurfaceId: extractFirstCreatedSurfaceId,
     narrationController,
@@ -510,11 +512,10 @@ async function bootstrapViewer() {
   }
 
   if (!initialConfig.embed) {
-    const getCurrentProjectId = () => {
-      if (currentContent.kind === "other") return null;
-      return currentContent.kind === "example"
-        ? `example-${getLang()}-${currentContent.id}`
-        : currentContent.id;
+    const getCurrentProjectId = (): string | null => {
+      if (activeDoc.type === "project") return activeDoc.projectId;
+      if (activeDoc.type === "example") return `example-${getLang()}-${activeDoc.exampleId}`;
+      return null;
     };
     const floatingAgent = mountFloatingAgent({
       getLanguage: () => (getLang() === "en" ? "en" : "zh"),
@@ -533,7 +534,7 @@ async function bootstrapViewer() {
         const processor = new MessageProcessor([a2learnCatalog], () => undefined);
         processor.processMessages(messages);
         activeRuntime = { container, processor, modeHint: "Project editor mode." };
-        currentContent = { kind: "project", id: projectId };
+        activeDoc = { type: "project", projectId, title };
         rememberProject(projectId, title);
         updateProjectUrl(projectId);
         const firstSurface = extractFirstCreatedSurfaceId(messages);
@@ -582,7 +583,37 @@ async function bootstrapViewer() {
       isCurrent,
       getApiKey: getStoredApiKey,
       getLanguage: getLang,
-      bootstrapOnline,
+      bootstrapOnline: (t, s, ic) => bootstrapOnline(t, s, ic, async (sessionId) => {
+        if (!ic()) return;
+        const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
+        if (!apiBaseUrl) return;
+        const projectTitle = s.resourceText || s.resourceQuery || (getLang() === "en" ? "Generated Course" : "AI 生成课程");
+        try {
+          const res = await fetch(`${apiBaseUrl}/api/projects/from-session`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(getStoredApiKey() ? { "X-OpenRouter-API-Key": getStoredApiKey() } : {}),
+            },
+            body: JSON.stringify({
+              sessionId,
+              title: projectTitle,
+              actor: "ai",
+            }),
+          });
+          if (res.ok && ic()) {
+            const data = (await res.json()) as { project?: { projectId?: string; id?: string; title?: string } };
+            const projectId = data?.project?.projectId || data?.project?.id;
+            if (projectId) {
+              activeDoc = { type: "project", projectId, title: projectTitle };
+              rememberProject(projectId, projectTitle);
+              updateProjectUrl(projectId);
+            }
+          }
+        } catch {
+          // Gracefully fallback: in-memory session still active
+        }
+      }),
       bootstrapOffline,
       onLoaded: () => {
         stopResize();
@@ -597,7 +628,7 @@ async function bootstrapViewer() {
     const item = getExampleItems(getLang()).find((i) => i.id === id);
     if (!item) return;
     narrationController.stop();
-    currentContent = { kind: "example", id };
+    activeDoc = { type: "example", exampleId: id, title: item.title };
     updateProjectUrl(null);
     const staticAudioUrl = staticExampleAudioUrl(id, getLang());
     // Bundled examples with a pre-generated asset must stay fully offline:
@@ -649,7 +680,7 @@ async function bootstrapViewer() {
   const onGenerate = (promptText: string) => {
     const target = container;
     if (!target) return;
-    currentContent = { kind: "other" };
+    activeDoc = { type: "generated", promptText };
     updateProjectUrl(null);
     const currentApiUrl =
       initialConfig.source.mode === "online"
@@ -681,7 +712,7 @@ async function bootstrapViewer() {
   const onGenerateFromSources = (sourceIds: string[], resourceQuery: string) => {
     const target = container;
     if (!target) return;
-    currentContent = { kind: "other" };
+    activeDoc = { type: "generated", promptText: resourceQuery };
     updateProjectUrl(null);
     const currentApiUrl =
       initialConfig.source.mode === "online"
@@ -736,16 +767,16 @@ async function bootstrapViewer() {
       getRuntime: () => activeRuntime,
     });
 
-    const content = currentContent;
-    if (content.kind === "example") {
-      const item = getExampleItems(newLang).find((i) => i.id === content.id);
+    const doc = activeDoc;
+    if (doc.type === "example") {
+      const item = getExampleItems(newLang).find((i) => i.id === doc.exampleId);
       if (item) {
         await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } }, true, requestVersion);
         return;
       }
     }
     if (requestVersion !== loadVersion) return;
-    if (content.kind === "project" && activeRuntime) {
+    if (doc.type === "project" && activeRuntime) {
       activeRuntime = { ...activeRuntime, container: target };
       renderSurfaces(target, activeRuntime.processor, activeRuntime.modeHint);
       return;

@@ -39,7 +39,11 @@ from apps.api.agent_thread_store import (
     AgentThreadRecord,
     SqliteAgentThreadStore,
 )
-from apps.api.example_projects import ExampleLanguage, load_example_documents
+from apps.api.example_projects import (
+    ExampleLanguage,
+    load_example_documents,
+    parse_messages_to_page_documents,
+)
 from apps.api.knowledge_store import (
     InvalidKnowledgeUploadError,
     KnowledgeSourceNotFoundError,
@@ -200,6 +204,13 @@ class ProjectCreateRequest(BaseModel):
     owner_id: str | None = Field(default=None, alias="ownerId", max_length=200)
     actor: Literal["human", "ai"]
     documents: list[dict[str, Any]] = Field(min_length=1, max_length=20)
+
+
+class ProjectFromSessionRequest(BaseModel):
+    session_id: str = Field(alias="sessionId", min_length=1, max_length=200)
+    project_id: str | None = Field(default=None, alias="projectId", max_length=200)
+    owner_id: str | None = Field(default=None, alias="ownerId", max_length=200)
+    actor: Literal["human", "ai"] = "ai"
 
 
 class ProjectResponse(BaseModel):
@@ -580,6 +591,36 @@ def ensure_example_project(project_id: str, payload: ExampleProjectRequest) -> P
         raise HTTPException(status_code=404, detail="EXAMPLE_SOURCE_NOT_FOUND") from exc
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=f"INVALID_EXAMPLE_PROJECT: {exc}") from exc
+
+
+@app.post("/api/projects/from-session", response_model=ProjectResponse, status_code=201)
+def create_project_from_session(payload: ProjectFromSessionRequest) -> ProjectResponse:
+    session = _require_session(payload.session_id)
+    if session.status != "ready" or not session.messages:
+        raise HTTPException(status_code=400, detail="SESSION_NOT_READY")
+
+    project_id = payload.project_id or f"project-{payload.session_id}"
+    try:
+        project, documents = project_store.get(project_id)
+        return ProjectResponse(project=project.to_dict(), documents=[document.to_dict() for document in documents])
+    except ProjectNotFoundError:
+        pass
+
+    documents = parse_messages_to_page_documents(session.messages, project_id)
+    if not documents:
+        raise HTTPException(status_code=422, detail="SESSION_HAS_NO_VALID_SURFACES")
+
+    try:
+        project = project_store.create(
+            project_id,
+            documents,
+            source="generated",
+            owner_id=payload.owner_id,
+            actor=payload.actor,
+        )
+        return ProjectResponse(project=project.to_dict(), documents=[document.to_dict() for document in documents])
+    except ProjectAlreadyExistsError as exc:
+        raise HTTPException(status_code=409, detail="PROJECT_ALREADY_EXISTS") from exc
 
 
 @app.get("/api/projects/{project_id}/history", response_model=ProjectHistoryResponse)

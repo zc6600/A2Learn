@@ -77,3 +77,9 @@ export type ResizeMessage = {
   type: "a2learn:resize";
   height: number;
 };
+
+export type ActiveDocument =
+  | { type: "project"; projectId: string; title?: string }
+  | { type: "example"; exampleId: string; title?: string }
+  | { type: "generated"; promptText?: string }
+  | { type: "empty" };
