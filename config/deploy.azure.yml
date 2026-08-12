@@ -22,6 +22,7 @@ env:
     A2LEARN_SESSION_DB_PATH: /data/a2learn.sqlite3
     A2LEARN_KNOWLEDGE_DB_PATH: /data/knowledge.sqlite3
     A2LEARN_KNOWLEDGE_STORAGE_ROOT: /data/knowledge-files
+    A2LEARN_EXAMPLE_AUDIO_DIR: /data/example-audio
 
 volumes:
   - "/var/lib/a2learn/data:/data"

@@ -17,7 +17,29 @@ fi
 
 ACTION="${1:-deploy}"
 
+EXAMPLE_AUDIO_DIR="$ROOT_DIR/apps/viewer/public/examples/audio"
+REMOTE_AUDIO_DIR="/var/lib/a2learn/data/example-audio"
+SSH_TARGET="zhuchen@20.6.131.6"
+SSH_ARGS=()
+if [ -f "$HOME/.ssh/B2fvm_key.pem" ]; then
+    SSH_ARGS+=("-i" "$HOME/.ssh/B2fvm_key.pem")
+fi
+
+sync_example_audio() {
+    local zh_audio="$EXAMPLE_AUDIO_DIR/hash-table.zh.mp3"
+    local en_audio="$EXAMPLE_AUDIO_DIR/hash-table.en.mp3"
+    if [ ! -f "$zh_audio" ] || [ ! -f "$en_audio" ]; then
+        echo "[deploy-azure] Missing example audio files in $EXAMPLE_AUDIO_DIR"
+        echo "[deploy-azure] Expected hash-table.zh.mp3 and hash-table.en.mp3"
+        exit 1
+    fi
+    echo "[deploy-azure] Syncing example narration to $SSH_TARGET:$REMOTE_AUDIO_DIR"
+    ssh "${SSH_ARGS[@]}" "$SSH_TARGET" "mkdir -p '$REMOTE_AUDIO_DIR'"
+    scp "${SSH_ARGS[@]}" "$zh_audio" "$en_audio" "$SSH_TARGET:$REMOTE_AUDIO_DIR/"
+}
+
 if [ "$ACTION" == "setup" ]; then
+    sync_example_audio
     echo "[deploy-azure] Executing: kamal setup -d azure"
     kamal setup -d azure "${@:2}"
 elif [ "$ACTION" == "config" ]; then
@@ -29,6 +51,7 @@ else
     if [ "$ACTION" == "deploy" ]; then
         shift || true
     fi
+    sync_example_audio
     echo "[deploy-azure] Executing: kamal deploy -d azure"
     kamal deploy -d azure "$@"
 fi

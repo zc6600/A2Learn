@@ -260,6 +260,12 @@ configure_mcp_publisher(
 )
 knowledge_store = KnowledgeStore.from_env()
 generated_image_store = GeneratedImageStore.from_env()
+# Example narration is a static asset, separate from generated per-request
+# audio. In production this points at the persistent Kamal volume; locally it
+# falls back to the ignored files in the viewer source tree.
+example_audio_dir = Path(
+    os.getenv("A2LEARN_EXAMPLE_AUDIO_DIR", "apps/viewer/public/examples/audio")
+).expanduser()
 # Human-in-the-loop pauses must survive a process restart. If the PageDocument
 # database is configured, keep checkpoints beside the documents; deployments
 # may override this independently with A2LEARN_AGENT_CHECKPOINT_DB_PATH.
@@ -416,6 +422,30 @@ def get_audio(audio_id: str) -> FileResponse:
     if not path.is_file():
         raise HTTPException(status_code=404, detail="AUDIO_NOT_FOUND")
     return FileResponse(path, media_type="audio/mpeg", headers={"Cache-Control": "public, max-age=31536000, immutable"})
+
+
+EXAMPLE_AUDIO_FILES: dict[str, dict[str, str]] = {
+    "hash-table": {
+        "zh": "hash-table.zh.mp3",
+        "en": "hash-table.en.mp3",
+    },
+}
+
+
+@app.get("/api/example-audio/{example_id}.{language}.mp3")
+def get_example_audio(example_id: str, language: Literal["zh", "en"]) -> FileResponse:
+    """Serve a whitelisted bundled example narration from persistent storage."""
+    filename = EXAMPLE_AUDIO_FILES.get(example_id, {}).get(language)
+    if not filename:
+        raise HTTPException(status_code=404, detail="EXAMPLE_AUDIO_NOT_FOUND")
+    path = (example_audio_dir / filename).resolve()
+    if not path.is_file() or path.parent != example_audio_dir.resolve():
+        raise HTTPException(status_code=404, detail="EXAMPLE_AUDIO_NOT_FOUND")
+    return FileResponse(
+        path,
+        media_type="audio/mpeg",
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )
 
 
 @app.post("/api/page-documents/{document_id}/narration")

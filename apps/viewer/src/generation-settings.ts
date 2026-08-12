@@ -13,6 +13,9 @@ import {
 
 const AUDIO_ENABLED_STORAGE_KEY = "a2learn.audio.enabled";
 const AUDIO_ASSET_BASE_URL = (import.meta.env.VITE_A2LEARN_AUDIO_BASE_URL || "").trim();
+const API_AUDIO_ASSET_BASE_URL = (import.meta.env.VITE_A2LEARN_API_URL || "").trim()
+  ? `${(import.meta.env.VITE_A2LEARN_API_URL as string).replace(/\/+$/, "")}/api/example-audio`
+  : "";
 const STATIC_EXAMPLE_AUDIO: Record<string, Partial<Record<Lang, string>>> = {
   "hash-table": {
     zh: "/examples/audio/hash-table.zh.mp3",
@@ -40,8 +43,9 @@ export function setAudioEnabled(enabled: boolean): void {
 export function staticExampleAudioUrl(exampleId: string, language: Lang): string | null {
   const path = STATIC_EXAMPLE_AUDIO[exampleId]?.[language];
   if (!path) return null;
-  if (AUDIO_ASSET_BASE_URL) {
-    return new URL(path.replace(/^\/+/, ""), `${AUDIO_ASSET_BASE_URL.replace(/\/+$/, "")}/`).toString();
+  const remoteBaseUrl = AUDIO_ASSET_BASE_URL || API_AUDIO_ASSET_BASE_URL;
+  if (remoteBaseUrl) {
+    return new URL(path.replace(/^\/+/, ""), `${remoteBaseUrl.replace(/\/+$/, "")}/`).toString();
   }
   // Resolve against the current document so static examples also work when
   // the viewer is hosted below a project subpath during local development

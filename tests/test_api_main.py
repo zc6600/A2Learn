@@ -42,6 +42,26 @@ class ApiMainTests(unittest.TestCase):
         body = resp.json()
         self.assertEqual(body["status"], "ok")
 
+    def test_example_audio_endpoint_serves_whitelisted_assets(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            audio_root = Path(temporary)
+            expected = b"fake-mp3"
+            (audio_root / "hash-table.zh.mp3").write_bytes(expected)
+            with patch("apps.api.main.example_audio_dir", audio_root):
+                response = self.client.get("/api/example-audio/hash-table.zh.mp3")
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.content, expected)
+            self.assertEqual(response.headers["content-type"], "audio/mpeg")
+            self.assertIn("immutable", response.headers["cache-control"])
+
+    def test_example_audio_endpoint_rejects_unknown_assets(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            with patch("apps.api.main.example_audio_dir", Path(temporary)):
+                response = self.client.get("/api/example-audio/unknown.zh.mp3")
+
+        self.assertEqual(response.status_code, 404)
+
     def test_start_session_returns_messages(self) -> None:
         session = SessionState(
             session_id="sess_test",

@@ -45,6 +45,15 @@ filename. Azure Blob Storage, Cloudflare R2, Amazon S3, and an ordinary CDN all 
 For local development, leave the variable unset and keep the MP3s in the ignored
 `apps/viewer/public/examples/audio/` directory.
 
+With the existing Azure/Kamal deployment, no separate CDN is required. The
+`bin/deploy-azure` script syncs the two files to
+`/var/lib/a2learn/data/example-audio/`; the container sees that directory as
+`/data/example-audio`, and the API serves them at
+`/api/example-audio/hash-table.zh.mp3` and
+`/api/example-audio/hash-table.en.mp3`. If the frontend is built with
+`VITE_A2LEARN_API_URL=https://api.a2learn.zc6600.wiki`, it derives these audio
+URLs automatically unless `VITE_A2LEARN_AUDIO_BASE_URL` is explicitly set.
+
 **Subpath hosting caveat:** the built `index.html` references assets with absolute paths (`/assets/...`). This works fine on a custom domain or a GitHub Pages *user* site (`yourname.github.io`), but will 404 on a GitHub Pages *project* subpage (`yourname.github.io/A2Learn/`) unless you set Vite's `base` option to `/A2Learn/` and rebuild. If you hit that, add `base: "/A2Learn/"` to `apps/viewer/vite.config.ts` before building.
 
 ---
