@@ -1,6 +1,6 @@
 import componentStyles from "../styles/components/QuizCard.css?inline";
 import { html, nothing, unsafeCSS } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { QuizCardApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
@@ -54,7 +54,7 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
     }
 
     this.userSelections = { ...this.userSelections, [qId]: selections };
-    (this as any).requestUpdate();
+    this.requestUpdate();
   }
 
   private submitQuestion(qId: string) {
@@ -62,21 +62,21 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
     if (!selections || selections.size === 0) return;
 
     this.submittedQuestions = { ...this.submittedQuestions, [qId]: true };
-    (this as any).requestUpdate();
+    this.requestUpdate();
   }
 
   private nextQuestion() {
-    const props = (this as any).controller?.props;
+    const props = this.controller?.props;
     if (props && this.currentQuestionIndex < props.questions.length - 1) {
       this.currentQuestionIndex++;
-      (this as any).requestUpdate();
+      this.requestUpdate();
     }
   }
 
   private prevQuestion() {
     if (this.currentQuestionIndex > 0) {
       this.currentQuestionIndex--;
-      (this as any).requestUpdate();
+      this.requestUpdate();
     }
   }
 
@@ -89,33 +89,8 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
     return selections.has(correctIndex);
   }
 
-  private renderRichText(value: unknown): string {
-    const text = this.resolveString(value as any) || "";
-    const escapeHtml = (source: string) => source
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/\"/g, "&quot;");
-    const codeBlocks: string[] = [];
-    let output = escapeHtml(text).replace(
-      /```([a-zA-Z0-9_+-]*)[ \t]*\r?\n?([\s\S]*?)\r?\n?```/g,
-      (_match, _language: string, code: string) => {
-        const placeholder = `\x1aQUIZ_CODE_${codeBlocks.length}\x1a`;
-        codeBlocks.push(`<pre class="quiz-code-block"><code>${code.trim()}</code></pre>`);
-        return placeholder;
-      }
-    );
-    output = output.replace(/`([^`]+)`/g, `<code class="quiz-inline-code">$1</code>`);
-    output = output.replace(/\r?\n/g, "<br/>");
-    codeBlocks.forEach((block, index) => {
-      output = output.replace(`<br/>\x1aQUIZ_CODE_${index}\x1a<br/>`, block);
-      output = output.replace(`\x1aQUIZ_CODE_${index}\x1a`, block);
-    });
-    return output;
-  }
-
   render() {
-    const props = (this as any).controller?.props;
+    const props = this.controller?.props;
     if (!props || !props.questions || props.questions.length === 0) return nothing;
 
     const questions = props.questions;
@@ -140,13 +115,16 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
             isCorrect = this.checkCorrectness(selections, q.correctIndex);
           }
 
+          const qText = this.resolveString(q.question);
+
           return html`
             <div class="question-block ${index === this.currentQuestionIndex ? 'active' : ''}">
-              <div class="question-text">${unsafeHTML(sanitizeHtml(this.renderRichText(q.question)))}</div>
+              <div class="question-text a2learn-markdown-body">${unsafeHTML(sanitizeHtml(qText))}</div>
               
               <div class="options">
                 ${q.options.map((opt: any, optIndex: number) => {
                   const isSelected = selections.has(optIndex);
+                  const optStr = this.resolveString(opt);
                   
                   let optClass = "option";
                   if (isSelected) optClass += " selected";
@@ -164,7 +142,6 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
                         optClass += " incorrect";
                       }
                     } else if (isSelected) {
-                      // 如果没有正确答案的配置，选中的项就当做是对的
                       optClass += " correct";
                     }
                   }
@@ -175,7 +152,7 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
                         ? html`<div class="option-checkbox"></div>`
                         : html`<div class="option-radio"></div>`
                       }
-                      <span class="option-text">${unsafeHTML(sanitizeHtml(this.renderRichText(opt)))}</span>
+                      <span class="option-text a2learn-markdown-body">${unsafeHTML(sanitizeHtml(optStr, { inline: true }))}</span>
                     </div>
                   `;
                 })}
@@ -187,7 +164,7 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
                     ${isCorrect ? uiText("✅ 回答正确", "✅ Correct") : uiText("❌ 回答错误", "❌ Incorrect")}
                   </h4>
                   ${q.explanation ? html`
-                    <p class="explanation-content">${unsafeHTML(sanitizeHtml(this.resolveString(q.explanation)))}</p>
+                    <div class="explanation-content a2learn-markdown-body">${unsafeHTML(sanitizeHtml(this.resolveString(q.explanation)))}</div>
                   ` : nothing}
                 </div>
               ` : nothing}
@@ -218,7 +195,7 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
 }
 
 if (!customElements.get("a2learn-quiz-card")) {
-  customElements.define("a2learn-quiz-card", A2learnQuizCardElement as any);
+  customElements.define("a2learn-quiz-card", A2learnQuizCardElement);
 }
 
 export const A2learnQuizCard = {

@@ -4,10 +4,15 @@ import { state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { DragAndDropMatchApi } from "../api";
 import { uiText } from "../utils/i18n";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 
 /** Two-column Matching component with dual Click-to-Pair & Drag-and-Drop support. */
 export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAndDropMatchApi> {
-  static styles = unsafeCSS(componentStyles);
+  static styles = [
+    tooltipStyles,
+    unsafeCSS(componentStyles),
+  ];
 
   @state() private selectedLeftId: string | null = null;
   @state() private matches: Record<string, string> = {};
@@ -232,7 +237,7 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
                 ${feedback}
                 ${explanations.length
                   ? html`<ul>
-                      ${explanations.map((item: { label: string; content: string }) => html`<li><b>${item.label}</b>：${item.content}</li>`)}
+                      ${explanations.map((item: { label: string; content: string }) => html`<li><b>${item.label}</b>：${unsafeHTML(sanitizeHtml(item.content, { inline: true }))}</li>`)}
                     </ul>`
                   : nothing}
               </div>

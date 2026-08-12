@@ -3,10 +3,13 @@ import { html, nothing, unsafeCSS } from "lit";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { PaperAbstractApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "../utils/sanitize";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 
 export class A2learnPaperAbstractElement extends A2uiLitElement<typeof PaperAbstractApi> {
-  static styles = unsafeCSS(componentStyles);
+  static styles = [
+    tooltipStyles,
+    unsafeCSS(componentStyles),
+  ];
 
   protected createController() {
     return new A2uiController(this, PaperAbstractApi);
@@ -26,7 +29,7 @@ export class A2learnPaperAbstractElement extends A2uiLitElement<typeof PaperAbst
   }
 
   render() {
-    const props = (this as any).controller?.props;
+    const props = this.controller?.props;
     if (!props) return nothing;
 
     const title = this.resolveString(props.title);
@@ -68,13 +71,13 @@ export class A2learnPaperAbstractElement extends A2uiLitElement<typeof PaperAbst
                   <span>💡</span>
                   <span>Core Takeaway (TL;DR)</span>
                 </div>
-                <div class="tldr-content">${tldr}</div>
+                <div class="tldr-content a2learn-markdown-body">${unsafeHTML(sanitizeHtml(tldr))}</div>
               </div>
             `
           : nothing}
 
         <div class="section-title">Abstract</div>
-        <div class="abstract-text">${unsafeHTML(sanitizeHtml(abstract))}</div>
+        <div class="abstract-text a2learn-markdown-body">${unsafeHTML(sanitizeHtml(abstract))}</div>
 
         ${pdfUrl || sourceUrl
           ? html`
@@ -102,7 +105,7 @@ export class A2learnPaperAbstractElement extends A2uiLitElement<typeof PaperAbst
 }
 
 if (!customElements.get("a2learn-paper-abstract")) {
-  customElements.define("a2learn-paper-abstract", A2learnPaperAbstractElement as any);
+  customElements.define("a2learn-paper-abstract", A2learnPaperAbstractElement);
 }
 
 export const A2learnPaperAbstract = {

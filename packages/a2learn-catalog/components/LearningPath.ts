@@ -1,11 +1,16 @@
 import componentStyles from "../styles/components/LearningPath.css?inline";
 import { html, nothing, unsafeCSS } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { LearningPathApi } from "../api";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 
 export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPathApi> {
-  static styles = unsafeCSS(componentStyles);
+  static styles = [
+    tooltipStyles,
+    unsafeCSS(componentStyles),
+  ];
 
   // Local optimistic state
   @state() private localActiveId: string | null = null;
@@ -59,11 +64,11 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
   }
 
   private handleStepClick(step: any, status: 'completed' | 'current' | 'locked') {
-    const props = (this as any).controller?.props;
+    const props = this.controller?.props;
 
     // 1. 乐观更新游标
     this.localActiveId = step.id;
-    (this as any).requestUpdate();
+    this.requestUpdate();
 
     // 2. 跨 Surface 切换视角
     if (step.targetSurfaceId) {
@@ -91,7 +96,7 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
 
     // 4. 同时 dispatch，让 Agent 追踪点击行为
     if (props && props.onStepSelect) {
-      (this as any).context.dispatchAction({
+      this.context.dispatchAction({
         ...(props.onStepSelect as Record<string, unknown>),
         context: { stepId: step.id },
       });
@@ -99,7 +104,7 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
   }
 
   render() {
-    const props = (this as any).controller?.props;
+    const props = this.controller?.props;
     if (!props) return nothing;
 
     const title = this.resolveString(props.title);
@@ -132,7 +137,7 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
                 </div>
                 <div class="content-wrapper">
                   <h4 class="title">${this.resolveString(step.title)}</h4>
-                  ${step.description ? html`<p class="desc">${this.resolveString(step.description)}</p>` : nothing}
+                  ${step.description ? html`<div class="desc a2learn-markdown-body">${unsafeHTML(sanitizeHtml(this.resolveString(step.description)))}</div>` : nothing}
                 </div>
               </div>
             `;
@@ -144,7 +149,7 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
 }
 
 if (!customElements.get("a2learn-learning-path")) {
-  customElements.define("a2learn-learning-path", A2learnLearningPathElement as any);
+  customElements.define("a2learn-learning-path", A2learnLearningPathElement);
 }
 
 export const A2learnLearningPath = {

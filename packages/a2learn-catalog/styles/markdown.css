@@ -1,0 +1,192 @@
+/* Modern Markdown typography and component styling for A2Learn Catalog */
+
+.a2learn-markdown-body,
+.markdown-body {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: inherit;
+  word-break: break-word;
+}
+
+.a2learn-markdown-body p,
+p {
+  margin: 0.55em 0;
+  line-height: 1.65;
+}
+
+.a2learn-markdown-body p:first-child {
+  margin-top: 0;
+}
+
+.a2learn-markdown-body p:last-child {
+  margin-bottom: 0;
+}
+
+.a2learn-markdown-body h1,
+.a2learn-markdown-body h2,
+.a2learn-markdown-body h3,
+.a2learn-markdown-body h4,
+.a2learn-markdown-body h5,
+.a2learn-markdown-body h6 {
+  margin: 1.1em 0 0.45em 0;
+  font-weight: 700;
+  line-height: 1.35;
+  color: inherit;
+}
+
+.a2learn-markdown-body h1:first-child,
+.a2learn-markdown-body h2:first-child,
+.a2learn-markdown-body h3:first-child {
+  margin-top: 0;
+}
+
+.a2learn-markdown-body h1 { font-size: 1.45em; }
+.a2learn-markdown-body h2 { font-size: 1.25em; }
+.a2learn-markdown-body h3 { font-size: 1.12em; }
+.a2learn-markdown-body h4 { font-size: 1.02em; }
+
+.a2learn-markdown-body ul,
+.a2learn-markdown-body ol {
+  margin: 0.55em 0;
+  padding-left: 1.5em;
+}
+
+.a2learn-markdown-body li {
+  margin: 0.3em 0;
+  line-height: 1.6;
+}
+
+.a2learn-markdown-body blockquote {
+  margin: 0.8em 0;
+  padding: 0.6em 1em;
+  border-left: 3.5px solid var(--a2ui-color-primary, #0d9488);
+  background: var(--a2learn-quote-bg, rgba(13, 148, 136, 0.06));
+  border-radius: 0 8px 8px 0;
+  color: inherit;
+  opacity: 0.92;
+}
+
+.a2learn-markdown-body blockquote p {
+  margin: 0.25em 0;
+}
+
+.a2learn-markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.8em 0;
+  font-size: 0.92em;
+  border: 1px solid var(--app-border, rgba(140, 140, 160, 0.2));
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.a2learn-markdown-body th,
+.a2learn-markdown-body td {
+  padding: 8px 12px;
+  border: 1px solid var(--app-border, rgba(140, 140, 160, 0.2));
+  text-align: left;
+}
+
+.a2learn-markdown-body th {
+  background: var(--app-card-nested, rgba(140, 140, 160, 0.08));
+  font-weight: 600;
+}
+
+.a2learn-markdown-body code:not(pre code) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.88em;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  background: var(--a2learn-inline-code-bg, rgba(13, 148, 136, 0.1));
+  color: var(--a2learn-inline-code-color, #0d9488);
+  font-weight: 500;
+}
+
+.a2learn-code-block,
+.code-block {
+  margin: 0.8em 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.code-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 11px;
+  color: #a6adc8;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+.code-copy-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cdd6f4;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.code-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.code-copy-btn.copied {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+.a2learn-code-block pre,
+.code-block pre {
+  margin: 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  background: transparent;
+}
+
+.a2learn-code-block code,
+.code-block code {
+  font-family: inherit;
+  font-size: inherit;
+  background: none !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+
+.a2learn-markdown-body a {
+  color: var(--a2ui-color-primary, #0d9488);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.2s ease;
+}
+
+.a2learn-markdown-body a:hover {
+  opacity: 0.8;
+}
+
+.a2learn-markdown-body hr {
+  margin: 1.2em 0;
+  border: none;
+  border-top: 1px solid var(--app-border, rgba(140, 140, 160, 0.2));
+}
+
+.a2learn-markdown-body del {
+  opacity: 0.65;
+}

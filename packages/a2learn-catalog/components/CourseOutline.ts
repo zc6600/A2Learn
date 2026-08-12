@@ -1,14 +1,16 @@
 import componentStyles from "../styles/components/CourseOutline.css?inline";
 import { html, nothing, unsafeCSS } from "lit";
-import { customElement } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { CourseOutlineApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "../utils/sanitize";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 import { uiText } from "../utils/i18n";
 
 export class A2learnCourseOutlineElement extends A2uiLitElement<typeof CourseOutlineApi> {
-  static styles = unsafeCSS(componentStyles);
+  static styles = [
+    tooltipStyles,
+    unsafeCSS(componentStyles)
+  ];
 
   protected createController() {
     return new A2uiController(this, CourseOutlineApi);
@@ -51,14 +53,14 @@ export class A2learnCourseOutlineElement extends A2uiLitElement<typeof CourseOut
   }
 
   render() {
-    const props = (this as any).controller?.props;
+    const props = this.controller?.props;
     if (!props) return nothing;
 
     return html`
       <div class="outline-container">
         <div class="course-header">
           <h2 class="course-title">${this.resolveString(props.courseTitle)}</h2>
-          ${props.description ? html`<p class="course-desc">${unsafeHTML(sanitizeHtml(this.resolveString(props.description)))}</p>` : nothing}
+          ${props.description ? html`<div class="course-desc a2learn-markdown-body">${unsafeHTML(sanitizeHtml(this.resolveString(props.description)))}</div>` : nothing}
         </div>
 
         <div class="modules-list">
@@ -68,7 +70,7 @@ export class A2learnCourseOutlineElement extends A2uiLitElement<typeof CourseOut
                 <div class="status-icon">${this.getStatusIcon(mod.status)}</div>
                 <div class="module-content">
                   <h3 class="module-title">${this.resolveString(mod.title)}</h3>
-                  ${mod.description ? html`<p class="module-desc">${this.resolveString(mod.description)}</p>` : nothing}
+                  ${mod.description ? html`<div class="module-desc a2learn-markdown-body">${unsafeHTML(sanitizeHtml(this.resolveString(mod.description), { inline: true }))}</div>` : nothing}
                 </div>
                 ${mod.status !== "locked" ? html`
                   <button class="action-btn">${this.getActionText(mod.status)}</button>
@@ -91,7 +93,7 @@ export class A2learnCourseOutlineElement extends A2uiLitElement<typeof CourseOut
 }
 
 if (!customElements.get("a2learn-course-outline")) {
-  customElements.define("a2learn-course-outline", A2learnCourseOutlineElement as any);
+  customElements.define("a2learn-course-outline", A2learnCourseOutlineElement);
 }
 
 export const A2learnCourseOutline = {

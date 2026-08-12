@@ -4,11 +4,14 @@ import { customElement, state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { ClozeTestApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "../utils/sanitize";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 import { uiText } from "../utils/i18n";
 
 export class A2learnClozeTestElement extends A2uiLitElement<typeof ClozeTestApi> {
-  static styles = unsafeCSS(componentStyles);
+  static styles = [
+    tooltipStyles,
+    unsafeCSS(componentStyles),
+  ];
 
   @state() private localAnswers: string[] = [];
   @state() private localStatus: 'idle' | 'correct' | 'incorrect' = 'idle';

@@ -10,7 +10,7 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
   static styles = [
     tooltipStyles,
     unsafeCSS(componentStyles)
-];
+  ];
 
   protected createController() {
     return new A2uiController(this, MentalModelApi);
@@ -27,19 +27,6 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
       return typeof literal === "string" ? literal : "";
     }
     return "";
-  }
-
-  private renderInlineMarkdown(markdown: string): string {
-    if (!markdown) return "";
-    let htmlStr = markdown
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/<b>/gi, "<strong>")
-      .replace(/<\/b>/gi, "</strong>");
-    const paragraphs = htmlStr
-      .split(/\n{2,}/)
-      .map((p) => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
-      .join("");
-    return paragraphs || "<p></p>";
   }
 
   private renderDiagram(diagramStr: string) {
@@ -123,21 +110,21 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
                 <div class="visual-flow-nodes">
                   ${rawNodes.map((node, i) => html`
                     ${i > 0 ? html`<span class="flow-separator">➔</span>` : nothing}
-                    <div class="flow-node">${unsafeHTML(sanitizeHtml(this.renderInlineMarkdown(node)))}</div>
+                    <div class="flow-node">${unsafeHTML(sanitizeHtml(node, { inline: true }))}</div>
                   `)}
                 </div>
               </div>
             `;
           }
 
-          return html`<div class="visual-step-line">${unsafeHTML(sanitizeHtml(this.renderInlineMarkdown(line)))}</div>`;
+          return html`<div class="visual-step-line">${unsafeHTML(sanitizeHtml(line, { inline: true }))}</div>`;
         })}
       </div>
     `;
   }
 
   render() {
-    const props = (this as any).controller?.props;
+    const props = this.controller?.props;
     if (!props) return nothing;
 
     const title = this.resolveString(props.title);
@@ -159,7 +146,7 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
           </div>
         </div>
         <div class="body">
-          <div class="description">${unsafeHTML(sanitizeHtml(this.renderInlineMarkdown(description)))}</div>
+          <div class="description a2learn-markdown-body">${unsafeHTML(sanitizeHtml(description))}</div>
 
           ${pillars.length > 0
             ? html`
@@ -176,7 +163,7 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
                             ${pIcon ? html`<span class="pillar-icon">${pIcon}</span>` : nothing}
                             <h4 class="pillar-title">${pTitle}</h4>
                           </div>
-                          <p class="pillar-desc">${unsafeHTML(sanitizeHtml(this.renderInlineMarkdown(pDesc)))}</p>
+                          <div class="pillar-desc a2learn-markdown-body">${unsafeHTML(sanitizeHtml(pDesc))}</div>
                         </div>
                       `;
                     })}
@@ -198,8 +185,8 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
             ? html`
                 <div class="analogy-box">
                   <h4 class="analogy-header">${analogyTitle}</h4>
-                  <div class="analogy-content">
-                    ${unsafeHTML(sanitizeHtml(this.renderInlineMarkdown(analogy)))}
+                  <div class="analogy-content a2learn-markdown-body">
+                    ${unsafeHTML(sanitizeHtml(analogy))}
                   </div>
                 </div>
               `
@@ -211,7 +198,7 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
 }
 
 if (!customElements.get("a2learn-mental-model")) {
-  customElements.define("a2learn-mental-model", A2learnMentalModelElement as any);
+  customElements.define("a2learn-mental-model", A2learnMentalModelElement);
 }
 
 export const A2learnMentalModel = {

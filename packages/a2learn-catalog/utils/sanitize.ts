@@ -1,8 +1,10 @@
 import createDOMPurify from "dompurify";
 import { css, unsafeCSS } from "lit";
-import tooltipCss from "../styles/tooltip.css?inline";
+import MarkdownIt from "markdown-it";
 import katex from "katex";
 import katexCss from "katex/dist/katex.min.css?inline";
+import tooltipCss from "../styles/tooltip.css?inline";
+import markdownCss from "../styles/markdown.css?inline";
 
 const FORBID_TAGS = [
   "base",
@@ -24,61 +26,134 @@ function getPurifier() {
 }
 
 export const katexStyles = css`${unsafeCSS(katexCss)}`;
+export const markdownStyles = css`${unsafeCSS(markdownCss)}`;
+export const tooltipStyles = css`${unsafeCSS(katexCss)}${unsafeCSS(markdownCss)}${unsafeCSS(tooltipCss)}`;
 
-export const tooltipStyles = css`${unsafeCSS(katexCss)}${unsafeCSS(tooltipCss)}`;
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+const md = new MarkdownIt({
+  html: true,
+  breaks: true,
+  linkify: true,
+  typographer: false,
+});
+
+// Custom code fence renderer with language label and copy button
+md.renderer.rules.fence = (tokens, idx) => {
+  const token = tokens[idx];
+  const info = token.info ? token.info.trim() : "";
+  const lang = info ? info.split(/\s+/)[0] : "text";
+  const escapedCode = escapeHtml(token.content);
+  return `<div class="a2learn-code-block code-block"><div class="code-block-header"><span class="code-block-lang">${escapeHtml(lang)}</span><button type="button" class="code-copy-btn" aria-label="Copy code">复制</button></div><pre><code class="language-${escapeHtml(lang)}">${escapedCode}</code></pre></div>`;
+};
+
+// Global click handler for copy buttons inside shadow DOM and regular DOM
+if (typeof document !== "undefined") {
+  document.addEventListener("click", async (event) => {
+    const path = event.composedPath();
+    const btn = path.find(
+      (node) => node instanceof HTMLElement && node.classList.contains("code-copy-btn")
+    ) as HTMLButtonElement | undefined;
+    if (!btn) return;
+
+    const block = btn.closest(".code-block, .a2learn-code-block");
+    const codeEl = block?.querySelector("code, pre");
+    const textToCopy = codeEl?.textContent || "";
+    if (!textToCopy) return;
+
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      const original = btn.textContent;
+      btn.textContent = "已复制";
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.textContent = original || "复制";
+        btn.classList.remove("copied");
+      }, 1500);
+    } catch {
+      // Ignore clipboard write failures in restricted contexts
+    }
+  }, true);
+}
 
 /**
- * Renders inline `$...$` / `\(...\)` and block `$$...$$` / `\[...\]` LaTeX math to HTML via KaTeX,
- * as well as un-delimited TeX expressions like `\sqrt{...}`.
+ * Extracts inline `$...$` / `\(...\)` and block `$$...$$` / `\[...\]` LaTeX math to KaTeX placeholders
+ * so markdown-it does not misinterpret LaTeX syntax like underscores `_` or asterisks `*`.
  */
-export function renderMathInHtml(input: string): string {
-  if (!input) return input;
-  if (input.indexOf("$") === -1 && input.indexOf("\\") === -1) return input;
+function extractMath(input: string): { text: string; mathMap: Map<string, string> } {
+  const mathMap = new Map<string, string>();
+  if (!input || (input.indexOf("$") === -1 && input.indexOf("\\") === -1)) {
+    return { text: input, mathMap };
+  }
 
-  let out = input;
+  let idx = 0;
 
   // 1. Block math: $$...$$ or \[...\]
-  out = out.replace(/(?:\$\$|\\\[)([\s\S]+?)(?:\$\$|\\\])/g, (match, expr) => {
+  let text = input.replace(/(?:\$\$|\\\[)([\s\S]+?)(?:\$\$|\\\])/g, (_, expr) => {
+    const key = `\x1aKATEX_BLOCK_${idx++}\x1a`;
     try {
-      return katex.renderToString(expr.trim(), {
+      const rendered = katex.renderToString(expr.trim(), {
         throwOnError: false,
         trust: false,
         output: "html",
         displayMode: true,
       });
+      mathMap.set(key, rendered);
     } catch {
-      return match;
+      mathMap.set(key, expr);
     }
+    return `\n\n${key}\n\n`;
   });
 
   // 2. Inline math: $...$ or \(...\)
-  out = out.replace(/(?:\$|\\\()([^\s$][^$]*?[^\s$]|[^\s$])(?:\$|\\\))/g, (match, expr) => {
+  text = text.replace(/(?:\$|\\\()([^\s$][^$]*?[^\s$]|[^\s$])(?:\$|\\\))/g, (_, expr) => {
+    const key = `\x1aKATEX_INLINE_${idx++}\x1a`;
     try {
-      return katex.renderToString(expr, {
+      const rendered = katex.renderToString(expr, {
         throwOnError: false,
         trust: false,
         output: "html",
         displayMode: false,
       });
+      mathMap.set(key, rendered);
     } catch {
-      return match;
+      mathMap.set(key, expr);
     }
+    return key;
   });
 
   // 3. Standalone TeX commands like \sqrt{...}, \frac{...}{...} without $ delimiters
-  out = out.replace(/\\(sqrt|frac|text|mathbf|mathrm|mathcal)\{[^}]+\}(\{[^}]+\})?/g, (match) => {
+  text = text.replace(/\\(sqrt|frac|text|mathbf|mathrm|mathcal)\{[^}]+\}(\{[^}]+\})?/g, (match) => {
+    const key = `\x1aKATEX_INLINE_${idx++}\x1a`;
     try {
-      return katex.renderToString(match, {
+      const rendered = katex.renderToString(match, {
         throwOnError: false,
         trust: false,
         output: "html",
         displayMode: false,
       });
+      mathMap.set(key, rendered);
     } catch {
-      return match;
+      mathMap.set(key, match);
     }
+    return key;
   });
 
+  return { text, mathMap };
+}
+
+function restoreMath(htmlStr: string, mathMap: Map<string, string>): string {
+  if (mathMap.size === 0) return htmlStr;
+  let out = htmlStr;
+  for (const [key, value] of mathMap.entries()) {
+    out = out.split(key).join(value);
+  }
   return out;
 }
 
@@ -111,19 +186,40 @@ export function parseTermTooltips(htmlInput: string): string {
   return processed;
 }
 
-export function sanitizeHtml(input: string): string {
+/**
+ * Compiles Markdown, KaTeX math expressions, and terminology tooltips into sanitized HTML.
+ */
+export function sanitizeHtml(input: string, options?: { inline?: boolean }): string {
   if (!input) return "";
   if (typeof window === "undefined") return input;
 
-  const withMath = renderMathInHtml(input);
+  // 1. Extract Math expressions to placeholders
+  const { text, mathMap } = extractMath(input);
+
+  // 2. Compile Markdown to HTML
+  const renderedMd = options?.inline ? md.renderInline(text) : md.render(text);
+
+  // 3. Restore KaTeX Math
+  const withMath = restoreMath(renderedMd, mathMap);
+
+  // 4. Parse Term Tooltips
   const withTooltips = parseTermTooltips(withMath);
 
+  // 5. Sanitize with DOMPurify
   return getPurifier().sanitize(withTooltips, {
-    // svg/svgFilters keep KaTeX's rendering intact (some symbols, e.g. wide
-    // accents and radicals, render via inline <svg>).
-    USE_PROFILES: { html: true, svg: true, svgFilters: true },
+    // svg/svgFilters/mathMl keep KaTeX's rendering intact
+    USE_PROFILES: { html: true, svg: true, svgFilters: true, mathMl: true },
     FORBID_TAGS,
-    ADD_TAGS: ["span", "dfn", "button"],
-    ADD_ATTR: ["data-term", "data-annotation", "tabindex", "type", "style"],
+    ADD_TAGS: [
+      "span", "dfn", "button", "table", "thead", "tbody", "tr", "th", "td",
+      "pre", "code", "blockquote", "h1", "h2", "h3", "h4", "h5", "h6",
+      "hr", "del", "img", "details", "summary", "kbd", "sup", "sub"
+    ],
+    ADD_ATTR: [
+      "data-term", "data-annotation", "tabindex", "type", "style",
+      "class", "src", "alt", "title", "href", "target", "rel", "aria-label"
+    ],
   }) as string;
 }
+
+export const renderMarkdown = sanitizeHtml;

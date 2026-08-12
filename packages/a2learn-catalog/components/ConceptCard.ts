@@ -10,7 +10,7 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
   static styles = [
     tooltipStyles,
     unsafeCSS(componentStyles)
-];
+  ];
 
   protected createController() {
     return new A2uiController(this, ConceptCardApi);
@@ -46,47 +46,17 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
     );
   }
 
-  private exampleSectionTitle(): string {
-    return uiText("实践示例", "In Practice");
-  }
-
-  private isEnglishUi(): boolean {
-    const documentLanguage = typeof document !== "undefined" ? document.documentElement.lang : "";
-    return documentLanguage.toLowerCase().startsWith("en");
-  }
-
   private renderExample(exampleStr: string) {
     if (!exampleStr) return nothing;
 
-    // Strip any outer <pre><code>...</code></pre> or ```code``` wrapping first
     let cleanStr = exampleStr.trim();
     cleanStr = cleanStr.replace(/^<pre(?:\s+[^>]*)?>\s*<code(?:\s+[^>]*)?>([\s\S]*?)<\/code>\s*<\/pre>$/i, "$1");
 
-    // Keep a full fenced block intact so the Markdown renderer can preserve
-    // its language label and code formatting instead of treating it as a
-    // plain text flow diagram.
-    const isFullCodeFence = /^```[a-zA-Z0-9_-]*\r?\n[\s\S]*?\r?\n```$/i.test(cleanStr);
-    if (!isFullCodeFence) {
-      cleanStr = cleanStr.replace(/^```[a-zA-Z0-9_-]*\r?\n([\s\S]*?)\r?\n```$/i, "$1");
-    }
-
-    const hasMarkdown = isFullCodeFence || /```|(^|\n)\s*(?:#{1,6}\s|[-*+]\s|\d+[.)]\s)|\*\*[^*]+\*\*|`[^`]+`/.test(cleanStr);
-    if (hasMarkdown) {
-      return html`<div class="example-markdown">${unsafeHTML(this.renderExampleMarkdown(cleanStr))}</div>`;
-    }
-
-    // Generated examples sometimes contain real source code without Markdown
-    // fences. Keep that code readable instead of letting HTML collapse its
-    // line breaks into one paragraph.
-    const looksLikeCode = /(^|\n)\s*(?:function\s+\w+|(?:const|let|var)\s+\w+\s*=|for\s*\(|fetch\w*\s*\(|(?:\.|#)?[a-zA-Z][\w-]*\s*\{)/m.test(cleanStr);
-    if (looksLikeCode) {
-      return html`<div class="example-markdown">${unsafeHTML(this.renderExampleMarkdown(`\`\`\`text\n${cleanStr}\n\`\`\``))}</div>`;
-    }
-
     const lines = cleanStr.split("\n");
     const hasArrows = lines.some((line) => line.includes("->") || line.includes("➔") || line.includes("=>"));
+    const isMarkdown = /^```|^\s*#{1,6}\s|^\s*[-*+]\s|^\s*\d+[.)]\s/m.test(cleanStr);
 
-    if (hasArrows) {
+    if (hasArrows && !isMarkdown) {
       return html`
         <div class="example-box-flow">
           ${lines.map((line) => {
@@ -134,7 +104,7 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
                     ${rawNodes.map(
                       (node, i) => html`
                         ${i > 0 ? html`<span class="flow-separator">➔</span>` : nothing}
-                        <div class="flow-node">${node}</div>
+                        <div class="flow-node">${unsafeHTML(sanitizeHtml(node, { inline: true }))}</div>
                       `
                     )}
                   </div>
@@ -142,109 +112,17 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
               `;
             }
 
-            return html`<div class="example-text-line">${unsafeHTML(sanitizeHtml(line))}</div>`;
+            return html`<div class="example-text-line">${unsafeHTML(sanitizeHtml(line, { inline: true }))}</div>`;
           })}
         </div>
       `;
     }
 
     return html`
-      <div class="example-box">
+      <div class="example-box a2learn-markdown-body">
         ${unsafeHTML(sanitizeHtml(cleanStr))}
       </div>
     `;
-  }
-
-  private renderExampleMarkdown(markdown: string): string {
-    const escapeHtml = (value: string): string =>
-      value
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\"/g, "&quot;");
-
-    const inline = (value: string): string =>
-      value
-        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-        .replace(/__([^_]+)__/g, "<strong>$1</strong>")
-        .replace(/`([^`]+)`/g, "<code>$1</code>");
-
-    const codeBlocks: string[] = [];
-    let source = markdown.replace(
-      /```([a-zA-Z0-9_+-]*)[ \t]*\r?\n?([\s\S]*?)\r?\n?```/g,
-      (_match, language: string, code: string) => {
-        const index = codeBlocks.length;
-        const label = (language || "code").trim().toLowerCase();
-        codeBlocks.push(
-          `<div class="example-code-block"><div class="example-code-header"><span>${escapeHtml(label)}</span><span>code</span></div><pre>${escapeHtml(code)}</pre></div>`,
-        );
-        return `\x1aEXAMPLE_CODE_${index}\x1a`;
-      },
-    );
-
-    const lines = source.split(/\r?\n/);
-    const output: string[] = [];
-    let paragraph: string[] = [];
-    let listType: "ul" | "ol" | null = null;
-
-    const flushParagraph = () => {
-      if (paragraph.length > 0) {
-        output.push(`<p>${inline(paragraph.join(" ").trim())}</p>`);
-        paragraph = [];
-      }
-    };
-    const closeList = () => {
-      if (listType) {
-        output.push(`</${listType}>`);
-        listType = null;
-      }
-    };
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-      const placeholder = trimmed.match(/^\x1aEXAMPLE_CODE_(\d+)\x1a$/);
-      if (placeholder) {
-        flushParagraph();
-        closeList();
-        output.push(codeBlocks[Number(placeholder[1])]);
-        continue;
-      }
-      if (!trimmed) {
-        flushParagraph();
-        closeList();
-        continue;
-      }
-
-      const heading = trimmed.match(/^(#{1,4})\s+(.+)$/);
-      if (heading) {
-        flushParagraph();
-        closeList();
-        const level = heading[1].length;
-        output.push(`<h${level}>${inline(heading[2])}</h${level}>`);
-        continue;
-      }
-
-      const unordered = trimmed.match(/^[-*+]\s+(.+)$/);
-      const ordered = trimmed.match(/^\d+[.)]\s+(.+)$/);
-      if (unordered || ordered) {
-        flushParagraph();
-        const nextType = unordered ? "ul" : "ol";
-        if (listType !== nextType) {
-          closeList();
-          output.push(`<${nextType}>`);
-          listType = nextType;
-        }
-        output.push(`<li>${inline((unordered || ordered)![1])}</li>`);
-        continue;
-      }
-
-      closeList();
-      paragraph.push(trimmed);
-    }
-    flushParagraph();
-    closeList();
-
-    return sanitizeHtml(output.join(""));
   }
 
   render() {
@@ -280,7 +158,7 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
         
         <div class="body">
           ${definitionTitle ? html`<h3 class="section-title">${definitionTitle}</h3>` : nothing}
-          <div class="definition">${unsafeHTML(sanitizeHtml(definition))}</div>
+          <div class="definition a2learn-markdown-body">${unsafeHTML(sanitizeHtml(definition))}</div>
 
           ${example ? html`
             ${exampleTitle ? html`<h3 class="section-title">${exampleTitle}</h3>` : nothing}

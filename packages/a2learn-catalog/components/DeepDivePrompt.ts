@@ -1,12 +1,16 @@
 import componentStyles from "../styles/components/DeepDivePrompt.css?inline";
 import { html, nothing, unsafeCSS } from "lit";
-import { customElement } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { DeepDivePromptApi } from "../api";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 import { uiText } from "../utils/i18n";
 
 export class A2learnDeepDivePromptElement extends A2uiLitElement<typeof DeepDivePromptApi> {
-  static styles = unsafeCSS(componentStyles);
+  static styles = [
+    tooltipStyles,
+    unsafeCSS(componentStyles),
+  ];
 
   protected createController() {
     return new A2uiController(this, DeepDivePromptApi);
@@ -59,7 +63,7 @@ export class A2learnDeepDivePromptElement extends A2uiLitElement<typeof DeepDive
                 ?disabled=${isDisabled}
               >
                 ${prompt.icon ? html`<span class="icon">${this.resolveString(prompt.icon)}</span>` : nothing}
-                <span class="label">${this.resolveString(prompt.label)}</span>
+                <span class="label">${unsafeHTML(sanitizeHtml(this.resolveString(prompt.label), { inline: true }))}</span>
               </button>
             `;
           })}

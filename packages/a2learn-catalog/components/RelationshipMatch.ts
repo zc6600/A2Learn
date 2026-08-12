@@ -4,10 +4,15 @@ import { state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { RelationshipMatchApi } from "../api";
 import { uiText } from "../utils/i18n";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 
 /** Interactive Relationship Card Matching component. 100% reliable click-based selection. */
 export class A2learnRelationshipMatchElement extends A2uiLitElement<typeof RelationshipMatchApi> {
-  static styles = unsafeCSS(componentStyles);
+  static styles = [
+    tooltipStyles,
+    unsafeCSS(componentStyles),
+  ];
 
   @state() private matches: Record<string, string> = {};
   @state() private status: "idle" | "correct" | "incorrect" = "idle";
@@ -154,7 +159,7 @@ export class A2learnRelationshipMatchElement extends A2uiLitElement<typeof Relat
                 ${feedback}
                 ${explanations.length
                   ? html`<ul>
-                      ${explanations.map((item: { label: string; content: string }) => html`<li><b>${item.label}</b>：${item.content}</li>`)}
+                      ${explanations.map((item: { label: string; content: string }) => html`<li><b>${item.label}</b>：${unsafeHTML(sanitizeHtml(item.content, { inline: true }))}</li>`)}
                     </ul>`
                   : nothing}
               </div>

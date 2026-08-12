@@ -7,10 +7,15 @@
   "types": "./index.ts",
   "dependencies": {
     "@a2ui/lit": "file:../../third_party/A2UI/renderers/lit",
+    "@a2ui/markdown-it": "file:../../third_party/A2UI/renderers/markdown/markdown-it",
     "@a2ui/web_core": "file:../../third_party/A2UI/renderers/web_core",
     "dompurify": "^3.3.1",
     "katex": "^0.16.11",
     "lit": "^3.3.1",
+    "markdown-it": "^14.1.0",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2"
   }
 }

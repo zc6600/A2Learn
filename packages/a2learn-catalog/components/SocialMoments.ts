@@ -170,7 +170,7 @@ export class A2learnSocialMomentsElement extends A2uiLitElement<typeof SocialMom
                 <div class="author-line">
                   <span class="author">${this.resolveString(post.author)}</span>
                 </div>
-                <div class="content">${unsafeHTML(sanitizeHtml(this.resolveString(post.content)))}</div>
+                <div class="content a2learn-markdown-body">${unsafeHTML(sanitizeHtml(this.resolveString(post.content)))}</div>
                 ${urls.length ? html`
                   <div class="images ${imageGridClass}">
                     ${urls.map((url: string) => html`
@@ -239,14 +239,14 @@ export class A2learnSocialMomentsElement extends A2uiLitElement<typeof SocialMom
                           <div class="comment">
                             ${comment.role ? html`<span class="comment-role">${this.resolveString(comment.role)}</span>` : nothing}
                             <span class="comment-author">${this.resolveString(comment.author)}：</span>
-                            <span>${this.resolveString(comment.content)}</span>
+                            <span>${unsafeHTML(sanitizeHtml(this.resolveString(comment.content), { inline: true }))}</span>
                           </div>
                         `)}
                         ${localComments.map((comment: UserComment) => html`
                           <div class="comment user-comment">
                             ${comment.role ? html`<span class="comment-role">${comment.role}</span>` : nothing}
                             <span class="comment-author">${comment.author}：</span>
-                            <span>${comment.content}</span>
+                            <span>${unsafeHTML(sanitizeHtml(comment.content, { inline: true }))}</span>
                           </div>
                         `)}
                       </div>

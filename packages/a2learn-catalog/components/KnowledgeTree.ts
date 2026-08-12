@@ -4,11 +4,14 @@ import { customElement } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { KnowledgeTreeApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "../utils/sanitize";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 import { uiText } from "../utils/i18n";
 
 export class A2learnKnowledgeTreeElement extends A2uiLitElement<typeof KnowledgeTreeApi> {
-  static styles = unsafeCSS(componentStyles);
+  static styles = [
+    tooltipStyles,
+    unsafeCSS(componentStyles),
+  ];
 
   protected createController() {
     return new A2uiController(this, KnowledgeTreeApi);

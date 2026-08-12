@@ -4,9 +4,14 @@ import { customElement, state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { SectionNavigatorApi } from "../api";
 import { classMap } from "lit/directives/class-map.js";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 
 export class A2learnSectionNavigatorElement extends A2uiLitElement<typeof SectionNavigatorApi> {
-  static styles = unsafeCSS(componentStyles);
+  static styles = [
+    tooltipStyles,
+    unsafeCSS(componentStyles)
+  ];
 
   protected createController() {
     return new A2uiController(this, SectionNavigatorApi);
@@ -117,7 +122,7 @@ export class A2learnSectionNavigatorElement extends A2uiLitElement<typeof Sectio
                   ${badge}
                 </div>
                 <h3 class="card-title">${secTitle}</h3>
-                ${secDesc ? html`<p class="card-desc">${secDesc}</p>` : nothing}
+                ${secDesc ? html`<div class="card-desc a2learn-markdown-body">${unsafeHTML(sanitizeHtml(secDesc, { inline: true }))}</div>` : nothing}
               </div>
             `;
           })}

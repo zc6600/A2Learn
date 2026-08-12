@@ -4,11 +4,14 @@ import { customElement, state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { DocumentFigureApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHtml } from "../utils/sanitize";
+import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
 import { uiText } from "../utils/i18n";
 
 export class A2learnDocumentFigureElement extends A2uiLitElement<typeof DocumentFigureApi> {
-  static styles = unsafeCSS(componentStyles);
+  static styles = [
+    tooltipStyles,
+    unsafeCSS(componentStyles),
+  ];
 
   @state() private activeHotspotId: string | null = null;
   @state() private imageLoaded = false;
@@ -93,7 +96,7 @@ export class A2learnDocumentFigureElement extends A2uiLitElement<typeof Document
                 ${index + 1}
                 <div class="tooltip">
                   <h4 class="tooltip-title">${label}</h4>
-                  ${desc ? html`<p class="tooltip-desc">${desc}</p>` : nothing}
+                  ${desc ? html`<div class="tooltip-desc a2learn-markdown-body">${unsafeHTML(sanitizeHtml(desc, { inline: true }))}</div>` : nothing}
                 </div>
               </div>
             `;
@@ -107,7 +110,7 @@ export class A2learnDocumentFigureElement extends A2uiLitElement<typeof Document
             ${aiExplanation ? html`
               <div class="ai-explanation">
                 <div class="ai-explanation-title">✨ ${uiText("AI 解析", "AI Analysis")}</div>
-                <div>${unsafeHTML(sanitizeHtml(aiExplanation))}</div>
+                <div class="a2learn-markdown-body">${unsafeHTML(sanitizeHtml(aiExplanation))}</div>
               </div>
             ` : nothing}
           </div>
