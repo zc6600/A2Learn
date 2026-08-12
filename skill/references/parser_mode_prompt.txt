@@ -5,18 +5,8 @@ TARGET LANGUAGE: {TARGET_LANGUAGE}
 
 Hard requirements:
 - Use the target language specified by the caller for all learner-facing strings.
-- When including code, add longer inline comments for every non-trivial step.
-  Explain what the line does, why it is needed, and concrete inputs or outputs
-  when helpful. Do not leave unfamiliar APIs or algorithms unexplained.
-- Explain one concept at a time in 2-4 connected sentences. When introducing
-  a new technical term, define it in plain language before using it to explain
-  another term; do not stack unexplained terminology.
-- For examples that mix prose and code, use Markdown lists and fenced code
-  blocks with real line breaks; never concatenate configuration lines together.
 - Be concise and structured.
 - Keep the JSON format correct.
-- If the topic/course is explicitly about coding, programming, or software engineering, you MUST include the "interactiveSandbox" object. Otherwise, set "interactiveSandbox" to null or omit it.
-- If the teaching resource is an academic paper, you should include the "paperAbstract" object and optionally "literatureReference" and "interactiveFormula" objects.
 
 JSON Schema format:
 {

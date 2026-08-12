@@ -10,6 +10,43 @@ from ..core.config import DEFAULT_CATALOG_ID
 from .profile import load_reference_examples
 
 
+def load_component_prompts(
+    enabled_components: tuple[str, ...] | None,
+) -> str:
+    """Load only the prompt resources for components allowed in this run.
+
+    ``None`` means the legacy/default mode where every bundled component is
+    available.  An empty tuple intentionally loads no component-specific
+    guidance.
+    """
+
+    prompt_dir = Path(__file__).with_name("component_prompts")
+    if not prompt_dir.exists():
+        return ""
+
+    available = {
+        path.stem: path
+        for path in prompt_dir.glob("*.txt")
+        if path.is_file()
+    }
+    selected = (
+        tuple(sorted(available))
+        if enabled_components is None
+        else tuple(component for component in enabled_components if component in available)
+    )
+    sections: list[str] = []
+    for component in selected:
+        try:
+            content = available[component].read_text(encoding="utf-8").strip()
+        except OSError:
+            continue
+        if content:
+            sections.append(content)
+    if not sections:
+        return ""
+    return "\n\nCOMPONENT-SPECIFIC GENERATION GUIDANCE:\n" + "\n\n".join(sections)
+
+
 def language_instruction(target_language: str) -> str:
     if target_language == "en":
         return "Use English for every learner-facing string."
@@ -117,7 +154,7 @@ def a2ui_system_prompt(
     image_budget_instruction = (
         "- AUTOMATIC IMAGE BUDGET: Do not request generated images. Omit imagePrompt and imageUrl entirely."
         if image_generation_limit == 0
-        else f"- AUTOMATIC IMAGE BUDGET: The image service may create at most {image_generation_limit} images for this entire generation. Across all ScenarioDialogue messages and SocialMoments posts, include at most {image_generation_limit} concise `imagePrompt` values, only for essential scenes. Never invent imageUrl values: imagePrompt is not a URL. If the service reaches its limit or fails, it will silently omit the image."
+        else f"- AUTOMATIC IMAGE BUDGET: The image service may create at most {image_generation_limit} images for this entire generation. Use image prompts only where the enabled component's guidance permits them, and only for essential scenes. Never invent imageUrl values: an image prompt is not a URL. If the service reaches its limit or fails, it will silently omit the image."
     )
 
     system_prompt = textwrap.dedent(
@@ -137,16 +174,8 @@ def a2ui_system_prompt(
             explanation when the topic requires it. Prefer 2-4 connected
             sentences over a one-line definition, while still avoiding
             repetition and unnecessary filler.
-          - ScenarioDialogue: at most 4-5 message turns total.
-          - DragAndDropMatch: use only for genuine one-to-one relationships.
-            It accepts optional title, instruction, leftLabel, rightLabel,
-            successMessage, incorrectMessage, and matchExplanations; keep its
-            leftItems/rightItems/correctMatches contract intact.
-          - For poetry or classical text, ScenarioDialogue may use variant "wechat-group" for a multi-reader discussion, or "correspondence" for a restrained two-person exchange across distance. Keep every message grounded in the original; a correspondence must be clearly framed as an interpretive reimagining, not a quotation. SocialMoments may present 2-4 chronological posts with comments; imageUrls must only use real, supplied public URLs and must be omitted when none are available. Never invent image URLs.
-          - DetailedExplanation: cover the 2-3 most important points, not an
-            exhaustive list.
-          - Do not repeat the same explanation, example, or term definition
-            across multiple components — say it once, well.
+        - Do not repeat the same explanation, example, or term definition
+          across multiple components — say it once, well.
         - Your response is parsed as raw JSON (no markdown fence needed or
           wanted). A component's text/content string may contain literal
           backtick characters (e.g. to show code) — that's fine, they're just
@@ -158,25 +187,6 @@ def a2ui_system_prompt(
         {component_constraint}
         {visual_instruction}
         {image_budget_instruction}
-        - SOCIAL NARRATIVE COMPONENT PROTOCOL:
-          ScenarioDialogue accepts `variant` ("dialogue", "wechat-group", or
-          "correspondence"),
-          optional `groupName` and `groupNotice`, a `characters` object whose
-          entries have `name`, `avatar`, and `alignment`, plus `messages` with
-          `characterId`, `content`, optional `imagePrompt`, optional `imageUrl`, and optional `delayMs`.
-          SocialMoments accepts a `posts` array. Each post needs `id`, `author`,
-          and `content`; it may have `avatar`, `imagePrompt`, `imageUrls` (at most four),
-          `location`, `time`, `likes`, and `comments` ({{author, role, content}}).
-          Comments can bring historical contemporaries, later dynasty admirers, or
-          readers together with descriptive `role` tags (e.g. "唐代挚友", "宋代知音", "诗家点评").
-          Use these only when they help learners enter a concrete scene or hear
-          distinct interpretations; social UI is never a substitute for close
-          reading of the source text.
-        - INLINE TERM NOTES: For a difficult word, allusion, or technical term
-          inside DetailedExplanation, use exactly `<dfn title="short, plain
-          explanation">term</dfn>`. Use this sparingly: annotate only terms
-          that genuinely block comprehension, never ordinary words or every
-          sentence.
         - 5-STEP PROBLEM-DRIVEN MODULE METHODOLOGY:
           Every module MUST strictly follow these 5 sequential steps internally:
           1. Introduce the background and practical pain point.
@@ -203,20 +213,6 @@ def a2ui_system_prompt(
         - GLOSSARY & TERM ANNOTATION: Weave key terms into a connected
           paragraph rather than stacking a list of definitions. Each paragraph
           should connect the mechanism, an example, and the practical effect.
-        - CLEAN CONCEPT CARD EXAMPLES: Never wrap ConceptCard example strings in HTML tags like <pre><code>...</code></pre>. Use clean plain text lines with arrow flow steps.
-        - EXPLANATORY CODE COMMENTS: Whenever you generate a code block,
-          InteractiveSandbox snippet, or code-like example, add substantial
-          inline comments to every non-trivial step. Each comment should tell
-          the learner what the line does, why it is needed, and, when useful,
-          show the concrete input, intermediate value, or expected output.
-          Do not merely repeat the API or function name; explain the mechanism
-          in plain language so a learner can follow the code without guessing
-          what an unfamiliar term means.
-        - MARKDOWN EXAMPLES: For ConceptCard `example` fields that mix prose
-          and code, use real Markdown: keep each list item on its own line,
-          leave a blank line before code, and wrap every code sample in a
-          fenced block such as ```conf or ```python. Never concatenate prose,
-          configuration directives, and code onto one line.
         - Output format example:
           {{"a2ui_messages": [
             {{"version":"v0.9","createSurface":{{"surfaceId":"main","catalogId":"{DEFAULT_CATALOG_ID}"}}}},
@@ -228,6 +224,9 @@ def a2ui_system_prompt(
     examples_text = load_a2ui_examples_text(target_language, example_ids)
     if examples_text:
         system_prompt += "\n" + examples_text
+    component_prompts = load_component_prompts(enabled_components)
+    if component_prompts:
+        system_prompt += "\n" + component_prompts
     return system_prompt
 
 

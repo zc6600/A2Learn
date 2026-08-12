@@ -7,9 +7,13 @@ from typing import Any, TypedDict
 
 from langgraph.graph import END, StateGraph
 
-from ..core.io import create_output_dir, export_messages, extract_text_from_path, write_json
+from ..core.io import (
+    create_output_dir,
+    export_messages,
+    extract_text_from_path,
+    write_json,
+)
 from ..core.validate import validate_a2ui_messages
-from .media.image_generation import enrich_a2ui_messages_with_images
 from .llm import (
     build_llm,
     build_site_plan,
@@ -19,8 +23,10 @@ from .llm import (
     plan_curriculum,
     repair_a2ui_messages,
 )
+from .media.image_generation import enrich_a2ui_messages_with_images
 from .parser import parse_json_to_a2ui
 from .profile import load_reference_examples, normalize_generation_profile
+from .prompts import load_component_prompts
 
 
 class AgentState(TypedDict, total=False):
@@ -236,6 +242,9 @@ def run_parser_mode(
             + ", ".join(supported_fields or ["none"])
             + ". Omit every other optional component object from the schema."
         )
+    component_prompts = load_component_prompts(profile.enabled_components)
+    if component_prompts:
+        prompt_template += "\n\n" + component_prompts
     reference_examples = load_reference_examples(profile.example_ids, target_language)
     if reference_examples:
         prompt_template += (

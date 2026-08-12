@@ -1,0 +1,3 @@
+COMPONENT Flashcard:
+- Put a single recall target on the front and a concise explanation or example on the back.
+- Keep front and back complementary rather than repeating the same sentence.

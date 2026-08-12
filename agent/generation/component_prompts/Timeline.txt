@@ -1,0 +1,3 @@
+COMPONENT Timeline:
+- Use 3-7 events to show meaningful stages, turning points, or a journey through the material.
+- Every event needs a stable id, time label, and title; descriptions should explain why the event matters.

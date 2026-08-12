@@ -1,0 +1,4 @@
+COMPONENT SocialMoments:
+- Use 2-4 chronological posts only when the social framing helps learners enter a concrete scene or compare interpretations.
+- Each post needs id, author, and content. Comments may include author, role, and content.
+- imageUrls must be real, supplied public URLs; omit them when none are available. Never invent image URLs.

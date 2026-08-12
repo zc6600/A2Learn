@@ -1,0 +1,3 @@
+COMPONENT InteractiveFormula:
+- Use a valid, readable LaTeX formula and explain the meaning of each important variable in plain language.
+- Include derivationSteps only when they genuinely help the learner follow the reasoning.

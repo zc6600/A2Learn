@@ -117,6 +117,22 @@ class GenerationProfileTests(unittest.TestCase):
         prompt = _a2ui_system_prompt("zh", "Return one page.", ("DragAndDropMatch",))
         self.assertIn("genuine one-to-one relationships", prompt)
         self.assertIn("matchExplanations", prompt)
+        self.assertNotIn("COMPONENT ScenarioDialogue", prompt)
+        self.assertNotIn("COMPONENT ConceptCard", prompt)
+
+    def test_prompt_injects_only_enabled_component_guidance(self) -> None:
+        prompt = _a2ui_system_prompt("zh", "Return one page.", ("ConceptCard",))
+        self.assertIn("COMPONENT ConceptCard", prompt)
+        self.assertIn("clean and readable", prompt)
+        self.assertNotIn("COMPONENT QuizCard", prompt)
+        self.assertNotIn("COMPONENT ScenarioDialogue", prompt)
+        self.assertNotIn("COMPONENT InteractiveSandbox", prompt)
+
+    def test_prompt_with_no_enabled_components_has_no_component_guidance(self) -> None:
+        prompt = _a2ui_system_prompt("zh", "Return one page.", ())
+        self.assertIn("custom learning components: none", prompt)
+        self.assertNotIn("COMPONENT ConceptCard", prompt)
+        self.assertNotIn("COMPONENT ScenarioDialogue", prompt)
 
     def test_image_generation_limit_is_bounded_and_reaches_prompt(self) -> None:
         profile = normalize_generation_profile(

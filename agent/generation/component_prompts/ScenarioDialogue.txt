@@ -1,0 +1,5 @@
+COMPONENT ScenarioDialogue:
+- Use at most 4-5 message turns. Keep every message grounded in the source.
+- Use variant dialogue, wechat-group, or correspondence appropriately. A correspondence must be clearly framed as interpretive reimagining, not quotation.
+- Every character id used by a message must exist in characters; every character needs name and alignment.
+- Include imagePrompt only for an essential scene and never invent imageUrl values.

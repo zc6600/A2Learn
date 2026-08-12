@@ -1,0 +1,4 @@
+COMPONENT LearningPath:
+- Use a short, ordered path of 3-6 meaningful learning steps.
+- Give every step a stable unique id, a clear title, and a learner-facing description.
+- Set activeStepId to the first step unless the request provides a different starting point.

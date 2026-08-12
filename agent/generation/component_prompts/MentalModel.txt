@@ -1,0 +1,3 @@
+COMPONENT MentalModel:
+- Explain the system as a small number of connected parts or pillars.
+- Introduce an intuitive analogy only when it clarifies the mechanism, and keep it faithful to the source.

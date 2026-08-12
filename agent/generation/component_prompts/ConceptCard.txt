@@ -1,0 +1,4 @@
+COMPONENT ConceptCard:
+- Explain one central concept, with a precise definition and a concrete example.
+- Keep example text clean and readable; do not wrap it in pre/code HTML.
+- When prose and code are mixed, use real Markdown with separate list items and fenced code blocks.

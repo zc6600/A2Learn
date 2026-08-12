@@ -1,0 +1,3 @@
+COMPONENT CodeSnippet:
+- Use only for coding, programming, algorithms, or software-engineering topics.
+- Make snippets executable or clearly labeled as pseudocode, and comment every non-trivial step with the reason and expected effect.

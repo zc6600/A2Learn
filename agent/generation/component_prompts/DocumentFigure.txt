@@ -1,0 +1,3 @@
+COMPONENT DocumentFigure:
+- Use hotspots only for visually meaningful regions. Each hotspot needs a stable id, label, and accurate explanation.
+- Do not invent figure details that are absent from the source.

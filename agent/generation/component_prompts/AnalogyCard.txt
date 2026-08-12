@@ -1,0 +1,3 @@
+COMPONENT AnalogyCard:
+- Present one concrete analogy, then explicitly map its parts back to the subject.
+- State where the analogy stops being exact so it does not create a misconception.

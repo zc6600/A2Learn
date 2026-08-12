@@ -1,0 +1,4 @@
+COMPONENT DetailedExplanation:
+- Cover the 2-3 most important points rather than an exhaustive list.
+- For a difficult word, allusion, or technical term, use exactly <dfn title="short, plain explanation">term</dfn>.
+- Annotate sparingly: only terms that genuinely block comprehension.

@@ -1,0 +1,4 @@
+COMPONENT InteractiveSandbox:
+- Use only for coding, programming, algorithms, or software-engineering topics.
+- Add substantial inline comments to every non-trivial code step, explaining what it does, why it is needed, and useful intermediate values or expected output.
+- Keep code executable and keep the language field consistent with the snippet.

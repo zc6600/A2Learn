@@ -1,0 +1,3 @@
+COMPONENT ResourceList:
+- Include only relevant resources with a truthful title, URL, type, and short description.
+- Do not fabricate URLs or cite resources that are not useful for the course.

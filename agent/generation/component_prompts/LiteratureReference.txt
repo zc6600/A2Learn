@@ -1,0 +1,3 @@
+COMPONENT LiteratureReference:
+- Give a concise citation and explain why the referenced work matters in the current lesson.
+- Never invent bibliographic details or URLs.

@@ -1,0 +1,3 @@
+COMPONENT SmartAnnotationBoard:
+- Annotate only meaningful passages or regions and make each annotation explain its learning value.
+- Keep anchors stable and ensure feedback is grounded in the supplied material.

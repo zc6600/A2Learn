@@ -1,0 +1,3 @@
+COMPONENT DeepDivePrompt:
+- Offer 2-4 open-ended prompts that extend the learner's reasoning beyond the preceding explanation.
+- Give every prompt a stable id and a concise, thought-provoking label.

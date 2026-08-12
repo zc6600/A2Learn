@@ -1,0 +1,3 @@
+COMPONENT QuizCard:
+- Test understanding rather than recall of wording.
+- Keep options unambiguous, set correctIndex to the zero-based correct option index, and include a concise explanation when useful.

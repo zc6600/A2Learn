@@ -1,0 +1,3 @@
+COMPONENT ClozeTest:
+- Replace only meaningful terms with ___ placeholders.
+- Provide correctAnswers in the same order as the placeholders and add feedback that explains the reasoning.

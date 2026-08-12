@@ -1,0 +1,3 @@
+COMPONENT PaperAbstract:
+- Distinguish the paper's research question, method, main result, and practical takeaway.
+- Keep author, venue, year, and URLs faithful to the supplied source.

@@ -1,0 +1,3 @@
+COMPONENT RelationshipMatch:
+- Use for meaningful conceptual, semantic, or structural relationships rather than superficial word matching.
+- Keep leftItems, rightItems, and correctMatches aligned, and explain non-obvious pairings.

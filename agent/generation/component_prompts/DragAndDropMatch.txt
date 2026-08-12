@@ -1,0 +1,4 @@
+COMPONENT DragAndDropMatch:
+- Use only for genuine one-to-one relationships.
+- Keep leftItems, rightItems, and correctMatches aligned; right items should normally be shuffled.
+- Use optional matchExplanations to explain why each pairing is correct.
