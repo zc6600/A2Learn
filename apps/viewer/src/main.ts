@@ -15,6 +15,8 @@ import { mountFloatingAgent } from "./floating-agent";
 import { mountInlineComponentEditor } from "./inline-component-editor";
 import { mountSourceLibrary } from "./source-library";
 import { getExampleItems, renderCollapsibleExampleGallery } from "./example-gallery";
+import { createEmbedMessageHandler, postToParent, setupAutoResize } from "./embed-bridge";
+import { openProject as openProjectRuntime } from "./project-runtime";
 import { renderSurfaces } from "./surface-renderer";
 import {
   bindGlobalListenersOnce,
@@ -42,9 +44,6 @@ import {
   setLang,
 } from "./viewer-config";
 import type {
-  InitMessage,
-  ReadyMessage,
-  ResizeMessage,
   ViewerRuntimeConfig,
   ViewerSourceOffline,
   ViewerSourceOnline,
@@ -146,43 +145,6 @@ function modeHintForSending(container: HTMLElement, isSending: boolean): void {
   } else {
     next.textContent = "Online mode connected, supporting interaction callbacks and incremental updates.";
   }
-}
-
-function postToParent(message: ReadyMessage | ResizeMessage, targetOrigin: string): void {
-  if (window.parent === window) {
-    return;
-  }
-  try {
-    window.parent.postMessage(message, targetOrigin);
-  } catch {
-    // ignore
-  }
-}
-
-function setupAutoResize(container: HTMLElement, getTargetOrigin: () => string): () => void {
-  if (window.parent === window) {
-    return () => {};
-  }
-  let raf = 0;
-  const send = () => {
-    if (raf) {
-      cancelAnimationFrame(raf);
-    }
-    raf = requestAnimationFrame(() => {
-      const height = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
-      postToParent({ type: "a2learn:resize", height }, getTargetOrigin());
-    });
-  };
-  const observer = new ResizeObserver(() => send());
-  observer.observe(document.documentElement);
-  observer.observe(container);
-  send();
-  return () => {
-    observer.disconnect();
-    if (raf) {
-      cancelAnimationFrame(raf);
-    }
-  };
 }
 
 async function bootstrapOnline(
@@ -465,6 +427,7 @@ async function bootstrapViewer() {
   const locationParams = new URLSearchParams(window.location.search);
   const initialProjectId = locationParams.get("project");
   const initialEditorExample = locationParams.get("example");
+
   if (initialProjectId) {
     currentContent = { kind: "project", id: initialProjectId };
   } else if (import.meta.env.MODE === "editor" || locationParams.get("mode") === "editor") {
@@ -490,6 +453,20 @@ async function bootstrapViewer() {
     else url.searchParams.delete("project");
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
   };
+
+  const openProject = (project: RecentProject, expectedVersion?: number) => openProjectRuntime({
+    project,
+    expectedVersion,
+    getLoadVersion: () => loadVersion,
+    nextLoadVersion: () => ++loadVersion,
+    getContainer: () => container,
+    getApiBaseUrl: editorApiBaseUrl,
+    setRuntime: (runtime) => { activeRuntime = runtime; },
+    setContent: (content) => { currentContent = content; },
+    updateProjectUrl,
+    extractFirstSurfaceId: extractFirstCreatedSurfaceId,
+    narrationController,
+  });
 
   const renderShell = (lang: Lang) => {
     document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
@@ -668,53 +645,6 @@ async function bootstrapViewer() {
     }
   };
 
-  const openProject = async (project: RecentProject, expectedVersion?: number) => {
-    const requestVersion = expectedVersion ?? ++loadVersion;
-    const isCurrent = () => requestVersion === loadVersion;
-    const target = container;
-    if (!target) return;
-    const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
-    if (!apiBaseUrl) {
-      throw new Error(getLang() === "en" ? "The editing API is not configured." : "未配置编辑 API 服务。");
-    }
-    const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(project.id)}/a2ui`);
-    if (!response.ok) {
-      throw new Error(getLang() === "en" ? `Could not open the page (${response.status})` : `打开页面失败 (${response.status})`);
-    }
-    const payload = await response.json() as { messages?: A2uiMessage[] };
-    if (!isCurrent()) return;
-    if (!Array.isArray(payload.messages)) {
-      throw new Error(getLang() === "en" ? "Invalid page data" : "页面数据无效");
-    }
-    const processor = new MessageProcessor([a2learnCatalog], () => undefined);
-    processor.processMessages(payload.messages);
-    activeRuntime = { container: target, processor, modeHint: "Project editor mode." };
-    currentContent = { kind: "project", id: project.id };
-    rememberProject(project.id, project.title);
-    updateProjectUrl(project.id);
-    const firstSurface = extractFirstCreatedSurfaceId(payload.messages);
-    if (firstSurface) window.location.hash = `#/${firstSurface}`;
-    renderSurfaces(target, processor, "Project editor mode.");
-    const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
-    if (narrationButton) {
-      narrationButton.hidden = !isAudioEnabled();
-      narrationButton.onclick = () => {
-        const language = getLang() === "en" ? "en" : "zh";
-        void narrationController.toggle(narrationButton, async () => {
-          const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(project.id)}/narration?language=${language}`, {
-            method: "POST",
-            headers: { ...(getStoredApiKey() ? { "X-OpenRouter-API-Key": getStoredApiKey() } : {}) },
-          });
-          if (!response.ok) {
-            const detail = await response.text();
-            throw new Error(`${response.status}: ${detail || response.statusText}`);
-          }
-          return (await response.json()) as { script?: string; audioUrl: string };
-        }, apiBaseUrl);
-      };
-    }
-  };
-
   const onGenerate = (promptText: string) => {
     const target = container;
     if (!target) return;
@@ -832,56 +762,10 @@ async function bootstrapViewer() {
     });
   }
 
-  const onMessage = (event: MessageEvent) => {
-    const data = event.data;
-    if (!isPlainObject(data)) {
-      return;
-    }
-    if (data.type === "a2learn:init" && isPlainObject((data as any).source)) {
-      const source = (data as InitMessage).source;
-      parentOrigin = event.origin || "*";
-
-      const themeVarsFromSource = normalizeThemeVars((source as any).themeVars);
-
-      if (source.mode === "online" && typeof (source as any).apiBaseUrl === "string") {
-        const next: ViewerRuntimeConfig = {
-          embed: true,
-          source: {
-            mode: "online",
-            apiBaseUrl: normalizeBaseUrl(String((source as any).apiBaseUrl || "")),
-            resourcePath: typeof (source as any).resourcePath === "string" ? String((source as any).resourcePath) : undefined,
-            resourceText: typeof (source as any).resourceText === "string" ? String((source as any).resourceText) : undefined,
-            language: (source as any).language === "zh" || (source as any).language === "en" ? (source as any).language : getLang(),
-            headers: isPlainObject((source as any).headers)
-              ? Object.fromEntries(
-                  Object.entries((source as any).headers).filter(([, v]) => typeof v === "string") as Array<[
-                    string,
-                    string,
-                  ]>,
-                )
-              : undefined,
-            themeVars: themeVarsFromSource,
-          },
-        };
-        void startWithConfig(next);
-        return;
-      }
-
-      if (source.mode === "offline" && typeof (source as any).messagesUrl === "string") {
-        const next: ViewerRuntimeConfig = {
-          embed: true,
-          source: {
-            mode: "offline",
-            messagesUrl: String((source as any).messagesUrl || "").trim() || "/generated/site_messages.json",
-            themeVars: themeVarsFromSource,
-          },
-        };
-        void startWithConfig(next);
-      }
-    }
-  };
-
-  window.addEventListener("message", onMessage);
+  window.addEventListener("message", createEmbedMessageHandler({
+    onOrigin: (origin) => { parentOrigin = origin; },
+    onConfig: (config) => { void startWithConfig(config); },
+  }));
 
   if (initialProjectId) {
     await openProject({ id: initialProjectId, title: initialProjectId, openedAt: new Date().toISOString() });
