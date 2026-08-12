@@ -1,12 +1,15 @@
 /* apps/viewer/src/floating-agent.ts */
-.a2learn-narration-button { position: fixed; right: 22px; bottom: 78px; z-index: 999; width: 34px; height: 34px; border: 0; border-radius: 50%; cursor: pointer; background: var(--a2ui-color-primary); color: #fff; box-shadow: 0 3px 12px rgb(0 0 0 / .2); }
-.a2learn-narration-result { display: grid; gap: 10px; margin: 18px 0 4px; padding: 14px 16px; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius); background: var(--a2ui-color-surface-subtle, #f8fafc); color: var(--a2ui-color-on-surface); font-size: 13px; line-height: 1.6; }
-.a2learn-narration-result[hidden] { display: none; }
-.a2learn-narration-result-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.a2learn-narration-result-title { color: var(--a2ui-color-primary); font-size: 13px; }
-.a2learn-narration-result-close { padding: 2px 4px; border: 0; background: none; color: var(--app-muted); cursor: pointer; font-size: 14px; }
-.a2learn-narration-result audio { width: 100%; }
-.a2learn-narration-result-body { max-height: 220px; overflow-y: auto; white-space: pre-wrap; color: var(--app-muted); }
+.a2learn-narration-button { position: fixed; right: 22px; bottom: 78px; z-index: 999; width: 36px; height: 36px; border: 0; border-radius: 50%; cursor: pointer; background: var(--a2ui-color-primary); color: #fff; box-shadow: 0 3px 12px rgba(0, 0, 0, .2); display: flex; align-items: center; justify-content: center; font-size: 15px; transition: transform .15s ease, box-shadow .15s ease; }
+.a2learn-narration-button:hover { transform: scale(1.06); box-shadow: 0 6px 16px rgba(0, 0, 0, .25); }
+.a2learn-narration-result { position: fixed; right: 22px; bottom: 122px; z-index: 1001; width: min(380px, calc(100vw - 44px)); max-height: min(480px, calc(100vh - 160px)); display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 16px; border: 1px solid var(--a2ui-color-border, #dbe4ea); border-radius: var(--a2learn-shell-radius, 16px); background: var(--a2ui-color-surface, #fff); color: var(--a2ui-color-on-surface, #111827); box-shadow: var(--a2learn-panel-shadow, 0 18px 50px rgba(15, 23, 42, .2)); backdrop-filter: blur(12px); box-sizing: border-box; animation: a2learn-narration-popup .2s cubic-bezier(.16, 1, .3, 1); }
+.a2learn-narration-result[hidden] { display: none !important; }
+@keyframes a2learn-narration-popup { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.a2learn-narration-result-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 4px; border-bottom: 1px solid var(--a2ui-color-border, #e2e8f0); }
+.a2learn-narration-result-title { color: var(--a2ui-color-primary); font-size: 13px; font-weight: 700; }
+.a2learn-narration-result-close { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--app-muted, #64748b); cursor: pointer; font-size: 14px; transition: background-color .15s ease, color .15s ease; }
+.a2learn-narration-result-close:hover { background: var(--a2ui-color-surface-subtle, #f1f5f9); color: var(--a2ui-color-on-surface, #0f172a); }
+.a2learn-narration-result audio { width: 100%; height: 36px; }
+.a2learn-narration-result-body { flex: 1; min-height: 50px; max-height: 240px; overflow-y: auto; padding: 10px 12px; border: 1px solid var(--a2ui-color-border, #e2e8f0); border-radius: 10px; background: var(--a2ui-color-surface-subtle, #f8fafc); color: var(--app-muted, #475569); font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
 #a2learn-floating-agent { position: fixed; right: 22px; bottom: 22px; z-index: 1000; font-family: inherit; }
     .a2learn-agent-launcher { border: 0; border-radius: var(--a2learn-pill-radius, 999px); padding: 8px 12px; background: var(--a2ui-color-primary); color: #fff; box-shadow: var(--a2learn-panel-shadow); cursor: pointer; font-size: 12px; font-weight: 700; }
     .a2learn-agent-panel { position: absolute; right: 0; bottom: 52px; display: none; width: min(360px, calc(100vw - 28px)); height: 470px; min-width: 280px; min-height: 260px; max-width: calc(100vw - 28px); max-height: calc(100vh - 80px); flex-direction: column; overflow: hidden; background: var(--a2ui-color-surface, #fff); color: var(--a2ui-color-on-surface, #111827); border: 1px solid var(--a2ui-color-border, #dbe4ea); border-radius: var(--a2learn-shell-radius, 16px); box-shadow: var(--a2learn-panel-shadow, 0 18px 50px rgba(15, 23, 42, .2)); }

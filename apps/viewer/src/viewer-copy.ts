@@ -80,7 +80,7 @@ export const T: Record<Lang, ViewerCopy> = {
     resumeNarration: "继续播放讲稿",
     narrationFailedPrefix: "讲稿生成失败：",
     playbackFailedPrefix: "音频播放失败：",
-    presenterScriptTitle: "🎙 AI 讲稿文稿",
+    presenterScriptTitle: "🎙 AI 讲解文稿",
     closeScript: "关闭讲稿",
     workspaceTitle: "目录导航",
     myWorkspace: "我的学习工作区",

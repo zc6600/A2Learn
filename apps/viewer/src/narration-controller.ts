@@ -37,7 +37,6 @@ export class NarrationController {
       this.activeAudio = null;
     }
     this.activeUrl = null;
-    this.activeScript = null;
 
     const result = document.getElementById("narration-result");
     if (result) result.hidden = true;
@@ -47,6 +46,7 @@ export class NarrationController {
   /** Stop playback and remove the audio source when the displayed document changes. */
   resetForDocument(button?: HTMLButtonElement | null): void {
     this.stop();
+    this.activeScript = null;
     const target = button || document.getElementById("page-narration-button") as HTMLButtonElement | null;
     if (!target) return;
     delete target.dataset.audioUrl;
@@ -67,6 +67,10 @@ export class NarrationController {
       this.activeUrl &&
       (this.activeUrl === currentDatasetUrl || !fetchNarrationIfNeeded)
     ) {
+      const result = document.getElementById("narration-result");
+      if (result && result.hidden) {
+        result.hidden = false;
+      }
       if (!this.activeAudio.paused) {
         this.activeAudio.pause();
         this.setPauseState(narrationButton, false);
@@ -211,9 +215,13 @@ export class NarrationController {
 
     result.replaceChildren(header, audio);
     if (scriptText) {
+      this.activeScript = scriptText;
+    }
+    const content = scriptText || this.activeScript;
+    if (content) {
       const body = document.createElement("div");
       body.className = "a2learn-narration-result-body";
-      body.textContent = scriptText;
+      body.textContent = content;
       result.appendChild(body);
     }
     result.hidden = false;
