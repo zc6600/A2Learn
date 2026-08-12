@@ -1,6 +1,7 @@
 /* poetry-ink: visual tokens only; structure belongs in base/components. */
 html[data-a2learn-theme="poetry-ink"] {
   --a2ui-color-primary: #7a3e1d;
+  --a2ui-color-on-primary: #fbf5e8;
   --a2ui-color-secondary: #536b4e;
   --a2ui-color-surface: #fbf5e8;
   --a2ui-color-surface-subtle: #f3ead8;

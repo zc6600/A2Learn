@@ -5,6 +5,7 @@ html[data-a2learn-theme="ppt-stage"] {
   --app-muted: #bac5d7;
   --app-outline: rgba(255, 255, 255, .18);
   --a2ui-color-primary: #f3b15a;
+  --a2ui-color-on-primary: #0d1422;
   --a2ui-color-secondary: #89a9dc;
   --a2ui-color-surface: #17243a;
   --a2ui-color-surface-subtle: #223553;

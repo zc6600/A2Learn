@@ -1,6 +1,7 @@
 /* minimal: visual tokens only; structure belongs in base/components. */
 html[data-a2learn-theme="minimal"] {
   --a2ui-color-primary: #1f2937;
+  --a2ui-color-on-primary: #ffffff;
   --a2ui-color-secondary: #4b5563;
   --a2ui-color-surface: #ffffff;
   --a2ui-color-surface-subtle: #f9fafb;

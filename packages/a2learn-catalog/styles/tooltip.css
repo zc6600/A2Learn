@@ -103,6 +103,6 @@
   }
   .a2learn-term-tooltip .tooltip-explore-btn:hover {
     background: var(--a2learn-tooltip-accent, var(--a2ui-color-primary)) !important;
-    color: #ffffff !important;
+    color: var(--a2ui-color-on-primary, #ffffff) !important;
     border-color: var(--a2ui-color-primary) !important;
   }

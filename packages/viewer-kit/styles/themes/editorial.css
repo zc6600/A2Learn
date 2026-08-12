@@ -1,6 +1,7 @@
 /* editorial: visual tokens only; structure belongs in base/components. */
 html[data-a2learn-theme="editorial"] {
   --a2ui-color-primary: #263f66;
+  --a2ui-color-on-primary: #ffffff;
   --a2ui-color-secondary: #8a5a44;
   --a2ui-color-surface: #fffdf8;
   --a2ui-color-surface-subtle: #f7f3eb;

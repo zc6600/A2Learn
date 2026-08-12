@@ -38,7 +38,7 @@ export const T: Record<Lang, ViewerCopy> = {
     onlineFailedFallback: "降级到 Offline 预设视图展示。",
     noBackendConfigured:
       "尚未配置在线生成后端（VITE_A2LEARN_API_URL）。当前部署仅支持浏览左上方的静态案例陈列；如需 BYOK 实时生成，请先部署后端并在构建前端时设置该环境变量，详见 DEPLOY.md。",
-    needApiKeyExplore: "请先点击右上角配置你的 OpenRouter API Key 以调用 AI 引擎。",
+    needApiKeyExplore: "请点击右上角配置你的API Key 以生成内容。",
     staticTreeLeafNote: "静态案例陈列仅展示到这一层；连接 BYOK 在线后端后可继续深入生成完整内容。",
     playNarration: "播放讲稿音频",
     noNarrationAvailable: "暂无预生成音频",

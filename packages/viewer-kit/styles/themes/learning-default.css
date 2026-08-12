@@ -30,6 +30,7 @@ html[data-a2learn-theme="learning-default"],
 
   /* Portfolio Design Tokens (Teal Accent Matrix - Light Mode Baseline) */
   --a2ui-color-primary: #0d9488; /* Teal-600 */
+  --a2ui-color-on-primary: #ffffff;
   --a2ui-color-secondary: #0f766e; /* Teal-700 High-Contrast Secondary */
   --a2ui-color-surface: #ffffff;
   --a2ui-color-surface-subtle: #f9fafb; /* Gray-50 Neutral Surface */

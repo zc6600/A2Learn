@@ -101,7 +101,7 @@
     }
     .lang-btn.active {
       background: var(--a2ui-color-primary);
-      color: #ffffff;
+      color: var(--a2ui-color-on-primary, #ffffff);
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
     }
     .app-key-pill {
@@ -201,7 +201,7 @@
     }
     .app-submit-btn {
       background: var(--a2ui-color-primary);
-      color: #ffffff;
+      color: var(--a2ui-color-on-primary, #ffffff);
       border: none;
       border-radius: var(--a2learn-control-radius);
       padding: 0 20px;
@@ -443,7 +443,7 @@
     }
     .app-btn-primary {
       background: var(--a2ui-color-primary);
-      color: #ffffff;
+      color: var(--a2ui-color-on-primary, #ffffff);
       border: none;
       border-radius: 10px;
       padding: 8px 18px;
@@ -824,7 +824,7 @@
     }
     .a2learn-term-tooltip .tooltip-explore-btn:hover {
       background: var(--a2ui-color-primary);
-      color: #ffffff;
+      color: var(--a2ui-color-on-primary, #ffffff);
       border-color: var(--a2ui-color-primary);
     }
     @media (prefers-color-scheme: dark) {
