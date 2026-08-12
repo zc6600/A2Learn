@@ -1,20 +1,26 @@
-/* editorial: visual tokens only; structure belongs in base/components. */
+/* editorial: restrained monochrome black & white theme; visual tokens only. */
 html[data-a2learn-theme="editorial"] {
-  --a2ui-color-primary: #263f66;
+  color-scheme: light;
+  --app-bg: #ffffff;
+  --app-text: #18181b;
+  --app-muted: #71717a;
+  --app-outline: #e4e4e7;
+  --a2ui-color-primary: #18181b;
   --a2ui-color-on-primary: #ffffff;
-  --a2ui-color-secondary: #8a5a44;
-  --a2ui-color-warning: #b8621b;
-  --a2ui-color-success: #2e7d32;
-  --a2ui-color-error: #c62828;
-  --a2ui-color-surface: #fffdf8;
-  --a2ui-color-surface-subtle: #f7f3eb;
-  --a2ui-color-on-surface: #1d2430;
-  --a2ui-color-border: #d6d1c7;
-  --a2ui-font-family-title: Iowan Old Style, Songti SC, serif;
-  --a2ui-card-border-radius: 2px;
-  --a2learn-page-background: repeating-linear-gradient(90deg, rgba(38, 63, 102, .035) 0 1px, transparent 1px 14px), #f5f1e9;
-  --a2learn-shell-radius: 12px;
-  --a2learn-control-radius: 6px;
+  --a2ui-color-secondary: #3f3f46;
+  --a2ui-color-warning: #d97706;
+  --a2ui-color-success: #16a34a;
+  --a2ui-color-error: #dc2626;
+  --a2ui-color-surface: #ffffff;
+  --a2ui-color-surface-subtle: #f4f4f5;
+  --a2ui-color-on-surface: #18181b;
+  --a2ui-color-on-background: #27272a;
+  --a2ui-color-border: #e4e4e7;
+  --a2ui-font-family-title: "Iowan Old Style", "Songti SC", Georgia, serif;
+  --a2ui-card-border-radius: 12px;
+  --a2learn-page-background: #fafafa;
+  --a2learn-shell-radius: 16px;
+  --a2learn-control-radius: 8px;
   --a2learn-pill-radius: 999px;
-  --a2learn-panel-shadow: none;
+  --a2learn-panel-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }

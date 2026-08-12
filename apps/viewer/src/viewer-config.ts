@@ -68,7 +68,8 @@ export function applyGenerationTheme(
 }
 
 export function applySourceTheme(source: ViewerSourceOffline | ViewerSourceOnline): void {
-  applyGenerationTheme(source.themeId || "learning-default");
+  const currentTheme = document.documentElement.dataset.a2learnTheme || "learning-default";
+  applyGenerationTheme(source.themeId || currentTheme);
   // Embed/API themeVars are deliberately a temporary inline override layer,
   // not a second definition of any bundled theme.
   applyCustomThemeVars(source.themeVars);
