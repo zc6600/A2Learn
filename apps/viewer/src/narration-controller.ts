@@ -39,8 +39,8 @@ export class NarrationController {
     this.activeUrl = null;
     this.activeScript = null;
 
-    const card = document.getElementById("narration-script-overlay");
-    if (card) card.style.display = "none";
+    const result = document.getElementById("narration-result");
+    if (result) result.hidden = true;
     this.resetButton();
   }
 
@@ -83,11 +83,12 @@ export class NarrationController {
     }
 
     if (currentDatasetUrl) {
+      const scriptText = this.activeScript || undefined;
       this.stopPlayback();
       try {
+        this.showAudioResult(currentDatasetUrl, scriptText);
         await this.play(narrationButton, currentDatasetUrl, "🔊");
         if (operationVersion !== this.operationVersion) return;
-        if (this.activeScript) this.renderScriptOverlay(this.activeScript);
       } catch (error) {
         if (operationVersion === this.operationVersion) this.showPlaybackError(error);
       }
@@ -115,10 +116,10 @@ export class NarrationController {
       ).toString();
       narrationButton.dataset.audioUrl = fullAudioUrl;
       this.activeScript = payload.script || null;
+      this.showAudioResult(fullAudioUrl, payload.script);
 
       await this.play(narrationButton, fullAudioUrl, idleLabel);
       if (operationVersion !== this.operationVersion) return;
-      if (payload.script) this.renderScriptOverlay(payload.script);
     } catch (error) {
       if (operationVersion !== this.operationVersion) return;
       this.resetButton(narrationButton, idleLabel);
@@ -133,27 +134,9 @@ export class NarrationController {
     url: string,
     idleLabel: string,
   ): Promise<void> {
-    const audio = new Audio(url);
+    const audio = this.getResultAudio(url) || new Audio(url);
     this.activeAudio = audio;
     this.activeUrl = url;
-
-    audio.addEventListener("play", () => this.setPauseState(narrationButton, true));
-    audio.addEventListener("pause", () => {
-      if (this.activeAudio === audio) this.setPauseState(narrationButton, false);
-    });
-    audio.addEventListener("ended", () => {
-      if (this.activeAudio !== audio) return;
-      this.activeAudio = null;
-      this.activeUrl = null;
-      this.resetButton(narrationButton, idleLabel);
-    }, { once: true });
-    audio.addEventListener("error", () => {
-      if (this.activeAudio !== audio) return;
-      this.activeAudio = null;
-      this.activeUrl = null;
-      this.resetButton(narrationButton, idleLabel);
-      this.showPlaybackError(audio.error?.message || "The audio could not be loaded.");
-    }, { once: true });
 
     try {
       await audio.play();
@@ -179,40 +162,75 @@ export class NarrationController {
     target.title = this.t.playNarration;
   }
 
+  showAudioResult(audioUrl: string, scriptText?: string): void {
+    const result = document.getElementById("narration-result");
+    if (!result) return;
+
+    const header = document.createElement("div");
+    header.className = "a2learn-narration-result-head";
+    const title = document.createElement("strong");
+    title.className = "a2learn-narration-result-title";
+    title.textContent = this.t.presenterScriptTitle;
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "a2learn-narration-result-close";
+    closeButton.textContent = "✕";
+    closeButton.setAttribute("aria-label", this.t.closeScript);
+    closeButton.onclick = () => this.stop();
+    header.append(title, closeButton);
+
+    const audio = document.createElement("audio");
+    audio.controls = true;
+    audio.preload = "metadata";
+    audio.src = audioUrl;
+    audio.setAttribute("aria-label", this.t.playNarration);
+    audio.onplay = () => {
+      this.activeAudio = audio;
+      this.activeUrl = audioUrl;
+      const button = document.getElementById("page-narration-button") as HTMLButtonElement | null;
+      if (button) this.setPauseState(button, true);
+    };
+    audio.onpause = () => {
+      if (this.activeAudio !== audio) return;
+      const button = document.getElementById("page-narration-button") as HTMLButtonElement | null;
+      if (button) this.setPauseState(button, false);
+    };
+    audio.onended = () => {
+      if (this.activeAudio !== audio) return;
+      this.activeAudio = null;
+      this.activeUrl = null;
+      this.resetButton();
+    };
+    audio.onerror = () => {
+      if (this.activeAudio !== audio) return;
+      this.activeAudio = null;
+      this.activeUrl = null;
+      this.resetButton();
+      this.showPlaybackError(audio.error?.message || "The audio could not be loaded.");
+    };
+
+    result.replaceChildren(header, audio);
+    if (scriptText) {
+      const body = document.createElement("div");
+      body.className = "a2learn-narration-result-body";
+      body.textContent = scriptText;
+      result.appendChild(body);
+    }
+    result.hidden = false;
+  }
+
+  private getResultAudio(url: string): HTMLAudioElement | null {
+    const result = document.getElementById("narration-result");
+    const audio = result?.querySelector("audio") as HTMLAudioElement | null;
+    if (!audio) return null;
+    const resolvedUrl = new URL(url, window.location.href).toString();
+    return audio.src === resolvedUrl ? audio : null;
+  }
+
   private showPlaybackError(error: unknown, narrationGeneration = false): void {
     const message = String(error);
     const prefix = narrationGeneration ? this.t.narrationFailedPrefix : this.t.playbackFailedPrefix;
     alert(`${prefix}${message}`);
   }
 
-  private renderScriptOverlay(scriptText: string): void {
-    let card = document.getElementById("narration-script-overlay");
-    if (!card) {
-      card = document.createElement("div");
-      card.id = "narration-script-overlay";
-      card.className = "a2learn-narration-overlay";
-      document.body.appendChild(card);
-    }
-
-    const header = document.createElement("div");
-    header.className = "a2learn-narration-overlay-head";
-    const title = document.createElement("strong");
-    title.className = "a2learn-narration-overlay-title";
-    title.textContent = this.t.presenterScriptTitle;
-    const closeButton = document.createElement("button");
-    closeButton.type = "button";
-    closeButton.textContent = "✕";
-    closeButton.setAttribute("aria-label", this.t.closeScript);
-    closeButton.className = "a2learn-narration-overlay-close";
-    closeButton.addEventListener("click", () => {
-      card!.style.display = "none";
-    });
-    header.append(title, closeButton);
-
-    const body = document.createElement("div");
-    body.className = "a2learn-narration-overlay-body";
-    body.textContent = scriptText;
-    card.replaceChildren(header, body);
-    card.style.display = "block";
-  }
 }

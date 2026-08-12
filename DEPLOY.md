@@ -23,6 +23,28 @@ What visitors get:
 - A 中文/English toggle for the default showcase.
 - A "⚙️ API Key" / "⚡ 实时生成" flow that's visible but will show a friendly message telling them live generation isn't configured yet (until you deploy Path B).
 
+### Static narration audio
+
+The bundled narration MP3s are intentionally not part of the Git repository. They
+are large binary assets and are better served from object storage or a CDN. Upload
+the files from `apps/viewer/public/examples/audio/` using these exact names:
+
+```text
+hash-table.zh.mp3
+hash-table.en.mp3
+```
+
+Then point the frontend build at the public directory or CDN URL:
+
+```bash
+VITE_A2LEARN_AUDIO_BASE_URL="https://cdn.example.com/a2learn-audio" npm run viewer:build
+```
+
+The URL should contain the directory only; the viewer appends the language-specific
+filename. Azure Blob Storage, Cloudflare R2, Amazon S3, and an ordinary CDN all work.
+For local development, leave the variable unset and keep the MP3s in the ignored
+`apps/viewer/public/examples/audio/` directory.
+
 **Subpath hosting caveat:** the built `index.html` references assets with absolute paths (`/assets/...`). This works fine on a custom domain or a GitHub Pages *user* site (`yourname.github.io`), but will 404 on a GitHub Pages *project* subpage (`yourname.github.io/A2Learn/`) unless you set Vite's `base` option to `/A2Learn/` and rebuild. If you hit that, add `base: "/A2Learn/"` to `apps/viewer/vite.config.ts` before building.
 
 ---

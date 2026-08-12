@@ -14,14 +14,43 @@ from urllib.request import Request, urlopen
 
 import certifi
 
+from .tts_config import TTSConfig, load_tts_config
+
+IGNORED_NARRATION_KEYS = {
+    "action",
+    "activestepid",
+    "catalogid",
+    "children",
+    "component",
+    "docid",
+    "documentid",
+    "event",
+    "icon",
+    "id",
+    "image",
+    "mode",
+    "name",
+    "stepid",
+    "style",
+    "surfaceid",
+    "tag",
+    "target",
+    "theme",
+    "type",
+    "url",
+    "variant",
+    "version",
+}
+
 
 def _texts(value: Any) -> list[str]:
     if isinstance(value, str):
-        return [value.strip()] if value.strip() else []
+        trimmed = value.strip()
+        return [trimmed] if trimmed else []
     if isinstance(value, Mapping):
         result: list[str] = []
         for key, child in value.items():
-            if key.lower() in {"id", "url", "image", "icon", "style", "theme"}:
+            if str(key).lower() in IGNORED_NARRATION_KEYS:
                 continue
             result.extend(_texts(child))
         return result
@@ -57,19 +86,37 @@ def rewrite_page_narration(
     language: str = "zh",
 ) -> str:
     """Use an LLM to turn page facts into a spoken teaching script."""
-    language_name = "Chinese" if language == "zh" else "English"
-    prompt = (
-        "Rewrite the following A2Learn page into a complete spoken teaching script. "
-        f"Write in {language_name}. Preserve every important fact, formula, example, "
-        "question, and conclusion, but do not read UI labels, component IDs, URLs, "
-        "or styling instructions aloud. Add natural transitions and brief explanations "
-        "so a learner can follow the page without reading it. Do not invent facts. "
-        "Return only the script, with no Markdown heading and no meta commentary.\n\n"
+    is_zh = language == "zh"
+    system_prompt = (
+        "你是一位优秀的教学名师与课程口播讲稿专家。你的任务是将结构化的交互式页面内容，转化为通顺流畅、生动易懂且富有教学感染力的口语化中文教学讲稿。"
+        if is_zh
+        else "You are an expert educational presenter and scriptwriter. Your task is to turn structured interactive page content into a natural, spoken, and engaging teaching narration script."
+    )
+    user_prompt = (
+        "请将以下 A2Learn 页面内容改写为一份完整的口语化教学讲稿（口播文稿）。\n\n"
+        "【编写要求】：\n"
+        "1. 口语化与教学感：语言要通俗生动、亲切自然，像老师在面对面生动讲课一样，善用逻辑连接词与启发式提问引导学习者思考。\n"
+        "2. 内容完整：完整保留页面中所有的核心知识点、直觉原理、算法/公式逻辑、典型案例、代码思路与总结，帮助学习者即便不看屏幕也能听懂。\n"
+        "3. 严禁读出系统/组件标识：绝对不要出现任何组件 ID、DOM ID 或英文标记符（如 header-1, step1-background, learning-path-1, root, quiz-2, surface-module-1 等）。\n"
+        "4. 严禁读出组件名与布局结构：绝对不要出现 Column, LearningPath, InteractiveSandbox, Text, props, variant 等组件类型名。\n"
+        "5. 纯朗读文本格式：不要输出 Markdown 标题标记（如 #、##）、加粗符号（**）或代码块反引号，直接输出适合语音合成朗读的纯文本。\n"
+        "6. 仅返回讲稿：不要包含任何前言、结语、问候语或元注释说明（例如不要输出“好的，这是为您编写的讲稿：”）。\n\n"
         "PAGE JSON:\n" + json.dumps(document, ensure_ascii=False)
+        if is_zh
+        else (
+            "Rewrite the following A2Learn page into a complete spoken teaching narration script.\n\n"
+            "Requirements:\n"
+            "1. Conversational & engaging: Natural spoken style, as if a teacher is explaining concepts directly.\n"
+            "2. Complete coverage: Preserve all key concepts, formulas, code logic, and examples.\n"
+            "3. No internal IDs or UI labels: Never mention component IDs (e.g. header-1, step1-background, root) or component types (Column, LearningPath, etc.).\n"
+            "4. Pure spoken text: No Markdown headers (#), bold markers (**), or backticks.\n"
+            "5. Return only the script: No greeting, prelude, or meta commentary.\n\n"
+            "PAGE JSON:\n" + json.dumps(document, ensure_ascii=False)
+        )
     )
     response = llm.invoke([
-        {"role": "system", "content": "You are an expert educational script writer."},
-        {"role": "user", "content": prompt},
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
     ])
     content = getattr(response, "content", "")
     if isinstance(content, list):
@@ -112,21 +159,38 @@ def synthesize(
     )
     if not key:
         raise RuntimeError("API Key is not configured for TTS")
-    model = model or os.getenv("A2LEARN_TTS_MODEL", "openai/tts-1")
-    default_voice = "alloy"
-    voice = voice or os.getenv("A2LEARN_TTS_VOICE", default_voice)
-    endpoint = os.getenv(
-        "A2LEARN_TTS_ENDPOINT",
-        os.getenv("OPENAI_BASE_URL", "https://openrouter.ai/api/v1").rstrip("/") + "/audio/speech",
-    )
+    config = load_tts_config(language)
+    if model or voice:
+        config = TTSConfig(
+            model=model or config.model,
+            endpoint=config.endpoint,
+            voice=voice or config.voice,
+            response_format=config.response_format,
+            http_referer=config.http_referer,
+            title=config.title,
+        )
 
-    audio_id = hashlib.sha256(f"{model}\0{voice}\0{text}".encode()).hexdigest()
+    cache_key = (
+        f"{config.endpoint}\0{config.model}\0{config.voice}\0"
+        f"{config.response_format}\0{language}\0{text}"
+    )
+    audio_id = hashlib.sha256(cache_key.encode()).hexdigest()
     path = audio_dir() / f"{audio_id}.mp3"
     if not path.exists():
         request = Request(
-            endpoint,
-            data=json.dumps({"model": model, "input": text, "voice": voice, "response_format": "mp3"}).encode(),
-            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            config.endpoint,
+            data=json.dumps({
+                "model": config.model,
+                "input": text,
+                "voice": config.voice,
+                "response_format": config.response_format,
+            }).encode(),
+            headers={
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+                **({"HTTP-Referer": config.http_referer} if config.http_referer else {}),
+                **({"X-Title": config.title} if config.title else {}),
+            },
             method="POST",
         )
         tls_context = ssl.create_default_context(cafile=certifi.where())

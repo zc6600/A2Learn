@@ -507,7 +507,7 @@ async function bootstrapViewer() {
       subtitle,
       `<section id="surface-container" aria-live="polite">
         ${renderWelcomeState(lang)}
-      </section><button id="page-narration-button" type="button" hidden aria-label="播放讲稿">🔊</button>`,
+      </section><section id="narration-result" class="a2learn-narration-result" hidden aria-live="polite"></section><button id="page-narration-button" type="button" hidden aria-label="播放讲稿">🔊</button>`,
       initialConfig.embed ? undefined : { lang, chrome },
     );
     container = document.getElementById("surface-container");
@@ -547,6 +547,17 @@ async function bootstrapViewer() {
         });
       }
     }
+  };
+
+  const bindExampleAudio = (audioUrl: string | null, lang: Lang = getLang()): void => {
+    const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
+    if (!narrationButton) return;
+    narrationButton.dataset.audioUrl = audioUrl || "";
+    // Pre-generated example audio is always available. The audio setting only
+    // controls whether newly generated projects request narration.
+    narrationButton.hidden = !audioUrl;
+    narrationButton.title = audioUrl ? T[lang].playNarration : T[lang].noNarrationAvailable;
+    if (audioUrl) narrationController.showAudioResult(audioUrl);
   };
 
   renderShell(getLang());
@@ -681,15 +692,10 @@ async function bootstrapViewer() {
     const staticAudioUrl = staticExampleAudioUrl(id, getLang());
     // Bundled examples with a pre-generated asset must stay fully offline:
     // selecting audio should bind the shipped MP3, never regenerate it.
-    if (isAudioEnabled() && staticAudioUrl) {
+    if (staticAudioUrl) {
       await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } }, true, requestVersion);
       if (!isCurrent()) return;
-      const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
-      if (narrationButton) {
-        narrationButton.dataset.audioUrl = staticAudioUrl;
-        narrationButton.hidden = false;
-        narrationButton.title = T[getLang()].playNarration;
-      }
+      bindExampleAudio(staticAudioUrl);
       return;
     }
     const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
@@ -714,15 +720,7 @@ async function bootstrapViewer() {
     if (!isCurrent()) return;
     await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } }, true, requestVersion);
     if (!isCurrent()) return;
-    const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
-    if (narrationButton) {
-      const audioUrl = staticAudioUrl;
-      narrationButton.dataset.audioUrl = audioUrl || "";
-      narrationButton.hidden = !isAudioEnabled() || !audioUrl;
-      narrationButton.title = audioUrl
-        ? T[getLang()].playNarration
-        : T[getLang()].noNarrationAvailable;
-    }
+    bindExampleAudio(staticAudioUrl);
   };
 
   const onGenerate = (promptText: string) => {
@@ -829,15 +827,8 @@ async function bootstrapViewer() {
       if (item) {
         await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } }, true, requestVersion);
         if (requestVersion !== loadVersion) return;
-        const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
         const staticAudioUrl = staticExampleAudioUrl(doc.exampleId, newLang);
-        if (narrationButton) {
-          narrationButton.dataset.audioUrl = staticAudioUrl || "";
-          narrationButton.hidden = !isAudioEnabled() || !staticAudioUrl;
-          narrationButton.title = staticAudioUrl
-            ? T[newLang].playNarration
-            : T[newLang].noNarrationAvailable;
-        }
+        bindExampleAudio(staticAudioUrl, newLang);
         return;
       }
     }
@@ -880,6 +871,12 @@ async function bootstrapViewer() {
     await openProject({ id: initialProjectId, title: initialProjectId, openedAt: new Date().toISOString() });
   } else if (hasExplicitSource || initialConfig.embed) {
     await startWithConfig(initialConfig);
+    // A direct example URL (for example ?example=hash-table) bypasses the
+    // gallery click handler, so attach its bundled narration after loading.
+    if (!initialConfig.embed && initialExample) {
+      const staticAudioUrl = staticExampleAudioUrl(initialExample, getLang());
+      bindExampleAudio(staticAudioUrl);
+    }
   } else if (container) {
     // Nothing explicit was requested (typical first visit to the static
     // deployment) — the placeholder "/generated/site_messages.json" would

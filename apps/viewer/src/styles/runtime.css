@@ -1,10 +1,12 @@
 /* apps/viewer/src/floating-agent.ts */
 .a2learn-narration-button { position: fixed; right: 22px; bottom: 78px; z-index: 999; width: 34px; height: 34px; border: 0; border-radius: 50%; cursor: pointer; background: var(--a2ui-color-primary); color: #fff; box-shadow: 0 3px 12px rgb(0 0 0 / .2); }
-.a2learn-narration-overlay { position: fixed; right: 22px; bottom: 122px; z-index: 998; max-width: 380px; max-height: 240px; overflow-y: auto; padding: 12px 16px; border: 1px solid var(--a2learn-overlay-border); border-radius: var(--a2learn-control-radius); background: var(--a2learn-overlay-surface); color: var(--a2ui-color-code-text); box-shadow: 0 4px 20px rgb(0 0 0 / .3); backdrop-filter: blur(8px); font-size: 13px; line-height: 1.6; transition: opacity .2s ease; }
-.a2learn-narration-overlay-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid var(--a2learn-overlay-border); }
-.a2learn-narration-overlay-title { color: var(--a2ui-color-primary); font-size: 12px; }
-.a2learn-narration-overlay-close { padding: 0 4px; border: 0; background: none; color: var(--a2learn-overlay-muted); cursor: pointer; font-size: 14px; }
-.a2learn-narration-overlay-body { white-space: pre-wrap; color: var(--a2ui-color-code-text); }
+.a2learn-narration-result { display: grid; gap: 10px; margin: 18px 0 4px; padding: 14px 16px; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius); background: var(--a2ui-color-surface-subtle, #f8fafc); color: var(--a2ui-color-on-surface); font-size: 13px; line-height: 1.6; }
+.a2learn-narration-result[hidden] { display: none; }
+.a2learn-narration-result-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.a2learn-narration-result-title { color: var(--a2ui-color-primary); font-size: 13px; }
+.a2learn-narration-result-close { padding: 2px 4px; border: 0; background: none; color: var(--app-muted); cursor: pointer; font-size: 14px; }
+.a2learn-narration-result audio { width: 100%; }
+.a2learn-narration-result-body { max-height: 220px; overflow-y: auto; white-space: pre-wrap; color: var(--app-muted); }
 #a2learn-floating-agent { position: fixed; right: 22px; bottom: 22px; z-index: 1000; font-family: inherit; }
     .a2learn-agent-launcher { border: 0; border-radius: var(--a2learn-pill-radius, 999px); padding: 8px 12px; background: var(--a2ui-color-primary); color: #fff; box-shadow: var(--a2learn-panel-shadow); cursor: pointer; font-size: 12px; font-weight: 700; }
     .a2learn-agent-panel { position: absolute; right: 0; bottom: 52px; display: none; width: min(360px, calc(100vw - 28px)); height: 470px; flex-direction: column; overflow: hidden; background: var(--a2ui-color-surface, #fff); color: var(--a2ui-color-on-surface, #111827); border: 1px solid var(--a2ui-color-border, #dbe4ea); border-radius: var(--a2learn-shell-radius, 16px); box-shadow: var(--a2learn-panel-shadow, 0 18px 50px rgba(15, 23, 42, .2)); }

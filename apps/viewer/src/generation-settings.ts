@@ -12,8 +12,12 @@ import {
 } from "./generation-profile";
 
 const AUDIO_ENABLED_STORAGE_KEY = "a2learn.audio.enabled";
+const AUDIO_ASSET_BASE_URL = (import.meta.env.VITE_A2LEARN_AUDIO_BASE_URL || "").trim();
 const STATIC_EXAMPLE_AUDIO: Record<string, Partial<Record<Lang, string>>> = {
-  "hash-table": { zh: "/examples/audio/hash-table.zh.mp3" },
+  "hash-table": {
+    zh: "/examples/audio/hash-table.zh.mp3",
+    en: "/examples/audio/hash-table.en.mp3",
+  },
 };
 
 function escapeHtml(value: string): string {
@@ -34,7 +38,16 @@ export function setAudioEnabled(enabled: boolean): void {
 }
 
 export function staticExampleAudioUrl(exampleId: string, language: Lang): string | null {
-  return STATIC_EXAMPLE_AUDIO[exampleId]?.[language] || null;
+  const path = STATIC_EXAMPLE_AUDIO[exampleId]?.[language];
+  if (!path) return null;
+  if (AUDIO_ASSET_BASE_URL) {
+    return new URL(path.replace(/^\/+/, ""), `${AUDIO_ASSET_BASE_URL.replace(/\/+$/, "")}/`).toString();
+  }
+  // Resolve against the current document so static examples also work when
+  // the viewer is hosted below a project subpath during local development
+  // (for example /A2Learn/). Production builds should use the external audio
+  // asset base URL so the MP3 files do not need to live in Git.
+  return new URL(path.replace(/^\/+/, ""), document.baseURI).toString();
 }
 
 export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string {
@@ -71,7 +84,7 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
         practice: "练习",
         explore: "探索",
         audio: "生成并播放讲稿音频",
-        audioCopy: "开启后，选择案例时会额外生成一份完整讲稿和 MP3。",
+        audioCopy: "内置案例直接提供音频；开启后，生成新内容时也会生成讲稿和 MP3。",
       }
     : {
         heading: "Generation settings",
@@ -105,7 +118,7 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
         practice: "Practice",
         explore: "Explore",
         audio: "Generate and play narration audio",
-        audioCopy: "When enabled, selecting a case also generates a complete script and MP3.",
+        audioCopy: "Bundled examples include audio; when enabled, new content also gets a script and MP3.",
       };
 
   const groupLabels: Record<string, string> = {
