@@ -1,4 +1,5 @@
-import { html, css, nothing } from "lit";
+import componentStyles from "../styles/components/LiteratureReference.css?inline";
+import { html, nothing, unsafeCSS } from "lit";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { LiteratureReferenceApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
@@ -6,87 +7,7 @@ import { sanitizeHtml } from "../utils/sanitize";
 import { uiText } from "../utils/i18n";
 
 export class A2learnLiteratureReferenceElement extends A2uiLitElement<typeof LiteratureReferenceApi> {
-  static styles = css`
-    :host {
-      display: block;
-      margin: var(--a2ui-spacing-m, 12px) 0;
-      font-family: var(--a2ui-font-family, sans-serif);
-    }
-    .ref-card {
-      border: 1px dashed var(--a2ui-color-border, #e2e8f0);
-      border-radius: var(--a2ui-border-radius, 12px);
-      background: color-mix(in oklab, var(--a2ui-color-surface, #ffffff) 98%, #000000);
-      padding: var(--a2ui-spacing-l, 20px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-      transition: all 0.2s ease;
-      cursor: default;
-    }
-    .ref-card-clickable {
-      cursor: pointer;
-      border-style: solid;
-    }
-    .ref-card-clickable:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-      border-color: var(--a2ui-color-primary, #3b82f6);
-      background: var(--a2ui-color-surface, #ffffff);
-    }
-    .header {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-    .citation-badge {
-      background: var(--a2ui-color-primary, #3b82f6);
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      white-space: nowrap;
-    }
-    .ref-title {
-      font-size: 15px;
-      font-weight: 700;
-      line-height: 1.4;
-      margin: 0;
-      color: var(--a2ui-color-on-surface, #0f172a);
-    }
-    .ref-title-link {
-      color: inherit;
-      text-decoration: none;
-    }
-    .ref-title-link:hover {
-      color: var(--a2ui-color-primary, #3b82f6);
-      text-decoration: underline;
-    }
-    .authors {
-      font-size: 13px;
-      color: var(--app-muted, #64748b);
-      margin-left: 0;
-      margin-bottom: 12px;
-    }
-    .quote-box {
-      background: color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 4%, var(--a2ui-color-surface, #ffffff));
-      border-left: 3px solid var(--a2ui-color-primary, #3b82f6);
-      padding: 8px 12px;
-      font-size: 13px;
-      line-height: 1.5;
-      color: color-mix(in oklab, var(--a2ui-color-on-surface, #334155) 85%, transparent);
-      margin: 8px 0 0 0;
-      font-style: italic;
-      border-radius: 0 6px 6px 0;
-    }
-    .action-tip {
-      display: flex;
-      justify-content: flex-end;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--a2ui-color-primary, #3b82f6);
-      margin-top: 12px;
-      opacity: 0.8;
-    }
-  `;
+  static styles = unsafeCSS(componentStyles);
 
   protected createController() {
     return new A2uiController(this, LiteratureReferenceApi);

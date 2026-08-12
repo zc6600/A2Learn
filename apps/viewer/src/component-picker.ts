@@ -33,7 +33,7 @@ export function pickRenderedComponent(container: HTMLElement): Promise<string | 
         outline: target.style.outline,
         outlineOffset: target.style.outlineOffset,
       };
-      target.style.outline = "2px solid #14b8a6";
+      target.style.outline = "2px solid var(--a2ui-color-primary)";
       target.style.outlineOffset = "3px";
       finish(target.getAttribute("data-component-id"));
     };

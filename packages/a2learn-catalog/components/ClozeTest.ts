@@ -1,4 +1,5 @@
-import { html, css, nothing } from "lit";
+import componentStyles from "../styles/components/ClozeTest.css?inline";
+import { html, nothing, unsafeCSS } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { ClozeTestApi } from "../api";
@@ -7,121 +8,7 @@ import { sanitizeHtml } from "../utils/sanitize";
 import { uiText } from "../utils/i18n";
 
 export class A2learnClozeTestElement extends A2uiLitElement<typeof ClozeTestApi> {
-  static styles = css`
-    :host {
-      display: block;
-      margin: var(--a2ui-spacing-l) 0;
-      font-family: var(--a2ui-font-family);
-    }
-    .cloze-card {
-      background: var(--a2ui-color-surface);
-      border: 1px solid var(--a2ui-color-border);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
-    }
-    .cloze-card.correct {
-      border-color: var(--a2ui-color-success, #4caf50);
-      background: color-mix(in oklab, var(--a2ui-color-success, #4caf50) 5%, var(--a2ui-color-surface));
-    }
-    .cloze-card.incorrect {
-      border-color: var(--a2ui-color-error, #f44336);
-      background: color-mix(in oklab, var(--a2ui-color-error, #f44336) 5%, var(--a2ui-color-surface));
-    }
-    .text-content {
-      font-size: 16px;
-      line-height: 2;
-      color: var(--a2ui-color-on-surface);
-      margin-bottom: 24px;
-    }
-    .blank-input {
-      display: inline-block;
-      margin: 0 4px;
-      padding: 4px 12px;
-      font-size: 16px;
-      font-family: inherit;
-      color: var(--a2ui-color-primary);
-      background: color-mix(in oklab, var(--a2ui-color-primary) 5%, transparent);
-      border: 1px dashed var(--a2ui-color-primary);
-      border-radius: 6px;
-      min-width: 80px;
-      text-align: center;
-      transition: all 0.2s;
-      outline: none;
-    }
-    .blank-input:focus {
-      border-style: solid;
-      box-shadow: 0 0 0 3px color-mix(in oklab, var(--a2ui-color-primary) 20%, transparent);
-    }
-    .blank-input:disabled {
-      cursor: default;
-      background: transparent;
-    }
-    
-    .blank-input.is-correct {
-      border-color: var(--a2ui-color-success, #4caf50);
-      border-style: solid;
-      background: color-mix(in oklab, var(--a2ui-color-success, #4caf50) 10%, transparent);
-      color: color-mix(in oklab, var(--a2ui-color-success, #4caf50) 80%, black);
-      font-weight: 600;
-    }
-    .blank-input.is-incorrect {
-      border-color: var(--a2ui-color-error, #f44336);
-      border-style: solid;
-      background: color-mix(in oklab, var(--a2ui-color-error, #f44336) 10%, transparent);
-      color: color-mix(in oklab, var(--a2ui-color-error, #f44336) 80%, black);
-      text-decoration: line-through;
-    }
-    
-    .correct-answer-hint {
-      display: inline-block;
-      font-size: 13px;
-      color: var(--a2ui-color-success, #4caf50);
-      background: color-mix(in oklab, var(--a2ui-color-success, #4caf50) 15%, transparent);
-      padding: 2px 8px;
-      border-radius: 4px;
-      margin-left: 4px;
-      font-weight: 600;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    .submit-btn {
-      display: inline-block;
-      padding: 10px 24px;
-      background: var(--a2ui-color-primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .submit-btn:hover:not(:disabled) {
-      filter: brightness(1.1);
-      transform: translateY(-1px);
-    }
-    .submit-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .explanation {
-      margin-top: 20px;
-      padding: 16px;
-      border-radius: 10px;
-      background: color-mix(in oklab, var(--a2ui-color-primary) 5%, transparent);
-      border-left: 4px solid var(--a2ui-color-primary);
-      font-size: 14px;
-      line-height: 1.6;
-      animation: fadeIn 0.4s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  `;
+  static styles = unsafeCSS(componentStyles);
 
   @state() private localAnswers: string[] = [];
   @state() private localStatus: 'idle' | 'correct' | 'incorrect' = 'idle';

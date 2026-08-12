@@ -1,0 +1,67 @@
+    :host {
+      display: block;
+      margin: var(--a2ui-spacing-l) 0;
+    }
+    .resource-container {
+      background: var(--a2ui-color-surface);
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: var(--a2ui-border-radius);
+      padding: var(--a2ui-spacing-l);
+    }
+    .title {
+      font-size: var(--a2ui-font-size-l);
+      font-weight: 700;
+      color: var(--a2ui-color-on-surface);
+      margin: 0 0 var(--a2ui-spacing-m) 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .title::before {
+      content: "📚";
+    }
+    .resource-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--a2ui-spacing-m);
+    }
+    .resource-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: var(--a2ui-spacing-m);
+      border-radius: var(--a2ui-border-radius);
+      background: color-mix(in oklab, var(--a2ui-color-surface) 96%, var(--a2ui-color-primary));
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+    .resource-item:hover {
+      border-color: var(--a2ui-color-primary);
+      background: color-mix(in oklab, var(--a2ui-color-surface) 90%, var(--a2ui-color-primary));
+    }
+    .icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+    .content {
+      flex: 1;
+    }
+    .item-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--a2ui-color-primary);
+      margin: 0 0 4px 0;
+    }
+    .item-desc {
+      font-size: 13px;
+      color: var(--app-muted);
+      margin: 0;
+      line-height: 1.4;
+    }
+    .external-link-icon {
+      font-size: 12px;
+      color: var(--app-muted);
+      margin-left: 4px;
+    }

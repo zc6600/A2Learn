@@ -1,0 +1,24 @@
+/* ppt-stage: visual tokens only; structure belongs in base/components. */
+html[data-a2learn-theme="ppt-stage"] {
+  --app-bg: #101827;
+  --app-text: #f8fafc;
+  --app-muted: #bac5d7;
+  --app-outline: rgba(255, 255, 255, .18);
+  --a2ui-color-primary: #f3b15a;
+  --a2ui-color-secondary: #89a9dc;
+  --a2ui-color-surface: #17243a;
+  --a2ui-color-surface-subtle: #223553;
+  --a2ui-color-on-surface: #f8fafc;
+  --a2ui-color-on-background: #dce6f5;
+  --a2ui-color-border: rgba(211, 226, 248, .26);
+  --a2ui-font-family-title: Aptos Display, Inter, PingFang SC, Microsoft YaHei, sans-serif;
+  --a2ui-font-size-2xl: 46px;
+  --a2ui-card-border-radius: 0px;
+  --a2ui-card-box-shadow: none;
+  --a2learn-page-background: radial-gradient(circle at 8% 8%, rgba(71, 124, 201, .45), transparent 34%), linear-gradient(135deg, #0d1422, #172b4b 55%, #101827);
+  --a2learn-shell-radius: 12px;
+  --a2learn-control-radius: 6px;
+  --a2learn-pill-radius: 999px;
+  --a2learn-panel-shadow: 0 24px 60px rgba(0, 0, 0, .34);
+  color-scheme: dark;
+}

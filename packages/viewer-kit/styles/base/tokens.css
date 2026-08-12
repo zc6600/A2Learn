@@ -1,0 +1,28 @@
+/* Token fallbacks. The active theme overrides these semantic values. */
+:root {
+  color-scheme: light;
+  --a2ui-color-success: #15803d;
+  --a2ui-color-warning: #b45309;
+  --a2ui-color-error: #b91c1c;
+  --a2ui-color-code-surface: #0f172a;
+  --a2ui-color-code-text: #e2e8f0;
+  --a2learn-overlay-surface: rgba(15, 23, 42, .92);
+  --a2learn-overlay-border: rgba(255, 255, 255, .15);
+  --a2learn-overlay-muted: #94a3b8;
+  --a2learn-achievement-surface: #fff5e6;
+  --a2learn-achievement-surface-end: #fffbf2;
+  --a2learn-achievement-border: #fbe6c4;
+  --a2learn-achievement-accent: #ffb300;
+  --a2learn-achievement-text: #b37700;
+  --a2learn-code-header: #2d2d2d;
+  --a2learn-code-border: #333;
+  --a2learn-code-muted: #888;
+  --a2learn-code-info: #4fc1ff;
+  --a2learn-dialogue-wechat-surface: #ededed;
+  --a2learn-dialogue-wechat-border: #d6d6d6;
+  --a2learn-dialogue-wechat-header: #f7f7f7;
+  --a2learn-dialogue-wechat-bubble: #95ec69;
+  --a2learn-sandbox-run: #34a853;
+  --a2learn-sandbox-run-end: #2d8a46;
+  --a2learn-sandbox-run-disabled: #a5d6a7;
+}

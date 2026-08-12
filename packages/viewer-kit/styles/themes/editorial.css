@@ -1,0 +1,16 @@
+/* editorial: visual tokens only; structure belongs in base/components. */
+html[data-a2learn-theme="editorial"] {
+  --a2ui-color-primary: #263f66;
+  --a2ui-color-secondary: #8a5a44;
+  --a2ui-color-surface: #fffdf8;
+  --a2ui-color-surface-subtle: #f7f3eb;
+  --a2ui-color-on-surface: #1d2430;
+  --a2ui-color-border: #d6d1c7;
+  --a2ui-font-family-title: Iowan Old Style, Songti SC, serif;
+  --a2ui-card-border-radius: 2px;
+  --a2learn-page-background: repeating-linear-gradient(90deg, rgba(38, 63, 102, .035) 0 1px, transparent 1px 14px), #f5f1e9;
+  --a2learn-shell-radius: 12px;
+  --a2learn-control-radius: 6px;
+  --a2learn-pill-radius: 999px;
+  --a2learn-panel-shadow: none;
+}

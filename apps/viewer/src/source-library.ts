@@ -93,37 +93,7 @@ function statusLabel(source: KnowledgeSource, options: SourceLibraryOptions): st
   return copy.failed;
 }
 
-function injectSourceLibraryTheme(): void {
-  if (document.getElementById("a2learn-source-library-theme")) return;
-  const style = document.createElement("style");
-  style.id = "a2learn-source-library-theme";
-  style.textContent = `
-    .a2learn-library-panel { position: fixed; z-index: 30; top: 148px; right: max(20px, calc((100vw - 1200px) / 2)); display: none; width: min(390px, calc(100vw - 28px)); max-height: min(620px, calc(100vh - 168px)); overflow: auto; box-sizing: border-box; padding: 16px; border: 1px solid var(--a2ui-color-border, #dbe3ee); border-radius: var(--a2learn-shell-radius, 16px); background: var(--a2ui-color-surface, #fff); box-shadow: 0 20px 56px rgba(15, 23, 42, .2); color: var(--a2ui-color-on-surface, #111827); }
-    .a2learn-library-panel.open { display: grid; gap: 12px; }
-    .a2learn-library-head, .a2learn-library-actions, .a2learn-library-source-head, .a2learn-library-source-meta { display: flex; align-items: center; gap: 8px; }
-    .a2learn-library-head { justify-content: space-between; }
-    .a2learn-library-title { margin: 0; font: 750 17px/1.2 var(--a2ui-font-family-title, sans-serif); }
-    .a2learn-library-close, .a2learn-library-button { border: 1px solid var(--a2ui-color-border, #dbe3ee); border-radius: var(--a2learn-control-radius, 9px); padding: 7px 9px; background: var(--a2ui-color-surface-subtle, #f8fafc); color: inherit; cursor: pointer; font: 600 12px/1.2 inherit; }
-    .a2learn-library-button.primary { border-color: var(--a2ui-color-primary, #0d9488); background: var(--a2ui-color-primary, #0d9488); color: #fff; }
-    .a2learn-library-button:disabled { cursor: not-allowed; opacity: .5; }
-    .a2learn-library-hint, .a2learn-library-message, .a2learn-library-source-meta { color: var(--app-muted, #64748b); font-size: 12px; line-height: 1.45; }
-    .a2learn-library-hint, .a2learn-library-message { margin: 0; }
-    .a2learn-library-file-input { display: none; }
-    .a2learn-library-sources { display: grid; gap: 8px; max-height: 270px; overflow: auto; }
-    .a2learn-library-source { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 9px; padding: 10px; border: 1px solid var(--a2ui-color-border, #dbe3ee); border-radius: var(--a2learn-control-radius, 9px); }
-    .a2learn-library-source input { margin-top: 3px; accent-color: var(--a2ui-color-primary, #0d9488); }
-    .a2learn-library-source-name { overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-    .a2learn-library-source-meta { flex-wrap: wrap; margin-top: 4px; }
-    .a2learn-library-status { padding: 2px 6px; border-radius: var(--a2learn-pill-radius, 999px); background: var(--a2ui-color-surface-subtle, #f1f5f9); font-size: 11px; }
-    .a2learn-library-status.ready { background: #dcfce7; color: #166534; }
-    .a2learn-library-status.pending { background: #fef3c7; color: #92400e; }
-    .a2learn-library-status.failed { background: #fee2e2; color: #b91c1c; }
-    .a2learn-library-goal { width: 100%; min-height: 64px; box-sizing: border-box; resize: vertical; border: 1px solid var(--a2ui-color-border, #dbe3ee); border-radius: var(--a2learn-control-radius, 9px); padding: 9px; background: var(--a2ui-color-surface, #fff); color: inherit; font: inherit; font-size: 13px; }
-    .a2learn-library-footer { display: grid; gap: 8px; }
-    @media (max-width: 640px) { .a2learn-library-panel { top: 118px; right: 12px; } }
-  `;
-  document.head.appendChild(style);
-}
+function injectSourceLibraryTheme(): void {}
 
 export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibraryController {
   const existing = document.getElementById("a2learn-source-library");

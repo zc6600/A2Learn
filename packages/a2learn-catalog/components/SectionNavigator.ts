@@ -1,92 +1,12 @@
-import { html, css, nothing } from "lit";
+import componentStyles from "../styles/components/SectionNavigator.css?inline";
+import { html, nothing, unsafeCSS } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { SectionNavigatorApi } from "../api";
 import { classMap } from "lit/directives/class-map.js";
 
 export class A2learnSectionNavigatorElement extends A2uiLitElement<typeof SectionNavigatorApi> {
-  static styles = css`
-    :host {
-      display: block;
-      margin: var(--a2ui-spacing-l) 0;
-      font-family: var(--a2ui-font-family);
-    }
-    .nav-container {
-      display: flex;
-      flex-direction: column;
-      gap: var(--a2ui-spacing-m);
-    }
-    .nav-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--a2ui-color-on-surface);
-      margin: 0 0 8px 0;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-    }
-    .section-card {
-      background: var(--a2ui-color-surface);
-      border: 2px solid var(--a2ui-color-border);
-      border-radius: 12px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      position: relative;
-      overflow: hidden;
-    }
-    .section-card:hover:not(.locked) {
-      border-color: var(--a2ui-color-primary);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-    }
-    .section-card.active {
-      border-color: var(--a2ui-color-primary);
-      background: color-mix(in oklab, var(--a2ui-color-primary) 5%, var(--a2ui-color-surface));
-    }
-    .section-card.locked {
-      cursor: not-allowed;
-      opacity: 0.6;
-      background: #f8f9fa;
-    }
-    .section-card.completed {
-      border-color: #34a853;
-    }
-    .icon-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 24px;
-    }
-    .status-badge {
-      font-size: 12px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .status-badge.completed { background: #e8f5e9; color: #137333; }
-    .status-badge.locked { background: #f1f3f4; color: #5f6368; }
-    .status-badge.active { background: #e8f0fe; color: #1967d2; }
-    
-    .card-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--a2ui-color-on-surface);
-      margin: 0;
-    }
-    .card-desc {
-      font-size: 13px;
-      color: var(--app-muted);
-      margin: 0;
-      line-height: 1.4;
-    }
-  `;
+  static styles = unsafeCSS(componentStyles);
 
   protected createController() {
     return new A2uiController(this, SectionNavigatorApi);

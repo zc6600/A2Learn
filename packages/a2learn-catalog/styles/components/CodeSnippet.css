@@ -1,0 +1,99 @@
+    :host {
+      display: block;
+      margin: var(--a2ui-spacing-l) 0;
+      font-family: var(--a2ui-font-family);
+    }
+    .snippet-container {
+      background: var(--a2ui-color-code-surface);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--a2learn-code-border);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: var(--a2learn-code-header);
+      border-bottom: 1px solid #444;
+    }
+    .mac-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot.red { background: #ff5f56; }
+    .dot.yellow { background: #ffbd2e; }
+    .dot.green { background: #27c93f; }
+
+    .title-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .file-name {
+      color: #ccc;
+      font-size: 13px;
+      font-family: monospace;
+    }
+    .language-badge {
+      color: var(--a2learn-code-info);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      border: 1px solid var(--a2learn-code-info);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .copy-btn {
+      background: transparent;
+      border: none;
+      color: var(--a2learn-code-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      transition: color 0.2s;
+    }
+    .copy-btn:hover {
+      color: #fff;
+    }
+    .copy-btn.copied {
+      color: var(--a2learn-code-info);
+    }
+    .code-content {
+      padding: 16px;
+      margin: 0;
+      overflow-x: auto;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--a2ui-color-code-text);
+      white-space: pre;
+    }
+    /* Simple line highlighting */
+    .line {
+      display: block;
+      padding: 0 16px;
+      margin: 0 -16px;
+      border-left: 3px solid transparent;
+    }
+    .line.highlight {
+      background: rgba(255, 255, 255, 0.1);
+      border-left-color: #4fc1ff;
+    }
+    .line-number {
+      display: inline-block;
+      width: 24px;
+      color: #858585;
+      text-align: right;
+      margin-right: 16px;
+      user-select: none;
+    }

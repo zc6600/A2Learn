@@ -156,28 +156,27 @@ export class NarrationController {
     if (!card) {
       card = document.createElement("div");
       card.id = "narration-script-overlay";
-      card.style.cssText =
-        "position:fixed;right:22px;bottom:122px;z-index:998;max-width:380px;max-height:240px;overflow-y:auto;background:rgba(15,23,42,0.92);backdrop-filter:blur(8px);color:#f8fafc;padding:12px 16px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-size:13px;line-height:1.6;border:1px solid rgba(255,255,255,0.15);transition:opacity 0.2s ease;";
+      card.className = "a2learn-narration-overlay";
       document.body.appendChild(card);
     }
 
     const header = document.createElement("div");
-    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.15);";
+    header.className = "a2learn-narration-overlay-head";
     const title = document.createElement("strong");
-    title.style.cssText = "color:#2dd4bf;font-size:12px;";
+    title.className = "a2learn-narration-overlay-title";
     title.textContent = this.isEnglish() ? "🎙 Presenter Script" : "🎙 AI 讲稿文稿";
     const closeButton = document.createElement("button");
     closeButton.type = "button";
     closeButton.textContent = "✕";
     closeButton.setAttribute("aria-label", this.isEnglish() ? "Close script" : "关闭讲稿");
-    closeButton.style.cssText = "background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;padding:0 4px;";
+    closeButton.className = "a2learn-narration-overlay-close";
     closeButton.addEventListener("click", () => {
       card!.style.display = "none";
     });
     header.append(title, closeButton);
 
     const body = document.createElement("div");
-    body.style.cssText = "white-space:pre-wrap;color:#e2e8f0;";
+    body.className = "a2learn-narration-overlay-body";
     body.textContent = scriptText;
     card.replaceChildren(header, body);
     card.style.display = "block";

@@ -222,26 +222,6 @@ export function mountInlineComponentEditor(options: InlineEditorOptions): Inline
     return { onLanguageChanged: () => undefined };
   }
 
-  const style = document.createElement("style");
-  style.id = "a2learn-inline-editor-style";
-  style.textContent = `
-    #a2learn-inline-editor { position: fixed; z-index: 1001; display: none; width: min(340px, calc(100vw - 28px)); max-height: calc(100vh - 28px); overflow: auto; padding: 12px; border: 1px solid #dbe4ea; border-radius: 12px; background: #fff; box-shadow: 0 14px 38px rgba(15, 23, 42, .2); }
-    #a2learn-inline-editor.open { display: block; }
-    .a2learn-inline-editor-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; color: #334155; font-size: 12px; font-weight: 700; }
-    .a2learn-inline-editor-close { border: 0; background: transparent; color: #64748b; cursor: pointer; font-size: 18px; }
-    .a2learn-inline-editor-field { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; color: #64748b; font-size: 12px; }
-    .a2learn-inline-editor-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-    .a2learn-inline-editor-list-title { color: #475569; font-size: 12px; font-weight: 700; }
-    .a2learn-inline-editor-list-item { padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; }
-    .a2learn-inline-editor-list-index { color: #94a3b8; font-size: 11px; }
-    .a2learn-inline-editor-input { width: 100%; box-sizing: border-box; padding: 7px 8px; border: 1px solid #cbd5e1; border-radius: 8px; color: #334155; font: inherit; }
-    .a2learn-inline-editor-input.multiline { min-height: 76px; resize: vertical; }
-    .a2learn-inline-editor-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 11px; }
-    .a2learn-inline-editor-save { border: 0; border-radius: 8px; padding: 7px 10px; background: #0d9488; color: #fff; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; }
-    .a2learn-inline-editor-note { color: #64748b; font-size: 12px; line-height: 1.45; }
-  `;
-  document.head.appendChild(style);
-
   const root = document.createElement("form");
   root.id = "a2learn-inline-editor";
   document.body.appendChild(root);
@@ -307,7 +287,9 @@ export function mountInlineComponentEditor(options: InlineEditorOptions): Inline
         listTitle.className = "a2learn-inline-editor-list-title";
         listTitle.textContent = options.getLanguage() === "en" ? field.en : field.zh;
         list.appendChild(listTitle);
-        const items = Array.isArray(component.props[field.prop]) ? component.props[field.prop] : [];
+        const items: unknown[] = Array.isArray(component.props[field.prop])
+          ? component.props[field.prop] as unknown[]
+          : [];
         items.forEach((item, index) => {
           if (!item || typeof item !== "object" || Array.isArray(item)) return;
           const itemRoot = document.createElement("div");
@@ -361,7 +343,9 @@ export function mountInlineComponentEditor(options: InlineEditorOptions): Inline
     const updates: Record<string, unknown> = {};
     for (const field of selected.fields) {
       if ("itemFields" in field) {
-        const originalItems = Array.isArray(selected.component.props[field.prop]) ? selected.component.props[field.prop] : [];
+        const originalItems: unknown[] = Array.isArray(selected.component.props[field.prop])
+          ? selected.component.props[field.prop] as unknown[]
+          : [];
         const nextItems = originalItems.map((item) => item && typeof item === "object" && !Array.isArray(item)
           ? { ...(item as Record<string, unknown>) }
           : item,

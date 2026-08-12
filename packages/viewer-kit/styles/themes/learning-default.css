@@ -1,0 +1,47 @@
+/* learning-default: visual tokens only; structure belongs in base/components. */
+html[data-a2learn-theme="learning-default"],
+:root {
+  color-scheme: light !important;
+  --app-bg: #ffffff;
+  --app-text: #111827;
+  --app-muted: #6b7280;
+  --app-outline: #e5e7eb;
+  --a2learn-page-background: #ffffff;
+  --a2learn-shell-radius: 20px;
+  --a2learn-control-radius: 12px;
+  --a2learn-pill-radius: 999px;
+  --a2learn-panel-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+  --a2ui-font-family-title: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --a2ui-font-size-xs: 12px;
+  --a2ui-font-size-s: 14px;
+  --a2ui-font-size-m: 16px;
+  --a2ui-font-size-l: 20px;
+  --a2ui-font-size-xl: 26px;
+  --a2ui-font-size-2xl: 34px;
+  --a2ui-line-height-headings: 1.25;
+  --a2ui-line-height-body: 1.65;
+  --a2ui-spacing-xs: 6px;
+  --a2ui-spacing-s: 10px;
+  --a2ui-spacing-m: 16px;
+  --a2ui-spacing-l: 24px;
+  --a2ui-spacing-xl: 32px;
+  --a2ui-border-radius: 16px;
+  --a2ui-border-width: 1px;
+
+  /* Portfolio Design Tokens (Teal Accent Matrix - Light Mode Baseline) */
+  --a2ui-color-primary: #0d9488; /* Teal-600 */
+  --a2ui-color-secondary: #0f766e; /* Teal-700 High-Contrast Secondary */
+  --a2ui-color-surface: #ffffff;
+  --a2ui-color-surface-subtle: #f9fafb; /* Gray-50 Neutral Surface */
+  --a2ui-color-on-surface: #111827;
+  --a2ui-color-on-background: #374151;
+  --a2ui-color-border: #e5e7eb; /* Gray-200 */
+  --a2ui-card-border: 1px solid var(--a2ui-color-border);
+  --a2ui-card-border-radius: 16px;
+  --a2ui-card-padding: 20px 24px;
+  --a2ui-card-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --a2ui-card-margin: 0;
+  --a2ui-column-gap: 16px;
+  --a2ui-text-a-color: #0d9488;
+  --a2ui-text-a-font-weight: 600;
+}

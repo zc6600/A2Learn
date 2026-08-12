@@ -1,4 +1,5 @@
-import { html, css, nothing } from "lit";
+import componentStyles from "../styles/components/SocialMoments.css?inline";
+import { html, nothing, unsafeCSS } from "lit";
 import { customElement } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { SocialMomentsApi } from "../api";
@@ -7,34 +8,7 @@ import { sanitizeHtml } from "../utils/sanitize";
 
 /** A WeChat-Moments-like reading surface for poems, people, and historical scenes. */
 export class A2learnSocialMomentsElement extends A2uiLitElement<typeof SocialMomentsApi> {
-  static styles = css`
-    :host { display: block; margin: var(--a2ui-spacing-l) 0; font-family: var(--a2ui-font-family); }
-    .moments { overflow: hidden; border: 1px solid var(--a2ui-color-border); border-radius: 12px; background: var(--a2ui-color-surface); }
-    .title { padding: 14px 18px; border-bottom: 1px solid var(--a2ui-color-border); color: var(--a2ui-color-on-surface); font: 650 16px/1.3 var(--a2ui-font-family-title, inherit); }
-    .post { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px; padding: 16px; border-bottom: 1px solid var(--a2ui-color-border); }
-    .post:last-child { border-bottom: 0; }
-    .avatar { display: grid; width: 42px; height: 42px; overflow: hidden; place-items: center; border-radius: 5px; background: var(--a2ui-color-surface-subtle); color: var(--a2ui-color-on-surface); font-size: 23px; }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .author { color: var(--a2ui-color-primary); font-size: 14px; font-weight: 700; line-height: 1.35; }
-    .content { margin-top: 4px; color: var(--a2ui-color-on-surface); font-size: 14px; line-height: 1.65; word-break: break-word; }
-    .content p { margin: 0 0 7px; }
-    .content p:last-child { margin-bottom: 0; }
-    .images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; width: min(100%, 340px); margin-top: 9px; }
-    .images.one { grid-template-columns: minmax(0, 1fr); width: min(100%, 300px); }
-    .image { width: 100%; aspect-ratio: 1; border: 0; padding: 0; overflow: hidden; background: var(--a2ui-color-surface-subtle); cursor: zoom-in; }
-    .images.one .image { aspect-ratio: 4 / 3; }
-    .image img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .meta { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; color: var(--app-muted, #74808e); font-size: 11px; line-height: 1.4; }
-    .location { color: var(--a2ui-color-primary); }
-    .engagement { display: grid; gap: 5px; margin-top: 9px; padding: 7px 9px; background: var(--a2ui-color-surface-subtle); color: var(--a2ui-color-on-surface); font-size: 12px; line-height: 1.5; }
-    .likes { color: var(--a2ui-color-primary); }
-    .comment + .comment { padding-top: 5px; border-top: 1px solid color-mix(in oklab, var(--a2ui-color-border) 70%, transparent); }
-    .comment-author { color: var(--a2ui-color-primary); font-weight: 650; }
-    dialog { max-width: min(92vw, 900px); padding: 0; overflow: hidden; border: 0; background: transparent; }
-    dialog::backdrop { background: rgba(0,0,0,.74); }
-    dialog img { display: block; max-width: min(92vw, 900px); max-height: 86vh; }
-    @media (max-width: 560px) { .post { padding: 13px; } .images { width: 100%; } }
-  `;
+  static styles = unsafeCSS(componentStyles);
 
   protected createController() { return new A2uiController(this, SocialMomentsApi); }
 

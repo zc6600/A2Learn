@@ -37,38 +37,41 @@ function normalizeThemeId(input: string): string | undefined {
   return RENDER_THEMES.some((theme) => theme.id === input) ? input : undefined;
 }
 
-function applyThemeVars(vars?: Record<string, string>): void {
+const activeCustomThemeVarNames = new Set<string>();
+
+function clearCustomThemeVars(): void {
+  for (const variable of activeCustomThemeVarNames) {
+    document.documentElement.style.removeProperty(variable);
+  }
+  activeCustomThemeVarNames.clear();
+}
+
+function applyCustomThemeVars(vars?: Record<string, string>): void {
+  clearCustomThemeVars();
   if (!vars) return;
   for (const [key, value] of Object.entries(vars)) {
     if (key.startsWith("--")) {
       document.documentElement.style.setProperty(key, value);
+      activeCustomThemeVarNames.add(key);
     }
   }
 }
-
-const GENERATION_THEME_VAR_NAMES = Array.from(
-  new Set(RENDER_THEMES.flatMap((theme) => Object.keys(theme.vars))),
-);
 
 export function applyGenerationTheme(
   themeId: string,
   displayMode: GenerationProfile["displayMode"] = "standard",
 ): void {
-  for (const variable of GENERATION_THEME_VAR_NAMES) {
-    document.documentElement.style.removeProperty(variable);
-  }
+  clearCustomThemeVars();
   const theme = getRenderTheme(themeId);
   document.documentElement.dataset.a2learnTheme = theme.id;
   document.documentElement.dataset.a2learnDisplayMode = displayMode;
-  applyThemeVars(theme.vars);
 }
 
 export function applySourceTheme(source: ViewerSourceOffline | ViewerSourceOnline): void {
-  if (source.themeVars) {
-    applyThemeVars(source.themeVars);
-  } else if (source.themeId) {
-    applyGenerationTheme(source.themeId);
-  }
+  applyGenerationTheme(source.themeId || "learning-default");
+  // Embed/API themeVars are deliberately a temporary inline override layer,
+  // not a second definition of any bundled theme.
+  applyCustomThemeVars(source.themeVars);
 }
 
 export function normalizeBaseUrl(input: string): string {

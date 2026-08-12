@@ -1,0 +1,16 @@
+/* minimal: visual tokens only; structure belongs in base/components. */
+html[data-a2learn-theme="minimal"] {
+  --a2ui-color-primary: #1f2937;
+  --a2ui-color-secondary: #4b5563;
+  --a2ui-color-surface: #ffffff;
+  --a2ui-color-surface-subtle: #f9fafb;
+  --a2ui-color-on-surface: #111827;
+  --a2ui-color-border: #d1d5db;
+  --a2ui-card-border-radius: 0px;
+  --a2ui-card-box-shadow: none;
+  --a2learn-page-background: #ffffff;
+  --a2learn-shell-radius: 12px;
+  --a2learn-control-radius: 6px;
+  --a2learn-pill-radius: 999px;
+  --a2learn-panel-shadow: none;
+}

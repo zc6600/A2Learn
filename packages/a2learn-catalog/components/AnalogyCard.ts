@@ -1,4 +1,5 @@
-import { html, css, nothing } from "lit";
+import componentStyles from "../styles/components/AnalogyCard.css?inline";
+import { html, nothing, unsafeCSS } from "lit";
 import { customElement } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { AnalogyCardApi } from "../api";
@@ -9,103 +10,7 @@ import { uiText } from "../utils/i18n";
 export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCardApi> {
   static styles = [
     tooltipStyles,
-    css`
-      :host {
-      display: block;
-      margin: var(--a2ui-spacing-l) 0;
-      font-family: var(--a2ui-font-family);
-    }
-    .analogy-container {
-      position: relative;
-      background: color-mix(in oklab, var(--a2ui-color-primary) 5%, var(--a2ui-color-surface));
-      border: 1px dashed color-mix(in oklab, var(--a2ui-color-primary) 40%, transparent);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-      overflow: visible;
-    }
-    /* Playful decorative quote mark */
-    .analogy-container::before {
-      content: "”";
-      position: absolute;
-      top: -20px;
-      right: 20px;
-      font-size: 120px;
-      font-family: serif;
-      color: color-mix(in oklab, var(--a2ui-color-primary) 10%, transparent);
-      line-height: 1;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-      position: relative;
-      z-index: 1;
-    }
-    .icon {
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: white;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    .title {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--a2ui-color-primary, #0d9488);
-      letter-spacing: 0.5px;
-      margin: 0;
-    }
-    .content {
-      position: relative;
-      z-index: 1;
-      font-size: 16px;
-      line-height: 1.7;
-      color: var(--a2ui-color-on-surface, #111827);
-      background: var(--a2ui-color-surface-subtle, #f9fafb);
-      border: 1px solid var(--a2ui-color-border, #e5e7eb);
-      padding: 16px;
-      border-radius: 12px;
-    }
-    /* Style markdown elements inside analogy */
-    .content p {
-      margin-top: 0;
-      color: var(--a2ui-color-on-surface, #111827);
-    }
-    .content p:last-child {
-      margin-bottom: 0;
-    }
-    .content strong, .content b {
-      color: var(--a2ui-color-primary, #0d9488);
-      font-weight: 700;
-    }
-    .content hr {
-      border: none;
-      border-top: 1px dashed var(--a2ui-color-border, #cbd5e1);
-      margin: 16px 0;
-    }
-    .terms-section {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed var(--a2ui-color-border, #cbd5e1);
-    }
-    .terms-section-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--a2ui-color-primary, #0d9488);
-      margin: 0 0 8px 0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-  `
+    unsafeCSS(componentStyles)
 ];
 
   protected createController() {
@@ -156,7 +61,7 @@ export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCard
           .replace(/>/g, "&gt;");
         const placeholder = `\x1aCODE_${codeBlocks.length}\x1a`;
         codeBlocks.push(
-          `<pre style="background:#0f172a;color:#e2e8f0;padding:12px 16px;border-radius:8px;overflow-x:auto;margin:10px 0;font-family:ui-monospace,monospace;font-size:0.88em;line-height:1.6"><code>${escapedCode}</code></pre>`
+          `<pre class="a2learn-analogy-code"><code>${escapedCode}</code></pre>`
         );
         return placeholder;
       }

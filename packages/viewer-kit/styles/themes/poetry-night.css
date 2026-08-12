@@ -1,0 +1,21 @@
+/* poetry-night: visual tokens only; structure belongs in base/components. */
+html[data-a2learn-theme="poetry-night"] {
+  --app-bg: #17191d;
+  --app-text: #eee7d9;
+  --app-muted: #b7ad9f;
+  --app-outline: #38342f;
+  --a2ui-color-primary: #d4a85b;
+  --a2ui-color-secondary: #829a76;
+  --a2ui-color-surface: #22252a;
+  --a2ui-color-surface-subtle: #2b2e33;
+  --a2ui-color-on-surface: #f4eddf;
+  --a2ui-color-on-background: #d3cabc;
+  --a2ui-color-border: #45413b;
+  --a2ui-font-family-title: Songti SC, STSong, SimSun, serif;
+  --a2learn-page-background: radial-gradient(circle at 80% 0%, rgba(212, 168, 91, .16), transparent 30%), linear-gradient(145deg, #16191d, #202633 65%, #16191d);
+  --a2learn-shell-radius: 14px;
+  --a2learn-control-radius: 8px;
+  --a2learn-pill-radius: 999px;
+  --a2learn-panel-shadow: 0 18px 48px rgba(0, 0, 0, .42);
+  color-scheme: dark;
+}

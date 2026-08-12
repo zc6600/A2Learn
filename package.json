@@ -13,7 +13,8 @@
     "viewer:build": "npm run build --workspace a2learn-viewer",
     "embed:build": "npm run build --workspace @a2learn/embed",
     "package": "./scripts/package_submission.py",
-    "build": "npm run viewer:build && npm run embed:build"
+    "build": "npm run viewer:build && npm run embed:build",
+    "lint:styles": "node scripts/check-style-boundaries.mjs"
   },
   "devDependencies": {
     "tsup": "^8.5.0",

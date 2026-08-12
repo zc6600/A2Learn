@@ -1,4 +1,5 @@
-import { html, css, nothing } from "lit";
+import componentStyles from "../styles/components/KnowledgeTree.css?inline";
+import { html, nothing, unsafeCSS } from "lit";
 import { customElement } from "lit/decorators.js";
 import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { KnowledgeTreeApi } from "../api";
@@ -7,105 +8,7 @@ import { sanitizeHtml } from "../utils/sanitize";
 import { uiText } from "../utils/i18n";
 
 export class A2learnKnowledgeTreeElement extends A2uiLitElement<typeof KnowledgeTreeApi> {
-  static styles = css`
-    :host {
-      display: block;
-      margin: var(--a2ui-spacing-l) 0;
-      font-family: var(--a2ui-font-family);
-    }
-    .explorer-container {
-      background: var(--a2ui-color-surface);
-      border: 1px solid var(--a2ui-color-border);
-      border-radius: var(--a2ui-border-radius);
-      padding: var(--a2ui-spacing-l);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-    .explorer-title {
-      margin: 0 0 var(--a2ui-spacing-m) 0;
-      font-size: var(--a2ui-font-size-l);
-      font-weight: 700;
-      color: var(--a2ui-color-on-surface);
-    }
-    .breadcrumb {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: var(--a2ui-spacing-l);
-      padding: 12px 16px;
-      background: color-mix(in oklab, var(--a2ui-color-primary) 5%, var(--a2ui-color-surface));
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    .crumb-item {
-      cursor: pointer;
-      color: var(--a2ui-color-primary);
-      font-weight: 600;
-      transition: color 0.2s;
-    }
-    .crumb-item:hover {
-      color: color-mix(in oklab, var(--a2ui-color-primary) 60%, black);
-      text-decoration: underline;
-    }
-    .crumb-separator {
-      color: var(--app-muted);
-      font-size: 12px;
-    }
-    .crumb-current {
-      color: var(--a2ui-color-on-surface);
-      font-weight: 600;
-    }
-    
-    .current-node-card {
-      margin-bottom: var(--a2ui-spacing-l);
-      padding: var(--a2ui-spacing-m);
-      border-left: 4px solid var(--a2ui-color-primary);
-      background: #f8f9fa;
-      border-radius: 0 8px 8px 0;
-    }
-    .node-title {
-      margin: 0 0 8px 0;
-      font-size: 18px;
-      font-weight: 700;
-    }
-    .node-desc {
-      margin: 0;
-      font-size: 14px;
-      color: var(--app-muted);
-      line-height: 1.5;
-    }
-
-    .children-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
-    }
-    .child-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px;
-      background: white;
-      border: 1px solid var(--a2ui-color-border);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .child-card:hover {
-      border-color: var(--a2ui-color-primary);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    }
-    .child-label {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--a2ui-color-on-surface);
-    }
-    .child-icon {
-      color: var(--app-muted);
-      font-size: 12px;
-    }
-  `;
+  static styles = unsafeCSS(componentStyles);
 
   protected createController() {
     return new A2uiController(this, KnowledgeTreeApi);

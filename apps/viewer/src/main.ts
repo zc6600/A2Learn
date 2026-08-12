@@ -1,3 +1,4 @@
+import "./styles/runtime.css";
 import { A2uiMessage, MessageProcessor } from "@a2ui/web_core/v0_9";
 import { a2learnCatalog } from "@a2learn/a2learn-catalog";
 import "@a2ui/lit/v0_9";
@@ -495,7 +496,7 @@ async function bootstrapViewer() {
   container = document.getElementById("surface-container");
     const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
     if (narrationButton) {
-      narrationButton.style.cssText = "position:fixed;right:22px;bottom:78px;z-index:999;border:0;border-radius:50%;width:34px;height:34px;cursor:pointer;background:#0d9488;color:white;box-shadow:0 3px 12px #0003";
+      narrationButton.className = "a2learn-narration-button";
       narrationButton.title = lang === "en" ? "Play narration" : "播放讲稿";
       narrationButton.addEventListener("click", () => {
         void narrationController.toggle(narrationButton);
