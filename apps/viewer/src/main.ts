@@ -19,7 +19,10 @@ import { getExampleItems, renderCollapsibleExampleGallery } from "./example-gall
 import { workspaceStore } from "./workspace-store";
 import { renderWorkspaceSidebar } from "./workspace-sidebar-ui";
 import { createEmbedMessageHandler, postToParent, setupAutoResize } from "./embed-bridge";
-import { openProject as openProjectRuntime } from "./project-runtime";
+import {
+  configureProjectNarration,
+  openProject as openProjectRuntime,
+} from "./project-runtime";
 import { renderSurfaces } from "./surface-renderer";
 import {
   bindGlobalListenersOnce,
@@ -803,7 +806,9 @@ async function bootstrapViewer() {
     if (newLang === getLang()) return;
     const requestVersion = ++loadVersion;
     setLang(newLang);
-    narrationController.stop();
+    narrationController.resetForDocument(
+      document.getElementById("page-narration-button") as HTMLButtonElement | null,
+    );
     languageChangeControllers.forEach((controller) => controller.onLanguageChanged());
     renderShell(newLang);
     const target = container;
@@ -823,6 +828,16 @@ async function bootstrapViewer() {
       const item = getExampleItems(newLang).find((i) => i.id === doc.exampleId);
       if (item) {
         await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } }, true, requestVersion);
+        if (requestVersion !== loadVersion) return;
+        const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
+        const staticAudioUrl = staticExampleAudioUrl(doc.exampleId, newLang);
+        if (narrationButton) {
+          narrationButton.dataset.audioUrl = staticAudioUrl || "";
+          narrationButton.hidden = !isAudioEnabled() || !staticAudioUrl;
+          narrationButton.title = staticAudioUrl
+            ? T[newLang].playNarration
+            : T[newLang].noNarrationAvailable;
+        }
         return;
       }
     }
@@ -830,6 +845,16 @@ async function bootstrapViewer() {
     if (doc.type === "project" && activeRuntime) {
       activeRuntime = { ...activeRuntime, container: target };
       renderSurfaces(target, activeRuntime.processor, activeRuntime.modeHint);
+      configureProjectNarration({
+        button: document.getElementById("page-narration-button") as HTMLButtonElement | null,
+        project: {
+          id: doc.projectId,
+          title: doc.title || doc.projectId,
+          openedAt: new Date().toISOString(),
+        },
+        apiBaseUrl: editorApiBaseUrl().replace(/\/+$/, ""),
+        narrationController,
+      });
       return;
     }
     // renderShell() already mounted the localized welcome state and bound its

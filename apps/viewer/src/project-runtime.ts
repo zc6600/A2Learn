@@ -78,7 +78,7 @@ export async function openProject(options: ProjectRuntimeOptions): Promise<void>
   });
 }
 
-function configureProjectNarration(options: {
+export function configureProjectNarration(options: {
   button: HTMLButtonElement | null;
   project: RecentProject;
   apiBaseUrl: string;

@@ -13,6 +13,7 @@ export class NarrationController {
   private activeAudio: HTMLAudioElement | null = null;
   private activeUrl: string | null = null;
   private activeScript: string | null = null;
+  private operationVersion = 0;
 
   constructor(private readonly getLanguage: () => Lang) {}
 
@@ -21,6 +22,11 @@ export class NarrationController {
   }
 
   stop(): void {
+    this.operationVersion += 1;
+    this.stopPlayback();
+  }
+
+  private stopPlayback(): void {
     if (this.activeAudio) {
       try {
         this.activeAudio.pause();
@@ -53,6 +59,7 @@ export class NarrationController {
     fetchNarrationIfNeeded?: NarrationFetcher,
     audioBaseUrl?: string,
   ): Promise<void> {
+    const operationVersion = this.operationVersion;
     const currentDatasetUrl = narrationButton.dataset.audioUrl || null;
 
     if (
@@ -66,28 +73,30 @@ export class NarrationController {
       } else {
         try {
           await this.activeAudio.play();
+          if (operationVersion !== this.operationVersion) return;
           this.setPauseState(narrationButton, true);
         } catch (error) {
-          this.showPlaybackError(error);
+          if (operationVersion === this.operationVersion) this.showPlaybackError(error);
         }
       }
       return;
     }
 
     if (currentDatasetUrl) {
-      this.stop();
+      this.stopPlayback();
       try {
         await this.play(narrationButton, currentDatasetUrl, "🔊");
+        if (operationVersion !== this.operationVersion) return;
         if (this.activeScript) this.renderScriptOverlay(this.activeScript);
       } catch (error) {
-        this.showPlaybackError(error);
+        if (operationVersion === this.operationVersion) this.showPlaybackError(error);
       }
       return;
     }
 
     if (!fetchNarrationIfNeeded) return;
 
-    this.stop();
+    this.stopPlayback();
     narrationButton.disabled = true;
     const idleLabel = "🔊";
     narrationButton.textContent = "⏳";
@@ -95,6 +104,7 @@ export class NarrationController {
 
     try {
       const payload = await fetchNarrationIfNeeded();
+      if (operationVersion !== this.operationVersion) return;
       if (!payload.audioUrl) throw new Error("The narration response did not include an audio URL.");
 
       // API narration responses are commonly API-relative paths. Resolve them
@@ -107,12 +117,14 @@ export class NarrationController {
       this.activeScript = payload.script || null;
 
       await this.play(narrationButton, fullAudioUrl, idleLabel);
+      if (operationVersion !== this.operationVersion) return;
       if (payload.script) this.renderScriptOverlay(payload.script);
     } catch (error) {
+      if (operationVersion !== this.operationVersion) return;
       this.resetButton(narrationButton, idleLabel);
       this.showPlaybackError(error, true);
     } finally {
-      narrationButton.disabled = false;
+      if (operationVersion === this.operationVersion) narrationButton.disabled = false;
     }
   }
 
