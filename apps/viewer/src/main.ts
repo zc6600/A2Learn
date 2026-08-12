@@ -557,7 +557,6 @@ async function bootstrapViewer() {
     // controls whether newly generated projects request narration.
     narrationButton.hidden = !audioUrl;
     narrationButton.title = audioUrl ? T[lang].playNarration : T[lang].noNarrationAvailable;
-    if (audioUrl) narrationController.showAudioResult(audioUrl);
   };
 
   renderShell(getLang());
