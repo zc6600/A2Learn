@@ -26,7 +26,7 @@ globalThis.window = {
 
 describe("Workspace Tree & Store Unit Tests", async () => {
   // Dynamic import after mocking window.localStorage
-  const { workspaceStore } = await import("../apps/viewer/src/workspace-store.js").catch(async () => {
+  const { workspaceStore, WorkspaceStore } = await import("../apps/viewer/src/workspace-store.js").catch(async () => {
     // If running in TypeScript direct mode, import ts
     return await import("../apps/viewer/src/workspace-store.ts");
   });
@@ -50,17 +50,16 @@ describe("Workspace Tree & Store Unit Tests", async () => {
   });
 
   test("Creates and nests user folders", () => {
-    const folderId = workspaceStore.createFolder("深度学习笔记", "🧠");
+    const folderId = workspaceStore.createFolder("深度学习笔记");
     const state = workspaceStore.getState();
 
     assert.ok(state.nodes[folderId], "New folder should exist in state");
     assert.equal(state.nodes[folderId].title, "深度学习笔记");
-    assert.equal(state.nodes[folderId].icon, "🧠");
     assert.equal(state.nodes[folderId].parentId, null);
     assert.equal(state.nodes[folderId].isBuiltin, false);
 
     // Create subfolder
-    const subFolderId = workspaceStore.createFolder("注意力专题", "🔍", folderId);
+    const subFolderId = workspaceStore.createFolder("注意力专题", folderId);
     const subNode = workspaceStore.getState().nodes[subFolderId];
     assert.equal(subNode.parentId, folderId, "Subfolder should have parent folderId");
   });
@@ -78,6 +77,15 @@ describe("Workspace Tree & Store Unit Tests", async () => {
     // Builtin node rename should fail
     const builtinFail = workspaceStore.renameNode("curated_ai_series", "修改内置标题");
     assert.equal(builtinFail, false, "Renaming built-in node should fail");
+  });
+
+  test("Does not persist or expose icon metadata", () => {
+    const folderId = workspaceStore.createFolder("无图标文件夹");
+    const node = workspaceStore.getState().nodes[folderId];
+    assert.equal("icon" in node, false);
+
+    node.title = "不应修改内部状态";
+    assert.equal(workspaceStore.getState().nodes[folderId].title, "无图标文件夹");
   });
 
   test("Moves nodes and prevents circular reference cycles", () => {
@@ -104,6 +112,16 @@ describe("Workspace Tree & Store Unit Tests", async () => {
     // 4. Attempt self-move: Move Folder A into Folder A -> Should fail!
     const selfFail = workspaceStore.moveNode(folderA, folderA);
     assert.equal(selfFail, false, "Moving folder into itself should fail");
+
+    const builtinMoveFail = workspaceStore.moveNode(lessonId, "curated_ai_series");
+    assert.equal(builtinMoveFail, false, "User nodes should not move into built-in folders");
+  });
+
+  test("Rejects invalid active nodes and invalid parents", () => {
+    const invalidFolder = workspaceStore.createFolder("不应创建", "curated_ai_series");
+    assert.equal(invalidFolder, null);
+    assert.equal(workspaceStore.setActiveNode("curated_ai_series"), false);
+    assert.equal(workspaceStore.setActiveNode("missing-node"), false);
   });
 
   test("Deletes node and safely reparents child lessons", () => {
@@ -125,7 +143,7 @@ describe("Workspace Tree & Store Unit Tests", async () => {
 
   test("Auto-expands ancestor folders when setting active node", () => {
     const parentFolder = workspaceStore.createFolder("Parent");
-    const childFolder = workspaceStore.createFolder("Child", "📁", parentFolder);
+    const childFolder = workspaceStore.createFolder("Child", parentFolder);
     const lessonId = "proj_deep_lesson";
     workspaceStore.recordNewGeneration(lessonId, "深层课件", childFolder);
 
@@ -142,5 +160,63 @@ describe("Workspace Tree & Store Unit Tests", async () => {
     assert.ok(!workspaceStore.getState().collapsedFolderIds.includes(parentFolder), "Parent folder should be auto-expanded");
     assert.ok(!workspaceStore.getState().collapsedFolderIds.includes(childFolder), "Child folder should be auto-expanded");
     assert.equal(workspaceStore.getState().activeNodeId, lessonId);
+  });
+
+  test("Preserves and explicitly clears a regenerated lesson parent", () => {
+    const folderId = workspaceStore.createFolder("课程文件夹");
+    const lessonId = "proj_upsert";
+    workspaceStore.recordNewGeneration(lessonId, "第一次生成", folderId);
+    const createdAt = workspaceStore.getState().nodes[lessonId].createdAt;
+
+    workspaceStore.recordNewGeneration(lessonId, "第二次生成");
+    assert.equal(workspaceStore.getState().nodes[lessonId].parentId, folderId);
+    assert.equal(workspaceStore.getState().nodes[lessonId].createdAt, createdAt);
+
+    workspaceStore.recordNewGeneration(lessonId, "移到根目录", null);
+    assert.equal(workspaceStore.getState().nodes[lessonId].parentId, null);
+  });
+
+  test("Repairs malformed persisted trees and protects built-ins", () => {
+    window.localStorage.setItem(
+      "a2learn.workspace.tree.v2",
+      JSON.stringify({
+        version: 2,
+        nodes: {
+          curated_ai_series: {
+            id: "curated_ai_series",
+            title: "被篡改的内置节点",
+            type: "lesson",
+            parentId: "bad-parent",
+            isBuiltin: false,
+          },
+          invalid: { id: "invalid", title: "", type: "lesson" },
+          folderA: { id: "folderA", title: "A", type: "folder", parentId: "folderB" },
+          folderB: { id: "folderB", title: "B", type: "folder", parentId: "folderA" },
+          orphan: { id: "orphan", title: "孤儿", type: "lesson", parentId: "missing" },
+        },
+        collapsedFolderIds: ["invalid", "folderA", "folderA"],
+        activeNodeId: "folderA",
+      }),
+    );
+
+    const repairedStore = new WorkspaceStore();
+    const state = repairedStore.getState();
+    assert.equal(state.nodes.curated_ai_series.title, "🤖 现代 AI 核心前沿");
+    assert.equal(state.nodes.invalid, undefined);
+    assert.equal(state.nodes.folderA.parentId, null);
+    assert.equal(state.nodes.folderB.parentId, "folderA");
+    assert.equal(state.nodes.orphan.parentId, null);
+    assert.deepEqual(state.collapsedFolderIds, ["folderA"]);
+    assert.equal(state.activeNodeId, null);
+  });
+
+  test("Keeps listeners isolated between store instances", () => {
+    const first = new WorkspaceStore();
+    const second = new WorkspaceStore();
+    let firstCalls = 0;
+    first.subscribe(() => { firstCalls += 1; });
+
+    second.createFolder("只影响第二个 store");
+    assert.equal(firstCalls, 0);
   });
 });

@@ -44,7 +44,7 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
           </button>`
         : `<span class="tree-leaf-bullet"></span>`;
 
-      const iconHtml = `<span class="tree-icon">${node.icon || (isFolder ? (isCollapsed ? "📁" : "📂") : "📄")}</span>`;
+      const iconHtml = `<span class="tree-icon">${isFolder ? (isCollapsed ? "📁" : "📂") : "📄"}</span>`;
 
       const titleOrInputHtml = isEditing
         ? `<input

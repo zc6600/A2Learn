@@ -1,6 +1,5 @@
 export type Lang = "zh" | "en";
 import type {
-  NodeType,
   WorkspaceFolderOption,
   WorkspaceNode,
   WorkspaceTreeState,
@@ -10,7 +9,17 @@ const STORAGE_KEY = "a2learn.workspace.tree.v2";
 const LEGACY_STORAGE_KEY = "a2learn.recent-projects.v1";
 
 type Listener = (state: WorkspaceTreeState) => void;
-const listeners: Set<Listener> = new Set();
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function createNodeId(prefix: string): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `${prefix}_${crypto.randomUUID()}`;
+  }
+  return `${prefix}_${Math.random().toString(36).slice(2, 10)}_${Date.now()}`;
+}
 
 /**
  * Builds the initial curated / built-in series nodes mapped to real LOCAL_EXAMPLES.
@@ -26,7 +35,6 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     title: lang === "zh" ? "🤖 现代 AI 核心前沿" : "🤖 Modern AI & Frontiers",
     type: "folder",
     parentId: null,
-    icon: "🤖",
     isBuiltin: true,
     category: "ai",
     createdAt: now,
@@ -38,17 +46,14 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     {
       id: "paper-attention",
       title: lang === "zh" ? "01. Transformer 注意力机制" : "01. Transformer Attention",
-      icon: "🔍",
     },
     {
       id: "agent-react",
       title: lang === "zh" ? "02. ReAct Agent 智能体架构" : "02. ReAct Agent Architecture",
-      icon: "🤖",
     },
     {
       id: "biophysics-ai",
       title: lang === "zh" ? "03. AlphaFold 生物物理 AI" : "03. AlphaFold Biophysics AI",
-      icon: "🧬",
     },
   ];
 
@@ -58,7 +63,6 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
       title: lesson.title,
       type: "lesson",
       parentId: aiFolderId,
-      icon: lesson.icon,
       isBuiltin: true,
       category: "ai",
       createdAt: now,
@@ -74,7 +78,6 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     title: lang === "zh" ? "💻 计算机与核心算法" : "💻 Computer Systems & Web",
     type: "folder",
     parentId: null,
-    icon: "💻",
     isBuiltin: true,
     category: "computing",
     createdAt: now,
@@ -86,22 +89,18 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     {
       id: "hash-table",
       title: lang === "zh" ? "Hash Table 哈希冲突机制" : "Hash Table & Collisions",
-      icon: "⚡",
     },
     {
       id: "js-async",
       title: lang === "zh" ? "JS 异步机制与事件循环" : "JS Async & Event Loop",
-      icon: "⏱️",
     },
     {
       id: "conversational",
       title: lang === "zh" ? "JS 闭包与作用域模块化" : "JS Closures & Scope",
-      icon: "📦",
     },
     {
       id: "non-linear",
       title: lang === "zh" ? "CSS Grid 二维响应式布局" : "CSS Grid 2D Layout",
-      icon: "🎨",
     },
   ];
 
@@ -111,7 +110,6 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
       title: lesson.title,
       type: "lesson",
       parentId: compFolderId,
-      icon: lesson.icon,
       isBuiltin: true,
       category: "computing",
       createdAt: now,
@@ -127,7 +125,6 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     title: lang === "zh" ? "🏮 经典诗词与文学赏析" : "🏮 Classical Poetry Reading",
     type: "folder",
     parentId: null,
-    icon: "🏮",
     isBuiltin: true,
     category: "poetry",
     createdAt: now,
@@ -139,12 +136,10 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     {
       id: "deng-gao",
       title: lang === "zh" ? "杜甫《登高》· 七律与镜头解码" : "Du Fu: Climbing the Height",
-      icon: "🏔️",
     },
     {
       id: "poetry-social",
       title: lang === "zh" ? "《春江花月夜》· 词境重现" : "Spring River Moon Night",
-      icon: "🌙",
     },
   ];
 
@@ -154,7 +149,6 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
       title: lesson.title,
       type: "lesson",
       parentId: humFolderId,
-      icon: lesson.icon,
       isBuiltin: true,
       category: "poetry",
       createdAt: now,
@@ -178,15 +172,17 @@ function getMigratedLegacyNodes(): Record<string, WorkspaceNode> {
       if (Array.isArray(list)) {
         list.forEach((item, idx) => {
           if (item && item.id && item.title) {
-            nodes[item.id] = {
-              id: item.id,
-              title: item.title,
+            const id = typeof item.id === "string" ? item.id : "";
+            const title = typeof item.title === "string" ? item.title : "";
+            if (!id || !title) return;
+            nodes[id] = {
+              id,
+              title,
               type: "lesson",
               parentId: null,
-              icon: "📄",
               isBuiltin: false,
-              createdAt: item.openedAt || new Date().toISOString(),
-              updatedAt: item.openedAt || new Date().toISOString(),
+              createdAt: typeof item.openedAt === "string" ? item.openedAt : new Date().toISOString(),
+              updatedAt: typeof item.openedAt === "string" ? item.openedAt : new Date().toISOString(),
               order: idx + 1,
             };
           }
@@ -199,9 +195,10 @@ function getMigratedLegacyNodes(): Record<string, WorkspaceNode> {
   return nodes;
 }
 
-class WorkspaceStore {
+export class WorkspaceStore {
   private state: WorkspaceTreeState;
   private currentLang: Lang = "zh";
+  private readonly listeners = new Set<Listener>();
 
   constructor() {
     this.state = this.loadState();
@@ -221,17 +218,25 @@ class WorkspaceStore {
   }
 
   public getState(): WorkspaceTreeState {
-    return this.state;
+    return {
+      version: this.state.version,
+      nodes: Object.fromEntries(
+        Object.entries(this.state.nodes).map(([id, node]) => [id, { ...node }]),
+      ),
+      collapsedFolderIds: [...this.state.collapsedFolderIds],
+      activeNodeId: this.state.activeNodeId,
+    };
   }
 
   public subscribe(listener: Listener): () => void {
-    listeners.add(listener);
-    return () => listeners.delete(listener);
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
   }
 
   private notify(): void {
     this.saveState();
-    listeners.forEach((l) => l(this.state));
+    const snapshot = this.getState();
+    this.listeners.forEach((listener) => listener(snapshot));
   }
 
   private loadState(): WorkspaceTreeState {
@@ -243,25 +248,20 @@ class WorkspaceStore {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && parsed.version === 2 && typeof parsed.nodes === "object") {
-          // Merge builtins to ensure updated metadata
-          const mergedNodes: Record<string, WorkspaceNode> = {
-            ...defaultBuiltins,
-            ...parsed.nodes,
-          };
-          // Ensure all built-in nodes always keep isBuiltin: true
-          Object.keys(defaultBuiltins).forEach((id) => {
-            if (mergedNodes[id]) {
-              mergedNodes[id].isBuiltin = true;
-              mergedNodes[id].parentId = defaultBuiltins[id].parentId;
-              mergedNodes[id].icon = defaultBuiltins[id].icon;
-            }
+        if (isRecord(parsed) && parsed.version === 2 && isRecord(parsed.nodes)) {
+          const userNodes: Record<string, WorkspaceNode> = {};
+          Object.entries(parsed.nodes).forEach(([id, rawNode]) => {
+            if (defaultBuiltins[id]) return;
+            const node = this.normalizeUserNode(id, rawNode, now);
+            if (node) userNodes[id] = node;
           });
+          const mergedNodes = { ...defaultBuiltins, ...userNodes };
+          this.repairParentLinks(mergedNodes);
           return {
             version: 2,
             nodes: mergedNodes,
-            collapsedFolderIds: Array.isArray(parsed.collapsedFolderIds) ? parsed.collapsedFolderIds : [],
-            activeNodeId: typeof parsed.activeNodeId === "string" ? parsed.activeNodeId : null,
+            collapsedFolderIds: this.normalizeCollapsedFolders(parsed.collapsedFolderIds, mergedNodes),
+            activeNodeId: this.normalizeActiveNode(parsed.activeNodeId, mergedNodes),
           };
         }
       }
@@ -273,7 +273,9 @@ class WorkspaceStore {
       version: 2,
       nodes: {
         ...defaultBuiltins,
-        ...legacyNodes,
+        ...Object.fromEntries(
+          Object.entries(legacyNodes).filter(([id]) => !defaultBuiltins[id]),
+        ),
       },
       collapsedFolderIds: [],
       activeNodeId: null,
@@ -288,17 +290,75 @@ class WorkspaceStore {
     }
   }
 
+  private normalizeUserNode(id: string, rawNode: unknown, now: string): WorkspaceNode | null {
+    if (!isRecord(rawNode)) return null;
+    const title = typeof rawNode.title === "string" ? rawNode.title.trim() : "";
+    const type = rawNode.type === "folder" || rawNode.type === "lesson" ? rawNode.type : null;
+    if (!title || !type) return null;
+    const parentId = rawNode.parentId === null || typeof rawNode.parentId === "string"
+      ? rawNode.parentId
+      : null;
+    return {
+      id,
+      title,
+      type,
+      parentId,
+      isBuiltin: false,
+      category: typeof rawNode.category === "string" ? rawNode.category : undefined,
+      description: typeof rawNode.description === "string" ? rawNode.description : undefined,
+      createdAt: typeof rawNode.createdAt === "string" ? rawNode.createdAt : now,
+      updatedAt: typeof rawNode.updatedAt === "string" ? rawNode.updatedAt : now,
+      order: typeof rawNode.order === "number" && Number.isFinite(rawNode.order) ? rawNode.order : Date.now(),
+    };
+  }
+
+  private repairParentLinks(nodes: Record<string, WorkspaceNode>): void {
+    Object.values(nodes).forEach((node) => {
+      if (node.isBuiltin || node.parentId === null) return;
+      const visited = new Set<string>();
+      let parentId: string | null = node.parentId;
+      while (parentId) {
+        if (visited.has(parentId)) {
+          node.parentId = null;
+          return;
+        }
+        visited.add(parentId);
+        const parent: WorkspaceNode | undefined = nodes[parentId];
+        if (!parent || parent.type !== "folder" || parent.isBuiltin) {
+          node.parentId = null;
+          return;
+        }
+        parentId = parent.parentId;
+      }
+    });
+  }
+
+  private normalizeCollapsedFolders(raw: unknown, nodes: Record<string, WorkspaceNode>): string[] {
+    if (!Array.isArray(raw)) return [];
+    return [...new Set(raw.filter((id): id is string => typeof id === "string" && nodes[id]?.type === "folder"))];
+  }
+
+  private normalizeActiveNode(raw: unknown, nodes: Record<string, WorkspaceNode>): string | null {
+    return typeof raw === "string" && nodes[raw]?.type === "lesson" ? raw : null;
+  }
+
+  private isValidUserFolder(folderId: string | null): boolean {
+    if (folderId === null) return true;
+    const folder = this.state.nodes[folderId];
+    return Boolean(folder && folder.type === "folder" && !folder.isBuiltin);
+  }
+
   // --- CRUD Operations ---
 
-  public createFolder(title: string, icon = "📁", parentId: string | null = null): string {
-    const id = "folder_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now();
+  public createFolder(title: string, parentId: string | null = null): string | null {
+    if (!this.isValidUserFolder(parentId)) return null;
+    const id = createNodeId("folder");
     const now = new Date().toISOString();
     this.state.nodes[id] = {
       id,
       title: title.trim() || (this.currentLang === "zh" ? "新建文件夹" : "New Folder"),
       type: "folder",
       parentId,
-      icon,
       isBuiltin: false,
       createdAt: now,
       updatedAt: now,
@@ -330,7 +390,7 @@ class WorkspaceStore {
     // Check if targetFolder is valid
     if (targetFolderId !== null) {
       const targetFolder = this.state.nodes[targetFolderId];
-      if (!targetFolder || targetFolder.type !== "folder") return false;
+      if (!targetFolder || targetFolder.type !== "folder" || targetFolder.isBuiltin) return false;
 
       // Prevent moving a folder into itself or its own descendants (Cycle detection)
       if (node.type === "folder") {
@@ -376,7 +436,8 @@ class WorkspaceStore {
     return true;
   }
 
-  public toggleFolderCollapse(folderId: string): void {
+  public toggleFolderCollapse(folderId: string): boolean {
+    if (this.state.nodes[folderId]?.type !== "folder") return false;
     const isCollapsed = this.state.collapsedFolderIds.includes(folderId);
     if (isCollapsed) {
       this.state.collapsedFolderIds = this.state.collapsedFolderIds.filter((id) => id !== folderId);
@@ -384,9 +445,11 @@ class WorkspaceStore {
       this.state.collapsedFolderIds.push(folderId);
     }
     this.notify();
+    return true;
   }
 
-  public setActiveNode(nodeId: string | null): void {
+  public setActiveNode(nodeId: string | null): boolean {
+    if (nodeId !== null && this.state.nodes[nodeId]?.type !== "lesson") return false;
     this.state.activeNodeId = nodeId;
     // Automatically expand ancestor folders of the active node
     if (nodeId && this.state.nodes[nodeId]) {
@@ -397,26 +460,35 @@ class WorkspaceStore {
       }
     }
     this.notify();
+    return true;
   }
 
-  public recordNewGeneration(projectId: string, title: string, parentFolderId: string | null = null): void {
+  public recordNewGeneration(
+    projectId: string,
+    title: string,
+    parentFolderId?: string | null,
+  ): boolean {
+    const existing = this.state.nodes[projectId];
+    if (existing?.isBuiltin || existing?.type === "folder") return false;
+    const nextParentId = parentFolderId === undefined ? existing?.parentId ?? null : parentFolderId;
+    if (!projectId || !this.isValidUserFolder(nextParentId)) return false;
     const now = new Date().toISOString();
     this.state.nodes[projectId] = {
       id: projectId,
       title: title.trim() || (this.currentLang === "zh" ? "AI 生成课程" : "Generated Course"),
       type: "lesson",
-      parentId: parentFolderId,
-      icon: "✨",
+      parentId: nextParentId,
       isBuiltin: false,
-      createdAt: now,
+      createdAt: existing?.createdAt ?? now,
       updatedAt: now,
-      order: Date.now(),
+      order: existing?.order ?? Date.now(),
     };
     this.state.activeNodeId = projectId;
-    if (parentFolderId) {
-      this.state.collapsedFolderIds = this.state.collapsedFolderIds.filter((id) => id !== parentFolderId);
+    if (nextParentId) {
+      this.state.collapsedFolderIds = this.state.collapsedFolderIds.filter((id) => id !== nextParentId);
     }
     this.notify();
+    return true;
   }
 
   // --- Tree Queries ---
@@ -450,7 +522,6 @@ class WorkspaceStore {
         options.push({
           id: folder.id,
           title: folder.title,
-          icon: folder.icon || "📁",
           depth,
         });
         traverse(folder.id, depth + 1);
