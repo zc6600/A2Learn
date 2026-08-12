@@ -1,10 +1,10 @@
-import { LOCAL_EXAMPLES, type Lang } from "./generation-profile";
+export type Lang = "zh" | "en";
 import type {
   NodeType,
   WorkspaceFolderOption,
   WorkspaceNode,
   WorkspaceTreeState,
-} from "./workspace-tree-types";
+} from "./workspace-tree-types.ts";
 
 const STORAGE_KEY = "a2learn.workspace.tree.v2";
 const LEGACY_STORAGE_KEY = "a2learn.recent-projects.v1";
@@ -372,7 +372,6 @@ class WorkspaceStore {
   }
 
   public setActiveNode(nodeId: string | null): void {
-    if (this.state.activeNodeId === nodeId) return;
     this.state.activeNodeId = nodeId;
     // Automatically expand ancestor folders of the active node
     if (nodeId && this.state.nodes[nodeId]) {
