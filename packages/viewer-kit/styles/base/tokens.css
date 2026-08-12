@@ -2,9 +2,9 @@
 :root {
   color-scheme: light;
   --a2ui-color-on-primary: #ffffff;
-  --a2ui-color-success: var(--a2-color-green-700);
-  --a2ui-color-warning: var(--a2-color-amber-700);
-  --a2ui-color-error: var(--a2-color-red-700);
+  --a2ui-color-success: var(--a2-color-green-600);
+  --a2ui-color-warning: var(--a2-color-amber-600);
+  --a2ui-color-error: var(--a2-color-red-600);
   --a2ui-color-code-surface: var(--a2-color-slate-900);
   --a2ui-color-code-text: var(--a2-color-slate-200);
   --a2learn-overlay-surface: color-mix(in srgb, var(--a2-color-slate-900) 92%, transparent);

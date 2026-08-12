@@ -8,6 +8,8 @@ html[data-a2learn-theme="ppt-stage"] {
   --a2ui-color-on-primary: #0d1422;
   --a2ui-color-secondary: #89a9dc;
   --a2ui-color-warning: #fbbf24;
+  --a2ui-color-success: #34d399;
+  --a2ui-color-error: #f87171;
   --a2ui-color-surface: #17243a;
   --a2ui-color-surface-subtle: #223553;
   --a2ui-color-on-surface: #f8fafc;

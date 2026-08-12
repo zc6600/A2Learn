@@ -3,6 +3,9 @@ html[data-a2learn-theme="editorial"] {
   --a2ui-color-primary: #263f66;
   --a2ui-color-on-primary: #ffffff;
   --a2ui-color-secondary: #8a5a44;
+  --a2ui-color-warning: #b8621b;
+  --a2ui-color-success: #2e7d32;
+  --a2ui-color-error: #c62828;
   --a2ui-color-surface: #fffdf8;
   --a2ui-color-surface-subtle: #f7f3eb;
   --a2ui-color-on-surface: #1d2430;

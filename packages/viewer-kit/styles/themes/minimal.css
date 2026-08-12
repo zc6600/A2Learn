@@ -3,6 +3,9 @@ html[data-a2learn-theme="minimal"] {
   --a2ui-color-primary: #1f2937;
   --a2ui-color-on-primary: #ffffff;
   --a2ui-color-secondary: #4b5563;
+  --a2ui-color-warning: #d97706;
+  --a2ui-color-success: #16a34a;
+  --a2ui-color-error: #dc2626;
   --a2ui-color-surface: #ffffff;
   --a2ui-color-surface-subtle: #f9fafb;
   --a2ui-color-on-surface: #111827;

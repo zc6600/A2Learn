@@ -1,7 +1,11 @@
 /* Raw palette values. Components must consume semantic or component tokens. */
 :root {
+  --a2-color-green-600: #16a34a;
   --a2-color-green-700: #15803d;
+  --a2-color-amber-500: #f59e0b;
+  --a2-color-amber-600: #d97706;
   --a2-color-amber-700: #b45309;
+  --a2-color-red-600: #dc2626;
   --a2-color-red-700: #b91c1c;
   --a2-color-slate-900: #0f172a;
   --a2-color-slate-200: #e2e8f0;

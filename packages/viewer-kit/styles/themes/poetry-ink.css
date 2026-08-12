@@ -3,6 +3,9 @@ html[data-a2learn-theme="poetry-ink"] {
   --a2ui-color-primary: #7a3e1d;
   --a2ui-color-on-primary: #fbf5e8;
   --a2ui-color-secondary: #536b4e;
+  --a2ui-color-warning: #9a5420;
+  --a2ui-color-success: #42633e;
+  --a2ui-color-error: #a63a3a;
   --a2ui-color-surface: #fbf5e8;
   --a2ui-color-surface-subtle: #f3ead8;
   --a2ui-color-on-surface: #2f2923;

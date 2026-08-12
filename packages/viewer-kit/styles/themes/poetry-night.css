@@ -8,6 +8,8 @@ html[data-a2learn-theme="poetry-night"] {
   --a2ui-color-on-primary: #17191d;
   --a2ui-color-secondary: #829a76;
   --a2ui-color-warning: #f59e0b;
+  --a2ui-color-success: #4ade80;
+  --a2ui-color-error: #f87171;
   --a2ui-color-surface: #22252a;
   --a2ui-color-surface-subtle: #2b2e33;
   --a2ui-color-on-surface: #f4eddf;
