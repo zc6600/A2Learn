@@ -1,3 +1,6 @@
+import type { Lang } from "./generation-profile";
+import { T } from "./viewer-copy";
+
 export type NarrationPayload = {
   script?: string;
   audioUrl: string;
@@ -11,7 +14,11 @@ export class NarrationController {
   private activeUrl: string | null = null;
   private activeScript: string | null = null;
 
-  constructor(private readonly isEnglish: () => boolean) {}
+  constructor(private readonly getLanguage: () => Lang) {}
+
+  private get t() {
+    return T[this.getLanguage()];
+  }
 
   stop(): void {
     if (this.activeAudio) {
@@ -74,7 +81,7 @@ export class NarrationController {
     narrationButton.disabled = true;
     const idleLabel = "🔊";
     narrationButton.textContent = "⏳";
-    narrationButton.title = this.isEnglish() ? "Generating narration…" : "正在生成讲稿和音频…";
+    narrationButton.title = this.t.generatingNarration;
 
     try {
       const payload = await fetchNarrationIfNeeded();
@@ -132,23 +139,20 @@ export class NarrationController {
 
   private setPauseState(button: HTMLButtonElement, playing: boolean): void {
     button.textContent = playing ? "⏸" : "▶";
-    button.title = this.isEnglish()
-      ? (playing ? "Pause narration" : "Resume narration")
-      : (playing ? "暂停讲稿音频" : "继续播放讲稿");
+    button.title = playing ? this.t.pauseNarration : this.t.resumeNarration;
   }
 
   private resetButton(button?: HTMLButtonElement, idleLabel = "🔊"): void {
     const target = button || document.getElementById("page-narration-button") as HTMLButtonElement | null;
     if (!target) return;
     target.textContent = idleLabel;
-    target.title = this.isEnglish() ? "Play narration" : "播放讲稿";
+    target.title = this.t.playNarration;
   }
 
   private showPlaybackError(error: unknown, narrationGeneration = false): void {
     const message = String(error);
-    alert(this.isEnglish()
-      ? `${narrationGeneration ? "Narration" : "Audio playback"} failed: ${message}`
-      : `${narrationGeneration ? "讲稿生成" : "音频播放"}失败：${message}`);
+    const prefix = narrationGeneration ? this.t.narrationFailedPrefix : this.t.playbackFailedPrefix;
+    alert(`${prefix}${message}`);
   }
 
   private renderScriptOverlay(scriptText: string): void {
@@ -164,11 +168,11 @@ export class NarrationController {
     header.className = "a2learn-narration-overlay-head";
     const title = document.createElement("strong");
     title.className = "a2learn-narration-overlay-title";
-    title.textContent = this.isEnglish() ? "🎙 Presenter Script" : "🎙 AI 讲稿文稿";
+    title.textContent = this.t.presenterScriptTitle;
     const closeButton = document.createElement("button");
     closeButton.type = "button";
     closeButton.textContent = "✕";
-    closeButton.setAttribute("aria-label", this.isEnglish() ? "Close script" : "关闭讲稿");
+    closeButton.setAttribute("aria-label", this.t.closeScript);
     closeButton.className = "a2learn-narration-overlay-close";
     closeButton.addEventListener("click", () => {
       card!.style.display = "none";

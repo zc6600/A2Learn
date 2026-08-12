@@ -1,4 +1,5 @@
-type Language = "zh" | "en";
+import type { Lang } from "./generation-profile";
+import { SOURCE_LIBRARY_COPY } from "./viewer-copy";
 
 type KnowledgeSource = {
   sourceId: string;
@@ -15,7 +16,7 @@ type KnowledgeSource = {
 type SourceLibraryOptions = {
   getApiBaseUrl: () => string;
   getApiKey: () => string;
-  getLanguage: () => Language;
+  getLanguage: () => Lang;
   onGenerate: (sourceIds: string[], resourceQuery: string) => void;
 };
 
@@ -24,58 +25,11 @@ export type SourceLibraryController = {
   onLanguageChanged: () => void;
 };
 
-const COPY = {
-  zh: {
-    title: "资料库",
-    close: "关闭",
-    upload: "上传资料",
-    refresh: "刷新",
-    empty: "还没有资料。上传书籍、讲义或笔记开始学习。",
-    goal: "学习目标（可选，例如：用初学者能理解的方式讲解第 3 章）",
-    generate: "用所选资料生成课程",
-    selectReady: "请选择至少一份已解析资料。",
-    uploading: "正在上传并解析…",
-    loading: "正在加载资料…",
-    ready: "可用于生成",
-    needsOcr: "等待 OCR",
-    needsParser: "等待解析器",
-    failed: "解析失败",
-    selected: "已选 {count} 份资料",
-    noBackend: "未配置资料库 API 服务。",
-    noApiKey: "请先在 API Key 设置中配置密钥，再生成课程。",
-    uploadFailed: "上传失败",
-    loadFailed: "无法加载资料库",
-    unsupportedHint: "支持 PDF、EPUB、DOCX、Markdown、文本、网页、表格和图片；扫描件会进入 OCR 队列。",
-  },
-  en: {
-    title: "Source library",
-    close: "Close",
-    upload: "Upload source",
-    refresh: "Refresh",
-    empty: "No sources yet. Upload a book, handout, or notes to begin.",
-    goal: "Learning goal (optional, e.g. explain chapter 3 for beginners)",
-    generate: "Generate from selected sources",
-    selectReady: "Select at least one parsed source.",
-    uploading: "Uploading and extracting…",
-    loading: "Loading sources…",
-    ready: "Ready for generation",
-    needsOcr: "Waiting for OCR",
-    needsParser: "Waiting for parser",
-    failed: "Extraction failed",
-    selected: "{count} source(s) selected",
-    noBackend: "The source-library API is not configured.",
-    noApiKey: "Configure an API key in Settings before generating a course.",
-    uploadFailed: "Upload failed",
-    loadFailed: "Could not load the source library",
-    unsupportedHint: "PDF, EPUB, DOCX, Markdown, text, web, tabular, and image files are supported; scans enter the OCR queue.",
-  },
-} as const;
-
 function getText(options: SourceLibraryOptions) {
-  return COPY[options.getLanguage()];
+  return SOURCE_LIBRARY_COPY[options.getLanguage()];
 }
 
-function formatBytes(bytes: number, language: Language): string {
+function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -207,7 +161,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
       name.textContent = source.title;
       const meta = document.createElement("div");
       meta.className = "a2learn-library-source-meta";
-      const facts = [formatBytes(source.sizeBytes, options.getLanguage()), source.filename];
+      const facts = [formatBytes(source.sizeBytes), source.filename];
       if (source.pageCount) facts.push(`${source.pageCount} p`);
       if (source.chunkCount) facts.push(`${source.chunkCount} chunks`);
       const sourceFacts = document.createElement("span");

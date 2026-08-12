@@ -63,7 +63,7 @@ let activeRuntime: {
   modeHint?: string;
 } | null = null;
 
-const narrationController = new NarrationController(() => getLang() === "en");
+const narrationController = new NarrationController(getLang);
 
 
 

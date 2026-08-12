@@ -19,6 +19,13 @@ export type ViewerCopy = {
   editingApiNotConfigured: string;
   openPageFailedPrefix: string;
   invalidPageData: string;
+  generatingNarration: string;
+  pauseNarration: string;
+  resumeNarration: string;
+  narrationFailedPrefix: string;
+  playbackFailedPrefix: string;
+  presenterScriptTitle: string;
+  closeScript: string;
 };
 
 export const T: Record<Lang, ViewerCopy> = {
@@ -41,6 +48,13 @@ export const T: Record<Lang, ViewerCopy> = {
     editingApiNotConfigured: "未配置编辑 API 服务。",
     openPageFailedPrefix: "打开页面失败",
     invalidPageData: "页面数据无效",
+    generatingNarration: "正在生成讲稿和音频…",
+    pauseNarration: "暂停讲稿音频",
+    resumeNarration: "继续播放讲稿",
+    narrationFailedPrefix: "讲稿生成失败：",
+    playbackFailedPrefix: "音频播放失败：",
+    presenterScriptTitle: "🎙 AI 讲稿文稿",
+    closeScript: "关闭讲稿",
   },
   en: {
     subtitle: "An AI-driven dynamic teaching showcase engine · auto-plans a curriculum outline and generates the A2UI interface live",
@@ -62,6 +76,13 @@ export const T: Record<Lang, ViewerCopy> = {
     editingApiNotConfigured: "The editing API is not configured.",
     openPageFailedPrefix: "Could not open the page",
     invalidPageData: "Invalid page data",
+    generatingNarration: "Generating narration…",
+    pauseNarration: "Pause narration",
+    resumeNarration: "Resume narration",
+    narrationFailedPrefix: "Narration failed: ",
+    playbackFailedPrefix: "Audio playback failed: ",
+    presenterScriptTitle: "🎙 Presenter Script",
+    closeScript: "Close script",
   },
 };
 
@@ -109,3 +130,74 @@ export const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
     modalSaveLabel: "Save",
   },
 };
+
+export type SourceLibraryCopy = {
+  title: string;
+  close: string;
+  upload: string;
+  refresh: string;
+  empty: string;
+  goal: string;
+  generate: string;
+  selectReady: string;
+  uploading: string;
+  loading: string;
+  ready: string;
+  needsOcr: string;
+  needsParser: string;
+  failed: string;
+  selected: string;
+  noBackend: string;
+  noApiKey: string;
+  uploadFailed: string;
+  loadFailed: string;
+  unsupportedHint: string;
+};
+
+export const SOURCE_LIBRARY_COPY: Record<Lang, SourceLibraryCopy> = {
+  zh: {
+    title: "资料库",
+    close: "关闭",
+    upload: "上传资料",
+    refresh: "刷新",
+    empty: "还没有资料。上传书籍、讲义或笔记开始学习。",
+    goal: "学习目标（可选，例如：用初学者能理解的方式讲解第 3 章）",
+    generate: "用所选资料生成课程",
+    selectReady: "请选择至少一份已解析资料。",
+    uploading: "正在上传并解析…",
+    loading: "正在加载资料…",
+    ready: "可用于生成",
+    needsOcr: "等待 OCR",
+    needsParser: "等待解析器",
+    failed: "解析失败",
+    selected: "已选 {count} 份资料",
+    noBackend: "未配置资料库 API 服务。",
+    noApiKey: "请先在 API Key 设置中配置密钥，再生成课程。",
+    uploadFailed: "上传失败",
+    loadFailed: "无法加载资料库",
+    unsupportedHint: "支持 PDF、EPUB、DOCX、Markdown、文本、网页、表格和图片；扫描件会进入 OCR 队列。",
+  },
+  en: {
+    title: "Source library",
+    close: "Close",
+    upload: "Upload source",
+    refresh: "Refresh",
+    empty: "No sources yet. Upload a book, handout, or notes to begin.",
+    goal: "Learning goal (optional, e.g. explain chapter 3 for beginners)",
+    generate: "Generate from selected sources",
+    selectReady: "Select at least one parsed source.",
+    uploading: "Uploading and extracting…",
+    loading: "Loading sources…",
+    ready: "Ready for generation",
+    needsOcr: "Waiting for OCR",
+    needsParser: "Waiting for parser",
+    failed: "Extraction failed",
+    selected: "{count} source(s) selected",
+    noBackend: "The source-library API is not configured.",
+    noApiKey: "Configure an API key in Settings before generating a course.",
+    uploadFailed: "Upload failed",
+    loadFailed: "Could not load the source library",
+    unsupportedHint: "PDF, EPUB, DOCX, Markdown, text, web, tabular, and image files are supported; scans enter the OCR queue.",
+  },
+};
+
