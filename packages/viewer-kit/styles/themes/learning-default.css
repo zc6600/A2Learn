@@ -1,4 +1,5 @@
 /* learning-default: clean black-and-white default theme, inspired by ChatGPT's minimal aesthetic. */
+/* :root ensures these tokens are available immediately before bootstrapViewer sets data-a2learn-theme. */
 html[data-a2learn-theme="learning-default"],
 :root {
   color-scheme: light;
