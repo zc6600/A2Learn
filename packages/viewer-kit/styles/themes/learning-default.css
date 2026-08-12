@@ -1,16 +1,18 @@
-/* learning-default: visual tokens only; structure belongs in base/components. */
+/* learning-default: clean black-and-white default theme, inspired by ChatGPT's minimal aesthetic. */
 html[data-a2learn-theme="learning-default"],
 :root {
-  color-scheme: light !important;
+  color-scheme: light;
   --app-bg: #ffffff;
-  --app-text: #111827;
-  --app-muted: #6b7280;
-  --app-outline: #e5e7eb;
-  --a2learn-page-background: #ffffff;
-  --a2learn-shell-radius: 20px;
-  --a2learn-control-radius: 12px;
+  --app-text: #0d0d0d;
+  --app-muted: #6b6b6b;
+  --app-outline: #e5e5e5;
+  --a2learn-page-background: #f9f9f9;
+  --a2learn-shell-radius: 16px;
+  --a2learn-control-radius: 10px;
   --a2learn-pill-radius: 999px;
-  --a2learn-panel-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+  --a2learn-panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+
+  /* Typography */
   --a2ui-font-family-title: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   --a2ui-font-size-xs: 12px;
   --a2ui-font-size-s: 14px;
@@ -28,24 +30,30 @@ html[data-a2learn-theme="learning-default"],
   --a2ui-border-radius: 16px;
   --a2ui-border-width: 1px;
 
-  /* Portfolio Design Tokens (Teal Accent Matrix - Light Mode Baseline) */
-  --a2ui-color-primary: #0d9488; /* Teal-600 */
+  /* Color scale — near-black primary, no chromatic accent */
+  --a2ui-color-primary: #171717;
   --a2ui-color-on-primary: #ffffff;
-  --a2ui-color-secondary: #0f766e; /* Teal-700 High-Contrast Secondary */
-  --a2ui-color-warning: #d97706; /* Amber-600 - Clean Golden Amber (No Muddy Brown) */
-  --a2ui-color-success: #16a34a; /* Green-600 */
-  --a2ui-color-error: #dc2626; /* Red-600 */
+  --a2ui-color-secondary: #404040;
+  --a2ui-color-warning: #d97706;
+  --a2ui-color-success: #16a34a;
+  --a2ui-color-error: #dc2626;
+
+  /* Surfaces */
   --a2ui-color-surface: #ffffff;
-  --a2ui-color-surface-subtle: #f9fafb; /* Gray-50 Neutral Surface */
-  --a2ui-color-on-surface: #111827;
-  --a2ui-color-on-background: #374151;
-  --a2ui-color-border: #e5e7eb; /* Gray-200 */
+  --a2ui-color-surface-subtle: #f5f5f5;
+  --a2ui-color-on-surface: #0d0d0d;
+  --a2ui-color-on-background: #262626;
+  --a2ui-color-border: #e5e5e5;
+
+  /* Cards */
   --a2ui-card-border: 1px solid var(--a2ui-color-border);
-  --a2ui-card-border-radius: 16px;
+  --a2ui-card-border-radius: 14px;
   --a2ui-card-padding: 20px 24px;
-  --a2ui-card-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --a2ui-card-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   --a2ui-card-margin: 0;
   --a2ui-column-gap: 16px;
-  --a2ui-text-a-color: #0d9488;
+
+  /* Links — subtle underline, no chromatic color */
+  --a2ui-text-a-color: #171717;
   --a2ui-text-a-font-weight: 600;
 }

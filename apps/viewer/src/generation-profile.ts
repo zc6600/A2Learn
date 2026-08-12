@@ -97,8 +97,13 @@ export const LOCAL_EXAMPLES: LocalExample[] = [
 export const RENDER_THEMES: RenderTheme[] = [
   {
     id: "learning-default",
-    label: { zh: "通用教学", en: "Learning Default" },
-    description: { zh: "清爽、通用的课程界面", en: "Clean, general-purpose course UI" },
+    label: { zh: "默认（黑白简洁）", en: "Default (Clean Mono)" },
+    description: { zh: "高对比度黑白配色，类 ChatGPT 的克制风格", en: "High-contrast black & white, restrained ChatGPT-style" },
+  },
+  {
+    id: "teal-accent",
+    label: { zh: "翠绿教学", en: "Teal Learning" },
+    description: { zh: "清爽青绿强调色的通用课程界面", en: "Clean teal-accented general-purpose course UI" },
   },
   {
     id: "poetry-ink",
@@ -112,8 +117,8 @@ export const RENDER_THEMES: RenderTheme[] = [
   },
   {
     id: "editorial",
-    label: { zh: "文学杂志", en: "Editorial" },
-    description: { zh: "克制的杂志排版，适合长篇赏析", en: "Restrained editorial style for long-form analysis" },
+    label: { zh: "黑白学术", en: "Editorial" },
+    description: { zh: "克制的黑白配色，适合论文与长篇赏析", en: "Restrained monochrome style for papers and long-form analysis" },
   },
   {
     id: "minimal",

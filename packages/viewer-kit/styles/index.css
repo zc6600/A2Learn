@@ -5,6 +5,7 @@
 @import "./components/app-shell.css" layer(components);
 @import "./components/gallery.css" layer(components);
 @import "./themes/learning-default.css" layer(themes);
+@import "./themes/teal-accent.css" layer(themes);
 @import "./themes/poetry-ink.css" layer(themes);
 @import "./themes/poetry-night.css" layer(themes);
 @import "./themes/editorial.css" layer(themes);
