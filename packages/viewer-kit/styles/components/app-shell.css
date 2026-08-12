@@ -20,10 +20,342 @@
     }
     #app {
       box-sizing: border-box;
-      max-width: 1200px;
+      max-width: 1440px;
       min-height: 100vh;
       margin: 0 auto;
       padding: 24px 20px;
+    }
+
+    /* Two-Column App Layout */
+    .app-layout {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      position: relative;
+      width: 100%;
+    }
+    .workspace-sidebar-slot {
+      width: 280px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 24px;
+      max-height: calc(100vh - 48px);
+      transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, margin 0.28s ease;
+      z-index: 10;
+    }
+    .app-main-viewport {
+      flex: 1;
+      min-width: 0;
+    }
+    .app-layout.sidebar-collapsed .workspace-sidebar-slot {
+      width: 0;
+      opacity: 0;
+      pointer-events: none;
+      margin-right: -24px;
+      transform: translateX(-24px);
+      overflow: hidden;
+    }
+
+    /* Notion-like Workspace Sidebar */
+    .workspace-sidebar {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-height: calc(100vh - 48px);
+      background: color-mix(in oklab, var(--a2ui-color-surface) 88%, transparent);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: var(--a2learn-shell-radius);
+      box-shadow: var(--a2learn-panel-shadow);
+      padding: 16px 14px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--a2ui-color-border);
+      margin-bottom: 12px;
+    }
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--app-text);
+      user-select: none;
+    }
+    .sidebar-brand-icon {
+      font-size: 16px;
+    }
+    .sidebar-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .sidebar-icon-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--app-muted);
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sidebar-icon-btn:hover {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 10%, var(--a2ui-color-surface));
+      color: var(--a2ui-color-primary);
+      border-color: color-mix(in srgb, var(--a2ui-color-primary) 20%, transparent);
+    }
+    .sidebar-search-box {
+      margin-bottom: 12px;
+    }
+    .sidebar-search-input {
+      width: 100%;
+      box-sizing: border-box;
+      background: color-mix(in srgb, var(--a2ui-color-surface-subtle, var(--a2ui-color-surface)) 90%, transparent);
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12.5px;
+      color: var(--app-text);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .sidebar-search-input:focus {
+      border-color: var(--a2ui-color-primary);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--a2ui-color-primary) 15%, transparent);
+    }
+    .sidebar-content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-right: 2px;
+    }
+    .sidebar-content-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar-content-scroll::-webkit-scrollbar-thumb {
+      background: var(--a2ui-color-border);
+      border-radius: 4px;
+    }
+    .workspace-section-header {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--app-muted);
+      margin-bottom: 6px;
+      padding: 0 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+    .section-action-btn {
+      background: transparent;
+      border: none;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--a2ui-color-primary);
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: background 0.15s ease;
+    }
+    .section-action-btn:hover {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 10%, transparent);
+    }
+    .workspace-tree-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .workspace-tree-node-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+    .workspace-tree-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      box-sizing: border-box;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--app-text);
+      transition: all 0.15s ease;
+      position: relative;
+      user-select: none;
+      padding-right: 6px;
+    }
+    .workspace-tree-item:hover {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 6%, var(--a2ui-color-surface-subtle, var(--a2ui-color-surface)));
+    }
+    .workspace-tree-item.active {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 12%, var(--a2ui-color-surface));
+      color: var(--a2ui-color-primary);
+      font-weight: 600;
+    }
+    .tree-chevron {
+      background: transparent;
+      border: none;
+      font-size: 9px;
+      width: 14px;
+      height: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--app-muted);
+      cursor: pointer;
+      padding: 0;
+      border-radius: 3px;
+      transition: transform 0.15s ease, color 0.15s ease;
+    }
+    .tree-chevron:hover {
+      color: var(--app-text);
+    }
+    .tree-leaf-bullet {
+      width: 14px;
+      height: 14px;
+      display: inline-flex;
+    }
+    .tree-icon {
+      font-size: 14px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+    }
+    .tree-title {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12.5px;
+    }
+    .tree-action-btn {
+      opacity: 0;
+      background: transparent;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--app-muted);
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+    }
+    .workspace-tree-item:hover .tree-action-btn {
+      opacity: 1;
+    }
+    .tree-action-btn:hover {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 15%, var(--a2ui-color-surface));
+      color: var(--a2ui-color-primary);
+    }
+    .tree-children-empty {
+      font-size: 11.5px;
+      color: var(--app-muted);
+      padding: 4px 0 6px;
+      font-style: italic;
+    }
+    .workspace-empty-hint {
+      font-size: 12px;
+      color: var(--app-muted);
+      padding: 8px 6px;
+      line-height: 1.5;
+    }
+
+    /* Floating Action Popover Modal */
+    .sidebar-action-modal {
+      position: fixed;
+      z-index: 1000;
+      background: var(--a2ui-color-surface);
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+      padding: 4px;
+      min-width: 140px;
+    }
+    .action-menu-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .action-menu-item {
+      background: transparent;
+      border: none;
+      text-align: left;
+      font-size: 12.5px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: var(--app-text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease;
+    }
+    .action-menu-item:hover {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 10%, var(--a2ui-color-surface));
+    }
+    .action-menu-item.danger {
+      color: var(--a2ui-color-error, #dc2626);
+    }
+    .action-menu-item.danger:hover {
+      background: color-mix(in srgb, var(--a2ui-color-error, #dc2626) 10%, var(--a2ui-color-surface));
+    }
+
+    /* Small Modal Dialogs */
+    .small-modal {
+      max-width: 380px;
+    }
+    .sidebar-select-input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--a2ui-color-border);
+      background: var(--a2ui-color-surface);
+      color: var(--app-text);
+      font-size: 13px;
+      outline: none;
+    }
+    .sidebar-select-input:focus {
+      border-color: var(--a2ui-color-primary);
+    }
+
+    /* Sidebar Toggle Button in Brand Header */
+    .sidebar-toggle-btn {
+      background: transparent;
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: 8px;
+      color: var(--app-text);
+      font-size: 14px;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-right: 8px;
+      transition: all 0.2s ease;
+    }
+    .sidebar-toggle-btn:hover {
+      border-color: var(--a2ui-color-primary);
+      color: var(--a2ui-color-primary);
+      background: color-mix(in srgb, var(--a2ui-color-primary) 8%, transparent);
     }
 
     /* Glassmorphic Navigation Header */
@@ -49,7 +381,7 @@
     }
     .app-brand {
       display: flex;
-      flex-direction: column;
+      align-items: center;
       gap: 4px;
     }
     .app-title {
@@ -844,6 +1176,20 @@
         background: rgba(129, 140, 248, 0.15);
         color: #a5b4fc;
         border-color: rgba(129, 140, 248, 0.22);
+      }
+    }
+    @media (max-width: 960px) {
+      .app-layout {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .workspace-sidebar-slot {
+        width: 100%;
+        position: static;
+        max-height: 400px;
+      }
+      .app-layout.sidebar-collapsed .workspace-sidebar-slot {
+        display: none;
       }
     }
     @media (max-width: 768px) {

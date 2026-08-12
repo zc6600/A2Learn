@@ -16,6 +16,8 @@ import { mountFloatingAgent } from "./floating-agent";
 import { mountInlineComponentEditor } from "./inline-component-editor";
 import { mountSourceLibrary } from "./source-library";
 import { getExampleItems, renderCollapsibleExampleGallery } from "./example-gallery";
+import { workspaceStore } from "./workspace-store";
+import { renderWorkspaceSidebar } from "./workspace-sidebar-ui";
 import { createEmbedMessageHandler, postToParent, setupAutoResize } from "./embed-bridge";
 import { openProject as openProjectRuntime } from "./project-runtime";
 import { renderSurfaces } from "./surface-renderer";
@@ -457,30 +459,27 @@ async function bootstrapViewer() {
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
   };
 
-  const openProject = (project: RecentProject, expectedVersion?: number) => openProjectRuntime({
-    project,
-    expectedVersion,
-    getLoadVersion: () => loadVersion,
-    nextLoadVersion: () => ++loadVersion,
-    getContainer: () => container,
-    getApiBaseUrl: editorApiBaseUrl,
-    setRuntime: (runtime) => { activeRuntime = runtime; },
-    setContent: (content) => { activeDoc = content; },
-    updateProjectUrl,
-    extractFirstSurfaceId: extractFirstCreatedSurfaceId,
-    narrationController,
-  });
+  const openProject = (project: RecentProject, expectedVersion?: number) => {
+    workspaceStore.setActiveNode(project.id);
+    return openProjectRuntime({
+      project,
+      expectedVersion,
+      getLoadVersion: () => loadVersion,
+      nextLoadVersion: () => ++loadVersion,
+      getContainer: () => container,
+      getApiBaseUrl: editorApiBaseUrl,
+      setRuntime: (runtime) => { activeRuntime = runtime; },
+      setContent: (content) => { activeDoc = content; },
+      updateProjectUrl,
+      extractFirstSurfaceId: extractFirstCreatedSurfaceId,
+      narrationController,
+    });
+  };
 
   const renderShell = (lang: Lang) => {
     document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
     const title = initialConfig.embed ? "" : "A2Learn";
     const subtitle = initialConfig.embed ? "" : T[lang].subtitle;
-
-    const deepLinkedExample = LOCAL_EXAMPLES.find((example) => example.id === readCurrentSurfaceHash());
-    const galleryCategory = readGalleryCategory() || deepLinkedExample?.category;
-    const examplesHtml = initialConfig.embed
-      ? ""
-      : renderCollapsibleExampleGallery(lang, galleryCategory);
 
     const chrome: AppChromeStrings = {
       ...CHROME_STRINGS[lang],
@@ -490,12 +489,12 @@ async function bootstrapViewer() {
       root,
       title,
       subtitle,
-      `${examplesHtml}<section id="surface-container" aria-live="polite">
+      `<section id="surface-container" aria-live="polite">
         <p class="viewer-state loading">${T[lang].loadingShowcase}</p>
       </section><button id="page-narration-button" type="button" hidden aria-label="播放讲稿">🔊</button>`,
       initialConfig.embed ? undefined : { lang, chrome },
     );
-  container = document.getElementById("surface-container");
+    container = document.getElementById("surface-container");
     const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
     if (narrationButton) {
       narrationButton.className = "a2learn-narration-button";
@@ -503,6 +502,34 @@ async function bootstrapViewer() {
       narrationButton.addEventListener("click", () => {
         void narrationController.toggle(narrationButton);
       });
+    }
+
+    if (!initialConfig.embed) {
+      const sidebarSlot = document.getElementById("workspace-sidebar-slot");
+      if (sidebarSlot) {
+        workspaceStore.setLang(lang);
+        renderWorkspaceSidebar(sidebarSlot, {
+          getLang,
+          onSelectLesson: async (id: string) => {
+            const builtinItem = getExampleItems(getLang()).find((i) => i.id === id);
+            if (builtinItem) {
+              await selectExample(id);
+            } else {
+              const userNode = workspaceStore.getState().nodes[id];
+              if (userNode) {
+                await openProject({ id: userNode.id, title: userNode.title, openedAt: userNode.updatedAt });
+              }
+            }
+          },
+        });
+      }
+
+      const sidebarToggleBtn = document.getElementById("sidebar-toggle-btn");
+      if (sidebarToggleBtn) {
+        sidebarToggleBtn.addEventListener("click", () => {
+          document.getElementById("app-layout")?.classList.toggle("sidebar-collapsed");
+        });
+      }
     }
   };
 
@@ -536,6 +563,7 @@ async function bootstrapViewer() {
         activeRuntime = { container, processor, modeHint: "Project editor mode." };
         activeDoc = { type: "project", projectId, title };
         rememberProject(projectId, title);
+        workspaceStore.recordNewGeneration(projectId, title);
         updateProjectUrl(projectId);
         const firstSurface = extractFirstCreatedSurfaceId(messages);
         if (firstSurface) window.location.hash = `#/${firstSurface}`;
@@ -607,6 +635,7 @@ async function bootstrapViewer() {
             if (projectId) {
               activeDoc = { type: "project", projectId, title: projectTitle };
               rememberProject(projectId, projectTitle);
+              workspaceStore.recordNewGeneration(projectId, projectTitle);
               updateProjectUrl(projectId);
             }
           }
@@ -629,6 +658,7 @@ async function bootstrapViewer() {
     if (!item) return;
     narrationController.stop();
     activeDoc = { type: "example", exampleId: id, title: item.title };
+    workspaceStore.setActiveNode(id);
     updateProjectUrl(null);
     const staticAudioUrl = staticExampleAudioUrl(id, getLang());
     // Bundled examples with a pre-generated asset must stay fully offline:

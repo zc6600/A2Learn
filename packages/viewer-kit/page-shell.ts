@@ -106,21 +106,27 @@ export function renderAppFrame(
     : "";
 
   root.innerHTML = `
-    <header class="app-header">
-      <div class="app-header-top">
-        <div class="app-brand">
-          <h1 class="app-title">${title.replace(/A2Learn/g, '<span class="brand-teal">A2</span>Learn')}</h1>
-          <p class="app-subtitle">${subtitle}</p>
-        </div>
-        ${headerActionsHtml}
+    <div class="app-layout" id="app-layout">
+      <aside id="workspace-sidebar-slot" class="workspace-sidebar-slot"></aside>
+      <div class="app-main-viewport">
+        <header class="app-header">
+          <div class="app-header-top">
+            <div class="app-brand">
+              <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" title="切换侧边栏" aria-label="切换侧边栏">☰</button>
+              <h1 class="app-title">${title.replace(/A2Learn/g, '<span class="brand-teal">A2</span>Learn')}</h1>
+              <p class="app-subtitle">${subtitle}</p>
+            </div>
+            ${headerActionsHtml}
+          </div>
+
+          ${promptBarHtml}
+        </header>
+
+        ${modalHtml}
+
+        <main class="viewer-main">${contentHtml}</main>
       </div>
-
-      ${promptBarHtml}
-    </header>
-
-    ${modalHtml}
-
-    <main class="viewer-main">${contentHtml}</main>
+    </div>
   `;
 }
 

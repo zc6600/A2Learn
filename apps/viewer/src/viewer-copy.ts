@@ -25,6 +25,23 @@ export type ViewerCopy = {
   playbackFailedPrefix: string;
   presenterScriptTitle: string;
   closeScript: string;
+  workspaceTitle: string;
+  myWorkspace: string;
+  curatedCourses: string;
+  newFolder: string;
+  newFolderPrompt: string;
+  rename: string;
+  renamePrompt: string;
+  moveTo: string;
+  moveToRoot: string;
+  selectTargetFolder: string;
+  deleteItem: string;
+  deleteConfirm: string;
+  collapseSidebar: string;
+  expandSidebar: string;
+  emptyFolder: string;
+  noWorkspaceItems: string;
+  untitledFolder: string;
 };
 
 export const T: Record<Lang, ViewerCopy> = {
@@ -53,6 +70,23 @@ export const T: Record<Lang, ViewerCopy> = {
     playbackFailedPrefix: "音频播放失败：",
     presenterScriptTitle: "🎙 AI 讲稿文稿",
     closeScript: "关闭讲稿",
+    workspaceTitle: "目录导航",
+    myWorkspace: "我的学习工作区",
+    curatedCourses: "官方精选课程",
+    newFolder: "新建文件夹",
+    newFolderPrompt: "请输入文件夹名称：",
+    rename: "重命名",
+    renamePrompt: "请输入新的名称：",
+    moveTo: "移动到...",
+    moveToRoot: "工作区根目录",
+    selectTargetFolder: "选择目标文件夹",
+    deleteItem: "删除",
+    deleteConfirm: "确定要删除此项吗？",
+    collapseSidebar: "收起侧边栏",
+    expandSidebar: "展开侧边栏",
+    emptyFolder: "暂无内容",
+    noWorkspaceItems: "还没有生成课程。在上方输入主题开始学习吧！",
+    untitledFolder: "新建文件夹",
   },
   en: {
     subtitle: "Interactive learning powered by AI · Enter any topic to generate a visual, hands-on lesson",
@@ -80,6 +114,23 @@ export const T: Record<Lang, ViewerCopy> = {
     playbackFailedPrefix: "Audio playback failed: ",
     presenterScriptTitle: "🎙 Presenter Script",
     closeScript: "Close script",
+    workspaceTitle: "Workspace Navigation",
+    myWorkspace: "My Workspace",
+    curatedCourses: "Curated Lessons",
+    newFolder: "New Folder",
+    newFolderPrompt: "Enter folder name:",
+    rename: "Rename",
+    renamePrompt: "Enter new name:",
+    moveTo: "Move to...",
+    moveToRoot: "Workspace Root",
+    selectTargetFolder: "Select target folder",
+    deleteItem: "Delete",
+    deleteConfirm: "Are you sure you want to delete this item?",
+    collapseSidebar: "Collapse sidebar",
+    expandSidebar: "Expand sidebar",
+    emptyFolder: "Empty folder",
+    noWorkspaceItems: "No generated courses yet. Enter a topic above to begin!",
+    untitledFolder: "New Folder",
   },
 };
 
