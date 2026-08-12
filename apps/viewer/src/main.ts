@@ -79,6 +79,19 @@ function setupRoot(): HTMLElement | null {
   return root;
 }
 
+function renderWelcomeState(lang: Lang): string {
+  const copy = T[lang];
+  return `
+    <div class="viewer-welcome-state">
+      <div class="viewer-welcome-copy">
+        <p class="viewer-welcome-eyebrow">${copy.welcomeEyebrow}</p>
+        <h2 class="viewer-welcome-title">${copy.welcomeTitle}</h2>
+        <p class="viewer-welcome-description">${copy.welcomeDescription}</p>
+      </div>
+      ${renderCollapsibleExampleGallery(lang)}
+    </div>`;
+}
+
 function extractLastCreatedSurfaceId(messages: A2uiMessage[]): string | null {
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i];
@@ -490,7 +503,7 @@ async function bootstrapViewer() {
       title,
       subtitle,
       `<section id="surface-container" aria-live="polite">
-        <p class="viewer-state loading">${T[lang].loadingShowcase}</p>
+        ${renderWelcomeState(lang)}
       </section><button id="page-narration-button" type="button" hidden aria-label="播放讲稿">🔊</button>`,
       initialConfig.embed ? undefined : { lang, chrome },
     );
@@ -811,7 +824,8 @@ async function bootstrapViewer() {
       renderSurfaces(target, activeRuntime.processor, activeRuntime.modeHint);
       return;
     }
-    showState(target, T[newLang].pickExamplePrompt, "empty");
+    // renderShell() already mounted the localized welcome state and bound its
+    // example gallery handlers before this branch is reached.
   };
 
   if (!initialConfig.embed) {
@@ -839,8 +853,7 @@ async function bootstrapViewer() {
     // just 404. Show a friendly, localized nudge toward the example gallery
     // instead of a fetch-failure error. A known example hash or gallery query
     // only controls which gallery category is expanded; the visitor still
-    // chooses the case.
-    showState(container, T[getLang()].pickExamplePrompt, "empty");
+    // chooses the case. renderShell() has already mounted this welcome state.
   }
 }
 

@@ -1048,6 +1048,44 @@
       background: color-mix(in oklab, var(--a2ui-color-surface) 94%, transparent);
       box-shadow: var(--a2learn-panel-shadow);
     }
+    .viewer-welcome-state {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-height: 300px;
+      padding: 52px 8px 8px;
+    }
+    .viewer-welcome-copy {
+      max-width: 560px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .viewer-welcome-eyebrow {
+      margin: 0 0 12px;
+      color: var(--a2ui-color-primary);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .viewer-welcome-title {
+      margin: 0;
+      color: var(--app-text);
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+    }
+    .viewer-welcome-description {
+      margin: 14px auto 0;
+      color: var(--app-muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .viewer-welcome-state .template-example-gallery {
+      width: min(100%, 760px);
+      margin: 10px auto 0;
+    }
     .viewer-state {
       margin: 12px 0;
       padding: 14px 16px;
@@ -1245,6 +1283,10 @@
       .viewer-main {
         padding: 10px;
         border-radius: 14px;
+      }
+      .viewer-welcome-state {
+        min-height: 0;
+        padding: 34px 0 0;
       }
       .generation-component-groups {
         grid-template-columns: 1fr;

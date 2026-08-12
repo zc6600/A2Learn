@@ -4,7 +4,9 @@ import type { Lang } from "./generation-profile";
 export type ViewerCopy = {
   subtitle: string;
   examplesStripTitle: string;
-  pickExamplePrompt: string;
+  welcomeEyebrow: string;
+  welcomeTitle: string;
+  welcomeDescription: string;
   loadingShowcase: string;
   agentPlanning: string;
   onlineFailedPrefix: string;
@@ -47,8 +49,10 @@ export type ViewerCopy = {
 export const T: Record<Lang, ViewerCopy> = {
   zh: {
     subtitle: "输入你想学习的知识主题，AI 为你实时生成生动易懂的互动课件",
-    examplesStripTitle: "📚 精选示例课程（点击直接体验）",
-    pickExamplePrompt: "👋 点击下方示例直接体验，或在上方输入你想学的主题一键生成专属课件。",
+    examplesStripTitle: "精选案例",
+    welcomeEyebrow: "开始学习",
+    welcomeTitle: "你想学什么？",
+    welcomeDescription: "输入一个主题，生成互动课件；或浏览精选案例。",
     loadingShowcase: "正在加载课程内容，请稍候...",
     agentPlanning: "🧠 AI 正在规划学习大纲并生成互动内容，请稍候...",
     onlineFailedPrefix: "生成失败（请检查 API Key 配置或网络连接）。",
@@ -90,9 +94,10 @@ export const T: Record<Lang, ViewerCopy> = {
   },
   en: {
     subtitle: "Interactive learning powered by AI · Enter any topic to generate a visual, hands-on lesson",
-    examplesStripTitle: "📚 Featured Lessons (click to explore instantly)",
-    pickExamplePrompt:
-      "👋 Try an example below, or enter your own topic above to create a custom lesson.",
+    examplesStripTitle: "Featured cases",
+    welcomeEyebrow: "Start learning",
+    welcomeTitle: "What would you like to learn?",
+    welcomeDescription: "Enter a topic to create an interactive lesson, or browse a featured case.",
     loadingShowcase: "Loading course content, please wait...",
     agentPlanning: "🧠 AI is planning the outline and generating interactive content, please wait...",
     onlineFailedPrefix: "Generation failed (please check your API key or network connection).",
@@ -234,4 +239,3 @@ export const SOURCE_LIBRARY_COPY: Record<Lang, SourceLibraryCopy> = {
     unsupportedHint: "PDF, EPUB, DOCX, Markdown, text, web, tabular, and image files are supported; scans enter the OCR queue.",
   },
 };
-
