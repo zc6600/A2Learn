@@ -160,3 +160,7 @@
         line-height: 1.5;
         color: var(--a2ui-color-on-surface);
       }
+
+      :host { --a2ui-border-radius: 10px; }
+      .formula-card, .diagram-box, .step-item { border-radius: 10px; box-shadow: none; }
+      .variable-item { border-radius: 7px; }

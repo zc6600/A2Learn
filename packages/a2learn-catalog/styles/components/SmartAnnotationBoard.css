@@ -194,3 +194,7 @@
       line-height: 1.6;
       color: var(--a2ui-color-on-surface);
     }
+
+    :host { --a2ui-border-radius: 10px; }
+    .board-card, .editor-container, .feedback-panel { border-radius: 10px; box-shadow: none; }
+    .textarea, .btn-submit { border-radius: 7px; }

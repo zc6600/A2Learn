@@ -71,3 +71,8 @@
   color: var(--a2ui-color-primary);
   margin-left: 2px;
 }
+
+/* Prompt cards use one restrained emphasis color. */
+:host { --a2ui-border-radius: 10px; }
+.deep-dive-box { border-radius: 10px; box-shadow: none; }
+.prompt-btn { border-radius: 7px; }

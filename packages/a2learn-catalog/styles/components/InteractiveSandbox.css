@@ -369,3 +369,8 @@
         border-bottom: 1px solid var(--a2ui-color-border);
       }
     }
+
+    /* The editor remains functional, but follows the same quiet shell. */
+    :host { --a2ui-border-radius: 10px; }
+    .sandbox-container, .workspace, .editor-pane, .output-pane { border-radius: 10px; box-shadow: none; }
+    .tab-btn, .run-btn, .copy-btn { border-radius: 6px; }

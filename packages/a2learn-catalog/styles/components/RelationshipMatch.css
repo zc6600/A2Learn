@@ -219,3 +219,7 @@
       footer { padding: 16px; }
       .feedback { margin-left: 16px; margin-right: 16px; }
     }
+
+    :host { --a2ui-border-radius: 10px; }
+    .matching-container, .board, .target-card, .feedback { border-radius: 10px; box-shadow: none; }
+    .option-chip, .btn { border-radius: 7px; }

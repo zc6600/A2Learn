@@ -472,3 +472,9 @@ dialog img {
     width: 100%;
   }
 }
+
+/* Social examples keep their familiar structure with lower visual noise. */
+:host { --a2ui-border-radius: 10px; }
+.moments, .post, .comment-form, .action-popup { border-radius: 10px; box-shadow: none; }
+.avatar, .image { border-radius: 7px; }
+.comment-input, .comment-send-btn, .comment-cancel-btn { border-radius: 6px; }

@@ -279,3 +279,9 @@ footer {
     margin-right: 16px;
   }
 }
+
+/* Preserve the game mechanics while keeping the board quiet. */
+:host { --a2ui-border-radius: 10px; }
+.board, .match-card, .feedback { border-radius: 10px; box-shadow: none; }
+.match-card:hover { transform: none; }
+.btn { border-radius: 7px; }

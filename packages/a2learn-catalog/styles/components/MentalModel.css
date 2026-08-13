@@ -286,3 +286,8 @@
       font-size: 14px;
       font-weight: 700;
     }
+
+    /* Dense conceptual diagrams share the same quiet surfaces. */
+    :host { --a2ui-border-radius: 10px; }
+    .mm-container, .diagram-box, .analogy-box, .pillar-card { border-radius: 10px; box-shadow: none; }
+    .flow-node, .visual-memory-cell { border-radius: 7px; }

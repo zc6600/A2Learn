@@ -149,3 +149,7 @@
       align-items: center;
       gap: 6px;
     }
+
+    :host { --a2ui-border-radius: 10px; }
+    .figure-card, .ai-explanation { border-radius: 10px; box-shadow: none; }
+    .tooltip { border-radius: 7px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12); }

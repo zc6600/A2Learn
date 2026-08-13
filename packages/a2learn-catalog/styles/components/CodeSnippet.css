@@ -98,3 +98,9 @@
       margin-right: 16px;
       user-select: none;
     }
+
+    /* Keep code distinct without turning it into a floating card. */
+    :host { --a2ui-border-radius: 10px; }
+    .snippet-container { border-radius: 10px; box-shadow: none; }
+    .header { padding: 10px 14px; }
+    .language-badge { border-radius: 5px; }

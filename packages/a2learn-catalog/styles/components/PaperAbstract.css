@@ -126,3 +126,7 @@
     .btn-secondary:hover {
       background: color-mix(in oklab, var(--a2ui-color-primary) 8%, transparent);
     }
+
+    :host { --a2ui-border-radius: 10px; }
+    .paper-card, .tldr-box { border-radius: 10px; box-shadow: none; }
+    .badge, .btn { border-radius: 6px; }

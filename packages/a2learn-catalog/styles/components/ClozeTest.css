@@ -111,3 +111,8 @@
       from { opacity: 0; transform: translateY(-5px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Unified reading-system treatment. */
+    :host { --a2ui-border-radius: 10px; }
+    .cloze-card { border-radius: 10px; box-shadow: none; }
+    .blank-input { border-radius: 6px; }

@@ -95,3 +95,7 @@
       color: var(--app-muted);
       font-size: 12px;
     }
+
+    :host { --a2ui-border-radius: 10px; }
+    .explorer-container, .current-node-card, .child-card { border-radius: 10px; box-shadow: none; }
+    .child-card:hover { transform: none; }

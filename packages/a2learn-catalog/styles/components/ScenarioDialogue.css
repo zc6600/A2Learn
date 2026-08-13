@@ -332,3 +332,8 @@
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-4px); }
     }
+
+    /* Dialogue should read as conversation, not glossy nested panels. */
+    :host { --a2ui-border-radius: 10px; }
+    .chat-container, .chat-header, .bubble, .group-notice { border-radius: 10px; box-shadow: none; }
+    .avatar { border-radius: 7px; }
