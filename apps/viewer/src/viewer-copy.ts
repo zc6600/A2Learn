@@ -84,11 +84,11 @@ export const T: Record<Lang, ViewerCopy> = {
     resumeNarration: "继续播放讲稿",
     narrationFailedPrefix: "讲稿生成失败：",
     playbackFailedPrefix: "音频播放失败：",
-    presenterScriptTitle: "AI 讲解文稿",
+    presenterScriptTitle: "讲解文稿",
     closeScript: "关闭讲稿",
-    workspaceTitle: "目录导航",
-    myWorkspace: "我的学习工作区",
-    curatedCourses: "官方精选课程",
+    workspaceTitle: "课程目录",
+    myWorkspace: "我的工作区",
+    curatedCourses: "精选课程",
     newFolder: "新建文件夹",
     newFolderPrompt: "请输入文件夹名称：",
     newSubfolder: "新建子文件夹",
@@ -139,7 +139,7 @@ export const T: Record<Lang, ViewerCopy> = {
     playbackFailedPrefix: "Audio playback failed: ",
     presenterScriptTitle: "Presenter Script",
     closeScript: "Close script",
-    workspaceTitle: "Workspace Navigation",
+    workspaceTitle: "Course Index",
     myWorkspace: "My Workspace",
     curatedCourses: "Curated Lessons",
     newFolder: "New Folder",
@@ -165,7 +165,7 @@ export const T: Record<Lang, ViewerCopy> = {
 
 export const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
   zh: {
-    promptPlaceholder: "输入你想学习的知识主题（例如：解释 Hash Map 机制...）",
+    promptPlaceholder: "输入学习主题（例如：Hash Map 机制...）",
     sourceLibraryLabel: "上传资料",
     sourceLibraryTitle: "上传并选择资料",
     submitLabel: "生成",
@@ -179,7 +179,7 @@ export const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
     modalSaveLabel: "保存配置",
   },
   en: {
-    promptPlaceholder: "Enter a topic you want to learn (e.g., Explain how Hash Maps work...)",
+    promptPlaceholder: "Enter a topic to learn (e.g., Hash Maps...)",
     sourceLibraryLabel: "Upload sources",
     sourceLibraryTitle: "Upload and select sources",
     submitLabel: "Generate",

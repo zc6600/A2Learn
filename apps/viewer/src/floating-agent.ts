@@ -237,13 +237,13 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       : (english ? "Edit case" : "修改案例");
     title.textContent = isQuestionMode
       ? (english ? "Learning Q&A" : "学习问答")
-      : (english ? "Page Editor Agent" : "页面编辑 Agent");
+      : (english ? "Page Editor" : "页面编辑");
     input.placeholder = isQuestionMode
       ? (english ? "For example: Why does this approach avoid collisions?" : "例如：这个方法为什么能避免冲突？")
       : (english ? "For example: Make this case title more concise" : "例如：把这个案例的标题改得更简洁");
     input.setAttribute("aria-label", isQuestionMode
       ? (english ? "Question for the learning assistant" : "向学习助手提问")
-      : (english ? "Instruction for page editor Agent" : "给页面编辑 Agent 的指令"));
+      : (english ? "Instruction for page editor" : "给页面编辑的指令"));
     send.textContent = english ? "Send" : "发送";
     close.setAttribute("aria-label", english ? "Close" : "关闭");
     newProject.textContent = english ? "New" : "新建";

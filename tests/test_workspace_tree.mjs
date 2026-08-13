@@ -216,7 +216,7 @@ describe("Workspace Tree & Store Unit Tests", async () => {
 
     const repairedStore = new WorkspaceStore();
     const state = repairedStore.getState();
-    assert.equal(state.nodes.curated_ai_series.title, "现代 AI 核心前沿");
+    assert.equal(state.nodes.curated_ai_series.title, "人工智能");
     assert.equal(state.nodes.invalid, undefined);
     assert.equal(state.nodes.folderA.parentId, null);
     assert.equal(state.nodes.folderB.parentId, "folderA");

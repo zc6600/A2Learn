@@ -32,7 +32,7 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const aiFolderId = "curated_ai_series";
   nodes[aiFolderId] = {
     id: aiFolderId,
-    title: lang === "zh" ? "现代 AI 核心前沿" : "Modern AI & Frontiers",
+    title: lang === "zh" ? "人工智能" : "Artificial Intelligence",
     type: "folder",
     parentId: null,
     isBuiltin: true,
@@ -45,15 +45,15 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const aiLessons = [
     {
       id: "paper-attention",
-      title: lang === "zh" ? "01. Transformer 注意力机制" : "01. Transformer Attention",
+      title: lang === "zh" ? "Transformer 注意力机制" : "Transformer Attention",
     },
     {
       id: "agent-react",
-      title: lang === "zh" ? "02. ReAct Agent 智能体架构" : "02. ReAct Agent Architecture",
+      title: lang === "zh" ? "ReAct 智能体架构" : "ReAct Agent Architecture",
     },
     {
       id: "biophysics-ai",
-      title: lang === "zh" ? "03. AlphaFold 生物物理 AI" : "03. AlphaFold Biophysics AI",
+      title: lang === "zh" ? "AlphaFold 蛋白质预测" : "AlphaFold Structure Prediction",
     },
   ];
 
@@ -71,11 +71,11 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     };
   });
 
-  // 2. 计算机与核心算法 (Computing & Systems)
+  // 2. 计算机体系 (Computing & Systems)
   const compFolderId = "curated_computing";
   nodes[compFolderId] = {
     id: compFolderId,
-    title: lang === "zh" ? "计算机与核心算法" : "Computer Systems & Web",
+    title: lang === "zh" ? "计算机系统" : "Computer Systems",
     type: "folder",
     parentId: null,
     isBuiltin: true,
@@ -88,22 +88,22 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const compLessons = [
     {
       id: "hash-table",
-      title: lang === "zh" ? "Hash Table 哈希冲突机制" : "Hash Table & Collisions",
+      title: lang === "zh" ? "Hash Table 哈希表" : "Hash Table & Collisions",
       order: 1,
     },
     {
       id: "js-async",
-      title: lang === "zh" ? "JS 异步机制与事件循环" : "JS Async & Event Loop",
+      title: lang === "zh" ? "JS 异步与事件循环" : "JS Async & Event Loop",
       order: 3,
     },
     {
       id: "conversational",
-      title: lang === "zh" ? "JS 闭包与作用域模块化" : "JS Closures & Scope",
+      title: lang === "zh" ? "JS 闭包与作用域" : "JS Closures & Scope",
       order: 4,
     },
     {
       id: "non-linear",
-      title: lang === "zh" ? "CSS Grid 二维响应式布局" : "CSS Grid 2D Layout",
+      title: lang === "zh" ? "CSS Grid 网格布局" : "CSS Grid Layout",
       order: 5,
     },
   ];
@@ -122,12 +122,11 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     };
   });
 
-  // 数据库入门是一个独立的 6 讲系列，作为计算机专区里的子文件夹展示。
-  // 这样课程导航和课程内容的组织方式保持一致，也方便以后继续添加系列课程。
+  // 数据库基础
   const databaseFolderId = "curated_database_basics";
   nodes[databaseFolderId] = {
     id: databaseFolderId,
-    title: lang === "zh" ? "数据库入门" : "Database Basics",
+    title: lang === "zh" ? "数据库基础" : "Database Basics",
     type: "folder",
     parentId: compFolderId,
     isBuiltin: true,
@@ -138,12 +137,12 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   };
 
   const databaseLessons = [
-    { id: "database-basics-lesson-1", title: lang === "zh" ? "第 1 讲：数据库到底是什么？" : "Lesson 1: What Is a Database?" },
-    { id: "database-basics-lesson-2", title: lang === "zh" ? "第 2 讲：怎样向数据库提问？" : "Lesson 2: How to Ask a Database?" },
-    { id: "database-basics-lesson-3", title: lang === "zh" ? "第 3 讲：怎样修改数据？" : "Lesson 3: How to Change Data?" },
-    { id: "database-basics-lesson-4", title: lang === "zh" ? "第 4 讲：怎样设计一张表？" : "Lesson 4: How to Design a Table?" },
-    { id: "database-basics-lesson-5", title: lang === "zh" ? "第 5 讲：多张表怎样连接？" : "Lesson 5: How to Connect Tables?" },
-    { id: "database-basics-lesson-6", title: lang === "zh" ? "第 6 讲：完成课程报名小项目" : "Lesson 6: Build a Small Project" },
+    { id: "database-basics-lesson-1", title: lang === "zh" ? "1. 什么是数据库" : "Lesson 1: What Is a Database" },
+    { id: "database-basics-lesson-2", title: lang === "zh" ? "2. 数据查询基础" : "Lesson 2: Querying Data" },
+    { id: "database-basics-lesson-3", title: lang === "zh" ? "3. 数据的增删改" : "Lesson 3: Modifying Data" },
+    { id: "database-basics-lesson-4", title: lang === "zh" ? "4. 数据表结构设计" : "Lesson 4: Designing Tables" },
+    { id: "database-basics-lesson-5", title: lang === "zh" ? "5. 多表连接查询" : "Lesson 5: Joining Tables" },
+    { id: "database-basics-lesson-6", title: lang === "zh" ? "6. 综合实战项目" : "Lesson 6: Hands-on Project" },
   ];
 
   databaseLessons.forEach((lesson, index) => {
@@ -160,11 +159,11 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     };
   });
 
-  // 3. 诗词意境与文学赏析 (Poetry & Literature)
+  // 3. 文学赏析 (Literature)
   const humFolderId = "curated_humanities";
   nodes[humFolderId] = {
     id: humFolderId,
-    title: lang === "zh" ? "经典诗词与文学赏析" : "Classical Poetry Reading",
+    title: lang === "zh" ? "文学赏析" : "Literature",
     type: "folder",
     parentId: null,
     isBuiltin: true,
@@ -177,11 +176,11 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const humLessons = [
     {
       id: "deng-gao",
-      title: lang === "zh" ? "杜甫《登高》· 七律与镜头解码" : "Du Fu: Climbing the Height",
+      title: lang === "zh" ? "杜甫《登高》赏析" : "Du Fu: Climbing the Height",
     },
     {
       id: "poetry-social",
-      title: lang === "zh" ? "《春江花月夜》· 词境重现" : "Spring River Moon Night",
+      title: lang === "zh" ? "《春江花月夜》赏析" : "Spring River Moon Night",
     },
   ];
 
