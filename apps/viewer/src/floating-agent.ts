@@ -56,6 +56,26 @@ function parseEvent(frame: string): AgentEvent | null {
   }
 }
 
+function attachCopyButton(messageEl: HTMLElement, rawText: string) {
+  const copyBtn = document.createElement("button");
+  copyBtn.type = "button";
+  copyBtn.className = "a2learn-message-copy-btn";
+  copyBtn.title = "复制";
+  copyBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+  copyBtn.onclick = (e) => {
+    e.stopPropagation();
+    void navigator.clipboard.writeText(rawText).then(() => {
+      copyBtn.classList.add("copied");
+      copyBtn.textContent = "✓";
+      setTimeout(() => {
+        copyBtn.classList.remove("copied");
+        copyBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+      }, 1500);
+    });
+  };
+  messageEl.appendChild(copyBtn);
+}
+
 function addMessage(
   target: HTMLElement,
   kind: "user" | "agent" | "status" | "error" | "thinking",
@@ -84,6 +104,9 @@ function addMessage(
   } catch {
     item.textContent = text;
   }
+  if (kind === "agent") {
+    attachCopyButton(item, text);
+  }
   target.scrollTop = target.scrollHeight;
   return item;
 }
@@ -105,7 +128,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
           <line x1="2" y1="5" x2="5" y2="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </div>
-      <header class="a2learn-agent-head"><span class="a2learn-agent-title"></span><span class="a2learn-agent-actions"><button class="a2learn-agent-new a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-recent-toggle a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-history-toggle a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-close" type="button">×</button></span></header>
+      <header class="a2learn-agent-head"><span class="a2learn-agent-title"></span><span class="a2learn-agent-actions"><button class="a2learn-agent-clear a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-new a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-recent-toggle a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-history-toggle a2learn-agent-text-button" type="button"></button><button class="a2learn-agent-close" type="button">×</button></span></header>
       <div class="a2learn-agent-target"><span class="a2learn-agent-target-label"></span><button class="a2learn-agent-pick a2learn-agent-text-button" type="button"></button></div>
       <div class="a2learn-agent-intent"><button class="a2learn-agent-intent-button" data-agent-mode="ask" type="button"></button><button class="a2learn-agent-intent-button" data-agent-mode="edit" type="button"></button></div>
       <div class="a2learn-agent-mode"><button class="a2learn-agent-mode-button" data-approval-mode="direct" type="button"></button><button class="a2learn-agent-mode-button" data-approval-mode="review" type="button"></button></div>
@@ -114,7 +137,16 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       <div class="a2learn-agent-history"></div>
       <section class="a2learn-agent-review"><p class="a2learn-agent-review-question"></p><div class="a2learn-agent-review-options"></div><form class="a2learn-agent-review-form"><input class="a2learn-agent-review-input" /><button class="a2learn-agent-text-button" type="submit"></button></form></section>
       <div class="a2learn-agent-events" aria-live="polite"></div>
-      <form class="a2learn-agent-form"><textarea class="a2learn-agent-input"></textarea><button class="a2learn-agent-send" type="submit"></button></form>
+      <form class="a2learn-agent-form">
+        <div class="a2learn-agent-input-container">
+          <textarea class="a2learn-agent-input" rows="1"></textarea>
+          <button class="a2learn-agent-send" type="submit" disabled>
+            <svg class="send-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            <svg class="stop-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="5" y="5" width="14" height="14" rx="3"/></svg>
+          </button>
+        </div>
+        <div class="a2learn-agent-input-hint"></div>
+      </form>
     </section>
     <button class="a2learn-agent-launcher" type="button"></button>
   `;
@@ -126,6 +158,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   const launcher = root.querySelector<HTMLButtonElement>(".a2learn-agent-launcher")!;
   const close = root.querySelector<HTMLButtonElement>(".a2learn-agent-close")!;
   const title = root.querySelector<HTMLElement>(".a2learn-agent-title")!;
+  const clearChat = root.querySelector<HTMLButtonElement>(".a2learn-agent-clear")!;
   const newProject = root.querySelector<HTMLButtonElement>(".a2learn-agent-new")!;
   const recentToggle = root.querySelector<HTMLButtonElement>(".a2learn-agent-recent-toggle")!;
   const historyToggle = root.querySelector<HTMLButtonElement>(".a2learn-agent-history-toggle")!;
@@ -149,6 +182,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   const form = root.querySelector<HTMLFormElement>(".a2learn-agent-form")!;
   const input = root.querySelector<HTMLTextAreaElement>(".a2learn-agent-input")!;
   const send = root.querySelector<HTMLButtonElement>(".a2learn-agent-send")!;
+  const inputHint = root.querySelector<HTMLElement>(".a2learn-agent-input-hint")!;
   let threadId = "";
   let selectedComponentId: string | null = null;
   let waitingForHumanInput = false;
@@ -161,6 +195,8 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   let startY = 0;
   let startWidth = 0;
   let startHeight = 0;
+  let isGenerating = false;
+  let activeAbortController: AbortController | null = null;
 
   try {
     const rawSize = localStorage.getItem("a2learn:agent-panel-size");
@@ -226,6 +262,62 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
 
   const text = (zh: string, en: string) => options.getLanguage() === "en" ? en : zh;
 
+  const adjustTextareaHeight = () => {
+    input.style.height = "auto";
+    const newHeight = Math.min(Math.max(input.scrollHeight, 28), 130);
+    input.style.height = `${newHeight}px`;
+  };
+
+  const updateSendButtonState = () => {
+    const sendIcon = send.querySelector<SVGElement>(".send-icon");
+    const stopIcon = send.querySelector<SVGElement>(".stop-icon");
+    if (isGenerating) {
+      send.disabled = false;
+      send.classList.add("is-generating");
+      send.title = text("停止生成", "Stop generating");
+      if (sendIcon) sendIcon.style.display = "none";
+      if (stopIcon) stopIcon.style.display = "block";
+    } else {
+      send.classList.remove("is-generating");
+      send.title = text("发送 (Enter)", "Send (Enter)");
+      if (sendIcon) sendIcon.style.display = "block";
+      if (stopIcon) stopIcon.style.display = "none";
+      send.disabled = input.value.trim().length === 0;
+    }
+  };
+
+  const renderSuggestions = () => {
+    if (events.children.length > 0) return;
+    const suggestionsBox = document.createElement("div");
+    suggestionsBox.className = "a2learn-agent-suggestions";
+    const suggestions = agentMode === "ask"
+      ? [
+          text("💡 解释这个概念的核心机制", "💡 Explain core mechanisms"),
+          text("🔍 深入分析直觉类比", "🔍 Deep dive intuition"),
+          text("📝 给我出一道自测练习题", "📝 Create a practice quiz"),
+        ]
+      : [
+          text("✨ 优化当前章节结构", "✨ Optimize section structure"),
+          text("🎯 增强自测练习难度", "🎯 Enhance practice difficulty"),
+          text("📌 精简语言使其更清晰易懂", "📌 Make explanation concise"),
+        ];
+    suggestions.forEach((promptText) => {
+      const pill = document.createElement("button");
+      pill.type = "button";
+      pill.className = "a2learn-agent-suggestion-pill";
+      pill.textContent = promptText;
+      pill.addEventListener("click", () => {
+        suggestionsBox.remove();
+        input.value = promptText.replace(/^[^\s]+\s*/, "");
+        adjustTextareaHeight();
+        updateSendButtonState();
+        form.requestSubmit();
+      });
+      suggestionsBox.appendChild(pill);
+    });
+    events.appendChild(suggestionsBox);
+  };
+
   const updateLabels = () => {
     const english = options.getLanguage() === "en";
     const isQuestionMode = agentMode === "ask";
@@ -239,13 +331,14 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       ? (english ? "Learning Q&A" : "学习问答")
       : (english ? "Page Editor" : "页面编辑");
     input.placeholder = isQuestionMode
-      ? (english ? "For example: Why does this approach avoid collisions?" : "例如：这个方法为什么能避免冲突？")
-      : (english ? "For example: Make this case title more concise" : "例如：把这个案例的标题改得更简洁");
+      ? (english ? "Ask a question (Enter to send)…" : "向学习助手提问（Enter 发送）…")
+      : (english ? "Instruction for page editor (Enter to send)…" : "给页面编辑的指令（Enter 发送）…");
     input.setAttribute("aria-label", isQuestionMode
       ? (english ? "Question for the learning assistant" : "向学习助手提问")
       : (english ? "Instruction for page editor" : "给页面编辑的指令"));
-    send.textContent = english ? "Send" : "发送";
     close.setAttribute("aria-label", english ? "Close" : "关闭");
+    clearChat.textContent = english ? "Clear" : "清空";
+    clearChat.title = english ? "Clear chat history" : "清空对话记录";
     newProject.textContent = english ? "New" : "新建";
     recentToggle.textContent = english ? "Recent" : "最近";
     historyToggle.textContent = english ? "History" : "历史";
@@ -254,6 +347,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     createSubmit.textContent = english ? "Create" : "创建";
     reviewInput.placeholder = english ? "Or write a different direction" : "或输入其他修改方向";
     reviewSubmit.textContent = english ? "Reply" : "回复";
+    inputHint.textContent = english ? "Enter to send · Shift+Enter for new line" : "Enter 发送 · Shift+Enter 换行";
     intentButtons.forEach((button) => {
       const mode = button.dataset.agentMode === "edit" ? "edit" : "ask";
       button.textContent = mode === "ask" ? (english ? "Ask" : "问答") : (english ? "Edit" : "编辑");
@@ -270,13 +364,48 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     targetLabel.textContent = selectedComponentId
       ? `${english ? "Selected" : "已选择"}: ${selectedComponentId}`
       : (english ? "Target: current page" : "目标：当前页面");
+    updateSendButtonState();
   };
   updateLabels();
+
+  renderSuggestions();
+
+  input.addEventListener("input", () => {
+    adjustTextareaHeight();
+    updateSendButtonState();
+  });
+
+  input.addEventListener("keydown", (event: KeyboardEvent) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      if (event.isComposing) return;
+      event.preventDefault();
+      if (!isGenerating && input.value.trim().length > 0) {
+        form.requestSubmit();
+      }
+    }
+  });
+
+  clearChat.addEventListener("click", () => {
+    if (isGenerating) {
+      activeAbortController?.abort();
+      activeAbortController = null;
+      isGenerating = false;
+    }
+    events.replaceChildren();
+    threadId = "";
+    clearReview();
+    renderSuggestions();
+    updateSendButtonState();
+    input.focus();
+  });
 
   launcher.addEventListener("click", () => {
     updateLabels();
     panel.classList.toggle("open");
-    if (panel.classList.contains("open")) input.focus();
+    if (panel.classList.contains("open")) {
+      renderSuggestions();
+      input.focus();
+    }
   });
   close.addEventListener("click", () => panel.classList.remove("open"));
   newProject.addEventListener("click", () => {
@@ -423,22 +552,21 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
 
   intentButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      if (waitingForHumanInput) return;
+      if (waitingForHumanInput || isGenerating) return;
       const nextMode = button.dataset.agentMode === "edit" ? "edit" : "ask";
       if (nextMode === agentMode) return;
-      // Q&A and edit have different tool permissions. A thread therefore
-      // belongs to exactly one mode and is never reused across that boundary.
       agentMode = nextMode;
       threadId = "";
       clearReview();
       updateLabels();
+      renderSuggestions();
       input.focus();
     });
   });
 
   modeButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      if (waitingForHumanInput) return;
+      if (waitingForHumanInput || isGenerating) return;
       const nextMode = button.dataset.approvalMode === "review" ? "review" : "direct";
       if (nextMode !== approvalMode) threadId = "";
       approvalMode = nextMode;
@@ -448,9 +576,9 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
 
   const setComposerDisabled = (disabled: boolean) => {
     input.disabled = disabled;
-    send.disabled = disabled;
     intentButtons.forEach((button) => { button.disabled = disabled; });
     modeButtons.forEach((button) => { button.disabled = disabled; });
+    updateSendButtonState();
   };
 
   const clearReview = () => {
@@ -503,8 +631,6 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     const processFrame = (frame: string) => {
       const agentEvent = parseEvent(frame);
       if (!agentEvent) return;
-      // The old page can finish its server-side edit after a language/project
-      // switch. Its A2UI sync must never be applied to the new renderer.
       if (requestEpoch !== pageEpoch) return;
 
       if (agentEvent.event === "text_delta") {
@@ -518,7 +644,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
           }
           accumulatedText += delta;
           try {
-            currentAgentMessageEl.innerHTML = sanitizeHtml(accumulatedText);
+            currentAgentMessageEl.innerHTML = sanitizeHtml(accumulatedText) + `<span class="a2learn-streaming-cursor"></span>`;
           } catch {
             currentAgentMessageEl.textContent = accumulatedText;
           }
@@ -530,6 +656,8 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       if (agentEvent.event === "tool_start") {
         removeThinking();
         if (currentAgentMessageEl) {
+          try { currentAgentMessageEl.innerHTML = sanitizeHtml(accumulatedText); } catch {}
+          attachCopyButton(currentAgentMessageEl, accumulatedText);
           currentAgentMessageEl = null;
           accumulatedText = "";
         }
@@ -555,8 +683,12 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
 
       if (agentEvent.event === "human_input_required") {
         removeThinking();
-        currentAgentMessageEl = null;
-        accumulatedText = "";
+        if (currentAgentMessageEl) {
+          try { currentAgentMessageEl.innerHTML = sanitizeHtml(accumulatedText); } catch {}
+          attachCopyButton(currentAgentMessageEl, accumulatedText);
+          currentAgentMessageEl = null;
+          accumulatedText = "";
+        }
         onHumanInput(agentEvent.data);
         return;
       }
@@ -575,6 +707,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
           } catch {
             currentAgentMessageEl.textContent = fullText;
           }
+          attachCopyButton(currentAgentMessageEl, fullText);
           events.scrollTop = events.scrollHeight;
         }
         currentAgentMessageEl = null;
@@ -584,16 +717,24 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
 
       if (agentEvent.event === "error") {
         removeThinking();
-        currentAgentMessageEl = null;
-        accumulatedText = "";
+        if (currentAgentMessageEl) {
+          try { currentAgentMessageEl.innerHTML = sanitizeHtml(accumulatedText); } catch {}
+          attachCopyButton(currentAgentMessageEl, accumulatedText);
+          currentAgentMessageEl = null;
+          accumulatedText = "";
+        }
         addMessage(events, "error", String(agentEvent.data.message || text("Agent 失败", "Agent failed")));
         return;
       }
 
       if (agentEvent.event === "done") {
         removeThinking();
-        currentAgentMessageEl = null;
-        accumulatedText = "";
+        if (currentAgentMessageEl) {
+          try { currentAgentMessageEl.innerHTML = sanitizeHtml(accumulatedText); } catch {}
+          attachCopyButton(currentAgentMessageEl, accumulatedText);
+          currentAgentMessageEl = null;
+          accumulatedText = "";
+        }
         if (typeof agentEvent.data.threadId === "string") threadId = agentEvent.data.threadId;
         return;
       }
@@ -612,6 +753,10 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     if (buffer.trim()) {
       processFrame(buffer);
     }
+    if (currentAgentMessageEl && accumulatedText) {
+      try { currentAgentMessageEl.innerHTML = sanitizeHtml(accumulatedText); } catch {}
+      attachCopyButton(currentAgentMessageEl, accumulatedText);
+    }
     removeThinking();
   };
 
@@ -623,14 +768,17 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     const apiBaseUrl = options.getApiBaseUrl().replace(/\/+$/, "");
     if (!projectId || !apiBaseUrl || !threadId || (decision === "respond" && !responseText.trim())) return;
     clearReview();
+    isGenerating = true;
     setComposerDisabled(true);
     const requestEpoch = pageEpoch;
     if (responseText.trim()) addMessage(events, "user", responseText.trim());
     const thinkingEl = addMessage(events, "thinking", text("正在按你的选择继续生成…", "Continuing with your choice…"));
+    activeAbortController = new AbortController();
     try {
       const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(projectId)}/agent/resume`, {
         method: "POST",
         headers: headers(options.getApiKey(), true),
+        signal: activeAbortController.signal,
         body: JSON.stringify({
           threadId,
           surfaceId: options.getSurfaceId(),
@@ -647,11 +795,16 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       await consumeAgentStream(response, showHumanInput, requestEpoch, thinkingEl);
     } catch (error) {
       thinkingEl.remove();
-      if (requestEpoch === pageEpoch) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        addMessage(events, "status", text("已停止生成。", "Generation stopped."));
+      } else if (requestEpoch === pageEpoch) {
         addMessage(events, "error", error instanceof Error ? error.message : String(error));
       }
     } finally {
       thinkingEl.remove();
+      isGenerating = false;
+      activeAbortController = null;
+      updateSendButtonState();
       if (requestEpoch === pageEpoch && !waitingForHumanInput) {
         setComposerDisabled(false);
         input.focus();
@@ -752,6 +905,14 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (isGenerating) {
+      activeAbortController?.abort();
+      activeAbortController = null;
+      isGenerating = false;
+      updateSendButtonState();
+      setComposerDisabled(false);
+      return;
+    }
     if (waitingForHumanInput) return;
     const message = input.value.trim();
     if (!message) return;
@@ -765,16 +926,23 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       addMessage(events, "error", text("未配置编辑 API 服务。", "The editing API is not configured."));
       return;
     }
+    const suggestions = events.querySelector(".a2learn-agent-suggestions");
+    if (suggestions) suggestions.remove();
+
     addMessage(events, "user", message);
     input.value = "";
+    adjustTextareaHeight();
+    isGenerating = true;
     setComposerDisabled(true);
     const thinkingEl = addMessage(events, "thinking", text("正在生成回答…", "Generating response…"));
     const requestEpoch = pageEpoch;
+    activeAbortController = new AbortController();
     try {
       await ensureProject(projectId, apiBaseUrl);
       const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(projectId)}/agent`, {
         method: "POST",
         headers: headers(options.getApiKey(), true),
+        signal: activeAbortController.signal,
         body: JSON.stringify({
           message,
           threadId: threadId || undefined,
@@ -791,11 +959,16 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       await consumeAgentStream(response, showHumanInput, requestEpoch, thinkingEl);
     } catch (error) {
       thinkingEl.remove();
-      if (requestEpoch === pageEpoch) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        addMessage(events, "status", text("已停止生成。", "Generation stopped."));
+      } else if (requestEpoch === pageEpoch) {
         addMessage(events, "error", error instanceof Error ? error.message : String(error));
       }
     } finally {
       thinkingEl.remove();
+      isGenerating = false;
+      activeAbortController = null;
+      updateSendButtonState();
       if (requestEpoch === pageEpoch && !waitingForHumanInput) {
         setComposerDisabled(false);
         input.focus();
@@ -811,12 +984,11 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       updateLabels();
       panel.classList.add("open");
       input.value = question.trim();
+      adjustTextareaHeight();
+      updateSendButtonState();
       form.requestSubmit();
     },
     onLanguageChanged: () => {
-      // A language-specific example points to a different PageDocument. Do
-      // not carry its conversation target or LangGraph thread into the next
-      // document, even if both rendered components happen to share an id.
       threadId = "";
       selectedComponentId = null;
       agentMode = "ask";
@@ -828,6 +1000,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       recents.classList.remove("open");
       history.classList.remove("open");
       updateLabels();
+      renderSuggestions();
     },
   };
 }
