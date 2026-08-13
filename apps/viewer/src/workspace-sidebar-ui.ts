@@ -59,6 +59,8 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
       const isMenuOpen = activeActionMenuNodeId === node.id;
       const childCount = isFolder ? workspaceStore.getChildCount(node.id) : 0;
 
+      const isGenerating = Boolean(node.isGenerating);
+
       // Filter check
       if (searchTerm && !isFolder) {
         if (!node.title.toLowerCase().includes(searchTerm.toLowerCase())) {
@@ -74,7 +76,9 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
           </button>`
         : `<span class="tree-leaf-bullet"></span>`;
 
-      const iconHtml = `<span class="tree-icon">${isFolder ? (isCollapsed ? "📁" : "📂") : "📄"}</span>`;
+      const iconHtml = isGenerating
+        ? `<span class="tree-icon tree-generating-spinner" title="${lang === "zh" ? "正在生成中..." : "Generating..."}"></span>`
+        : `<span class="tree-icon">${isFolder ? (isCollapsed ? "📁" : "📂") : "📄"}</span>`;
 
       const countBadgeHtml = isFolder && childCount > 0
         ? `<span class="tree-count-badge" title="${childCount}">${childCount}</span>`
@@ -88,9 +92,11 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
             value="${node.title.replace(/"/g, "&quot;")}"
             autocomplete="off"
           />`
+        : isGenerating
+        ? `<span class="tree-title is-generating-title" title="${node.title}">${node.title} <span class="tree-generating-tag">${lang === "zh" ? "生成中" : "Generating"}</span></span>`
         : `<span class="tree-title" data-action="rename-title" title="${node.title}">${node.title}</span>`;
 
-      const actionBtnHtml = !isBuiltin && !isEditing
+      const actionBtnHtml = !isBuiltin && !isEditing && !isGenerating
         ? `<button class="tree-action-btn" data-action="toggle-menu" data-node-id="${node.id}" title="${lang === "zh" ? "更多操作" : "More actions"}">···</button>`
         : "";
 
@@ -105,7 +111,7 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
         `
         : "";
 
-      const nodeClass = `workspace-tree-item ${isFolder ? "is-folder" : "is-lesson"}${isActive ? " active" : ""}${isBuiltin ? " is-builtin" : ""}${isEditing ? " is-editing" : ""}`;
+      const nodeClass = `workspace-tree-item ${isFolder ? "is-folder" : "is-lesson"}${isActive ? " active" : ""}${isBuiltin ? " is-builtin" : ""}${isEditing ? " is-editing" : ""}${isGenerating ? " is-generating" : ""}`;
 
       let childrenHtml = "";
       if (isFolder && !isCollapsed) {
@@ -136,7 +142,7 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
             style="${indentStyle}"
             data-node-id="${node.id}"
             data-node-type="${node.type}"
-            ${!isBuiltin && !isEditing ? 'draggable="true"' : ""}
+            ${!isBuiltin && !isEditing && !isGenerating ? 'draggable="true"' : ""}
           >
             ${chevronHtml}
             ${iconHtml}
@@ -455,6 +461,11 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
         // Clicked a lesson -> select it
         if (nodeType === "lesson") {
           activeActionMenuNodeId = null;
+          const node = workspaceStore.getState().nodes[nodeId];
+          if (node?.isGenerating) {
+            workspaceStore.setActiveNode(nodeId);
+            return;
+          }
           workspaceStore.setActiveNode(nodeId);
           callbacks.onSelectLesson(nodeId);
         }

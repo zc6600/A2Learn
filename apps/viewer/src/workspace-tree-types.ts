@@ -8,6 +8,7 @@ export interface WorkspaceNode {
   type: NodeType;
   parentId: string | null; // null for top-level root items
   isBuiltin?: boolean; // If true, this is a read-only curated example/series
+  isGenerating?: boolean; // If true, this lesson is currently being generated
   category?: string; // Optional group or category key for built-in items
   description?: string;
   createdAt: string;

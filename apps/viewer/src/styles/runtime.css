@@ -260,6 +260,8 @@
     .a2learn-library-status.failed { background: color-mix(in srgb, var(--a2ui-color-error) 15%, transparent); color: var(--a2ui-color-error); }
     .a2learn-library-goal { width: 100%; min-height: 64px; box-sizing: border-box; resize: vertical; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 9px); padding: 9px; background: var(--a2ui-color-surface); color: inherit; font: inherit; font-size: 13px; }
     .a2learn-library-footer { display: grid; gap: 8px; }
+    .a2learn-library-course-actions { display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 8px; }
+    .a2learn-library-lesson-count { min-width: 0; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 9px); padding: 7px; background: var(--a2ui-color-surface); color: inherit; font: inherit; }
     @media (max-width: 640px) { .a2learn-library-panel { top: 118px; right: 12px; } }
 
 /* apps/viewer/src/surface-renderer.ts */

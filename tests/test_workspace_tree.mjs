@@ -255,4 +255,36 @@ describe("Workspace Tree & Store Unit Tests", async () => {
     assert.equal(workspaceStore.getChildCount(subFolder), 0);
     assert.equal(workspaceStore.getState().nodes[lessonA].parentId, null);
   });
+
+  test("Tracks in-flight pending generation and smoothly promotes to permanent project", () => {
+    const tempId = "pending-123";
+    const ok = workspaceStore.startPendingGeneration(tempId, "正在生成中的机器学习课程");
+    assert.equal(ok, true);
+
+    const pendingState = workspaceStore.getState();
+    assert.ok(pendingState.nodes[tempId]);
+    assert.equal(pendingState.nodes[tempId].isGenerating, true);
+    assert.equal(pendingState.activeNodeId, tempId);
+
+    // Generation finishes and promotes to permanent project
+    const realProjectId = "project-real-456";
+    const completeOk = workspaceStore.completePendingGeneration(tempId, realProjectId, "机器学习实战精要");
+    assert.equal(completeOk, true);
+
+    const completedState = workspaceStore.getState();
+    assert.equal(completedState.nodes[tempId], undefined);
+    assert.ok(completedState.nodes[realProjectId]);
+    assert.equal(completedState.nodes[realProjectId].isGenerating, undefined);
+    assert.equal(completedState.nodes[realProjectId].title, "机器学习实战精要");
+    assert.equal(completedState.activeNodeId, realProjectId);
+
+    // Test failing a pending generation
+    const failTempId = "pending-fail-789";
+    workspaceStore.startPendingGeneration(failTempId, "即将失败的任务");
+    assert.equal(workspaceStore.getState().activeNodeId, failTempId);
+
+    workspaceStore.failPendingGeneration(failTempId);
+    assert.equal(workspaceStore.getState().nodes[failTempId], undefined);
+    assert.equal(workspaceStore.getState().activeNodeId, null);
+  });
 });

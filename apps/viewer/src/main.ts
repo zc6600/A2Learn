@@ -99,6 +99,24 @@ const bundledDatabaseLessons: Record<string, { title: Record<Lang, string>; mess
   },
 };
 
+const BOOK_COURSE_LESSON_PREFIX = "book-course:";
+
+function bookCourseLessonNodeId(courseId: string, lessonId: string): string {
+  return `${BOOK_COURSE_LESSON_PREFIX}${encodeURIComponent(courseId)}:${encodeURIComponent(lessonId)}`;
+}
+
+function parseBookCourseLessonNodeId(nodeId: string): { courseId: string; lessonId: string } | null {
+  if (!nodeId.startsWith(BOOK_COURSE_LESSON_PREFIX)) return null;
+  const raw = nodeId.slice(BOOK_COURSE_LESSON_PREFIX.length);
+  const divider = raw.indexOf(":");
+  if (divider < 1) return null;
+  try {
+    return { courseId: decodeURIComponent(raw.slice(0, divider)), lessonId: decodeURIComponent(raw.slice(divider + 1)) };
+  } catch {
+    return null;
+  }
+}
+
 let activeRuntime: {
   container: HTMLElement;
   processor: MessageProcessor<any>;
@@ -509,6 +527,7 @@ async function bootstrapViewer() {
   let container: HTMLElement | null = null;
   let parentOrigin = "*";
   let stopResize: () => void = () => {};
+  let currentPendingGenerationId: string | null = null;
   const languageChangeControllers: Array<{ onLanguageChanged: () => void }> = [];
 
   const editorApiBaseUrl = () =>
@@ -531,6 +550,10 @@ async function bootstrapViewer() {
   };
 
   const openProject = (project: RecentProject, expectedVersion?: number) => {
+    if (currentPendingGenerationId) {
+      workspaceStore.failPendingGeneration(currentPendingGenerationId);
+      currentPendingGenerationId = null;
+    }
     workspaceStore.setActiveNode(project.id);
     return openProjectRuntime({
       project,
@@ -590,6 +613,11 @@ async function bootstrapViewer() {
             if (builtinItem) {
               await selectExample(id);
             } else {
+              const bookLesson = parseBookCourseLessonNodeId(id);
+              if (bookLesson) {
+                await openBookCourseLesson(bookLesson.courseId, bookLesson.lessonId, id);
+                return;
+              }
               const userNode = workspaceStore.getState().nodes[id];
               if (userNode) {
                 await openProject({ id: userNode.id, title: userNode.title, openedAt: userNode.updatedAt });
@@ -720,7 +748,12 @@ async function bootstrapViewer() {
             if (projectId) {
               activeDoc = { type: "project", projectId, title: projectTitle };
               rememberProject(projectId, projectTitle);
-              workspaceStore.recordNewGeneration(projectId, projectTitle);
+              if (currentPendingGenerationId) {
+                workspaceStore.completePendingGeneration(currentPendingGenerationId, projectId, projectTitle);
+                currentPendingGenerationId = null;
+              } else {
+                workspaceStore.recordNewGeneration(projectId, projectTitle);
+              }
               updateProjectUrl(projectId);
             }
           }
@@ -737,6 +770,10 @@ async function bootstrapViewer() {
   };
 
   const selectExample = async (id: string) => {
+    if (currentPendingGenerationId) {
+      workspaceStore.failPendingGeneration(currentPendingGenerationId);
+      currentPendingGenerationId = null;
+    }
     const requestVersion = ++loadVersion;
     const isCurrent = () => requestVersion === loadVersion;
     const item = getExampleItems(getLang()).find((i) => i.id === id);
@@ -782,6 +819,10 @@ async function bootstrapViewer() {
   };
 
   const selectBundledDatabaseLesson = async (id: string) => {
+    if (currentPendingGenerationId) {
+      workspaceStore.failPendingGeneration(currentPendingGenerationId);
+      currentPendingGenerationId = null;
+    }
     const lesson = bundledDatabaseLessons[id];
     if (!lesson || lesson.messages.length === 0) return;
     const requestVersion = ++loadVersion;
@@ -806,6 +847,15 @@ async function bootstrapViewer() {
     narrationController.resetForDocument(
       document.getElementById("page-narration-button") as HTMLButtonElement | null,
     );
+    if (currentPendingGenerationId) {
+      workspaceStore.failPendingGeneration(currentPendingGenerationId);
+      currentPendingGenerationId = null;
+    }
+    const pendingId = `pending-gen-${Date.now()}`;
+    const pendingTitle = promptText.trim() || T[getLang()].defaultGeneratedTitle;
+    workspaceStore.startPendingGeneration(pendingId, pendingTitle);
+    currentPendingGenerationId = pendingId;
+
     activeDoc = { type: "generated", promptText };
     updateProjectUrl(null);
     const currentApiUrl =
@@ -814,6 +864,10 @@ async function bootstrapViewer() {
         : editorApiBaseUrl();
 
     if (!currentApiUrl) {
+      if (currentPendingGenerationId) {
+        workspaceStore.failPendingGeneration(currentPendingGenerationId);
+        currentPendingGenerationId = null;
+      }
       showState(target, T[getLang()].noBackendConfigured, "error");
       return;
     }
@@ -841,6 +895,15 @@ async function bootstrapViewer() {
     narrationController.resetForDocument(
       document.getElementById("page-narration-button") as HTMLButtonElement | null,
     );
+    if (currentPendingGenerationId) {
+      workspaceStore.failPendingGeneration(currentPendingGenerationId);
+      currentPendingGenerationId = null;
+    }
+    const pendingId = `pending-gen-${Date.now()}`;
+    const pendingTitle = resourceQuery.trim() || (getLang() === "zh" ? "资料生成课程" : "Course from sources");
+    workspaceStore.startPendingGeneration(pendingId, pendingTitle);
+    currentPendingGenerationId = pendingId;
+
     activeDoc = { type: "generated", promptText: resourceQuery };
     updateProjectUrl(null);
     const currentApiUrl =
@@ -848,6 +911,10 @@ async function bootstrapViewer() {
         ? initialConfig.source.apiBaseUrl
         : editorApiBaseUrl();
     if (!currentApiUrl) {
+      if (currentPendingGenerationId) {
+        workspaceStore.failPendingGeneration(currentPendingGenerationId);
+        currentPendingGenerationId = null;
+      }
       showState(target, T[getLang()].noBackendConfigured, "error");
       return;
     }
@@ -865,6 +932,105 @@ async function bootstrapViewer() {
     }, false);
   };
 
+  const onCreateBookCourse = async (sourceIds: string[], lessonCount: number) => {
+    const target = container;
+    const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
+    const apiKey = getStoredApiKey();
+    if (!target || !apiBaseUrl || !apiKey) {
+      if (target) showState(target, T[getLang()].noBackendConfigured, "error");
+      return;
+    }
+    showState(target, getLang() === "zh" ? "正在为整本书规划课程大纲…" : "Planning a course map for the book…", "loading");
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/book-course-jobs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({ sourceIds, lessonCount, language: getLang() }),
+      });
+      if (!response.ok) throw new Error(await response.text());
+      const payload = await response.json() as { job?: { jobId?: string } };
+      const jobId = payload.job?.jobId;
+      if (!jobId) throw new Error("Missing course planning job ID");
+      let course: { courseId: string; title: string; lessons: Array<{ lessonId: string; title: string }> } | undefined;
+      for (let attempt = 0; attempt < 300; attempt += 1) {
+        await new Promise((resolve) => window.setTimeout(resolve, 1_000));
+        const status = await fetch(`${apiBaseUrl}/api/book-course-jobs/${encodeURIComponent(jobId)}`, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        });
+        if (!status.ok) throw new Error(await status.text());
+        const result = await status.json() as { job?: { status?: string; courseId?: string; error?: string } };
+        if (result.job?.status === "failed") throw new Error(result.job.error || "Course planning failed");
+        if (result.job?.status !== "ready" || !result.job.courseId) continue;
+        const courseResponse = await fetch(`${apiBaseUrl}/api/book-courses/${encodeURIComponent(result.job.courseId)}`, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        });
+        if (!courseResponse.ok) throw new Error(await courseResponse.text());
+        course = (await courseResponse.json() as { course?: typeof course }).course;
+        break;
+      }
+      if (!course?.courseId || !Array.isArray(course.lessons)) throw new Error("Course planning timed out");
+      const folderId = workspaceStore.createFolder(course.title);
+      for (const lesson of course.lessons) {
+        workspaceStore.recordNewGeneration(
+          bookCourseLessonNodeId(course.courseId, lesson.lessonId),
+          lesson.title,
+          folderId,
+        );
+      }
+      showState(
+        target,
+        getLang() === "zh"
+          ? `已规划 ${course.lessons.length} 节课。请从左侧工作区选择第一节开始生成。`
+          : `Planned ${course.lessons.length} lessons. Select the first lesson in the workspace to generate it.`,
+        "success",
+      );
+    } catch (error) {
+      showState(target, `${getLang() === "zh" ? "课程规划失败" : "Course planning failed"}: ${String(error)}`, "error");
+    }
+  };
+
+  const openBookCourseLesson = async (courseId: string, lessonId: string, nodeId: string) => {
+    const target = container;
+    const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
+    const apiKey = getStoredApiKey();
+    if (!target || !apiBaseUrl || !apiKey) {
+      if (target) showState(target, T[getLang()].noBackendConfigured, "error");
+      return;
+    }
+    const requestVersion = ++loadVersion;
+    workspaceStore.setActiveNode(nodeId);
+    showState(target, getLang() === "zh" ? "正在生成本节课程…" : "Generating this lesson…", "loading");
+    try {
+      const queued = await fetch(
+        `${apiBaseUrl}/api/book-courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}/generate`,
+        { method: "POST", headers: { Authorization: `Bearer ${apiKey}` } },
+      );
+      if (!queued.ok) throw new Error(await queued.text());
+      const body = await queued.json() as { sessionId?: string };
+      if (!body.sessionId) throw new Error("Missing lesson session ID");
+      for (let attempt = 0; attempt < 300; attempt += 1) {
+        await new Promise((resolve) => window.setTimeout(resolve, 1_000));
+        if (requestVersion !== loadVersion) return;
+        const status = await fetch(`${apiBaseUrl}/api/session/${encodeURIComponent(body.sessionId)}/status`, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        });
+        if (!status.ok) throw new Error(await status.text());
+        const result = await status.json() as { status?: string; error?: string; messages?: A2uiMessage[] };
+        if (result.status === "error") throw new Error(result.error || "Lesson generation failed");
+        if (result.status === "ready" && Array.isArray(result.messages)) {
+          activeDoc = { type: "generated", promptText: workspaceStore.getState().nodes[nodeId]?.title };
+          await bootstrapOffline(target, { mode: "offline", messagesUrl: "", messages: result.messages }, () => requestVersion === loadVersion);
+          return;
+        }
+      }
+      throw new Error(getLang() === "zh" ? "生成超时，请稍后重试。" : "Generation timed out; please retry later.");
+    } catch (error) {
+      if (requestVersion === loadVersion) {
+        showState(target, `${getLang() === "zh" ? "本节生成失败" : "Lesson generation failed"}: ${String(error)}`, "error");
+      }
+    }
+  };
+
   const sourceLibrary = initialConfig.embed
     ? null
     : mountSourceLibrary({
@@ -872,6 +1038,7 @@ async function bootstrapViewer() {
         getApiKey: getStoredApiKey,
         getLanguage: () => (getLang() === "en" ? "en" : "zh"),
         onGenerate: onGenerateFromSources,
+        onCreateBookCourse,
       });
   if (sourceLibrary) {
     languageChangeControllers.push(sourceLibrary);

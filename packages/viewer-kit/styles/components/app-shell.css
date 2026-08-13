@@ -327,6 +327,41 @@
     .workspace-tree-item.is-editing {
       background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
     }
+    .workspace-tree-item.is-generating {
+      background: color-mix(in srgb, var(--a2ui-color-primary) 10%, transparent);
+      border: 1px dashed color-mix(in srgb, var(--a2ui-color-primary) 40%, transparent);
+    }
+    .workspace-tree-item.is-generating .tree-title {
+      color: var(--a2ui-color-primary);
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+    }
+    .tree-generating-spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid color-mix(in srgb, var(--a2ui-color-primary) 30%, transparent);
+      border-top-color: var(--a2ui-color-primary);
+      border-radius: 50%;
+      animation: tree-spinner-rotate 0.8s linear infinite;
+      display: inline-block;
+      flex-shrink: 0;
+      margin-right: 2px;
+    }
+    .tree-generating-tag {
+      font-size: 10.5px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: color-mix(in srgb, var(--a2ui-color-primary) 15%, transparent);
+      color: var(--a2ui-color-primary);
+      margin-left: 6px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    @keyframes tree-spinner-rotate {
+      to { transform: rotate(360deg); }
+    }
     /* Drag and drop feedback */
     .workspace-tree-item[draggable="true"] {
       cursor: grab;

@@ -18,6 +18,7 @@ type SourceLibraryOptions = {
   getApiKey: () => string;
   getLanguage: () => Lang;
   onGenerate: (sourceIds: string[], resourceQuery: string) => void;
+  onCreateBookCourse: (sourceIds: string[], lessonCount: number) => void;
 };
 
 export type SourceLibraryController = {
@@ -98,7 +99,19 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   const generate = document.createElement("button");
   generate.className = "a2learn-library-button primary";
   generate.type = "button";
-  footer.append(selected, generate);
+  const courseActions = document.createElement("div");
+  courseActions.className = "a2learn-library-course-actions";
+  const lessonCount = document.createElement("input");
+  lessonCount.type = "number";
+  lessonCount.min = "1";
+  lessonCount.max = "100";
+  lessonCount.value = "10";
+  lessonCount.className = "a2learn-library-lesson-count";
+  const createCourse = document.createElement("button");
+  createCourse.className = "a2learn-library-button";
+  createCourse.type = "button";
+  courseActions.append(lessonCount, createCourse);
+  footer.append(selected, generate, courseActions);
   panel.append(header, actions, hint, message, sourcesElement, goal, footer);
   root.append(panel);
   document.body.appendChild(root);
@@ -127,6 +140,8 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     hint.textContent = copy.unsupportedHint;
     goal.placeholder = copy.goal;
     generate.textContent = copy.generate;
+    lessonCount.setAttribute("aria-label", options.getLanguage() === "zh" ? "课程课时数" : "Number of lessons");
+    createCourse.textContent = options.getLanguage() === "zh" ? "生成整本书课程" : "Plan book course";
     renderSources();
   };
 
@@ -178,6 +193,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     }
     selected.textContent = copy.selected.replace("{count}", String(chosen.size));
     generate.disabled = chosen.size === 0;
+    createCourse.disabled = chosen.size === 0;
   };
 
   const loadSources = async () => {
@@ -254,6 +270,23 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     }
     panel.classList.remove("open");
     options.onGenerate([...chosen], goal.value.trim());
+  });
+  createCourse.addEventListener("click", () => {
+    if (chosen.size === 0) {
+      setMessage(getText(options).selectReady);
+      return;
+    }
+    if (!options.getApiKey()) {
+      setMessage(getText(options).noApiKey);
+      return;
+    }
+    const count = Number.parseInt(lessonCount.value, 10);
+    if (!Number.isInteger(count) || count < 1 || count > 100) {
+      setMessage(options.getLanguage() === "zh" ? "请输入 1 到 100 之间的课时数。" : "Enter a lesson count from 1 to 100.");
+      return;
+    }
+    panel.classList.remove("open");
+    options.onCreateBookCourse([...chosen], count);
   });
 
   root.addEventListener("click", (event) => {

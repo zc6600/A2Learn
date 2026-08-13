@@ -327,7 +327,23 @@ export class WorkspaceStore {
 
   private saveState(): void {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      const serializableNodes: Record<string, WorkspaceNode> = {};
+      Object.entries(this.state.nodes).forEach(([id, node]) => {
+        if (!node.isGenerating) {
+          serializableNodes[id] = node;
+        }
+      });
+      const activeId = this.state.nodes[this.state.activeNodeId || ""]?.isGenerating
+        ? null
+        : this.state.activeNodeId;
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          ...this.state,
+          nodes: serializableNodes,
+          activeNodeId: activeId,
+        }),
+      );
     } catch {
       // Storage quota or private mode protection
     }
@@ -417,7 +433,7 @@ export class WorkspaceStore {
 
   public renameNode(nodeId: string, newTitle: string): boolean {
     const node = this.state.nodes[nodeId];
-    if (!node || node.isBuiltin) return false;
+    if (!node || node.isBuiltin || node.isGenerating) return false;
     const trimmed = newTitle.trim();
     if (!trimmed) return false;
     node.title = trimmed;
@@ -428,7 +444,7 @@ export class WorkspaceStore {
 
   public moveNode(nodeId: string, targetFolderId: string | null): boolean {
     const node = this.state.nodes[nodeId];
-    if (!node || node.isBuiltin) return false;
+    if (!node || node.isBuiltin || node.isGenerating) return false;
 
     // Check if targetFolder is valid
     if (targetFolderId !== null) {
@@ -529,6 +545,54 @@ export class WorkspaceStore {
     this.state.activeNodeId = projectId;
     if (nextParentId) {
       this.state.collapsedFolderIds = this.state.collapsedFolderIds.filter((id) => id !== nextParentId);
+    }
+    this.notify();
+    return true;
+  }
+
+  public startPendingGeneration(
+    tempId: string,
+    title: string,
+    parentFolderId?: string | null,
+  ): boolean {
+    if (!tempId) return false;
+    const nextParentId = parentFolderId && this.isValidUserFolder(parentFolderId) ? parentFolderId : null;
+    const now = new Date().toISOString();
+    this.state.nodes[tempId] = {
+      id: tempId,
+      title: title.trim() || (this.currentLang === "zh" ? "正在生成课程..." : "Generating Course..."),
+      type: "lesson",
+      parentId: nextParentId,
+      isBuiltin: false,
+      isGenerating: true,
+      createdAt: now,
+      updatedAt: now,
+      order: Date.now(),
+    };
+    this.state.activeNodeId = tempId;
+    if (nextParentId) {
+      this.state.collapsedFolderIds = this.state.collapsedFolderIds.filter((id) => id !== nextParentId);
+    }
+    this.notify();
+    return true;
+  }
+
+  public completePendingGeneration(
+    tempId: string,
+    projectId: string,
+    title: string,
+  ): boolean {
+    const pendingNode = this.state.nodes[tempId];
+    const parentId = pendingNode?.parentId ?? null;
+    delete this.state.nodes[tempId];
+    return this.recordNewGeneration(projectId, title, parentId);
+  }
+
+  public failPendingGeneration(tempId: string): boolean {
+    if (!this.state.nodes[tempId]) return false;
+    delete this.state.nodes[tempId];
+    if (this.state.activeNodeId === tempId) {
+      this.state.activeNodeId = null;
     }
     this.notify();
     return true;
