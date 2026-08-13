@@ -180,6 +180,31 @@ The response contains a normal asynchronous `sessionId`. Poll
 messages as a PageDocument project through the existing project API. This
 keeps retries and edits isolated to one lesson.
 
+#### Reader-defined page ranges and batch safety
+
+When the reader, rather than the model, defines the course structure, create a
+course directly from real PDF pages:
+
+```json
+{
+  "sourceId": "src_01abc...",
+  "title": "Linear algebra",
+  "language": "zh",
+  "lessons": [
+    {"title": "向量基础", "pageStart": 1, "pageEnd": 12},
+    {"title": "矩阵运算", "pageStart": 13, "pageEnd": 27}
+  ]
+}
+```
+
+Send this to `POST /api/book-courses/manual`. This uses actual PDF page
+numbers, never printed table-of-contents page numbers. Before generating a
+batch, call `POST /api/book-courses/{courseId}/lessons/batch/preview` with
+`lessonIds`; it returns a conservative input-token estimate and a 24,000-token
+safe threshold. The generate endpoint rejects an oversized batch unless the
+caller explicitly sends `allowOverLimit: true`. Accepted batches still launch
+one independent session per lesson, not one giant model request.
+
 ### 4.4 Stateless Action (`/api/stateless/action`)
 Evaluates user interaction callbacks (e.g. step selection, code run) and returns incremental update messages.
 - **Request**:
