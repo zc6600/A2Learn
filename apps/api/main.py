@@ -469,6 +469,38 @@ async def generate_narration(
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"NARRATION_FAILED: {_sanitize_error_message(exc)}") from exc
+def _get_or_ensure_project(project_id: str) -> tuple[ProjectRecord, list[PageDocument]]:
+    try:
+        return project_store.get(project_id)
+    except ProjectNotFoundError:
+        pass
+
+    # Try to auto-import if it's an example project or course lesson
+    lang: Literal["zh", "en"] = "zh"
+    example_id = project_id
+    if project_id.startswith("example-zh-"):
+        example_id = project_id[len("example-zh-") :]
+        lang = "zh"
+    elif project_id.startswith("example-en-"):
+        example_id = project_id[len("example-en-") :]
+        lang = "en"
+
+    try:
+        documents = load_example_documents(
+            example_id,
+            lang,
+            document_project_id=project_id,
+        )
+        project = project_store.create(
+            project_id,
+            documents,
+            source="example",
+            owner_id=None,
+            actor="human",
+        )
+        return project, documents
+    except (FileNotFoundError, ValueError, KeyError):
+        raise ProjectNotFoundError(f"Project not found: {project_id}")
 
 
 @app.post("/api/projects/{project_id}/narration")
@@ -480,7 +512,7 @@ async def generate_project_narration(
     x_api_key: str | None = Header(default=None),
 ) -> dict[str, Any]:
     try:
-        _, documents = project_store.get(project_id)
+        _, documents = _get_or_ensure_project(project_id)
     except ProjectNotFoundError as exc:
         raise HTTPException(status_code=404, detail="PROJECT_NOT_FOUND") from exc
     try:
@@ -589,7 +621,7 @@ def create_project(payload: ProjectCreateRequest) -> ProjectResponse:
 @app.get("/api/projects/{project_id}", response_model=ProjectResponse)
 def get_project(project_id: str) -> ProjectResponse:
     try:
-        project, documents = project_store.get(project_id)
+        project, documents = _get_or_ensure_project(project_id)
         return ProjectResponse(project=project.to_dict(), documents=[document.to_dict() for document in documents])
     except ProjectNotFoundError as exc:
         raise HTTPException(status_code=404, detail="PROJECT_NOT_FOUND") from exc
@@ -656,9 +688,10 @@ def create_project_from_session(payload: ProjectFromSessionRequest) -> ProjectRe
 @app.get("/api/projects/{project_id}/history", response_model=ProjectHistoryResponse)
 def get_project_history(project_id: str, surface_id: str | None = None) -> ProjectHistoryResponse:
     try:
+        _get_or_ensure_project(project_id)
         changes = project_store.history(project_id)
         if surface_id:
-            _, documents = project_store.get(project_id)
+            _, documents = _get_or_ensure_project(project_id)
             document_ids = {document.document_id for document in documents if document.surface_id == surface_id}
             changes = [change for change in changes if change.get("documentId") in document_ids]
         return ProjectHistoryResponse(changes=changes)
@@ -669,7 +702,7 @@ def get_project_history(project_id: str, surface_id: str | None = None) -> Proje
 @app.post("/api/projects/{project_id}/restore", response_model=PageDocumentResponse)
 def restore_project_document(project_id: str, payload: ProjectRestoreRequest) -> PageDocumentResponse:
     try:
-        project, _ = project_store.get(project_id)
+        project, _ = _get_or_ensure_project(project_id)
     except ProjectNotFoundError as exc:
         raise HTTPException(status_code=404, detail="PROJECT_NOT_FOUND") from exc
     if payload.document_id not in project.document_ids:
@@ -695,14 +728,14 @@ def update_project_component_props(
     payload: ProjectComponentPropsRequest,
 ) -> PageDocumentResponse:
     try:
-        _, documents = project_store.get(project_id)
+        _, documents = _get_or_ensure_project(project_id)
     except ProjectNotFoundError as exc:
         raise HTTPException(status_code=404, detail="PROJECT_NOT_FOUND") from exc
     target = next((document for document in documents if document.surface_id == payload.surface_id), None)
     if target is None:
-        if payload.surface_id:
-            raise HTTPException(status_code=404, detail="PROJECT_SURFACE_NOT_FOUND")
-        target = documents[0]
+        target = documents[0] if documents else None
+    if target is None:
+        raise HTTPException(status_code=404, detail="PROJECT_HAS_NO_SURFACES")
     try:
         document, plan = page_document_store.apply_operations(
             target.document_id,
@@ -730,7 +763,7 @@ def update_project_component_props(
 @app.get("/api/projects/{project_id}/a2ui")
 def get_project_a2ui(project_id: str) -> dict[str, Any]:
     try:
-        _, documents = project_store.get(project_id)
+        _, documents = _get_or_ensure_project(project_id)
     except ProjectNotFoundError as exc:
         raise HTTPException(status_code=404, detail="PROJECT_NOT_FOUND") from exc
 
@@ -751,14 +784,14 @@ def run_project_editor_agent(
     x_api_key: str | None = Header(default=None),
 ) -> StreamingResponse:
     try:
-        _, documents = project_store.get(project_id)
+        _, documents = _get_or_ensure_project(project_id)
     except ProjectNotFoundError as exc:
         raise HTTPException(status_code=404, detail="PROJECT_NOT_FOUND") from exc
     target = next((document for document in documents if document.surface_id == payload.surface_id), None)
     if target is None:
-        if payload.surface_id:
-            raise HTTPException(status_code=404, detail="PROJECT_SURFACE_NOT_FOUND")
-        target = documents[0]
+        target = documents[0] if documents else None
+    if target is None:
+        raise HTTPException(status_code=404, detail="PROJECT_HAS_NO_SURFACES")
 
     api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
     try:
@@ -822,7 +855,7 @@ def resume_project_editor_agent(
     x_api_key: str | None = Header(default=None),
 ) -> StreamingResponse:
     try:
-        _, documents = project_store.get(project_id)
+        _, documents = _get_or_ensure_project(project_id)
     except ProjectNotFoundError as exc:
         raise HTTPException(status_code=404, detail="PROJECT_NOT_FOUND") from exc
     try:

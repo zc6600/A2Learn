@@ -12,6 +12,15 @@ from agent.document.page_document import PageDocument
 
 ExampleLanguage = Literal["zh", "en"]
 
+DATABASE_LESSON_FILES: dict[str, str] = {
+    "database-basics-lesson-1": "01-what-is-a-database.json",
+    "database-basics-lesson-2": "02-ask-the-database.json",
+    "database-basics-lesson-3": "03-change-data.json",
+    "database-basics-lesson-4": "04-design-a-table.json",
+    "database-basics-lesson-5": "05-connect-tables.json",
+    "database-basics-lesson-6": "06-build-a-small-project.json",
+}
+
 EXAMPLE_IDS = frozenset(
     {
         "hash-table",
@@ -23,8 +32,41 @@ EXAMPLE_IDS = frozenset(
         "biophysics-ai",
         "poetry-social",
         "deng-gao",
+        "database-basics",
+        *DATABASE_LESSON_FILES.keys(),
     }
 )
+
+
+def _find_example_file(project_id: str, language: ExampleLanguage = "zh") -> Path | None:
+    repo_root = Path(__file__).resolve().parents[2]
+    # 1. Check custom or default viewer examples root
+    root = Path(os.getenv("A2LEARN_EXAMPLES_ROOT", repo_root / "apps/viewer/public/examples"))
+    path = root / ("en" if language == "en" else "") / f"{project_id}.json"
+    if path.is_file():
+        return path
+
+    # 2. Check if it is a database lesson
+    if project_id in DATABASE_LESSON_FILES:
+        course_file = DATABASE_LESSON_FILES[project_id]
+        course_dir = repo_root / "packages/a2learn-catalog/examples/Website/Course/database-basics"
+        course_path = course_dir / course_file
+        if course_path.is_file():
+            return course_path
+
+    # 3. Check Website catalog examples
+    website_dir = repo_root / "packages/a2learn-catalog/examples/Website"
+    if (website_dir / f"{project_id}.json").is_file():
+        return website_dir / f"{project_id}.json"
+
+    # 4. Check Component catalog examples
+    component_dir = repo_root / "packages/a2learn-catalog/examples/Component"
+    if component_dir.is_dir():
+        for match in component_dir.glob(f"**/{project_id}.json"):
+            if match.is_file():
+                return match
+
+    return None
 
 
 def parse_messages_to_page_documents(
@@ -101,14 +143,12 @@ def load_example_documents(
     This is an import boundary only. Once imported, PageDocument becomes the
     source of truth and later edits do not read or mutate the static JSON file.
     """
-
-    if project_id not in EXAMPLE_IDS:
-        raise ValueError(f"Unknown example project: {project_id}")
+    path = _find_example_file(project_id, language)
+    if path is None or not path.is_file():
+        if project_id not in EXAMPLE_IDS:
+            raise ValueError(f"Unknown example project: {project_id}")
+        raise FileNotFoundError(f"Example source not found for: {project_id}")
     document_project_id = document_project_id or project_id
-    root = Path(os.getenv("A2LEARN_EXAMPLES_ROOT", Path(__file__).resolve().parents[2] / "apps/viewer/public/examples"))
-    path = root / ("en" if language == "en" else "") / f"{project_id}.json"
-    if not path.is_file():
-        raise FileNotFoundError(f"Example source not found: {path}")
     messages = json.loads(path.read_text(encoding="utf-8"))
     documents = parse_messages_to_page_documents(messages, document_project_id)
     if not documents:

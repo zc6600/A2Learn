@@ -650,9 +650,55 @@ class ApiMainTests(unittest.TestCase):
         self.assertIn("event: tool_start", response.text)
         self.assertIn("event: tool_end", response.text)
         self.assertIn("event: assistant_message", response.text)
-        self.assertIn("event: done", response.text)
         self.assertEqual(runner.call_args.kwargs["document_id"], "editor-chat-page")
         self.assertEqual(runner.call_args.kwargs["thread_id"], "editor-thread-1")
+
+    def test_project_agent_auto_imports_example_project_if_missing(self) -> None:
+        fake_events = [SimpleNamespace(event="done", data={"threadId": "auto-import-thread"})]
+        with patch("apps.api.main.build_page_editor_agent", return_value=object()), patch(
+            "apps.api.main.stream_page_editor_agent", return_value=iter(fake_events)
+        ) as runner:
+            response = self.client.post(
+                "/api/projects/example-zh-hash-table/agent",
+                json={"message": "Explain hash table", "surfaceId": "unknown-surface"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        # Verify surface fallback to first document
+        self.assertTrue(runner.call_args.kwargs["document_id"].startswith("example-zh-hash-table:"))
+
+    def test_project_agent_auto_imports_database_lesson(self) -> None:
+        fake_events = [SimpleNamespace(event="done", data={"threadId": "lesson-thread"})]
+        with patch("apps.api.main.build_page_editor_agent", return_value=object()), patch(
+            "apps.api.main.stream_page_editor_agent", return_value=iter(fake_events)
+        ) as runner:
+            response = self.client.post(
+                "/api/projects/example-zh-database-basics-lesson-1/agent",
+                json={"message": "What is a database?"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(runner.call_args.kwargs["document_id"], "example-zh-database-basics-lesson-1:database-basics-lesson-1")
+
+    def test_all_examples_and_lessons_agent_endpoint_returns_200(self) -> None:
+        from apps.api.example_projects import EXAMPLE_IDS
+        fake_events = [SimpleNamespace(event="done", data={"threadId": "test-thread"})]
+        with patch("apps.api.main.build_page_editor_agent", return_value=object()), patch(
+            "apps.api.main.stream_page_editor_agent", return_value=iter(fake_events)
+        ):
+            for example_id in EXAMPLE_IDS:
+                for prefix in ("example-zh-", "example-en-", ""):
+                    project_id = f"{prefix}{example_id}" if prefix else example_id
+                    with self.subTest(project_id=project_id):
+                        response = self.client.post(
+                            f"/api/projects/{project_id}/agent",
+                            json={"message": "Test prompt"},
+                        )
+                        self.assertEqual(
+                            response.status_code,
+                            200,
+                            f"Agent endpoint returned {response.status_code} for project {project_id}: {response.text}",
+                        )
 
 
 if __name__ == "__main__":

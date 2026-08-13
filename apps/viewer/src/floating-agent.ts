@@ -262,20 +262,21 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     if (createForm.classList.contains("open")) createInput.focus();
   });
   const ensureProject = async (projectId: string, apiBaseUrl: string) => {
-    const exampleId = projectId.match(/^example-(?:zh|en)-(.+)$/)?.[1];
-    const ensure = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(projectId)}/ensure-example`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        language: document.documentElement.lang === "en" ? "en" : "zh",
-        exampleId,
-        actor: "human",
-      }),
-    });
-    // Generated projects are already created but are not bundled examples;
-    // their ensure call returns 422 and the following project call is valid.
-    if (!ensure.ok && ensure.status !== 404 && ensure.status !== 409 && ensure.status !== 422) {
-      throw new Error(text(`案例初始化失败 (${ensure.status})`, `Case initialization failed (${ensure.status})`));
+    const exampleMatch = projectId.match(/^example-(?:zh|en)-(.+)$/);
+    const exampleId = exampleMatch ? exampleMatch[1] : (projectId.startsWith("example-") ? projectId.replace(/^example-/, "") : projectId);
+    try {
+      const ensure = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(projectId)}/ensure-example`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          language: document.documentElement.lang === "en" ? "en" : "zh",
+          exampleId,
+          actor: "human",
+        }),
+      });
+      if (ensure.ok || ensure.status === 409) return;
+    } catch {
+      // Backend auto-import fallback on /agent endpoint
     }
   };
   const renderRecents = () => {
@@ -443,7 +444,27 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     onHumanInput: (data: Record<string, any>) => void,
     requestEpoch: number,
   ) => {
-    if (!response.ok || !response.body) throw new Error(`Agent 请求失败 (${response.status})`);
+    if (!response.ok || !response.body) {
+      let detail = "";
+      try {
+        const errorJson = (await response.json()) as { detail?: string | { code?: string; message?: string }; message?: string };
+        if (typeof errorJson?.detail === "string") {
+          detail = errorJson.detail;
+        } else if (typeof errorJson?.detail === "object" && errorJson.detail) {
+          detail = errorJson.detail.message || errorJson.detail.code || JSON.stringify(errorJson.detail);
+        } else if (typeof errorJson?.message === "string") {
+          detail = errorJson.message;
+        }
+      } catch {
+        try {
+          detail = await response.text();
+        } catch {
+          // ignore
+        }
+      }
+      const message = detail ? `Agent 请求失败 (${response.status}: ${detail})` : `Agent 请求失败 (${response.status})`;
+      throw new Error(message);
+    }
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";

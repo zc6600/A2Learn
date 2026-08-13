@@ -516,7 +516,11 @@ async function bootstrapViewer() {
       ? initialConfig.source.apiBaseUrl
       : (
           import.meta.env.VITE_A2LEARN_API_URL ||
-          (import.meta.env.DEV ? "http://localhost:8008" : window.location.origin)
+          (import.meta.env.DEV
+            ? "http://localhost:8008"
+            : (typeof window !== "undefined" && window.location.hostname === "a2learn.zc6600.wiki"
+                ? "https://api.a2learn.zc6600.wiki"
+                : window.location.origin))
         ).trim();
 
   const updateProjectUrl = (projectId: string | null) => {
@@ -807,7 +811,7 @@ async function bootstrapViewer() {
     const currentApiUrl =
       initialConfig.source.mode === "online"
         ? initialConfig.source.apiBaseUrl
-        : (import.meta.env.VITE_A2LEARN_API_URL || "").trim();
+        : editorApiBaseUrl();
 
     if (!currentApiUrl) {
       showState(target, T[getLang()].noBackendConfigured, "error");
@@ -842,7 +846,7 @@ async function bootstrapViewer() {
     const currentApiUrl =
       initialConfig.source.mode === "online"
         ? initialConfig.source.apiBaseUrl
-        : (import.meta.env.VITE_A2LEARN_API_URL || "").trim();
+        : editorApiBaseUrl();
     if (!currentApiUrl) {
       showState(target, T[getLang()].noBackendConfigured, "error");
       return;

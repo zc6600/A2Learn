@@ -154,6 +154,18 @@ class ProjectStoreTests(unittest.TestCase):
                 documents.get("failed-project:main")
             documents.close()
 
+    def test_all_known_examples_load_successfully(self) -> None:
+        from apps.api.example_projects import EXAMPLE_IDS
+        for example_id in EXAMPLE_IDS:
+            with self.subTest(example_id=example_id):
+                docs = load_example_documents(example_id, "zh")
+                self.assertGreater(len(docs), 0, f"Example {example_id} loaded 0 documents")
+                # If an English version exists in public examples, test it as well
+                en_example_path = Path(__file__).resolve().parents[1] / f"apps/viewer/public/examples/en/{example_id}.json"
+                if en_example_path.is_file():
+                    en_docs = load_example_documents(example_id, "en")
+                    self.assertGreater(len(en_docs), 0, f"English example {example_id} loaded 0 documents")
+
 
 if __name__ == "__main__":
     unittest.main()

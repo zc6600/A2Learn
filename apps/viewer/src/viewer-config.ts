@@ -124,7 +124,10 @@ export function configFromLocation(): ViewerRuntimeConfig {
   const themeVars = normalizeThemeVars(parsedTheme);
   const themeId = normalizeThemeId(params.get("themeId") || "");
 
-  const envApiUrl = (import.meta.env.VITE_A2LEARN_API_URL || "").trim();
+  const envApiUrl = (import.meta.env.VITE_A2LEARN_API_URL || "").trim() ||
+    (typeof window !== "undefined" && window.location.hostname === "a2learn.zc6600.wiki"
+      ? "https://api.a2learn.zc6600.wiki"
+      : "");
   const envMessagesUrl = (import.meta.env.VITE_A2LEARN_MESSAGES_URL || "").trim();
   const envResourcePath = (import.meta.env.VITE_A2LEARN_RESOURCE_PATH || "").trim();
   const envResourceText = (import.meta.env.VITE_A2LEARN_RESOURCE_TEXT || "").trim();

@@ -219,14 +219,17 @@ export function mountInlineComponentEditor(options: InlineEditorOptions): Inline
   const text = (zh: string, en: string) => options.getLanguage() === "en" ? en : zh;
 
   const ensureProject = async (projectId: string, apiBaseUrl: string) => {
-    const exampleId = projectId.match(/^example-(?:zh|en)-(.+)$/)?.[1];
-    const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(projectId)}/ensure-example`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ language: options.getLanguage(), exampleId, actor: "human" }),
-    });
-    if (!response.ok && ![404, 409, 422].includes(response.status)) {
-      throw new Error(text(`案例初始化失败 (${response.status})`, `Case initialization failed (${response.status})`));
+    const exampleMatch = projectId.match(/^example-(?:zh|en)-(.+)$/);
+    const exampleId = exampleMatch ? exampleMatch[1] : (projectId.startsWith("example-") ? projectId.replace(/^example-/, "") : projectId);
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(projectId)}/ensure-example`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language: options.getLanguage(), exampleId, actor: "human" }),
+      });
+      if (response.ok || response.status === 409) return;
+    } catch {
+      // Backend auto-import fallback
     }
   };
 
