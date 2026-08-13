@@ -30,7 +30,7 @@ import {
   getStoredApiKey,
 } from "./shell-controls";
 import { NarrationController } from "./narration-controller";
-import { sendOnlineSessionAction, startOnlineSession } from "./online-session";
+import { resumeOnlineSession, sendOnlineSessionAction, startOnlineSession } from "./online-session";
 import { CHROME_STRINGS, T } from "./viewer-copy";
 import { loadViewerSource } from "./viewer-loader";
 import {
@@ -227,8 +227,12 @@ async function bootstrapOnline(
   source: ViewerSourceOnline,
   isCurrent: () => boolean = () => true,
   onSessionReady?: (sessionId: string, messages: A2uiMessage[]) => void,
+  existingSessionId?: string,
+  onSessionStarted?: (sessionId: string) => void,
 ): Promise<boolean> {
-  const session = await startOnlineSession(source, getStoredGenerationProfile());
+  const session = existingSessionId
+    ? await resumeOnlineSession(source, existingSessionId)
+    : await startOnlineSession(source, getStoredGenerationProfile(), onSessionStarted);
   const sessionId = session.sessionId;
   const initialMessages = session.messages;
   if (!isCurrent()) return false;
@@ -528,6 +532,14 @@ async function bootstrapViewer() {
   let parentOrigin = "*";
   let stopResize: () => void = () => {};
   let currentPendingGenerationId: string | null = null;
+  // The DOM is intentionally rebuilt on language changes. Keep an in-flight
+  // generation outside that DOM so the rebuilt shell can reconnect to it.
+  let activeGeneration: {
+    token: string;
+    source: ViewerSourceOnline;
+    sessionId?: string;
+    resumeRequestVersion?: number;
+  } | null = null;
   const languageChangeControllers: Array<{ onLanguageChanged: () => void }> = [];
 
   const editorApiBaseUrl = () =>
@@ -554,6 +566,7 @@ async function bootstrapViewer() {
       workspaceStore.failPendingGeneration(currentPendingGenerationId);
       currentPendingGenerationId = null;
     }
+    activeGeneration = null;
     workspaceStore.setActiveNode(project.id);
     return openProjectRuntime({
       project,
@@ -709,6 +722,8 @@ async function bootstrapViewer() {
     cfg: ViewerRuntimeConfig,
     fallbackToOffline: boolean = true,
     expectedVersion?: number,
+    generationToken?: string,
+    existingSessionId?: string,
   ) => {
     const requestVersion = expectedVersion ?? ++loadVersion;
     const isCurrent = () => requestVersion === loadVersion;
@@ -754,12 +769,28 @@ async function bootstrapViewer() {
               } else {
                 workspaceStore.recordNewGeneration(projectId, projectTitle);
               }
+              if (activeGeneration?.token === generationToken) {
+                activeGeneration = null;
+              }
               updateProjectUrl(projectId);
             }
           }
         } catch {
           // Gracefully fallback: in-memory session still active
         }
+      }, existingSessionId, (sessionId) => {
+        if (!generationToken || activeGeneration?.token !== generationToken) return;
+        activeGeneration.sessionId = sessionId;
+        const resumeVersion = activeGeneration.resumeRequestVersion;
+        if (resumeVersion === undefined) return;
+        activeGeneration.resumeRequestVersion = undefined;
+        void startWithConfig(
+          { embed: false, source: activeGeneration.source },
+          false,
+          resumeVersion,
+          generationToken,
+          sessionId,
+        );
       }),
       bootstrapOffline,
       onLoaded: () => {
@@ -774,6 +805,7 @@ async function bootstrapViewer() {
       workspaceStore.failPendingGeneration(currentPendingGenerationId);
       currentPendingGenerationId = null;
     }
+    activeGeneration = null;
     const requestVersion = ++loadVersion;
     const isCurrent = () => requestVersion === loadVersion;
     const item = getExampleItems(getLang()).find((i) => i.id === id);
@@ -823,6 +855,7 @@ async function bootstrapViewer() {
       workspaceStore.failPendingGeneration(currentPendingGenerationId);
       currentPendingGenerationId = null;
     }
+    activeGeneration = null;
     const lesson = bundledDatabaseLessons[id];
     if (!lesson || lesson.messages.length === 0) return;
     const requestVersion = ++loadVersion;
@@ -851,6 +884,7 @@ async function bootstrapViewer() {
       workspaceStore.failPendingGeneration(currentPendingGenerationId);
       currentPendingGenerationId = null;
     }
+    activeGeneration = null;
     const pendingId = `pending-gen-${Date.now()}`;
     const pendingTitle = promptText.trim() || T[getLang()].defaultGeneratedTitle;
     workspaceStore.startPendingGeneration(pendingId, pendingTitle);
@@ -883,10 +917,11 @@ async function bootstrapViewer() {
         headers: userKey ? { Authorization: `Bearer ${userKey}` } : undefined,
       },
     };
+    activeGeneration = { token: pendingId, source: onlineConfig.source };
     // User explicitly asked to generate from their own prompt — on failure,
     // leave the error on screen instead of silently swapping in the static
     // demo gallery content (see startWithConfig's fallbackToOffline comment).
-    void startWithConfig(onlineConfig, false);
+    void startWithConfig(onlineConfig, false, undefined, pendingId);
   };
 
   const onGenerateFromSources = (sourceIds: string[], resourceQuery: string) => {
@@ -899,6 +934,7 @@ async function bootstrapViewer() {
       workspaceStore.failPendingGeneration(currentPendingGenerationId);
       currentPendingGenerationId = null;
     }
+    activeGeneration = null;
     const pendingId = `pending-gen-${Date.now()}`;
     const pendingTitle = resourceQuery.trim() || (getLang() === "zh" ? "资料生成课程" : "Course from sources");
     workspaceStore.startPendingGeneration(pendingId, pendingTitle);
@@ -919,7 +955,7 @@ async function bootstrapViewer() {
       return;
     }
     const userKey = getStoredApiKey();
-    void startWithConfig({
+    const onlineConfig: ViewerRuntimeConfig = {
       embed: false,
       source: {
         mode: "online",
@@ -929,7 +965,9 @@ async function bootstrapViewer() {
         language: getLang(),
         headers: userKey ? { Authorization: `Bearer ${userKey}` } : undefined,
       },
-    }, false);
+    };
+    activeGeneration = { token: pendingId, source: onlineConfig.source };
+    void startWithConfig(onlineConfig, false, undefined, pendingId);
   };
 
   const onCreateBookCourse = async (sourceIds: string[], lessonCount: number) => {
@@ -1141,6 +1179,20 @@ async function bootstrapViewer() {
       }
     }
     if (requestVersion !== loadVersion) return;
+    if (doc.type === "generated" && activeGeneration) {
+      activeGeneration.resumeRequestVersion = requestVersion;
+      if (activeGeneration.sessionId) {
+        activeGeneration.resumeRequestVersion = undefined;
+        await startWithConfig(
+          { embed: false, source: activeGeneration.source },
+          false,
+          requestVersion,
+          activeGeneration.token,
+          activeGeneration.sessionId,
+        );
+      }
+      return;
+    }
     if (doc.type === "project" && activeRuntime) {
       activeRuntime = { ...activeRuntime, container: target };
       renderSurfaces(target, activeRuntime.processor, activeRuntime.modeHint);

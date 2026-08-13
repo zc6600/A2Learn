@@ -24,6 +24,7 @@ export type OnlineSession = {
 export async function startOnlineSession(
   source: ViewerSourceOnline,
   generationProfile: GenerationProfile,
+  onSessionStarted?: (sessionId: string) => void,
 ): Promise<OnlineSession> {
   const headers = buildHeaders(source.headers);
   const startPayload = {
@@ -48,6 +49,10 @@ export async function startOnlineSession(
   if (!sessionId) {
     throw new Error("Online session response format error.");
   }
+  // Let the UI retain the server-side job id before waiting for completion.
+  // A shell re-render (for example, switching languages) can then reconnect
+  // to the same job instead of losing the in-flight course.
+  onSessionStarted?.(sessionId);
 
   let messages: A2uiMessage[];
   if (startData.status === "error") {
@@ -58,6 +63,24 @@ export async function startOnlineSession(
     messages = await pollSessionUntilReady(source.apiBaseUrl, headers, sessionId);
   }
 
+  return {
+    sessionId,
+    messages: resolveGeneratedImageUrls(messages, source.apiBaseUrl),
+  };
+}
+
+/** Reconnect to an already-created generation session without starting a
+ * second course-generation request. */
+export async function resumeOnlineSession(
+  source: ViewerSourceOnline,
+  sessionId: string,
+): Promise<OnlineSession> {
+  const messages = await pollSessionUntilReady(
+    source.apiBaseUrl,
+    buildHeaders(source.headers),
+    sessionId,
+    true,
+  );
   return {
     sessionId,
     messages: resolveGeneratedImageUrls(messages, source.apiBaseUrl),
@@ -87,10 +110,14 @@ async function pollSessionUntilReady(
   apiBaseUrl: string,
   headers: Record<string, string>,
   sessionId: string,
+  checkImmediately = false,
 ): Promise<A2uiMessage[]> {
   const deadline = Date.now() + MAX_WAIT_MS;
   while (Date.now() < deadline) {
-    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+    if (!checkImmediately) {
+      await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+    }
+    checkImmediately = false;
     const response = await fetch(`${apiBaseUrl}/api/session/${sessionId}/status`, { headers });
     if (!response.ok) {
       throw new Error(`Session status check failed (${response.status})`);
