@@ -989,6 +989,58 @@ async function bootstrapViewer() {
     }
   };
 
+  const onCreateManualCourse = async (
+    sourceId: string,
+    title: string,
+    lessons: Array<{ title: string; pageStart: number; pageEnd: number }>,
+  ) => {
+    const target = container;
+    const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
+    const apiKey = getStoredApiKey();
+    if (!target || !apiBaseUrl || !apiKey) {
+      if (target) showState(target, T[getLang()].noBackendConfigured, "error");
+      return;
+    }
+    showState(target, getLang() === "zh" ? "正在检查所选页面的内容量…" : "Checking the selected pages…", "loading");
+    try {
+      const create = await fetch(`${apiBaseUrl}/api/book-courses/manual`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({ sourceId, title, language: getLang(), lessons }),
+      });
+      if (!create.ok) throw new Error(await create.text());
+      const course = (await create.json() as { course: { courseId: string; lessons: Array<{ lessonId: string; title: string }> } }).course;
+      const lessonIds = course.lessons.map((lesson) => lesson.lessonId);
+      const previewResponse = await fetch(`${apiBaseUrl}/api/book-courses/${encodeURIComponent(course.courseId)}/lessons/batch/preview`, {
+        method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({ lessonIds }),
+      });
+      if (!previewResponse.ok) throw new Error(await previewResponse.text());
+      const preview = await previewResponse.json() as { estimatedInputTokens: number; safeLimitTokens: number; exceedsSafeLimit: boolean };
+      const folderId = workspaceStore.createFolder(title);
+      for (const lesson of course.lessons) {
+        workspaceStore.recordNewGeneration(bookCourseLessonNodeId(course.courseId, lesson.lessonId), lesson.title, folderId);
+      }
+      if (preview.exceedsSafeLimit) {
+        const copy = getLang() === "zh"
+          ? `本次 ${lessons.length} 节课约需 ${preview.estimatedInputTokens.toLocaleString()} 输入 tokens，超过建议上限 ${preview.safeLimitTokens.toLocaleString()}。建议拆成多批。仍要按课时队列生成吗？`
+          : `${lessons.length} lessons need about ${preview.estimatedInputTokens.toLocaleString()} input tokens, above the ${preview.safeLimitTokens.toLocaleString()} safe limit. Split the batch if possible. Queue independent lessons anyway?`;
+        if (!window.confirm(copy)) {
+          showState(target, getLang() === "zh" ? "已保存课时拆分；请缩小范围或稍后分批生成。" : "Lesson ranges saved. Narrow them or generate in smaller batches later.", "success");
+          return;
+        }
+      }
+      const generate = await fetch(`${apiBaseUrl}/api/book-courses/${encodeURIComponent(course.courseId)}/lessons/batch/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({ lessonIds, allowOverLimit: preview.exceedsSafeLimit }),
+      });
+      if (!generate.ok) throw new Error(await generate.text());
+      showState(target, getLang() === "zh" ? `已将 ${lessons.length} 节课加入独立生成队列。` : `${lessons.length} lessons were added to independent generation queues.`, "success");
+    } catch (error) {
+      showState(target, `${getLang() === "zh" ? "创建课程失败" : "Course creation failed"}: ${String(error)}`, "error");
+    }
+  };
+
   const openBookCourseLesson = async (courseId: string, lessonId: string, nodeId: string) => {
     const target = container;
     const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
@@ -1039,6 +1091,7 @@ async function bootstrapViewer() {
         getLanguage: () => (getLang() === "en" ? "en" : "zh"),
         onGenerate: onGenerateFromSources,
         onCreateBookCourse,
+        onCreateManualCourse,
       });
   if (sourceLibrary) {
     languageChangeControllers.push(sourceLibrary);

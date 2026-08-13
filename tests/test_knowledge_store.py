@@ -46,6 +46,17 @@ class KnowledgeStoreTests(unittest.TestCase):
         with self.assertRaises(KnowledgeSourceNotReadyError):
             self.store.build_generation_context([source.source_id])
 
+    def test_course_planning_context_samples_the_start_and_end_of_a_long_source(self) -> None:
+        pages = [(1, "first chapter " + "x" * 1_300), (2, "middle chapter " + "y" * 1_300), (3, "last chapter " + "z" * 1_300)]
+        source = self.store.ingest_upload(
+            io.BytesIO("\n\n".join(text for _, text in pages).encode()),
+            "long-book.md",
+            "text/markdown",
+        )
+        context = self.store.build_course_planning_context([source.source_id], samples_per_source=3)
+        self.assertIn("first chapter", context)
+        self.assertIn("last chapter", context)
+
     def test_rejects_unsupported_file_type(self) -> None:
         with self.assertRaises(InvalidKnowledgeUploadError):
             self.store.ingest_upload(io.BytesIO(b"binary"), "archive.exe", "application/octet-stream")

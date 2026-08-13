@@ -183,6 +183,35 @@ def plan_curriculum(llm: Any, resource_text: str, target_language: str = "zh") -
     )
 
 
+def plan_book_course(
+    llm: Any,
+    resource_text: str,
+    lesson_count: int,
+    target_language: str = "zh",
+) -> dict[str, Any]:
+    """Create a compact, source-grounded course map before lesson generation."""
+    if not 1 <= lesson_count <= 100:
+        raise ValueError("lesson_count must be between 1 and 100.")
+    language = "English" if target_language == "en" else "Simplified Chinese"
+    system_prompt = (
+        "You plan a book-based A2Learn course. Return ONLY a JSON object.\n"
+        f"All learner-facing strings must be in {language}.\n"
+        'Return exactly this shape: {"title": string, "summary": string, "lessons": array}.\n'
+        f"The lessons array MUST contain exactly {lesson_count} entries. Each entry MUST contain "
+        '"title" (string), "objectives" (array of concise strings), "keyConcepts" (array of strings), '
+        'and "sourcePages" (array of positive integer page numbers cited in the source markers).\n'
+        "Cover the book progressively, do not invent pages, and make every lesson independently teachable."
+    )
+    return _invoke_and_parse(
+        llm,
+        [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": "Plan the course from this retrieved book context:\n\n" + resource_text},
+        ],
+        _extract_json_object,
+    )
+
+
 def build_site_plan(
     llm: Any,
     curriculum: dict[str, Any],

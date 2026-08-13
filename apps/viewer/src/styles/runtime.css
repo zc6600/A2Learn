@@ -262,6 +262,11 @@
     .a2learn-library-footer { display: grid; gap: 8px; }
     .a2learn-library-course-actions { display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 8px; }
     .a2learn-library-lesson-count { min-width: 0; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 9px); padding: 7px; background: var(--a2ui-color-surface); color: inherit; font: inherit; }
+    .a2learn-library-manual-course { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 4px; border-top: 1px solid var(--a2ui-color-border); }
+    .a2learn-library-manual-course > :first-child, .a2learn-library-manual-course > :nth-child(6), .a2learn-library-manual-course > :last-child { grid-column: 1 / -1; }
+    .a2learn-library-manual-lessons { display: grid; gap: 5px; max-height: 120px; overflow: auto; }
+    .a2learn-library-manual-lesson { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--app-muted); }
+    .a2learn-library-manual-lesson button { border: 0; background: transparent; color: inherit; cursor: pointer; }
     @media (max-width: 640px) { .a2learn-library-panel { top: 118px; right: 12px; } }
 
 /* apps/viewer/src/surface-renderer.ts */

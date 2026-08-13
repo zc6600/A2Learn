@@ -1,3 +1,4 @@
+import io
 import tempfile
 import unittest
 from pathlib import Path
@@ -7,6 +8,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from apps.api.knowledge_store import KnowledgeStore
+from apps.api.course_store import CourseStore
 from apps.api.main import app
 from apps.api.session_store import SessionState
 
@@ -97,6 +99,73 @@ class ApiMainTests(unittest.TestCase):
 
                 self.assertEqual(response.status_code, 200)
                 self.assertIn("[Source: notes, page 1]", create.call_args.kwargs["resource_text"])
+
+    def test_book_course_plan_then_queues_one_lesson(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            sources = KnowledgeStore(root / "knowledge.sqlite3", root / "files")
+            source = sources.ingest_upload(
+                io.BytesIO(b"Page one introduces vectors.\n\nPage two explains dot products."),
+                "vectors.md",
+                "text/markdown",
+            )
+            courses = CourseStore(root / "courses.sqlite3")
+            plan = {
+                "title": "Vectors",
+                "summary": "A short course",
+                "lessons": [{
+                    "title": "Vector foundations",
+                    "objectives": ["Understand vectors"],
+                    "keyConcepts": ["vector"],
+                    "sourcePages": [1],
+                }],
+            }
+            session = SessionState(session_id="sess_lesson", resource_path="text-input", messages=[], surface_ids=[])
+            with patch("apps.api.main.knowledge_store", sources), patch("apps.api.main.course_store", courses), patch(
+                "apps.api.main.build_llm", return_value=object()
+            ), patch("apps.api.main.plan_book_course", return_value=plan):
+                created = self.client.post(
+                    "/api/book-courses",
+                    json={"sourceIds": [source.source_id], "lessonCount": 1, "language": "en"},
+                )
+                self.assertEqual(created.status_code, 201, created.text)
+                course = created.json()["course"]
+                lesson = course["lessons"][0]
+                with patch("apps.api.main.store.create", return_value=session) as create:
+                    queued = self.client.post(
+                        f"/api/book-courses/{course['courseId']}/lessons/{lesson['lessonId']}/generate"
+                    )
+                self.assertEqual(queued.status_code, 200, queued.text)
+                self.assertEqual(queued.json()["sessionId"], "sess_lesson")
+                self.assertEqual(queued.json()["lesson"]["status"], "generating")
+                self.assertIn("vectors", create.call_args.kwargs["resource_text"].lower())
+
+    def test_reader_defined_pdf_ranges_preview_and_batch_queue(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            sources = KnowledgeStore(root / "knowledge.sqlite3", root / "files")
+            source = sources.ingest_upload(io.BytesIO(b"Vectors have magnitude and direction."), "vectors.md", "text/markdown")
+            courses = CourseStore(root / "courses.sqlite3")
+            session = SessionState(session_id="sess_batch", resource_path="text-input", messages=[], surface_ids=[])
+            with patch("apps.api.main.knowledge_store", sources), patch("apps.api.main.course_store", courses):
+                created = self.client.post("/api/book-courses/manual", json={
+                    "sourceId": source.source_id, "title": "Vector course", "language": "en",
+                    "lessons": [{"title": "Foundations", "pageStart": 1, "pageEnd": 1}],
+                })
+                self.assertEqual(created.status_code, 201, created.text)
+                course = created.json()["course"]
+                lesson_id = course["lessons"][0]["lessonId"]
+                preview = self.client.post(
+                    f"/api/book-courses/{course['courseId']}/lessons/batch/preview", json={"lessonIds": [lesson_id]}
+                )
+                self.assertEqual(preview.status_code, 200, preview.text)
+                self.assertGreater(preview.json()["estimatedInputTokens"], 0)
+                with patch("apps.api.main.store.create", return_value=session) as create:
+                    queued = self.client.post(
+                        f"/api/book-courses/{course['courseId']}/lessons/batch/generate", json={"lessonIds": [lesson_id]}
+                    )
+                self.assertEqual(queued.status_code, 202, queued.text)
+                self.assertEqual(create.call_count, 1)
 
     def test_session_status_pending_omits_messages(self) -> None:
         session = SessionState(

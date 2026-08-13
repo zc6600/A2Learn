@@ -19,6 +19,7 @@ type SourceLibraryOptions = {
   getLanguage: () => Lang;
   onGenerate: (sourceIds: string[], resourceQuery: string) => void;
   onCreateBookCourse: (sourceIds: string[], lessonCount: number) => void;
+  onCreateManualCourse: (sourceId: string, title: string, lessons: Array<{ title: string; pageStart: number; pageEnd: number }>) => void;
 };
 
 export type SourceLibraryController = {
@@ -111,13 +112,39 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   createCourse.className = "a2learn-library-button";
   createCourse.type = "button";
   courseActions.append(lessonCount, createCourse);
-  footer.append(selected, generate, courseActions);
+  const manual = document.createElement("section");
+  manual.className = "a2learn-library-manual-course";
+  const manualTitle = document.createElement("input");
+  manualTitle.className = "a2learn-library-lesson-count";
+  const lessonTitle = document.createElement("input");
+  lessonTitle.className = "a2learn-library-lesson-count";
+  const pageStart = document.createElement("input");
+  pageStart.type = "number";
+  pageStart.min = "1";
+  pageStart.value = "1";
+  pageStart.className = "a2learn-library-lesson-count";
+  const pageEnd = document.createElement("input");
+  pageEnd.type = "number";
+  pageEnd.min = "1";
+  pageEnd.value = "1";
+  pageEnd.className = "a2learn-library-lesson-count";
+  const addLesson = document.createElement("button");
+  addLesson.className = "a2learn-library-button";
+  addLesson.type = "button";
+  const manualLessons = document.createElement("div");
+  manualLessons.className = "a2learn-library-manual-lessons";
+  const generateManual = document.createElement("button");
+  generateManual.className = "a2learn-library-button primary";
+  generateManual.type = "button";
+  manual.append(manualTitle, lessonTitle, pageStart, pageEnd, addLesson, manualLessons, generateManual);
+  footer.append(selected, generate, courseActions, manual);
   panel.append(header, actions, hint, message, sourcesElement, goal, footer);
   root.append(panel);
   document.body.appendChild(root);
 
   let sources: KnowledgeSource[] = [];
   const chosen = new Set<string>();
+  let readerLessons: Array<{ title: string; pageStart: number; pageEnd: number }> = [];
   let isLoading = false;
   let hasLoadError = false;
 
@@ -142,6 +169,12 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     generate.textContent = copy.generate;
     lessonCount.setAttribute("aria-label", options.getLanguage() === "zh" ? "课程课时数" : "Number of lessons");
     createCourse.textContent = options.getLanguage() === "zh" ? "生成整本书课程" : "Plan book course";
+    manualTitle.placeholder = options.getLanguage() === "zh" ? "课程名称（手动拆分）" : "Course title (manual split)";
+    lessonTitle.placeholder = options.getLanguage() === "zh" ? "课时名称" : "Lesson title";
+    pageStart.setAttribute("aria-label", options.getLanguage() === "zh" ? "起始 PDF 页" : "Start PDF page");
+    pageEnd.setAttribute("aria-label", options.getLanguage() === "zh" ? "结束 PDF 页" : "End PDF page");
+    addLesson.textContent = options.getLanguage() === "zh" ? "添加页码范围" : "Add page range";
+    generateManual.textContent = options.getLanguage() === "zh" ? "按所选内容批量生成" : "Generate selected lessons";
     renderSources();
   };
 
@@ -194,6 +227,22 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     selected.textContent = copy.selected.replace("{count}", String(chosen.size));
     generate.disabled = chosen.size === 0;
     createCourse.disabled = chosen.size === 0;
+    generateManual.disabled = chosen.size !== 1 || readerLessons.length === 0 || !manualTitle.value.trim();
+    manualLessons.replaceChildren(...readerLessons.map((lesson, index) => {
+      const item = document.createElement("div");
+      item.className = "a2learn-library-manual-lesson";
+      const label = document.createElement("span");
+      label.textContent = `${lesson.title} · PDF p.${lesson.pageStart}–${lesson.pageEnd}`;
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "×";
+      remove.addEventListener("click", () => {
+        readerLessons = readerLessons.filter((_, current) => current !== index);
+        renderSources();
+      });
+      item.append(label, remove);
+      return item;
+    }));
   };
 
   const loadSources = async () => {
@@ -287,6 +336,26 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     }
     panel.classList.remove("open");
     options.onCreateBookCourse([...chosen], count);
+  });
+  addLesson.addEventListener("click", () => {
+    const start = Number.parseInt(pageStart.value, 10);
+    const end = Number.parseInt(pageEnd.value, 10);
+    const name = lessonTitle.value.trim();
+    if (!name || !Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start) {
+      setMessage(options.getLanguage() === "zh" ? "请填写课时名称和有效的 PDF 页码范围。" : "Enter a lesson title and valid PDF page range.");
+      return;
+    }
+    readerLessons = [...readerLessons, { title: name, pageStart: start, pageEnd: end }];
+    lessonTitle.value = "";
+    pageStart.value = String(end + 1);
+    pageEnd.value = String(end + 1);
+    renderSources();
+  });
+  manualTitle.addEventListener("input", renderSources);
+  generateManual.addEventListener("click", () => {
+    if (chosen.size !== 1 || !manualTitle.value.trim() || readerLessons.length === 0) return;
+    panel.classList.remove("open");
+    options.onCreateManualCourse([...chosen][0], manualTitle.value.trim(), readerLessons);
   });
 
   root.addEventListener("click", (event) => {

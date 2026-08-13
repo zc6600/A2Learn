@@ -352,6 +352,73 @@ class KnowledgeStore:
         return chunks[:max(1, min(limit, 100))]
 
     def build_generation_context(self, source_ids: list[str], query: str | None = None, character_budget: int = MAX_CONTEXT_CHARS) -> str:
+        return self._build_context(source_ids, query=query, character_budget=character_budget)
+
+    def build_lesson_context(
+        self,
+        source_ids: list[str],
+        source_pages: list[int],
+        query: str | None = None,
+        character_budget: int = MAX_CONTEXT_CHARS,
+    ) -> str:
+        """Build bounded context from the pages assigned to one lesson."""
+        return self._build_context(
+            source_ids,
+            query=query,
+            character_budget=character_budget,
+            source_pages=set(source_pages),
+        )
+
+    def estimate_pages(self, source_id: str, pages: list[int]) -> int:
+        """Estimate the exact extracted characters selected by a reader."""
+        source = self.get(source_id)
+        if source.extraction_status != "ready":
+            raise KnowledgeSourceNotReadyError(f"{source.title} is {source.extraction_status}: {source.error or 'text is unavailable'}")
+        selected = set(pages)
+        return sum(len(chunk.content) for chunk in self.chunks(source_id, limit=100) if chunk.page_start in selected)
+
+    def build_course_planning_context(
+        self,
+        source_ids: list[str],
+        character_budget: int = MAX_CONTEXT_CHARS,
+        samples_per_source: int = 16,
+    ) -> str:
+        """Return an evenly distributed book map for planning a long course.
+
+        Unlike lesson retrieval, a course outline needs coverage of the start,
+        middle, and end of a source. It samples page chunks across each source
+        instead of consuming the first 12k characters in document order.
+        """
+        if not source_ids:
+            raise ValueError("At least one source ID is required.")
+        selected: list[tuple[KnowledgeSource, KnowledgeChunk]] = []
+        for source_id in dict.fromkeys(source_ids):
+            source = self.get(source_id)
+            if source.extraction_status != "ready":
+                raise KnowledgeSourceNotReadyError(f"{source.title} is {source.extraction_status}: {source.error or 'text is unavailable'}")
+            chunks = self.chunks(source.source_id, limit=100)
+            if not chunks:
+                continue
+            count = min(samples_per_source, len(chunks))
+            indices = [round(index * (len(chunks) - 1) / max(count - 1, 1)) for index in range(count)]
+            selected.extend((source, chunks[index]) for index in dict.fromkeys(indices))
+        if not selected:
+            raise KnowledgeSourceNotReadyError("No extracted text is available for the selected sources.")
+        per_sample = max(200, character_budget // len(selected))
+        parts = []
+        for source, chunk in selected:
+            prefix = f"[Source: {source.title}, page {chunk.page_start or 'n/a'}]\n"
+            parts.append(prefix + chunk.content[: max(0, per_sample - len(prefix))])
+        return "\n\n".join(parts)[:character_budget]
+
+    def _build_context(
+        self,
+        source_ids: list[str],
+        *,
+        query: str | None,
+        character_budget: int,
+        source_pages: set[int] | None = None,
+    ) -> str:
         if not source_ids:
             raise ValueError("At least one source ID is required.")
         parts: list[str] = []
@@ -360,7 +427,15 @@ class KnowledgeStore:
             source = self.get(source_id)
             if source.extraction_status != "ready":
                 raise KnowledgeSourceNotReadyError(f"{source.title} is {source.extraction_status}: {source.error or 'text is unavailable'}")
-            for chunk in self.chunks(source.source_id, query=query, limit=100):
+            chunks = self.chunks(source.source_id, query=query, limit=100)
+            if source_pages:
+                page_chunks = [chunk for chunk in chunks if chunk.page_start in source_pages]
+                if not page_chunks:
+                    raise KnowledgeSourceNotReadyError(
+                        f"No extracted text was found for the selected pages in {source.title}."
+                    )
+                chunks = page_chunks
+            for chunk in chunks:
                 citation = f"[Source: {source.title}, page {chunk.page_start or 'n/a'}]"
                 piece = f"{citation}\n{chunk.content}\n"
                 if len(piece) > remaining:

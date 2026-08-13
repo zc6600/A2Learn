@@ -153,6 +153,40 @@ class CourseLessonGenerationResponse(BaseModel):
     lesson: dict[str, Any]
     session_id: str = Field(alias="sessionId")
 
+
+class ManualCourseLessonRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=300)
+    page_start: int = Field(alias="pageStart", ge=1)
+    page_end: int = Field(alias="pageEnd", ge=1)
+
+    @model_validator(mode="after")
+    def valid_range(self) -> "ManualCourseLessonRequest":
+        if self.page_end < self.page_start:
+            raise ValueError("pageEnd must be greater than or equal to pageStart.")
+        if self.page_end - self.page_start >= 100:
+            raise ValueError("A lesson may span at most 100 PDF pages.")
+        return self
+
+
+class ManualBookCourseRequest(BaseModel):
+    source_id: str = Field(alias="sourceId", min_length=1)
+    title: str = Field(min_length=1, max_length=300)
+    language: Literal["zh", "en"] = "zh"
+    lessons: list[ManualCourseLessonRequest] = Field(min_length=1, max_length=100)
+
+
+class BatchLessonRequest(BaseModel):
+    lesson_ids: list[str] = Field(alias="lessonIds", min_length=1, max_length=100)
+    allow_over_limit: bool = Field(default=False, alias="allowOverLimit")
+
+
+class BatchLessonResponse(BaseModel):
+    lesson_count: int = Field(alias="lessonCount")
+    estimated_input_tokens: int = Field(alias="estimatedInputTokens")
+    safe_limit_tokens: int = Field(alias="safeLimitTokens")
+    exceeds_safe_limit: bool = Field(alias="exceedsSafeLimit")
+    lessons: list[dict[str, Any]]
+
 class StatelessActionRequest(BaseModel):
     action: dict[str, Any]
     components: dict[str, dict[str, Any]] = Field(default_factory=dict, description="Current components state")
@@ -614,6 +648,93 @@ def get_knowledge_source_chunks(source_id: str, query: str | None = None, limit:
         raise HTTPException(status_code=404, detail="KNOWLEDGE_SOURCE_NOT_FOUND") from exc
 
 
+@app.post("/api/book-courses/manual", response_model=BookCoursePlanResponse, status_code=201)
+def create_manual_book_course(payload: ManualBookCourseRequest) -> BookCoursePlanResponse:
+    """Persist reader-selected PDF ranges without asking an LLM to infer structure."""
+    try:
+        source = knowledge_store.get(payload.source_id)
+        if source.extraction_status != "ready":
+            raise KnowledgeSourceNotReadyError(source.error or "Source text is unavailable.")
+        if source.page_count is not None and any(item.page_end > source.page_count for item in payload.lessons):
+            raise ValueError(f"The source contains only {source.page_count} PDF pages.")
+        course = course_store.create(
+            source_ids=[payload.source_id], title=payload.title, summary="Reader-defined PDF ranges.",
+            target_language=payload.language,
+            lessons=[
+                {"title": item.title, "objectives": [], "keyConcepts": [],
+                 "sourcePages": list(range(item.page_start, item.page_end + 1))}
+                for item in payload.lessons
+            ],
+        )
+        return BookCoursePlanResponse(course=course.to_dict())
+    except KnowledgeSourceNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="KNOWLEDGE_SOURCE_NOT_FOUND") from exc
+    except KnowledgeSourceNotReadyError as exc:
+        raise HTTPException(status_code=409, detail=f"KNOWLEDGE_SOURCE_NOT_READY: {exc}") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=f"INVALID_MANUAL_BOOK_COURSE: {exc}") from exc
+
+
+def _batch_preview(course_id: str, lesson_ids: list[str]) -> tuple[Any, list[Any], int]:
+    course = course_store.get(course_id)
+    wanted = list(dict.fromkeys(lesson_ids))
+    lessons = [course_store.get_lesson(course_id, lesson_id) for lesson_id in wanted]
+    if len(lessons) != len(wanted):
+        raise CourseLessonNotFoundError("lesson")
+    # A conservative, model-agnostic estimate for mixed Chinese/English text.
+    chars = sum(knowledge_store.estimate_pages(course.source_ids[0], list(lesson.source_pages)) for lesson in lessons)
+    return course, lessons, max(1, (chars + 3) // 4)
+
+
+def _batch_response(lessons: list[Any], tokens: int) -> BatchLessonResponse:
+    safe_limit = 24_000
+    return BatchLessonResponse(
+        lessonCount=len(lessons), estimatedInputTokens=tokens, safeLimitTokens=safe_limit,
+        exceedsSafeLimit=tokens > safe_limit, lessons=[lesson.to_dict() for lesson in lessons],
+    )
+
+
+@app.post("/api/book-courses/{course_id}/lessons/batch/preview", response_model=BatchLessonResponse)
+def preview_book_course_lessons(course_id: str, payload: BatchLessonRequest) -> BatchLessonResponse:
+    try:
+        _, lessons, tokens = _batch_preview(course_id, payload.lesson_ids)
+        return _batch_response(lessons, tokens)
+    except CourseNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="BOOK_COURSE_NOT_FOUND") from exc
+    except CourseLessonNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="BOOK_COURSE_LESSON_NOT_FOUND") from exc
+    except (KnowledgeSourceNotFoundError, KnowledgeSourceNotReadyError) as exc:
+        raise HTTPException(status_code=409, detail=f"KNOWLEDGE_SOURCE_UNAVAILABLE: {exc}") from exc
+
+
+@app.post("/api/book-courses/{course_id}/lessons/batch/generate", response_model=BatchLessonResponse, status_code=202)
+def generate_book_course_lessons_batch(
+    course_id: str,
+    payload: BatchLessonRequest,
+    authorization: str | None = Header(default=None),
+    x_openrouter_api_key: str | None = Header(default=None),
+    x_api_key: str | None = Header(default=None),
+) -> BatchLessonResponse:
+    try:
+        course, lessons, tokens = _batch_preview(course_id, payload.lesson_ids)
+        response = _batch_response(lessons, tokens)
+        if response.exceeds_safe_limit and not payload.allow_over_limit:
+            raise HTTPException(status_code=409, detail={"code": "BATCH_INPUT_LIMIT_EXCEEDED", **response.model_dump(by_alias=True)})
+        api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
+        for lesson in lessons:
+            query = " ".join((lesson.title, *lesson.objectives, *lesson.key_concepts))
+            context = knowledge_store.build_lesson_context(list(course.source_ids), list(lesson.source_pages), query=query)
+            session = store.create(resource_text=context, api_key=api_key, target_language=course.target_language)
+            course_store.set_lesson_generation(course_id, lesson.lesson_id, session.session_id)
+        return response
+    except HTTPException:
+        raise
+    except CourseNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="BOOK_COURSE_NOT_FOUND") from exc
+    except CourseLessonNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="BOOK_COURSE_LESSON_NOT_FOUND") from exc
+
+
 @app.post("/api/book-courses", response_model=BookCoursePlanResponse, status_code=201)
 def create_book_course_plan(
     payload: BookCoursePlanRequest,
@@ -703,6 +824,8 @@ def generate_book_course_lesson(
     try:
         course = course_store.get(course_id)
         lesson = course_store.get_lesson(course_id, lesson_id)
+        if lesson.status == "generating" and lesson.session_id:
+            return CourseLessonGenerationResponse(lesson=lesson.to_dict(), sessionId=lesson.session_id)
         query = " ".join((lesson.title, *lesson.objectives, *lesson.key_concepts))
         context = knowledge_store.build_lesson_context(
             list(course.source_ids), list(lesson.source_pages), query=query
