@@ -176,11 +176,11 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const humLessons = [
     {
       id: "deng-gao",
-      title: lang === "zh" ? "杜甫《登高》赏析" : "Du Fu: Climbing the Height",
+      title: lang === "zh" ? "杜甫《登高》· 七律与镜头解码" : "Du Fu: Climbing the Height",
     },
     {
       id: "poetry-social",
-      title: lang === "zh" ? "《春江花月夜》赏析" : "Spring River Moon Night",
+      title: lang === "zh" ? "《春江花月夜》· 词境重现" : "Spring River Moon Night",
     },
   ];
 
