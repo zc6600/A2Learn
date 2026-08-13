@@ -1,5 +1,5 @@
 import { A2uiMessage, MessageProcessor } from "@a2ui/web_core/v0_9";
-import { renderMarkdown } from "@a2ui/markdown-it";
+import { sanitizeHtml } from "@a2learn/a2learn-catalog";
 import { RecentProject } from "./recent-projects";
 
 type AgentSync = { messages: A2uiMessage[] };
@@ -48,22 +48,36 @@ function parseEvent(frame: string): AgentEvent | null {
   }
 }
 
-function addMessage(target: HTMLElement, kind: "user" | "agent" | "status" | "error", text: string): void {
+function addMessage(
+  target: HTMLElement,
+  kind: "user" | "agent" | "status" | "error" | "thinking",
+  text: string,
+): HTMLElement {
   const item = document.createElement("div");
   item.className = `a2learn-agent-message ${kind}`;
+  if (kind === "thinking") {
+    const spinner = document.createElement("span");
+    spinner.className = "a2learn-agent-spinner";
+    const label = document.createElement("span");
+    label.textContent = text;
+    item.append(spinner, label);
+    target.appendChild(item);
+    target.scrollTop = target.scrollHeight;
+    return item;
+  }
   target.appendChild(item);
   target.scrollTop = target.scrollHeight;
   if (kind !== "user" && kind !== "agent") {
     item.textContent = text;
-    return;
+    return item;
   }
-  // renderMarkdown uses markdown-it followed by DOMPurify sanitization. Keep a
-  // text fallback so a renderer failure never hides an Agent response.
-  item.textContent = text;
-  void renderMarkdown(text).then((html) => {
-    item.innerHTML = html;
-    target.scrollTop = target.scrollHeight;
-  }).catch(() => undefined);
+  try {
+    item.innerHTML = sanitizeHtml(text);
+  } catch {
+    item.textContent = text;
+  }
+  target.scrollTop = target.scrollHeight;
+  return item;
 }
 
 export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgentController {
@@ -480,6 +494,9 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
         // The old page can finish its server-side edit after a language/project
         // switch. Its A2UI sync must never be applied to the new renderer.
         if (requestEpoch !== pageEpoch) continue;
+        if (agentEvent.event === "tool_start") {
+          addMessage(events, "status", text("正在应用页面修改…", "Applying page modifications…"));
+        }
         if (agentEvent.event === "tool_end") {
           const result = agentEvent.data.result;
           const processor = options.getProcessor();
@@ -512,6 +529,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     setComposerDisabled(true);
     const requestEpoch = pageEpoch;
     if (responseText.trim()) addMessage(events, "user", responseText.trim());
+    const thinkingEl = addMessage(events, "thinking", text("正在按你的选择继续生成…", "Continuing with your choice…"));
     try {
       const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(projectId)}/agent/resume`, {
         method: "POST",
@@ -525,14 +543,16 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
           response: responseText.trim() || undefined,
         }),
       });
+      thinkingEl.remove();
       if (requestEpoch !== pageEpoch) return;
-      addMessage(events, "status", text("正在按你的选择继续…", "Continuing with your choice…"));
       await consumeAgentStream(response, showHumanInput, requestEpoch);
     } catch (error) {
+      thinkingEl.remove();
       if (requestEpoch === pageEpoch) {
         addMessage(events, "error", error instanceof Error ? error.message : String(error));
       }
     } finally {
+      thinkingEl.remove();
       if (requestEpoch === pageEpoch && !waitingForHumanInput) {
         setComposerDisabled(false);
         input.focus();
@@ -649,6 +669,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     addMessage(events, "user", message);
     input.value = "";
     setComposerDisabled(true);
+    const thinkingEl = addMessage(events, "thinking", text("正在生成回答…", "Generating response…"));
     const requestEpoch = pageEpoch;
     try {
       await ensureProject(projectId, apiBaseUrl);
@@ -664,13 +685,16 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
           approvalMode,
         }),
       });
+      thinkingEl.remove();
       if (requestEpoch !== pageEpoch) return;
       await consumeAgentStream(response, showHumanInput, requestEpoch);
     } catch (error) {
+      thinkingEl.remove();
       if (requestEpoch === pageEpoch) {
         addMessage(events, "error", error instanceof Error ? error.message : String(error));
       }
     } finally {
+      thinkingEl.remove();
       if (requestEpoch === pageEpoch && !waitingForHumanInput) {
         setComposerDisabled(false);
         input.focus();

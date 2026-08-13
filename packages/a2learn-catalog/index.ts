@@ -58,3 +58,6 @@ export const a2learnCatalog = new Catalog<LitComponentApi>(
   ],
   basicCatalog?.functions ? Array.from(basicCatalog.functions.values()) : []
 );
+
+export { sanitizeHtml, katexStyles, markdownStyles, tooltipStyles } from "./utils/sanitize";
+

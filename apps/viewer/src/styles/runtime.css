@@ -56,20 +56,38 @@
     .a2learn-agent-create-input { flex: 1; min-width: 0; padding: 7px 8px; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 8px); background: var(--a2ui-color-surface); color: var(--a2ui-color-on-surface); font: inherit; font-size: 12px; }
     .a2learn-agent-create-submit { border: 0; border-radius: var(--a2learn-control-radius, 8px); padding: 0 9px; background: var(--a2ui-color-primary); color: var(--a2ui-color-on-primary, #ffffff); cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; }
     .a2learn-agent-events { flex: 1; overflow: auto; display: flex; flex-direction: column; gap: 9px; padding: 12px; }
-    .a2learn-agent-message { max-width: 90%; padding: 9px 11px; border-radius: var(--a2learn-control-radius, 12px); font-size: 13px; line-height: 1.45; white-space: pre-wrap; }
+    .a2learn-agent-message { max-width: 90%; padding: 9px 11px; border-radius: var(--a2learn-control-radius, 12px); font-size: 13px; line-height: 1.5; word-break: break-word; }
     .a2learn-agent-message.user, .a2learn-agent-message.agent { white-space: normal; }
     .a2learn-agent-message :first-child { margin-top: 0; }
     .a2learn-agent-message :last-child { margin-bottom: 0; }
     .a2learn-agent-message p { margin: 0 0 7px; }
+    .a2learn-agent-message h1, .a2learn-agent-message h2, .a2learn-agent-message h3, .a2learn-agent-message h4 { margin: 10px 0 5px; font-weight: 700; line-height: 1.3; }
+    .a2learn-agent-message h1 { font-size: 1.25em; }
+    .a2learn-agent-message h2 { font-size: 1.15em; }
+    .a2learn-agent-message h3 { font-size: 1.05em; }
+    .a2learn-agent-message h4 { font-size: 1em; }
     .a2learn-agent-message ul, .a2learn-agent-message ol { margin: 6px 0; padding-left: 19px; }
+    .a2learn-agent-message li { margin-bottom: 3px; }
+    .a2learn-agent-message blockquote { margin: 6px 0; padding: 4px 10px; border-left: 3px solid var(--a2ui-color-primary); background: color-mix(in srgb, var(--a2ui-color-primary) 5%, transparent); border-radius: 0 6px 6px 0; }
+    .a2learn-agent-message table { width: 100%; margin: 8px 0; border-collapse: collapse; font-size: 12px; }
+    .a2learn-agent-message th, .a2learn-agent-message td { padding: 6px 8px; border: 1px solid var(--a2ui-color-border); text-align: left; }
+    .a2learn-agent-message th { background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface)); font-weight: 600; }
     .a2learn-agent-message code { padding: 1px 4px; border-radius: 4px; background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface-subtle)); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; }
-    .a2learn-agent-message pre { overflow: auto; margin: 7px 0; padding: 8px; border-radius: 7px; background: var(--a2ui-color-code-surface); color: var(--a2ui-color-code-text); }
+    .a2learn-agent-message pre { overflow: auto; margin: 7px 0; padding: 8px; border-radius: 7px; background: var(--a2ui-color-code-surface); color: var(--a2ui-color-code-text); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     .a2learn-agent-message pre code { padding: 0; background: transparent; color: inherit; }
+    .a2learn-agent-message .code-block, .a2learn-agent-message .a2learn-code-block { margin: 8px 0; border-radius: 8px; overflow: hidden; background: var(--a2ui-color-code-surface, #1e1e2e); color: var(--a2ui-color-code-text, #f8f8f2); }
+    .a2learn-agent-message .code-block-header { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; background: rgba(0, 0, 0, .2); font-size: 11px; }
+    .a2learn-agent-message .code-copy-btn { border: 0; border-radius: 4px; padding: 2px 6px; background: rgba(255, 255, 255, .15); color: inherit; cursor: pointer; font-size: 11px; }
+    .a2learn-agent-message .code-copy-btn:hover { background: rgba(255, 255, 255, .25); }
+    .a2learn-agent-message hr { margin: 10px 0; border: 0; border-top: 1px solid var(--a2ui-color-border); }
     .a2learn-agent-message a { color: inherit; text-decoration: underline; }
     .a2learn-agent-message.user { align-self: flex-end; background: var(--a2ui-color-primary); color: var(--a2ui-color-on-primary, #ffffff); }
-    .a2learn-agent-message.agent { align-self: flex-start; background: var(--a2ui-color-surface-subtle); }
+    .a2learn-agent-message.agent { align-self: flex-start; background: var(--a2ui-color-surface-subtle); color: var(--a2ui-color-on-surface); }
     .a2learn-agent-message.status { align-self: flex-start; max-width: 100%; background: color-mix(in srgb, var(--a2ui-color-primary) 10%, var(--a2ui-color-surface)); color: var(--a2ui-color-primary); font-size: 12px; }
     .a2learn-agent-message.error { align-self: flex-start; background: color-mix(in srgb, var(--a2ui-color-error) 10%, var(--a2ui-color-surface)); color: var(--a2ui-color-error); }
+    .a2learn-agent-message.thinking { align-self: flex-start; display: flex; align-items: center; gap: 8px; background: var(--a2ui-color-surface-subtle); color: var(--app-muted, #64748b); font-size: 12.5px; font-style: italic; }
+    .a2learn-agent-message.thinking .a2learn-agent-spinner { width: 13px; height: 13px; border: 2px solid var(--a2ui-color-primary); border-top-color: transparent; border-radius: 50%; animation: a2learn-spin .8s linear infinite; flex-shrink: 0; }
+    @keyframes a2learn-spin { to { transform: rotate(360deg); } }
     .a2learn-agent-form { display: flex; gap: 7px; padding: 11px; border-top: 1px solid var(--a2ui-color-border); }
     .a2learn-agent-input { flex: 1; min-width: 0; resize: none; min-height: 38px; padding: 8px 9px; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 9px); background: var(--a2ui-color-surface); color: var(--a2ui-color-on-surface); font: inherit; }
     .a2learn-agent-send { border: 0; border-radius: var(--a2learn-control-radius, 9px); padding: 0 12px; background: var(--a2ui-color-primary); color: var(--a2ui-color-on-primary, #ffffff); cursor: pointer; font-weight: 700; }
