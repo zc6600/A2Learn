@@ -1,11 +1,13 @@
 import { LitElement, html, nothing } from "lit";
 import { ContextProvider } from "@lit/context";
 import { Context } from "@a2ui/lit/v0_9";
-import { renderMarkdown } from "@a2ui/markdown-it";
+import { sanitizeHtml } from "@a2learn/a2learn-catalog";
 import "@a2ui/lit/v0_9";
 
+const catalogMarkdownRenderer = async (value: string) => sanitizeHtml(value);
+
 /**
- * 一个简单的包装器，用于为 A2UI Surface 提供 Markdown 渲染上下文。
+ * 包装器组件，用于为 A2UI Surface 注入完整的 Markdown/KaTeX 渲染上下文。
  */
 export class A2learnMarkdownSurface extends LitElement {
   static properties = {
@@ -16,7 +18,7 @@ export class A2learnMarkdownSurface extends LitElement {
 
   private markdownProvider = new ContextProvider(this, {
     context: Context.markdown,
-    initialValue: renderMarkdown,
+    initialValue: catalogMarkdownRenderer,
   });
 
   protected createRenderRoot(): this {
