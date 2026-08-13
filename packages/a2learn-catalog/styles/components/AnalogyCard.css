@@ -5,63 +5,57 @@
     }
     .analogy-container {
       position: relative;
-      background: color-mix(in oklab, var(--a2ui-color-primary) 5%, var(--a2ui-color-surface));
-      border: 1px dashed color-mix(in oklab, var(--a2ui-color-primary) 40%, transparent);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+      background: color-mix(in oklab, var(--a2ui-color-primary) 3%, var(--a2ui-color-surface));
+      border: 1px solid color-mix(in oklab, var(--a2ui-color-primary) 20%, var(--a2ui-color-border));
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: none;
       overflow: visible;
     }
-    /* Playful decorative quote mark */
     .analogy-container::before {
-      content: "”";
+      content: "";
       position: absolute;
-      top: -20px;
-      right: 20px;
-      font-size: 120px;
-      font-family: serif;
-      color: color-mix(in oklab, var(--a2ui-color-primary) 10%, transparent);
-      line-height: 1;
-      pointer-events: none;
-      z-index: 0;
+      inset: 14px auto 14px 0;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--a2ui-color-primary);
     }
     .header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 8px;
+      margin-bottom: 12px;
       position: relative;
       z-index: 1;
     }
     .icon {
-      font-size: 24px;
+      font-size: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--a2ui-color-surface);
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      border: 1px solid var(--a2ui-color-border);
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--a2ui-color-primary) 10%, var(--a2ui-color-surface));
+      border: 0;
     }
     .title {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--a2ui-color-primary);
-      letter-spacing: 0.5px;
+      font-size: 15px;
+      font-weight: 750;
+      color: var(--a2ui-color-on-surface);
+      letter-spacing: 0;
       margin: 0;
     }
     .content {
       position: relative;
       z-index: 1;
-      font-size: 16px;
-      line-height: 1.7;
+      font-size: 15px;
+      line-height: 1.75;
       color: var(--a2ui-color-on-surface);
-      background: var(--a2ui-color-surface-subtle);
-      border: 1px solid var(--a2ui-color-border);
-      padding: 16px;
-      border-radius: 12px;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      border-radius: 0;
     }
     /* Style markdown elements inside analogy */
     .content p {
@@ -77,18 +71,20 @@
     }
     .content hr {
       border: none;
-      border-top: 1px dashed var(--a2ui-color-border);
-      margin: 16px 0;
+      border-top: 1px solid color-mix(in srgb, var(--a2ui-color-border) 75%, transparent);
+      margin: 18px 0;
     }
     .terms-section {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed var(--a2ui-color-border);
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--a2ui-color-surface-subtle) 70%, transparent);
     }
     .terms-section-title {
       font-size: 13px;
       font-weight: 700;
-      color: var(--a2ui-color-primary);
+      color: var(--a2ui-color-on-surface);
       margin: 0 0 8px 0;
       display: flex;
       align-items: center;

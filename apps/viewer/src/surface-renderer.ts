@@ -68,6 +68,17 @@ function getSurfaceTitle(surface: any): string {
   return cleanId || (lang === "zh" ? "学习页面" : "Learning Page");
 }
 
+function getSurfaceTabLabel(surface: any): string {
+  const surfaceId = String(surface.id || "").toLowerCase();
+  // Generated multi-page courses often only expose ids such as "module-1".
+  // A generic label is clearer than presenting those implementation ids as
+  // the primary navigation text; the step number carries the distinction.
+  if (/^(?:surface-)?module[-_]?\d+$/.test(surfaceId)) {
+    return getLang() === "zh" ? "课程模块" : "Course module";
+  }
+  return getSurfaceTitle(surface);
+}
+
 function injectPresentationContentTheme(): void {}
 
 function renderSurfacePager(
@@ -340,7 +351,7 @@ export function renderSurfaces(
     tabsList.className = "surface-tabs";
     tabsList.setAttribute("role", "tablist");
 
-    for (const surface of surfaces) {
+    for (const [index, surface] of surfaces.entries()) {
       const surfaceId = surface.id ?? "";
       const isActive = surfaceId === activeId;
       const tabButton = document.createElement("button");
@@ -348,9 +359,16 @@ export function renderSurfaces(
       tabButton.setAttribute("role", "tab");
       tabButton.setAttribute("aria-selected", isActive ? "true" : "false");
       tabButton.setAttribute("data-surface-id", surfaceId);
+      tabButton.setAttribute("data-step", String(index + 1).padStart(2, "0"));
       
-      const tabTitle = getSurfaceTitle(surface);
-      tabButton.textContent = tabTitle;
+      const stepNumber = document.createElement("span");
+      stepNumber.className = "surface-tab-number";
+      stepNumber.textContent = String(index + 1).padStart(2, "0");
+      stepNumber.setAttribute("aria-hidden", "true");
+      const tabLabel = document.createElement("span");
+      tabLabel.className = "surface-tab-label";
+      tabLabel.textContent = getSurfaceTabLabel(surface);
+      tabButton.append(stepNumber, tabLabel);
 
       tabButton.addEventListener("click", () => {
         window.location.hash = `#/${surfaceId}`;

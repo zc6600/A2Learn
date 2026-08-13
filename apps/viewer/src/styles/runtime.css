@@ -999,17 +999,18 @@
 .surface-tabs-container {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 8px;
       width: 100%;
-      margin-bottom: 24px;
+      margin-bottom: 30px;
     }
     .surface-tabs {
       display: flex;
-      gap: 8px;
-      padding: 6px;
-      border-radius: 12px;
-      background: color-mix(in oklab, var(--a2ui-color-surface) 92%, var(--a2ui-color-secondary));
-      border: 1px solid var(--a2ui-color-border);
+      gap: 0;
+      padding: 0 4px;
+      border-radius: 0;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--a2ui-color-border) 80%, transparent);
       overflow-x: auto;
       scrollbar-width: none; /* Firefox */
       -ms-overflow-style: none;  /* IE and Edge */
@@ -1018,29 +1019,49 @@
       display: none; /* Chrome, Safari and Opera */
     }
     .surface-tab {
-      padding: 8px 18px;
-      font-size: 14px;
-      font-weight: 600;
+      position: relative;
+      flex: 1 0 0;
+      justify-content: center;
+      min-height: 52px;
+      padding: 10px 16px 12px;
+      font-size: 13px;
+      font-weight: 650;
       color: var(--app-muted);
-      border-radius: 8px;
+      border-radius: 8px 8px 0 0;
       cursor: pointer;
-      border: none;
+      border: 0;
+      border-bottom: 2px solid transparent;
       background: transparent;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
       white-space: nowrap;
       user-select: none;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+    }
+    .surface-tab-number {
+      color: color-mix(in srgb, var(--app-muted) 70%, transparent);
+      font-size: 11px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.08em;
+    }
+    .surface-tab-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .surface-tab:hover {
-      color: var(--a2ui-color-primary);
-      background: color-mix(in oklab, var(--a2ui-color-primary) 8%, transparent);
+      color: var(--a2ui-color-on-surface);
+      background: color-mix(in oklab, var(--a2ui-color-primary) 5%, transparent);
     }
     .surface-tab.active {
-      color: var(--a2ui-color-on-primary, #ffffff);
-      background: var(--a2ui-color-primary);
-      box-shadow: 0 4px 12px color-mix(in oklab, var(--a2ui-color-primary) 30%, transparent);
+      color: var(--a2ui-color-primary);
+      border-bottom-color: var(--a2ui-color-primary);
+      background: color-mix(in oklab, var(--a2ui-color-primary) 7%, transparent);
+      box-shadow: none;
+    }
+    .surface-tab.active .surface-tab-number {
+      color: var(--a2ui-color-primary);
     }
 
     .surface-pager {
@@ -1083,6 +1104,13 @@
     }
 
     @media (max-width: 640px) {
+      .surface-tabs {
+        padding-inline: 0;
+      }
+      .surface-tab {
+        flex: 0 0 auto;
+        min-width: 132px;
+      }
       .surface-pager {
         margin-top: 28px;
       }

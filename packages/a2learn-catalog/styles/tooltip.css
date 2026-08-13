@@ -1,27 +1,25 @@
 .a2learn-term-tooltip {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    color: var(--a2learn-tooltip-accent, var(--a2ui-color-primary)) !important;
+    display: inline;
+    color: inherit !important;
     font-weight: 700 !important;
-    text-decoration: var(--a2learn-tooltip-decoration, underline dotted var(--a2learn-tooltip-accent, var(--a2ui-color-primary))) !important;
-    text-underline-offset: 4px;
+    text-decoration: var(--a2learn-tooltip-decoration, underline dotted color-mix(in srgb, currentColor 48%, transparent)) !important;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
     cursor: help;
-    padding: var(--a2learn-tooltip-term-padding, 0 4px);
-    border-radius: var(--a2learn-tooltip-term-radius, 4px);
-    background: var(--a2learn-tooltip-term-background, color-mix(in srgb, var(--a2ui-color-primary) 8%, transparent));
-    transition: all 0.2s ease;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    transition: color 0.18s ease, background 0.18s ease;
   }
   .a2learn-term-tooltip:hover,
   .a2learn-term-tooltip:focus,
   .a2learn-term-tooltip:focus-within {
-    background: var(--a2learn-tooltip-term-hover-background, color-mix(in srgb, var(--a2ui-color-primary) 18%, transparent));
+    color: var(--a2learn-tooltip-accent, var(--a2ui-color-primary)) !important;
+    background: color-mix(in srgb, var(--a2ui-color-primary) 7%, transparent);
   }
   .a2learn-term-tooltip .term-badge {
-    font-size: 11px;
-    opacity: 0.8;
-    display: var(--a2learn-tooltip-badge-display, inline);
+    display: none;
   }
   .a2learn-term-tooltip .tooltip-popup {
     visibility: hidden;
