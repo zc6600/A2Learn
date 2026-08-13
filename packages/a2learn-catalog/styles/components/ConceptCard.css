@@ -6,7 +6,6 @@
 
 .concept-card {
   border: 1px solid var(--a2ui-color-border);
-  border-top: 2px solid color-mix(in oklab, var(--a2ui-color-primary) 75%, var(--a2ui-color-border));
   border-radius: 10px;
   background: var(--a2ui-color-surface);
   padding: 20px 22px;
