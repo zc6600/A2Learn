@@ -132,7 +132,12 @@ export function bindShellControls(options: ShellControlOptions): void {
   templateInputs.forEach((input) => {
     input.addEventListener("change", () => {
       if (input.checked) {
-        syncGenerationSettingsInputs(profileForTemplate(input.value));
+        const nextProfile = profileForTemplate(input.value);
+        syncGenerationSettingsInputs(nextProfile);
+        const profile = setStoredGenerationProfile(nextProfile);
+        applyGenerationTheme(profile.themeId, profile.displayMode);
+        const runtime = getRuntime();
+        if (runtime) renderSurfaces(runtime.container, runtime.processor, runtime.modeHint);
         document.querySelector<HTMLDetailsElement>(".generation-advanced-settings")?.removeAttribute("open");
       }
     });
@@ -173,8 +178,31 @@ export function bindShellControls(options: ShellControlOptions): void {
     });
   });
 
-  document.querySelectorAll<HTMLInputElement>("input[name='generation-theme'], input[name='generation-display-mode'], #generation-image-limit")
-    .forEach((input) => input.addEventListener("change", markSettingsAsCustom));
+  document.querySelectorAll<HTMLInputElement>("input[name='generation-theme']").forEach((input) => {
+    input.addEventListener("change", () => {
+      if (input.checked) {
+        markSettingsAsCustom();
+        const profile = setStoredGenerationProfile(profileFromSettingsInputs());
+        applyGenerationTheme(profile.themeId, profile.displayMode);
+        const runtime = getRuntime();
+        if (runtime) renderSurfaces(runtime.container, runtime.processor, runtime.modeHint);
+      }
+    });
+  });
+
+  document.querySelectorAll<HTMLInputElement>("input[name='generation-display-mode']").forEach((input) => {
+    input.addEventListener("change", () => {
+      if (input.checked) {
+        markSettingsAsCustom();
+        const profile = setStoredGenerationProfile(profileFromSettingsInputs());
+        applyGenerationTheme(profile.themeId, profile.displayMode);
+        const runtime = getRuntime();
+        if (runtime) renderSurfaces(runtime.container, runtime.processor, runtime.modeHint);
+      }
+    });
+  });
+
+  document.getElementById("generation-image-limit")?.addEventListener("change", markSettingsAsCustom);
   document.getElementById("generation-visual-intent")?.addEventListener("input", markSettingsAsCustom);
 
   form?.addEventListener("submit", (event) => {
