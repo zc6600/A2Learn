@@ -40,6 +40,16 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
   MentalModel: [
     { prop: "title", zh: "标题", en: "Title" },
     { prop: "description", zh: "说明", en: "Description", multiline: true },
+    { prop: "analogy", zh: "比喻", en: "Analogy", multiline: true },
+    {
+      prop: "pillars",
+      zh: "核心支柱",
+      en: "Pillars",
+      itemFields: [
+        { prop: "title", zh: "支柱名称", en: "Pillar title" },
+        { prop: "description", zh: "支柱说明", en: "Pillar description", multiline: true },
+      ],
+    },
   ],
   DetailedExplanation: [
     { prop: "title", zh: "标题", en: "Title" },
@@ -64,17 +74,47 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
   ],
   ScenarioDialogue: [
     { prop: "topic", zh: "主题", en: "Topic" },
-    { prop: "messages", zh: "对话", en: "Messages", itemFields: [{ prop: "content", zh: "内容", en: "Content", multiline: true }] },
+    { prop: "groupName", zh: "群聊名称", en: "Group name" },
+    { prop: "groupNotice", zh: "群公告", en: "Group notice", multiline: true },
+    {
+      prop: "messages",
+      zh: "对话消息",
+      en: "Messages",
+      itemFields: [{ prop: "content", zh: "内容", en: "Content", multiline: true }],
+    },
+  ],
+  SocialMoments: [
+    { prop: "title", zh: "栏目标题", en: "Title" },
+    {
+      prop: "posts",
+      zh: "朋友圈动态",
+      en: "Posts",
+      itemFields: [
+        { prop: "author", zh: "发布者", en: "Author" },
+        { prop: "content", zh: "正文", en: "Content", multiline: true },
+        { prop: "location", zh: "地点", en: "Location" },
+        { prop: "time", zh: "时间", en: "Time" },
+      ],
+    },
   ],
   LearningPath: [
     { prop: "title", zh: "标题", en: "Title" },
-    { prop: "steps", zh: "学习步骤", en: "Learning steps", itemFields: [{ prop: "title", zh: "标题", en: "Title" }] },
+    {
+      prop: "steps",
+      zh: "学习步骤",
+      en: "Learning steps",
+      itemFields: [
+        { prop: "title", zh: "步骤标题", en: "Title" },
+        { prop: "description", zh: "步骤说明", en: "Description", multiline: true },
+      ],
+    },
   ],
   ResourceList: [
     { prop: "title", zh: "标题", en: "Title" },
     {
       prop: "resources",
-      zh: "资源", en: "Resources",
+      zh: "资源列表",
+      en: "Resources",
       itemFields: [
         { prop: "title", zh: "标题", en: "Title" },
         { prop: "url", zh: "链接", en: "URL" },
@@ -85,7 +125,7 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
   Timeline: [
     {
       prop: "events",
-      zh: "事件",
+      zh: "事件列表",
       en: "Events",
       itemFields: [
         { prop: "time", zh: "时间", en: "Time" },
@@ -100,16 +140,27 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
     { prop: "code", zh: "代码", en: "Code", multiline: true },
   ],
   Flashcard: [
+    { prop: "title", zh: "标题", en: "Title" },
     { prop: "front", zh: "正面", en: "Front", multiline: true },
     { prop: "back", zh: "背面", en: "Back", multiline: true },
+    {
+      prop: "cards",
+      zh: "卡片列表",
+      en: "Cards",
+      itemFields: [
+        { prop: "front", zh: "正面", en: "Front", multiline: true },
+        { prop: "back", zh: "背面", en: "Back", multiline: true },
+        { prop: "hint", zh: "提示", en: "Hint" },
+      ],
+    },
   ],
   DeepDivePrompt: [
-    { prop: "prompts", zh: "追问", en: "Prompts", itemFields: [{ prop: "label", zh: "文案", en: "Label" }] },
+    { prop: "prompts", zh: "追问选项", en: "Prompts", itemFields: [{ prop: "label", zh: "文案", en: "Label" }] },
   ],
   DocumentFigure: [
     { prop: "imageUrl", zh: "图片链接", en: "Image URL" },
     { prop: "caption", zh: "图注", en: "Caption", multiline: true },
-    { prop: "aiExplanation", zh: "说明", en: "Explanation", multiline: true },
+    { prop: "aiExplanation", zh: "AI说明", en: "AI Explanation", multiline: true },
   ],
   KnowledgeTree: [{ prop: "title", zh: "标题", en: "Title" }],
   ClozeTest: [
@@ -124,7 +175,7 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
     { prop: "title", zh: "标题", en: "Title" },
     { prop: "abstract", zh: "摘要", en: "Abstract", multiline: true },
     { prop: "tldr", zh: "简述", en: "TL;DR", multiline: true },
-    { prop: "venue", zh: "会议或期刊", en: "Venue" },
+    { prop: "venue", zh: "会议/期刊", en: "Venue" },
   ],
   CourseOutline: [
     { prop: "courseTitle", zh: "课程标题", en: "Course title" },
@@ -139,6 +190,11 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
       ],
     },
   ],
+  DataTable: [
+    { prop: "title", zh: "表格标题", en: "Title" },
+    { prop: "caption", zh: "表格说明", en: "Caption", multiline: true },
+    { prop: "emptyMessage", zh: "空状态文案", en: "Empty message" },
+  ],
   RelationshipMatch: [
     { prop: "leftItems", zh: "左侧项目", en: "Left items", itemFields: [{ prop: "content", zh: "内容", en: "Content" }] },
     { prop: "rightItems", zh: "右侧项目", en: "Right items", itemFields: [{ prop: "content", zh: "内容", en: "Content" }] },
@@ -147,12 +203,11 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
     { prop: "leftItems", zh: "左侧项目", en: "Left items", itemFields: [{ prop: "content", zh: "内容", en: "Content" }] },
     { prop: "rightItems", zh: "右侧项目", en: "Right items", itemFields: [{ prop: "content", zh: "内容", en: "Content" }] },
   ],
-
   LiteratureReference: [
-    { prop: "citation", zh: "引用", en: "Citation" },
+    { prop: "citation", zh: "引用出处", en: "Citation" },
     { prop: "title", zh: "标题", en: "Title" },
     { prop: "url", zh: "链接", en: "URL" },
-    { prop: "highlightQuote", zh: "引用内容", en: "Highlighted quote", multiline: true },
+    { prop: "highlightQuote", zh: "原文摘录", en: "Highlighted quote", multiline: true },
   ],
   InteractiveFormula: [
     { prop: "latex", zh: "公式", en: "Formula", multiline: true },
@@ -162,13 +217,35 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
       zh: "推导步骤",
       en: "Derivation steps",
       itemFields: [
-        { prop: "step", zh: "步骤", en: "Step" },
+        { prop: "step", zh: "步骤序号", en: "Step" },
         { prop: "latex", zh: "公式", en: "Formula", multiline: true },
         { prop: "explanation", zh: "说明", en: "Explanation", multiline: true },
       ],
     },
   ],
 };
+
+function getFieldsForComponent(component: PageComponent): Field[] {
+  if (EDITABLE_FIELDS[component.component]) {
+    return EDITABLE_FIELDS[component.component];
+  }
+  // Auto-generate fields for all top-level string/multiline props on unknown or basic components
+  const fields: Field[] = [];
+  for (const [key, val] of Object.entries(component.props)) {
+    if (key.startsWith("_") || key === "id" || key === "weight" || key === "accessibility") continue;
+    if (typeof val === "string" || (val && typeof val === "object" && "literalString" in val)) {
+      const textVal = readString(val);
+      const isMulti = textVal.length > 40 || textVal.includes("\n");
+      fields.push({
+        prop: key,
+        zh: key,
+        en: key,
+        multiline: isMulti,
+      });
+    }
+  }
+  return fields;
+}
 
 function headers(apiKey: string, json = false): HeadersInit {
   const result: Record<string, string> = {};
@@ -313,11 +390,17 @@ export function mountInlineComponentEditor(options: InlineEditorOptions): Inline
     root.appendChild(actions);
 
     const rect = target.getBoundingClientRect();
-    const width = Math.min(340, window.innerWidth - 28);
+    const width = Math.min(360, window.innerWidth - 28);
+    root.style.width = `${width}px`;
     root.style.left = `${Math.max(14, Math.min(rect.left, window.innerWidth - width - 14))}px`;
-    root.style.top = `${Math.max(14, Math.min(rect.bottom + 8, window.innerHeight - 220))}px`;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    if (spaceBelow < 260 && rect.top > 260) {
+      root.style.top = `${Math.max(14, rect.top - 240)}px`;
+    } else {
+      root.style.top = `${Math.max(14, Math.min(rect.bottom + 8, window.innerHeight - 300))}px`;
+    }
     root.classList.add("open");
-    root.querySelector<HTMLInputElement | HTMLTextAreaElement>("[data-prop]")?.focus();
+    root.querySelector<HTMLInputElement | HTMLTextAreaElement>("[data-prop], [data-item-prop]")?.focus();
   };
 
   root.addEventListener("submit", async (event) => {
@@ -365,7 +448,11 @@ export function mountInlineComponentEditor(options: InlineEditorOptions): Inline
       return;
     }
     const save = root.querySelector<HTMLButtonElement>(".a2learn-inline-editor-save");
-    if (save) save.disabled = true;
+    root.querySelectorAll(".a2learn-inline-editor-note").forEach((el) => el.remove());
+    if (save) {
+      save.disabled = true;
+      save.textContent = text("保存中…", "Saving…");
+    }
     try {
       const response = await fetch(
         `${apiBaseUrl}/api/projects/${encodeURIComponent(projectId)}/components/${encodeURIComponent(selected.component.id)}`,
@@ -391,7 +478,10 @@ export function mountInlineComponentEditor(options: InlineEditorOptions): Inline
       note.className = "a2learn-inline-editor-note";
       note.textContent = error instanceof Error ? error.message : String(error);
       root.appendChild(note);
-      if (save) save.disabled = false;
+      if (save) {
+        save.disabled = false;
+        save.textContent = text("保存", "Save");
+      }
     }
   });
 
@@ -411,15 +501,22 @@ export function mountInlineComponentEditor(options: InlineEditorOptions): Inline
       const response = await fetch(`${apiBaseUrl}/api/projects/${encodeURIComponent(projectId)}`, { headers: headers(options.getApiKey()) });
       if (!response.ok) throw new Error(text(`加载组件失败 (${response.status})`, `Could not load the component (${response.status})`));
       const payload = await response.json() as { documents?: Array<{ surfaceId: string; components: PageComponent[] }> };
-      const document = payload.documents?.find((item) => item.surfaceId === options.getSurfaceId());
+      const document = payload.documents?.find((item) => item.surfaceId === options.getSurfaceId()) || payload.documents?.[0];
       const component = document?.components.find((item) => item.id === componentId);
-      const fields = component ? EDITABLE_FIELDS[component.component] : undefined;
-      if (!component || !fields) return;
+      const fields = component ? getFieldsForComponent(component) : [];
+      if (!component || fields.length === 0) return;
       open(target, component, fields);
     } catch {
       // The floating Agent remains the fallback when a component cannot be read.
     }
   }, true);
+
+  document.addEventListener("pointerdown", (event) => {
+    if (!root.classList.contains("open")) return;
+    if (!root.contains(event.target as Node)) {
+      close();
+    }
+  });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && root.classList.contains("open")) {
