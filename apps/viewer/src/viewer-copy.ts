@@ -201,6 +201,7 @@ export type SourceLibraryCopy = {
   refresh: string;
   empty: string;
   goal: string;
+  goalLabel: string;
   generate: string;
   selectReady: string;
   uploading: string;
@@ -215,6 +216,26 @@ export type SourceLibraryCopy = {
   uploadFailed: string;
   loadFailed: string;
   unsupportedHint: string;
+  splitPdf: string;
+  backToLibrary: string;
+  pdfSplitTitle: string;
+  courseTitle: string;
+  courseTitlePlaceholder: string;
+  addLesson: string;
+  lessonTitle: string;
+  lessonTitlePlaceholder: string;
+  pageRange: string;
+  pageFrom: string;
+  pageTo: string;
+  pageUnit: string;
+  addToList: string;
+  lessonQueue: string;
+  noLessons: string;
+  batchGenerate: string;
+  dropzoneTitle: string;
+  dropzoneSubtitle: string;
+  selectPdfFirst: string;
+  enterValidLesson: string;
 };
 
 export const SOURCE_LIBRARY_COPY: Record<Lang, SourceLibraryCopy> = {
@@ -223,12 +244,13 @@ export const SOURCE_LIBRARY_COPY: Record<Lang, SourceLibraryCopy> = {
     close: "关闭",
     upload: "上传资料",
     refresh: "刷新",
-    empty: "还没有资料。上传书籍、讲义或笔记开始学习。",
-    goal: "学习目标（可选，例如：用初学者能理解的方式讲解第 3 章）",
-    generate: "用所选资料生成课程",
-    selectReady: "请选择至少一份已解析资料。",
+    empty: "暂无资料，点击或拖拽上传书籍、论文、讲义或笔记开始学习。",
+    goal: "例如：面向初学者通俗易懂地讲解，多用生活中的比喻...",
+    goalLabel: "课程生成偏好与学习目标（可选）",
+    generate: "一键生成课程",
+    selectReady: "请勾选至少一份已就绪的资料。",
     uploading: "正在上传并解析…",
-    loading: "正在加载资料…",
+    loading: "正在同步资料库…",
     ready: "可用于生成",
     needsOcr: "等待 OCR",
     needsParser: "等待解析器",
@@ -238,28 +260,69 @@ export const SOURCE_LIBRARY_COPY: Record<Lang, SourceLibraryCopy> = {
     noApiKey: "请先在 API Key 设置中配置密钥，再生成课程。",
     uploadFailed: "上传失败",
     loadFailed: "无法加载资料库",
-    unsupportedHint: "支持 PDF、EPUB、DOCX、Markdown、文本、网页、表格和图片；扫描件会进入 OCR 队列。",
+    unsupportedHint: "支持 PDF, EPUB, DOCX, Markdown, 文本, 图片等格式；扫描件会自动入队 OCR。",
+    splitPdf: "按 PDF 拆分课时",
+    backToLibrary: "返回资料库",
+    pdfSplitTitle: "按 PDF 拆分课时",
+    courseTitle: "课程系列总标题",
+    courseTitlePlaceholder: "例如：深入理解计算机系统 · 专题课",
+    addLesson: "添加课时",
+    lessonTitle: "课时名称",
+    lessonTitlePlaceholder: "例如：第 1 讲：内存层次与缓存机制",
+    pageRange: "PDF 页码范围",
+    pageFrom: "从第",
+    pageTo: "至第",
+    pageUnit: "页",
+    addToList: "＋ 添加到课时清单",
+    lessonQueue: "已规划课时清单",
+    noLessons: "暂未添加课时，请在上方输入标题与页码范围后点击添加。",
+    batchGenerate: "批量生成课程 ({count} 节课)",
+    dropzoneTitle: "点击或拖拽文件上传",
+    dropzoneSubtitle: "支持 PDF, EPUB, DOCX, Markdown, TXT, 图片等格式",
+    selectPdfFirst: "请先在资料列表中勾选一份 PDF 文件。",
+    enterValidLesson: "请填写课时名称以及有效的 PDF 起止页码范围。",
   },
   en: {
-    title: "Source library",
+    title: "Source Library",
     close: "Close",
-    upload: "Upload source",
+    upload: "Upload Source",
     refresh: "Refresh",
-    empty: "No sources yet. Upload a book, handout, or notes to begin.",
-    goal: "Learning goal (optional, e.g. explain chapter 3 for beginners)",
-    generate: "Generate from selected sources",
+    empty: "No sources yet. Upload a book, paper, or notes to begin.",
+    goal: "e.g. explain intuitively for beginners with analogies and visual diagrams...",
+    goalLabel: "Custom Learning Goal (Optional)",
+    generate: "Generate Course",
     selectReady: "Select at least one parsed source.",
     uploading: "Uploading and extracting…",
     loading: "Loading sources…",
-    ready: "Ready for generation",
+    ready: "Ready",
     needsOcr: "Waiting for OCR",
     needsParser: "Waiting for parser",
-    failed: "Extraction failed",
+    failed: "Failed",
     selected: "{count} source(s) selected",
     noBackend: "The source-library API is not configured.",
     noApiKey: "Configure an API key in Settings before generating a course.",
     uploadFailed: "Upload failed",
     loadFailed: "Could not load the source library",
-    unsupportedHint: "PDF, EPUB, DOCX, Markdown, text, web, tabular, and image files are supported; scans enter the OCR queue.",
+    unsupportedHint: "Supports PDF, EPUB, DOCX, Markdown, text, and images; scans enter the OCR queue.",
+    splitPdf: "Split PDF into Lessons",
+    backToLibrary: "Back to Library",
+    pdfSplitTitle: "PDF Lesson Splitter",
+    courseTitle: "Course Title",
+    courseTitlePlaceholder: "e.g. Computer Systems: A Programmer's Perspective",
+    addLesson: "Add Lesson",
+    lessonTitle: "Lesson Title",
+    lessonTitlePlaceholder: "e.g. Lesson 1: Memory Hierarchy & Caching",
+    pageRange: "PDF Page Range",
+    pageFrom: "From p.",
+    pageTo: "to p.",
+    pageUnit: "",
+    addToList: "+ Add to Lesson Queue",
+    lessonQueue: "Planned Lessons",
+    noLessons: "No lessons added yet. Set title and page range above.",
+    batchGenerate: "Generate {count} Lesson(s)",
+    dropzoneTitle: "Click or drag & drop files to upload",
+    dropzoneSubtitle: "Supports PDF, EPUB, DOCX, Markdown, TXT, Images, etc.",
+    selectPdfFirst: "Select exactly one PDF source first.",
+    enterValidLesson: "Please enter a lesson title and a valid PDF page range.",
   },
 };

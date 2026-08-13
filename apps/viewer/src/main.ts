@@ -1090,7 +1090,6 @@ async function bootstrapViewer() {
         getApiKey: getStoredApiKey,
         getLanguage: () => (getLang() === "en" ? "en" : "zh"),
         onGenerate: onGenerateFromSources,
-        onCreateBookCourse,
         onCreateManualCourse,
       });
   if (sourceLibrary) {

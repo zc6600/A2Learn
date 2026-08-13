@@ -18,8 +18,11 @@ type SourceLibraryOptions = {
   getApiKey: () => string;
   getLanguage: () => Lang;
   onGenerate: (sourceIds: string[], resourceQuery: string) => void;
-  onCreateBookCourse: (sourceIds: string[], lessonCount: number) => void;
-  onCreateManualCourse: (sourceId: string, title: string, lessons: Array<{ title: string; pageStart: number; pageEnd: number }>) => void;
+  onCreateManualCourse: (
+    sourceId: string,
+    title: string,
+    lessons: Array<{ title: string; pageStart: number; pageEnd: number }>,
+  ) => void;
 };
 
 export type SourceLibraryController = {
@@ -28,7 +31,7 @@ export type SourceLibraryController = {
 };
 
 function getText(options: SourceLibraryOptions) {
-  return SOURCE_LIBRARY_COPY[options.getLanguage()];
+  return SOURCE_LIBRARY_COPY[options.getLanguage()] || SOURCE_LIBRARY_COPY.zh;
 }
 
 function formatBytes(bytes: number): string {
@@ -49,123 +52,275 @@ function statusLabel(source: KnowledgeSource, options: SourceLibraryOptions): st
   return copy.failed;
 }
 
-function injectSourceLibraryTheme(): void {}
-
 export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibraryController {
   const existing = document.getElementById("a2learn-source-library");
   if (existing) return { open: () => undefined, onLanguageChanged: () => undefined };
-  injectSourceLibraryTheme();
 
   const root = document.createElement("aside");
   root.id = "a2learn-source-library";
   root.setAttribute("aria-live", "polite");
+
   const panel = document.createElement("section");
   panel.className = "a2learn-library-panel";
-  const header = document.createElement("header");
-  header.className = "a2learn-library-head";
+
+  // ==========================================
+  // VIEW 1: Main Knowledge Library View
+  // ==========================================
+  const libraryView = document.createElement("div");
+  libraryView.className = "a2learn-library-view";
+
+  // Header
+  const libraryHead = document.createElement("header");
+  libraryHead.className = "a2learn-library-head";
+
+  const titleGroup = document.createElement("div");
+  titleGroup.className = "a2learn-library-title-group";
   const title = document.createElement("h2");
   title.className = "a2learn-library-title";
-  const close = document.createElement("button");
-  close.className = "a2learn-library-close";
-  close.type = "button";
-  header.append(title, close);
+  const subtitle = document.createElement("p");
+  subtitle.className = "a2learn-library-subtitle";
+  titleGroup.append(title, subtitle);
 
-  const actions = document.createElement("div");
-  actions.className = "a2learn-library-actions";
-  const upload = document.createElement("label");
-  upload.className = "a2learn-library-button primary";
+  const headActions = document.createElement("div");
+  headActions.className = "a2learn-library-head-actions";
+  const refresh = document.createElement("button");
+  refresh.className = "a2learn-icon-btn";
+  refresh.type = "button";
+  refresh.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>`;
+
+  const close = document.createElement("button");
+  close.className = "a2learn-library-close-btn";
+  close.type = "button";
+  close.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+
+  headActions.append(refresh, close);
+  libraryHead.append(titleGroup, headActions);
+
+  // Upload Area (Modern sleek dropzone)
+  const uploadArea = document.createElement("div");
+  uploadArea.className = "a2learn-library-upload-area";
+
+  const uploadLabel = document.createElement("label");
+  uploadLabel.className = "a2learn-library-dropzone";
+
   const fileInput = document.createElement("input");
   fileInput.className = "a2learn-library-file-input";
   fileInput.type = "file";
   fileInput.accept = ".pdf,.epub,.docx,.md,.markdown,.txt,.html,.htm,.json,.yaml,.yml,.csv,.png,.jpg,.jpeg,.webp,.tiff,.tif,.bmp";
-  const refresh = document.createElement("button");
-  refresh.className = "a2learn-library-button";
-  refresh.type = "button";
-  upload.append(fileInput);
-  actions.append(upload, refresh);
 
-  const hint = document.createElement("p");
-  hint.className = "a2learn-library-hint";
-  const message = document.createElement("p");
-  message.className = "a2learn-library-message";
+  const uploadIcon = document.createElement("div");
+  uploadIcon.className = "a2learn-dropzone-icon";
+  uploadIcon.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`;
+
+  const uploadTextGroup = document.createElement("div");
+  uploadTextGroup.className = "a2learn-dropzone-text";
+  const uploadTitle = document.createElement("span");
+  uploadTitle.className = "a2learn-dropzone-title";
+  const uploadDesc = document.createElement("span");
+  uploadDesc.className = "a2learn-dropzone-desc";
+  uploadTextGroup.append(uploadTitle, uploadDesc);
+
+  uploadLabel.append(fileInput, uploadIcon, uploadTextGroup);
+  uploadArea.append(uploadLabel);
+
+  // Alert/Status banner
+  const messageBanner = document.createElement("div");
+  messageBanner.className = "a2learn-library-alert";
+  messageBanner.hidden = true;
+
+  // Sources List Section
+  const sourcesSection = document.createElement("div");
+  sourcesSection.className = "a2learn-library-sources-section";
+
+  const sourcesHeader = document.createElement("div");
+  sourcesHeader.className = "a2learn-sources-header";
+  const sourcesHeaderTitle = document.createElement("span");
+  sourcesHeaderTitle.className = "a2learn-sources-section-title";
+  sourcesHeader.append(sourcesHeaderTitle);
+
   const sourcesElement = document.createElement("div");
   sourcesElement.className = "a2learn-library-sources";
+  sourcesSection.append(sourcesHeader, sourcesElement);
+
+  // Learning Goal Customization
+  const goalSection = document.createElement("div");
+  goalSection.className = "a2learn-library-goal-section";
+  const goalLabel = document.createElement("label");
+  goalLabel.className = "a2learn-field-label";
   const goal = document.createElement("textarea");
   goal.className = "a2learn-library-goal";
-  goal.maxLength = 1_000;
+  goal.maxLength = 1000;
+  goal.rows = 2;
+  goalSection.append(goalLabel, goal);
+
+  // Library Footer Actions
   const footer = document.createElement("footer");
   footer.className = "a2learn-library-footer";
-  const selected = document.createElement("span");
-  selected.className = "a2learn-library-message";
-  const generate = document.createElement("button");
-  generate.className = "a2learn-library-button primary";
-  generate.type = "button";
-  const courseActions = document.createElement("div");
-  courseActions.className = "a2learn-library-course-actions";
-  const lessonCountLabel = document.createElement("label");
-  lessonCountLabel.className = "a2learn-library-field-label";
-  const lessonCount = document.createElement("input");
-  lessonCount.type = "number";
-  lessonCount.min = "1";
-  lessonCount.max = "100";
-  lessonCount.value = "10";
-  lessonCount.className = "a2learn-library-lesson-count";
-  lessonCountLabel.htmlFor = "a2learn-library-lesson-count";
-  lessonCount.id = lessonCountLabel.htmlFor;
-  const createCourse = document.createElement("button");
-  createCourse.className = "a2learn-library-button";
-  createCourse.type = "button";
-  courseActions.append(lessonCountLabel, lessonCount, createCourse);
+
+  const selectedBadge = document.createElement("div");
+  selectedBadge.className = "a2learn-selection-count";
+
+  const footerActions = document.createElement("div");
+  footerActions.className = "a2learn-footer-actions";
+
   const manualStart = document.createElement("button");
-  manualStart.className = "a2learn-library-button";
+  manualStart.className = "a2learn-btn-secondary a2learn-btn-split";
   manualStart.type = "button";
-  const manual = document.createElement("section");
-  manual.className = "a2learn-library-manual-course";
-  manual.hidden = true;
+
+  const generate = document.createElement("button");
+  generate.className = "a2learn-btn-primary a2learn-btn-generate";
+  generate.type = "button";
+
+  footerActions.append(manualStart, generate);
+  footer.append(selectedBadge, footerActions);
+
+  libraryView.append(libraryHead, uploadArea, messageBanner, sourcesSection, goalSection, footer);
+
+  // ==========================================
+  // VIEW 2: PDF Manual Split View
+  // ==========================================
+  const manualView = document.createElement("div");
+  manualView.className = "a2learn-library-manual-view";
+  manualView.hidden = true;
+
+  // Manual Header Bar
   const manualHead = document.createElement("header");
-  manualHead.className = "a2learn-library-manual-head";
-  const manualHeading = document.createElement("div");
-  manualHeading.className = "a2learn-library-manual-heading";
-  const manualSource = document.createElement("p");
-  manualSource.className = "a2learn-library-manual-source";
+  manualHead.className = "a2learn-manual-head";
+
   const manualBack = document.createElement("button");
-  manualBack.className = "a2learn-library-button";
+  manualBack.className = "a2learn-btn-back";
   manualBack.type = "button";
-  manualHead.append(manualHeading, manualSource, manualBack);
+  const backIcon = document.createElement("span");
+  backIcon.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`;
+  const backText = document.createElement("span");
+  manualBack.append(backIcon, backText);
+
+  const manualTitleWrap = document.createElement("div");
+  manualTitleWrap.className = "a2learn-manual-title-wrap";
+  const manualHeading = document.createElement("h3");
+  manualHeading.className = "a2learn-manual-heading";
+  const manualSource = document.createElement("span");
+  manualSource.className = "a2learn-manual-source-pill";
+  manualTitleWrap.append(manualHeading, manualSource);
+
+  const manualClose = document.createElement("button");
+  manualClose.className = "a2learn-library-close-btn";
+  manualClose.type = "button";
+  manualClose.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+
+  manualHead.append(manualBack, manualTitleWrap, manualClose);
+
+  // Manual Split Workspace (Left: PDF Reader, Right: Form Pane)
+  const manualWorkspace = document.createElement("div");
+  manualWorkspace.className = "a2learn-manual-workspace";
+
+  // Left: PDF Reader Pane
+  const readerPane = document.createElement("div");
+  readerPane.className = "a2learn-reader-pane";
+
+  const readerHeader = document.createElement("div");
+  readerHeader.className = "a2learn-reader-header";
+  readerHeader.innerHTML = `<span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>PDF 原文预览</span>`;
+
+  const readerWrapper = document.createElement("div");
+  readerWrapper.className = "a2learn-reader-wrapper";
   const manualReader = document.createElement("iframe");
   manualReader.className = "a2learn-library-pdf-reader";
-  manualReader.title = "PDF reader";
-  const manualForm = document.createElement("div");
-  manualForm.className = "a2learn-library-manual-form";
+  manualReader.title = "PDF Reader";
+  readerWrapper.append(manualReader);
+  readerPane.append(readerHeader, readerWrapper);
+
+  // Right: Form Controls Pane
+  const formPane = document.createElement("div");
+  formPane.className = "a2learn-form-pane";
+
+  // Card 1: Course Title
+  const courseTitleCard = document.createElement("div");
+  courseTitleCard.className = "a2learn-panel-card";
+  const courseTitleLabel = document.createElement("label");
+  courseTitleLabel.className = "a2learn-field-label required";
   const manualTitle = document.createElement("input");
-  manualTitle.className = "a2learn-library-lesson-count";
+  manualTitle.className = "a2learn-text-input";
+  courseTitleCard.append(courseTitleLabel, manualTitle);
+
+  // Card 2: Add Lesson
+  const lessonCreatorCard = document.createElement("div");
+  lessonCreatorCard.className = "a2learn-panel-card a2learn-creator-card";
+  const lessonCreatorTitle = document.createElement("div");
+  lessonCreatorTitle.className = "a2learn-card-section-title";
+
+  const lessonTitleGroup = document.createElement("div");
+  lessonTitleGroup.className = "a2learn-form-row";
+  const lessonTitleLabel = document.createElement("label");
+  lessonTitleLabel.className = "a2learn-field-label";
   const lessonTitle = document.createElement("input");
-  lessonTitle.className = "a2learn-library-lesson-count";
+  lessonTitle.className = "a2learn-text-input";
+  lessonTitleGroup.append(lessonTitleLabel, lessonTitle);
+
+  const pageRangeGroup = document.createElement("div");
+  pageRangeGroup.className = "a2learn-form-row";
+  const pageRangeLabel = document.createElement("label");
+  pageRangeLabel.className = "a2learn-field-label";
+
+  const pageRangeRow = document.createElement("div");
+  pageRangeRow.className = "a2learn-page-range-row";
+  const pageFromText = document.createElement("span");
+  pageFromText.className = "a2learn-range-text";
   const pageStart = document.createElement("input");
   pageStart.type = "number";
   pageStart.min = "1";
   pageStart.value = "1";
-  pageStart.className = "a2learn-library-lesson-count";
+  pageStart.className = "a2learn-num-input";
+  const pageToText = document.createElement("span");
+  pageToText.className = "a2learn-range-text";
   const pageEnd = document.createElement("input");
   pageEnd.type = "number";
   pageEnd.min = "1";
   pageEnd.value = "1";
-  pageEnd.className = "a2learn-library-lesson-count";
+  pageEnd.className = "a2learn-num-input";
+  const pageUnitText = document.createElement("span");
+  pageUnitText.className = "a2learn-range-text";
+
+  pageRangeRow.append(pageFromText, pageStart, pageToText, pageEnd, pageUnitText);
+  pageRangeGroup.append(pageRangeLabel, pageRangeRow);
+
   const addLesson = document.createElement("button");
-  addLesson.className = "a2learn-library-button";
+  addLesson.className = "a2learn-btn-secondary a2learn-add-lesson-btn";
   addLesson.type = "button";
+
+  lessonCreatorCard.append(lessonCreatorTitle, lessonTitleGroup, pageRangeGroup, addLesson);
+
+  // Card 3: Lessons Queue
+  const lessonListCard = document.createElement("div");
+  lessonListCard.className = "a2learn-panel-card a2learn-lesson-list-card";
+
+  const lessonListHeader = document.createElement("div");
+  lessonListHeader.className = "a2learn-card-section-title-row";
+  const lessonListTitle = document.createElement("span");
+  lessonListTitle.className = "a2learn-card-section-title";
+  const lessonListBadge = document.createElement("span");
+  lessonListBadge.className = "a2learn-count-pill";
+  lessonListHeader.append(lessonListTitle, lessonListBadge);
+
   const manualLessons = document.createElement("div");
-  manualLessons.className = "a2learn-library-manual-lessons";
+  manualLessons.className = "a2learn-manual-lessons-list";
+  lessonListCard.append(lessonListHeader, manualLessons);
+
+  // Card 4: Submit Batch Generation
   const generateManual = document.createElement("button");
-  generateManual.className = "a2learn-library-button primary";
+  generateManual.className = "a2learn-btn-primary a2learn-generate-manual-btn";
   generateManual.type = "button";
-  manualForm.append(manualTitle, lessonTitle, pageStart, pageEnd, addLesson, manualLessons, generateManual);
-  manual.append(manualHead, manualReader, manualForm);
-  footer.append(selected, generate, courseActions, manualStart, manual);
-  panel.append(header, actions, hint, message, sourcesElement, goal, footer);
+
+  formPane.append(courseTitleCard, lessonCreatorCard, lessonListCard, generateManual);
+
+  manualWorkspace.append(readerPane, formPane);
+  manualView.append(manualHead, manualWorkspace);
+
+  panel.append(libraryView, manualView);
   root.append(panel);
   document.body.appendChild(root);
 
+  // State
   let sources: KnowledgeSource[] = [];
   const chosen = new Set<string>();
   let readerLessons: Array<{ title: string; pageStart: number; pageEnd: number }> = [];
@@ -173,8 +328,16 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   let isLoading = false;
   let hasLoadError = false;
 
-  const setMessage = (value: string) => {
-    message.textContent = value;
+  const setMessage = (value: string, isError = false) => {
+    if (!value) {
+      messageBanner.hidden = true;
+      messageBanner.textContent = "";
+      messageBanner.classList.remove("error");
+      return;
+    }
+    messageBanner.hidden = false;
+    messageBanner.textContent = value;
+    messageBanner.classList.toggle("error", isError);
   };
 
   const apiBaseUrl = () => options.getApiBaseUrl().replace(/\/+$/, "");
@@ -182,47 +345,62 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   const updateLabels = () => {
     const copy = getText(options);
     title.textContent = copy.title;
-    close.textContent = "×";
+    subtitle.textContent = copy.unsupportedHint;
     close.setAttribute("aria-label", copy.close);
-    upload.childNodes.forEach((node) => {
-      if (node.nodeType === Node.TEXT_NODE) node.remove();
-    });
-    upload.append(document.createTextNode(copy.upload));
-    refresh.textContent = copy.refresh;
-    hint.textContent = copy.unsupportedHint;
+    manualClose.setAttribute("aria-label", copy.close);
+    refresh.setAttribute("aria-label", copy.refresh);
+    uploadTitle.textContent = copy.dropzoneTitle;
+    uploadDesc.textContent = copy.dropzoneSubtitle;
+    sourcesHeaderTitle.textContent = options.getLanguage() === "zh" ? "资料列表" : "Sources";
+    goalLabel.textContent = copy.goalLabel;
     goal.placeholder = copy.goal;
     generate.textContent = copy.generate;
-    lessonCount.setAttribute("aria-label", options.getLanguage() === "zh" ? "课程课时数" : "Number of lessons");
-    lessonCountLabel.textContent = options.getLanguage() === "zh" ? "课程课时数" : "Lessons";
-    createCourse.textContent = options.getLanguage() === "zh" ? "生成整本书课程" : "Plan book course";
-    manualStart.textContent = options.getLanguage() === "zh" ? "按 PDF 页手动拆分课程" : "Split a PDF into lessons";
-    manualHeading.textContent = options.getLanguage() === "zh" ? "按 PDF 页手动拆分" : "Split the PDF into lessons";
-    manualBack.textContent = options.getLanguage() === "zh" ? "返回资料库" : "Back to library";
-    manualTitle.placeholder = options.getLanguage() === "zh" ? "课程名称（手动拆分）" : "Course title (manual split)";
-    lessonTitle.placeholder = options.getLanguage() === "zh" ? "课时名称" : "Lesson title";
-    pageStart.setAttribute("aria-label", options.getLanguage() === "zh" ? "起始 PDF 页" : "Start PDF page");
-    pageEnd.setAttribute("aria-label", options.getLanguage() === "zh" ? "结束 PDF 页" : "End PDF page");
-    addLesson.textContent = options.getLanguage() === "zh" ? "添加页码范围" : "Add page range";
-    generateManual.textContent = options.getLanguage() === "zh" ? "按所选内容批量生成" : "Generate selected lessons";
+    manualStart.textContent = copy.splitPdf;
+    backText.textContent = copy.backToLibrary;
+    manualHeading.textContent = copy.pdfSplitTitle;
+    courseTitleLabel.textContent = copy.courseTitle;
+    manualTitle.placeholder = copy.courseTitlePlaceholder;
+    lessonCreatorTitle.textContent = copy.addLesson;
+    lessonTitleLabel.textContent = copy.lessonTitle;
+    lessonTitle.placeholder = copy.lessonTitlePlaceholder;
+    pageRangeLabel.textContent = copy.pageRange;
+    pageFromText.textContent = copy.pageFrom;
+    pageToText.textContent = copy.pageTo;
+    pageUnitText.textContent = copy.pageUnit;
+    pageStart.setAttribute("aria-label", copy.pageFrom);
+    pageEnd.setAttribute("aria-label", copy.pageTo);
+    addLesson.textContent = copy.addToList;
+    lessonListTitle.textContent = copy.lessonQueue;
     renderSources();
   };
 
   const renderSources = () => {
     const copy = getText(options);
     sourcesElement.replaceChildren();
-    const readyIds = new Set(sources.filter((source) => source.extractionStatus === "ready").map((source) => source.sourceId));
+
+    const readyIds = new Set(
+      sources.filter((source) => source.extractionStatus === "ready").map((source) => source.sourceId),
+    );
     for (const sourceId of [...chosen]) {
       if (!readyIds.has(sourceId)) chosen.delete(sourceId);
     }
+
     if (sources.length === 0 && !isLoading && !hasLoadError) {
-      const empty = document.createElement("p");
-      empty.className = "a2learn-library-message";
-      empty.textContent = copy.empty;
+      const empty = document.createElement("div");
+      empty.className = "a2learn-library-empty-state";
+      empty.innerHTML = `
+        <div class="a2learn-empty-icon">📂</div>
+        <p class="a2learn-empty-text">${copy.empty}</p>
+      `;
       sourcesElement.append(empty);
     }
+
     for (const source of sources) {
       const row = document.createElement("label");
-      row.className = "a2learn-library-source";
+      row.className = `a2learn-library-source-card ${chosen.has(source.sourceId) ? "selected" : ""}`;
+
+      const checkboxWrap = document.createElement("div");
+      checkboxWrap.className = "a2learn-source-check-wrap";
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.disabled = source.extractionStatus !== "ready";
@@ -232,86 +410,144 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
         else chosen.delete(source.sourceId);
         renderSources();
       });
+      checkboxWrap.append(checkbox);
+
+      const fileIcon = document.createElement("div");
+      fileIcon.className = "a2learn-source-type-icon";
+      const ext = source.filename.split(".").pop()?.toUpperCase() || "FILE";
+      fileIcon.textContent = ext.slice(0, 4);
+
       const detail = document.createElement("div");
+      detail.className = "a2learn-source-detail";
+
+      const nameRow = document.createElement("div");
+      nameRow.className = "a2learn-source-title-row";
       const name = document.createElement("div");
-      name.className = "a2learn-library-source-name";
+      name.className = "a2learn-source-title";
       name.title = source.title;
       name.textContent = source.title;
+
+      const statusBadge = document.createElement("span");
+      statusBadge.className = `a2learn-source-status ${source.extractionStatus === "ready" ? "ready" : source.extractionStatus === "failed" ? "failed" : "pending"}`;
+      statusBadge.textContent = statusLabel(source, options);
+      statusBadge.title = source.error || "";
+      nameRow.append(name, statusBadge);
+
       const meta = document.createElement("div");
-      meta.className = "a2learn-library-source-meta";
-      const facts = [formatBytes(source.sizeBytes), source.filename];
-      if (source.pageCount) facts.push(`${source.pageCount} p`);
+      meta.className = "a2learn-source-meta-row";
+      const facts = [formatBytes(source.sizeBytes)];
+      if (source.pageCount) facts.push(`${source.pageCount} ${options.getLanguage() === "zh" ? "页" : "pages"}`);
       if (source.chunkCount) facts.push(`${source.chunkCount} chunks`);
-      const sourceFacts = document.createElement("span");
-      sourceFacts.textContent = facts.join(" · ");
-      const status = document.createElement("span");
-      status.className = `a2learn-library-status ${source.extractionStatus === "ready" ? "ready" : source.extractionStatus === "failed" ? "failed" : "pending"}`;
-      status.textContent = statusLabel(source, options);
-      status.title = source.error || "";
-      meta.append(sourceFacts, status);
-      detail.append(name, meta);
-      row.append(checkbox, detail);
+      meta.textContent = facts.join(" · ");
+
+      detail.append(nameRow, meta);
+      row.append(checkboxWrap, fileIcon, detail);
       sourcesElement.append(row);
     }
-    selected.textContent = copy.selected.replace("{count}", String(chosen.size));
+
+    selectedBadge.innerHTML = copy.selected.replace(
+      "{count}",
+      `<strong class="a2learn-highlight-count">${chosen.size}</strong>`,
+    );
     generate.disabled = chosen.size === 0;
-    createCourse.disabled = chosen.size === 0;
-    const selectedPdf = sources.find((source) => chosen.has(source.sourceId) && source.filename.toLowerCase().endsWith(".pdf"));
+
+    const selectedPdf = sources.find(
+      (source) => chosen.has(source.sourceId) && source.filename.toLowerCase().endsWith(".pdf"),
+    );
     const canOpenManual = chosen.size === 1 && Boolean(selectedPdf);
     manualStart.disabled = !canOpenManual;
+
     if (manualOpen && !selectedPdf) manualOpen = false;
+
     panel.classList.toggle("manual-open", manualOpen);
-    manual.hidden = !manualOpen;
+    libraryView.hidden = manualOpen;
+    manualView.hidden = !manualOpen;
+
     if (manualOpen && selectedPdf) {
-      manualSource.textContent = `${selectedPdf.title} · ${selectedPdf.pageCount || "?"} PDF ${options.getLanguage() === "zh" ? "页" : "pages"}`;
+      manualHeading.textContent = copy.pdfSplitTitle;
+      manualSource.textContent = `${selectedPdf.title} (${selectedPdf.pageCount || "?"} ${options.getLanguage() === "zh" ? "页" : "p."})`;
       const sourceUrl = `${apiBaseUrl()}/api/knowledge/sources/${encodeURIComponent(selectedPdf.sourceId)}/original`;
       if (manualReader.src !== sourceUrl) manualReader.src = sourceUrl;
       pageEnd.max = String(selectedPdf.pageCount || "");
       pageStart.max = String(selectedPdf.pageCount || "");
+      if (!manualTitle.value.trim()) {
+        manualTitle.value = selectedPdf.title.replace(/\.pdf$/i, "");
+      }
     } else {
       manualReader.removeAttribute("src");
     }
+
+    lessonListBadge.textContent = `${readerLessons.length} ${options.getLanguage() === "zh" ? "节课" : "lessons"}`;
+    generateManual.textContent = copy.batchGenerate.replace("{count}", String(readerLessons.length));
     generateManual.disabled = chosen.size !== 1 || readerLessons.length === 0 || !manualTitle.value.trim();
-    manualLessons.replaceChildren(...readerLessons.map((lesson, index) => {
-      const item = document.createElement("div");
-      item.className = "a2learn-library-manual-lesson";
-      const label = document.createElement("span");
-      label.textContent = `${lesson.title} · PDF p.${lesson.pageStart}–${lesson.pageEnd}`;
-      const remove = document.createElement("button");
-      remove.type = "button";
-      remove.textContent = "×";
-      remove.addEventListener("click", () => {
-        readerLessons = readerLessons.filter((_, current) => current !== index);
-        renderSources();
-      });
-      item.append(label, remove);
-      return item;
-    }));
+
+    if (readerLessons.length === 0) {
+      const emptyLessons = document.createElement("div");
+      emptyLessons.className = "a2learn-empty-lessons";
+      emptyLessons.textContent = copy.noLessons;
+      manualLessons.replaceChildren(emptyLessons);
+    } else {
+      manualLessons.replaceChildren(
+        ...readerLessons.map((lesson, index) => {
+          const item = document.createElement("div");
+          item.className = "a2learn-lesson-item";
+
+          const idxBadge = document.createElement("span");
+          idxBadge.className = "a2learn-lesson-idx";
+          idxBadge.textContent = `#${index + 1}`;
+
+          const lessonContent = document.createElement("div");
+          lessonContent.className = "a2learn-lesson-content";
+          const titleSpan = document.createElement("span");
+          titleSpan.className = "a2learn-lesson-title";
+          titleSpan.textContent = lesson.title;
+          const rangeSpan = document.createElement("span");
+          rangeSpan.className = "a2learn-lesson-range-badge";
+          rangeSpan.textContent = `p.${lesson.pageStart}–${lesson.pageEnd}`;
+          lessonContent.append(titleSpan, rangeSpan);
+
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "a2learn-lesson-del-btn";
+          remove.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+          remove.title = options.getLanguage() === "zh" ? "删除本节课时" : "Delete lesson";
+          remove.addEventListener("click", () => {
+            readerLessons = readerLessons.filter((_, current) => current !== index);
+            renderSources();
+          });
+
+          item.append(idxBadge, lessonContent, remove);
+          return item;
+        }),
+      );
+    }
   };
 
   const loadSources = async () => {
     const baseUrl = apiBaseUrl();
     if (!baseUrl) {
       hasLoadError = true;
-      setMessage(getText(options).noBackend);
+      setMessage(getText(options).noBackend, true);
       renderSources();
       return;
     }
     isLoading = true;
     hasLoadError = false;
     refresh.disabled = true;
-    setMessage(getText(options).loading);
+    setMessage(getText(options).loading, false);
     try {
-      const response = await fetch(`${baseUrl}/api/knowledge/sources`, { headers: requestHeaders(options.getApiKey()) });
+      const response = await fetch(`${baseUrl}/api/knowledge/sources`, {
+        headers: requestHeaders(options.getApiKey()),
+      });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const payload = await response.json() as { sources?: KnowledgeSource[] };
+      const payload = (await response.json()) as { sources?: KnowledgeSource[] };
       sources = Array.isArray(payload.sources) ? payload.sources : [];
       hasLoadError = false;
-      setMessage("");
+      setMessage("", false);
     } catch (error) {
       hasLoadError = true;
       const errorMsg = error instanceof Error ? error.message : String(error);
-      setMessage(`${getText(options).loadFailed} (${errorMsg})`);
+      setMessage(`${getText(options).loadFailed} (${errorMsg})`, true);
     } finally {
       isLoading = false;
       refresh.disabled = false;
@@ -323,18 +559,25 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     panel.classList.add("open");
     void loadSources();
   };
-  close.addEventListener("click", () => panel.classList.remove("open"));
+
+  const closePanel = () => {
+    panel.classList.remove("open");
+  };
+
+  close.addEventListener("click", closePanel);
+  manualClose.addEventListener("click", closePanel);
   refresh.addEventListener("click", () => void loadSources());
+
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files?.[0];
     if (!file) return;
     const baseUrl = apiBaseUrl();
     if (!baseUrl) {
-      setMessage(getText(options).noBackend);
+      setMessage(getText(options).noBackend, true);
       return;
     }
     fileInput.disabled = true;
-    setMessage(getText(options).uploading);
+    setMessage(getText(options).uploading, false);
     try {
       const body = new FormData();
       body.append("file", file, file.name);
@@ -344,64 +587,53 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
         body,
       });
       if (!response.ok) throw new Error(String(response.status));
-      const payload = await response.json() as { source?: KnowledgeSource };
+      const payload = (await response.json()) as { source?: KnowledgeSource };
       if (payload.source?.extractionStatus === "ready") chosen.add(payload.source.sourceId);
       await loadSources();
     } catch (error) {
-      setMessage(`${getText(options).uploadFailed} (${String(error)})`);
+      setMessage(`${getText(options).uploadFailed} (${String(error)})`, true);
     } finally {
       fileInput.value = "";
       fileInput.disabled = false;
     }
   });
+
   generate.addEventListener("click", () => {
     if (chosen.size === 0) {
-      setMessage(getText(options).selectReady);
+      setMessage(getText(options).selectReady, true);
       return;
     }
     if (!options.getApiKey()) {
-      setMessage(getText(options).noApiKey);
+      setMessage(getText(options).noApiKey, true);
       return;
     }
     panel.classList.remove("open");
     options.onGenerate([...chosen], goal.value.trim());
   });
+
   manualStart.addEventListener("click", () => {
-    const selectedPdf = sources.find((source) => chosen.has(source.sourceId) && source.filename.toLowerCase().endsWith(".pdf"));
+    const selectedPdf = sources.find(
+      (source) => chosen.has(source.sourceId) && source.filename.toLowerCase().endsWith(".pdf"),
+    );
     if (!selectedPdf || chosen.size !== 1) {
-      setMessage(options.getLanguage() === "zh" ? "请先只选择一份 PDF 资料。" : "Select exactly one PDF source first.");
+      setMessage(getText(options).selectPdfFirst, true);
       return;
     }
     manualOpen = true;
     renderSources();
   });
+
   manualBack.addEventListener("click", () => {
     manualOpen = false;
     renderSources();
   });
-  createCourse.addEventListener("click", () => {
-    if (chosen.size === 0) {
-      setMessage(getText(options).selectReady);
-      return;
-    }
-    if (!options.getApiKey()) {
-      setMessage(getText(options).noApiKey);
-      return;
-    }
-    const count = Number.parseInt(lessonCount.value, 10);
-    if (!Number.isInteger(count) || count < 1 || count > 100) {
-      setMessage(options.getLanguage() === "zh" ? "请输入 1 到 100 之间的课时数。" : "Enter a lesson count from 1 to 100.");
-      return;
-    }
-    panel.classList.remove("open");
-    options.onCreateBookCourse([...chosen], count);
-  });
+
   addLesson.addEventListener("click", () => {
     const start = Number.parseInt(pageStart.value, 10);
     const end = Number.parseInt(pageEnd.value, 10);
     const name = lessonTitle.value.trim();
     if (!name || !Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start) {
-      setMessage(options.getLanguage() === "zh" ? "请填写课时名称和有效的 PDF 页码范围。" : "Enter a lesson title and valid PDF page range.");
+      setMessage(getText(options).enterValidLesson, true);
       return;
     }
     readerLessons = [...readerLessons, { title: name, pageStart: start, pageEnd: end }];
@@ -410,7 +642,9 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     pageEnd.value = String(end + 1);
     renderSources();
   });
+
   manualTitle.addEventListener("input", renderSources);
+
   generateManual.addEventListener("click", () => {
     if (chosen.size !== 1 || !manualTitle.value.trim() || readerLessons.length === 0) return;
     panel.classList.remove("open");
@@ -418,13 +652,13 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   });
 
   root.addEventListener("click", (event) => {
-    if (event.target === root) panel.classList.remove("open");
+    if (event.target === root) closePanel();
   });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && panel.classList.contains("open")) {
       event.preventDefault();
-      panel.classList.remove("open");
+      closePanel();
     }
   });
 
