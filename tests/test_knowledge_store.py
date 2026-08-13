@@ -3,6 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from pypdf import PdfWriter
+
 from apps.api.knowledge_store import (
     InvalidKnowledgeUploadError,
     KnowledgeSourceNotReadyError,
@@ -60,3 +62,15 @@ class KnowledgeStoreTests(unittest.TestCase):
     def test_rejects_unsupported_file_type(self) -> None:
         with self.assertRaises(InvalidKnowledgeUploadError):
             self.store.ingest_upload(io.BytesIO(b"binary"), "archive.exe", "application/octet-stream")
+
+    def test_uses_embedded_pdf_title_instead_of_filename(self) -> None:
+        pdf = io.BytesIO()
+        writer = PdfWriter()
+        writer.add_blank_page(width=200, height=200)
+        writer.add_metadata({"/Title": "Linear Algebra Foundations"})
+        writer.write(pdf)
+        pdf.seek(0)
+
+        source = self.store.ingest_upload(pdf, "download-2026.pdf", "application/pdf")
+
+        self.assertEqual(source.title, "Linear Algebra Foundations")

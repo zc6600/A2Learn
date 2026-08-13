@@ -294,12 +294,12 @@
   top: 50%;
   left: 50%;
   translate: -50% -50%;
-  width: min(520px, calc(100vw - 32px));
-  max-height: min(740px, calc(100vh - 48px));
+  width: min(600px, calc(100vw - 32px));
+  max-height: min(760px, calc(100vh - 40px));
   background: var(--a2ui-color-surface);
   border: 1px solid color-mix(in srgb, var(--a2ui-color-border) 75%, transparent);
-  border-radius: 16px;
-  box-shadow: 0 24px 64px -12px rgba(15, 23, 42, 0.22), 0 4px 16px rgba(15, 23, 42, 0.06);
+  border-radius: 20px;
+  box-shadow: 0 28px 80px -18px rgba(15, 23, 42, 0.32), 0 8px 24px rgba(15, 23, 42, 0.08);
   display: none;
   overflow: hidden;
   color: var(--app-text);
@@ -314,7 +314,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px 14px;
+  padding: 20px 24px 17px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--a2ui-color-primary) 7%, var(--a2ui-color-surface)), var(--a2ui-color-surface) 52%);
   border-bottom: 1px solid color-mix(in srgb, var(--a2ui-color-border) 60%, transparent);
 }
 .a2learn-library-title-group {
@@ -324,14 +325,15 @@
 }
 .a2learn-library-title {
   margin: 0;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--app-text);
 }
 .a2learn-library-subtitle {
   margin: 0;
-  font-size: 11.5px;
+  font-size: 12.5px;
+  max-width: 440px;
   color: var(--app-muted);
   line-height: 1.4;
 }
@@ -341,9 +343,9 @@
   gap: 6px;
 }
 .a2learn-icon-btn, .a2learn-library-close-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--a2ui-color-border) 60%, transparent);
   background: var(--a2ui-color-surface-subtle);
   display: inline-flex;
@@ -361,7 +363,7 @@
 
 /* Upload Dropzone */
 .a2learn-library-upload-area {
-  padding: 14px 20px 0;
+  padding: 18px 24px 0;
 }
 .a2learn-library-file-input {
   display: none;
@@ -369,11 +371,11 @@
 .a2learn-library-dropzone {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border: 1.5px dashed color-mix(in srgb, var(--a2ui-color-border) 90%, transparent);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--a2ui-color-surface-subtle) 60%, transparent);
+  gap: 14px;
+  padding: 15px 16px;
+  border: 1.5px dashed color-mix(in srgb, var(--a2ui-color-primary) 34%, var(--a2ui-color-border));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--a2ui-color-primary) 4%, var(--a2ui-color-surface));
   cursor: pointer;
   transition: all 0.18s ease;
 }
@@ -382,10 +384,10 @@
   background: color-mix(in srgb, var(--a2ui-color-primary) 5%, var(--a2ui-color-surface));
 }
 .a2learn-dropzone-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
-  background: color-mix(in srgb, var(--a2ui-color-primary) 12%, var(--a2ui-color-surface));
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--a2ui-color-primary) 14%, var(--a2ui-color-surface));
   color: var(--a2ui-color-primary);
   display: flex;
   align-items: center;
@@ -398,8 +400,8 @@
   gap: 2px;
 }
 .a2learn-dropzone-title {
-  font-size: 13px;
-  font-weight: 650;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--app-text);
 }
 .a2learn-dropzone-desc {
@@ -426,7 +428,7 @@
 
 /* Sources List */
 .a2learn-library-sources-section {
-  padding: 12px 20px 0;
+  padding: 18px 24px 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -473,9 +475,9 @@
 .a2learn-library-source-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  gap: 13px;
+  padding: 13px 14px;
+  border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--a2ui-color-border) 70%, transparent);
   background: var(--a2ui-color-surface);
   transition: all 0.15s ease;
@@ -485,8 +487,9 @@
   background: color-mix(in srgb, var(--a2ui-color-primary) 3%, var(--a2ui-color-surface));
 }
 .a2learn-library-source-card.selected {
-  border-color: var(--a2ui-color-primary);
-  background: color-mix(in srgb, var(--a2ui-color-primary) 6%, var(--a2ui-color-surface));
+  border-color: color-mix(in srgb, var(--a2ui-color-primary) 75%, var(--a2ui-color-border));
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--a2ui-color-primary) 10%, transparent);
+  background: color-mix(in srgb, var(--a2ui-color-primary) 7%, var(--a2ui-color-surface));
 }
 .a2learn-source-check-wrap {
   display: inline-flex;
@@ -501,8 +504,8 @@
   cursor: pointer;
 }
 .a2learn-source-type-icon {
-  padding: 3px 6px;
-  border-radius: 6px;
+  padding: 5px 7px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--a2ui-color-primary) 10%, var(--a2ui-color-surface-subtle));
   font-size: 10px;
   font-weight: 750;
@@ -528,8 +531,8 @@
   gap: 8px;
 }
 .a2learn-source-title {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--app-text);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -555,19 +558,20 @@
   color: #ef4444;
 }
 .a2learn-source-meta-row {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--app-muted);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  flex-wrap: wrap;
   gap: 8px;
 }
 .a2learn-source-split-tag {
   border: 1px solid color-mix(in srgb, var(--a2ui-color-primary) 40%, transparent);
   background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
   color: var(--a2ui-color-primary);
-  border-radius: 6px;
-  padding: 2px 7px;
+  border-radius: 999px;
+  padding: 3px 8px;
   font-family: inherit;
   font-size: 11px;
   font-weight: 600;
@@ -584,7 +588,7 @@
 
 /* Learning Goal */
 .a2learn-library-goal-section {
-  padding: 12px 20px 0;
+  padding: 18px 24px 0;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -603,8 +607,8 @@
   box-sizing: border-box;
   resize: vertical;
   border: 1px solid color-mix(in srgb, var(--a2ui-color-border) 70%, transparent);
-  border-radius: 9px;
-  padding: 8px 12px;
+  border-radius: 12px;
+  padding: 10px 12px;
   background: var(--a2ui-color-surface);
   color: var(--app-text);
   font-family: inherit;
@@ -621,7 +625,7 @@
 /* Library Footer */
 .a2learn-library-footer {
   margin-top: 16px;
-  padding: 14px 20px;
+  padding: 16px 24px;
   border-top: 1px solid color-mix(in srgb, var(--a2ui-color-border) 60%, transparent);
   background: color-mix(in srgb, var(--a2ui-color-surface-subtle) 50%, var(--a2ui-color-surface));
   display: flex;

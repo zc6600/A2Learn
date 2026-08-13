@@ -60,6 +60,18 @@ def _plain_text(text: str) -> str:
     return text.strip()
 
 
+def _clean_document_title(value: object | None) -> str | None:
+    """Return a display-safe PDF title, or ``None`` for metadata noise."""
+    if value is None:
+        return None
+    title = re.sub(r"\s+", " ", str(value)).strip()
+    # Some producers write a row of dashes or an empty value into /Title.
+    # Showing that is less useful than falling back to the filename.
+    if len(title) < 2 or not re.search(r"[\w\u3400-\u9fff]", title):
+        return None
+    return title[:300]
+
+
 @dataclass(frozen=True)
 class KnowledgeSource:
     source_id: str
@@ -201,9 +213,10 @@ class KnowledgeStore:
 
         extraction_mode, status, pages, extracted_pages, error = self._extract(destination, suffix)
         chunks = self._chunk_pages(extracted_pages) if status == "ready" else []
+        inferred_title = self._infer_pdf_title(destination) if suffix == ".pdf" else None
         source = KnowledgeSource(
             source_id=source_id,
-            title=(title or Path(safe_name).stem).strip()[:300] or "Untitled source",
+            title=_clean_document_title(title) or inferred_title or Path(safe_name).stem[:300] or "Untitled source",
             filename=safe_name,
             media_type=media_type,
             size_bytes=size,
@@ -217,6 +230,38 @@ class KnowledgeStore:
         )
         self._save(source, str(destination), chunks)
         return source
+
+    @staticmethod
+    def _infer_pdf_title(path: Path) -> str | None:
+        """Prefer embedded PDF metadata, then a plausible first-page heading."""
+        try:
+            from pypdf import PdfReader
+            from pypdf.errors import PdfReadError
+
+            reader = PdfReader(str(path))
+            metadata = reader.metadata
+            metadata_title = _clean_document_title(metadata.get("/Title") if metadata else None)
+            if metadata_title:
+                return metadata_title
+
+            if not reader.pages:
+                return None
+            first_page = reader.pages[0].extract_text() or ""
+        except (ImportError, OSError, ValueError, KeyError, TypeError, PdfReadError):
+            # A title must never make an otherwise valid upload fail.
+            return None
+
+        for line in first_page.splitlines()[:20]:
+            candidate = _clean_document_title(line)
+            if not candidate or len(candidate) > 120:
+                continue
+            normalized = candidate.casefold()
+            if normalized in {"abstract", "contents", "table of contents", "目录", "摘要"}:
+                continue
+            if any(token in normalized for token in ("http://", "https://", "www.", "doi:")):
+                continue
+            return candidate
+        return None
 
     def _extract(self, path: Path, suffix: str) -> tuple[str, str, int | None, list[tuple[int | None, str]], str | None]:
         if suffix in TEXT_SUFFIXES:
@@ -334,10 +379,24 @@ class KnowledgeStore:
                 ORDER BY s.created_at DESC
                 """
             ).fetchall()
-            return [
+            sources: list[KnowledgeSource] = []
+            for row in rows:
+                source_title = row["title"]
+                filename_stem = Path(row["filename"]).stem
+                # Older uploads used the filename unconditionally. Upgrade that
+                # fallback lazily so a refresh fixes existing library entries.
+                if Path(row["filename"]).suffix.lower() == ".pdf" and source_title == filename_stem:
+                    inferred_title = self._infer_pdf_title(Path(row["storage_path"]))
+                    if inferred_title and inferred_title != source_title:
+                        connection.execute(
+                            "UPDATE knowledge_sources SET title = ? WHERE source_id = ?",
+                            (inferred_title, row["source_id"]),
+                        )
+                        source_title = inferred_title
+                sources.append(
                 KnowledgeSource(
                     source_id=row["source_id"],
-                    title=row["title"],
+                    title=source_title,
                     filename=row["filename"],
                     media_type=row["media_type"],
                     size_bytes=row["size_bytes"],
@@ -349,8 +408,9 @@ class KnowledgeStore:
                     error=row["error"],
                     created_at=row["created_at"],
                 )
-                for row in rows
-            ]
+                )
+            connection.commit()
+            return sources
 
     def chunks(self, source_id: str, query: str | None = None, limit: int = 20) -> list[KnowledgeChunk]:
         self.get(source_id)
