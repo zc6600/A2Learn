@@ -38,11 +38,19 @@ function headers(apiKey: string, json = false): HeadersInit {
 }
 
 function parseEvent(frame: string): AgentEvent | null {
-  const event = frame.match(/^event:\s*(.+)\r?$/m)?.[1]?.trim();
-  const data = frame.match(/^data:\s*(.+)\r?$/m)?.[1];
-  if (!event || !data) return null;
+  const lines = frame.split(/\r?\n/);
+  let event = "";
+  const dataLines: string[] = [];
+  for (const line of lines) {
+    if (line.startsWith("event:")) {
+      event = line.slice(6).trim();
+    } else if (line.startsWith("data:")) {
+      dataLines.push(line.slice(5).trimStart());
+    }
+  }
+  if (!event || dataLines.length === 0) return null;
   try {
-    return { event, data: JSON.parse(data) as Record<string, any> };
+    return { event, data: JSON.parse(dataLines.join("\n")) as Record<string, any> };
   } catch {
     return null;
   }
@@ -482,6 +490,35 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
+
+    const processFrame = (frame: string) => {
+      const agentEvent = parseEvent(frame);
+      if (!agentEvent) return;
+      // The old page can finish its server-side edit after a language/project
+      // switch. Its A2UI sync must never be applied to the new renderer.
+      if (requestEpoch !== pageEpoch) return;
+      if (agentEvent.event === "tool_start") {
+        addMessage(events, "status", text("正在应用页面修改…", "Applying page modifications…"));
+      }
+      if (agentEvent.event === "tool_end") {
+        const result = agentEvent.data.result;
+        const processor = options.getProcessor();
+        if (result?.ok && Array.isArray(result?.sync?.messages) && processor) {
+          processor.processMessages(result.sync.messages as A2uiMessage[]);
+          options.render();
+          addMessage(events, "status", text("当前案例已更新。", "The case has been updated."));
+        } else if (!result?.ok) {
+          const code = String(result?.error || text("页面更新失败", "Page update failed"));
+          const detail = typeof result?.detail === "string" && result.detail ? `: ${result.detail}` : "";
+          addMessage(events, "error", `${code}${detail}`);
+        }
+      }
+      if (agentEvent.event === "human_input_required") onHumanInput(agentEvent.data);
+      if (agentEvent.event === "assistant_message") addMessage(events, "agent", String(agentEvent.data.text || ""));
+      if (agentEvent.event === "error") addMessage(events, "error", String(agentEvent.data.message || text("Agent 失败", "Agent failed")));
+      if (agentEvent.event === "done" && typeof agentEvent.data.threadId === "string") threadId = agentEvent.data.threadId;
+    };
+
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
@@ -489,32 +526,11 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       const frames = buffer.split(/\r?\n\r?\n/);
       buffer = frames.pop() || "";
       for (const frame of frames) {
-        const agentEvent = parseEvent(frame);
-        if (!agentEvent) continue;
-        // The old page can finish its server-side edit after a language/project
-        // switch. Its A2UI sync must never be applied to the new renderer.
-        if (requestEpoch !== pageEpoch) continue;
-        if (agentEvent.event === "tool_start") {
-          addMessage(events, "status", text("正在应用页面修改…", "Applying page modifications…"));
-        }
-        if (agentEvent.event === "tool_end") {
-          const result = agentEvent.data.result;
-          const processor = options.getProcessor();
-          if (result?.ok && Array.isArray(result?.sync?.messages) && processor) {
-            processor.processMessages(result.sync.messages as A2uiMessage[]);
-            options.render();
-            addMessage(events, "status", text("当前案例已更新。", "The case has been updated."));
-          } else if (!result?.ok) {
-            const code = String(result?.error || text("页面更新失败", "Page update failed"));
-            const detail = typeof result?.detail === "string" && result.detail ? `: ${result.detail}` : "";
-            addMessage(events, "error", `${code}${detail}`);
-          }
-        }
-        if (agentEvent.event === "human_input_required") onHumanInput(agentEvent.data);
-        if (agentEvent.event === "assistant_message") addMessage(events, "agent", String(agentEvent.data.text || ""));
-        if (agentEvent.event === "error") addMessage(events, "error", String(agentEvent.data.message || text("Agent 失败", "Agent failed")));
-        if (agentEvent.event === "done" && typeof agentEvent.data.threadId === "string") threadId = agentEvent.data.threadId;
+        processFrame(frame);
       }
+    }
+    if (buffer.trim()) {
+      processFrame(buffer);
     }
   };
 

@@ -154,12 +154,14 @@ async function measurePage(source: Surface, items: PresentationItem[]): Promise<
   staging.appendChild(canvas);
   document.body.appendChild(staging);
 
-  await customElements.whenDefined("a2learn-markdown-surface");
-  await nextFrames();
-  const height = canvas.scrollHeight;
-  staging.remove();
-  page.dispose();
-  return height;
+  try {
+    await customElements.whenDefined("a2learn-markdown-surface");
+    await nextFrames();
+    return canvas.scrollHeight;
+  } finally {
+    staging.remove();
+    page.dispose();
+  }
 }
 
 async function splitTextToFit(

@@ -192,7 +192,7 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
             id="sidebar-search-input"
             class="sidebar-search-input"
             placeholder="${lang === "zh" ? "🔍 快速过滤课程..." : "🔍 Filter lessons..."}"
-            value="${searchTerm}"
+            value="${searchTerm.replace(/"/g, "&quot;")}"
           />
         </div>
 

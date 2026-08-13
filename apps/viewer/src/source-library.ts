@@ -256,6 +256,17 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     options.onGenerate([...chosen], goal.value.trim());
   });
 
+  root.addEventListener("click", (event) => {
+    if (event.target === root) panel.classList.remove("open");
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && panel.classList.contains("open")) {
+      event.preventDefault();
+      panel.classList.remove("open");
+    }
+  });
+
   updateLabels();
   return { open, onLanguageChanged: updateLabels };
 }
