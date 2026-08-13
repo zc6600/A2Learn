@@ -14,7 +14,9 @@ html[data-a2learn-theme="learning-default"],
   --a2learn-panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 
   /* Typography */
-  --a2ui-font-family-title: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --a2ui-font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --a2ui-font-family-title: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --a2learn-font-poetry: "Songti SC", STSong, SimSun, serif;
   --a2ui-font-size-xs: 12px;
   --a2ui-font-size-s: 14px;
   --a2ui-font-size-m: 16px;

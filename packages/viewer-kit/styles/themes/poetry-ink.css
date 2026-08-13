@@ -17,6 +17,8 @@ html[data-a2learn-theme="poetry-ink"] {
   --a2ui-color-on-background: #554a40;
   --a2ui-color-border: #d9c9ae;
   --a2ui-font-family-title: Songti SC, STSong, SimSun, serif;
+  --a2ui-font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --a2learn-font-poetry: "Songti SC", STSong, SimSun, serif;
   --a2ui-card-border-radius: 6px;
   --a2ui-card-padding: 24px 28px;
   --a2ui-spacing-xl: 40px;

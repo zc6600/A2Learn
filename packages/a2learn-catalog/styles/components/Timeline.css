@@ -103,8 +103,15 @@
     }
     .timeline-journey::before {
       left: calc(50% - 1px);
-      width: 1px;
-      background: color-mix(in srgb, var(--a2ui-color-primary) 32%, var(--a2ui-color-border));
+      width: 2px;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        color-mix(in srgb, var(--a2ui-color-primary) 32%, transparent) 5%,
+        color-mix(in srgb, var(--a2ui-color-primary) 58%, transparent) 50%,
+        color-mix(in srgb, var(--a2ui-color-primary) 32%, transparent) 95%,
+        transparent
+      );
     }
     .timeline-journey .timeline-item {
       grid-column: 1;
@@ -123,11 +130,11 @@
       left: auto;
       right: -45px;
       top: 28px;
-      width: 10px;
-      height: 10px;
-      border-width: 2px;
+      width: 14px;
+      height: 14px;
+      border-width: 4px;
       background: var(--a2ui-color-surface);
-      box-shadow: 0 0 0 1px var(--a2ui-color-primary);
+      box-shadow: 0 0 0 2px var(--a2ui-color-primary), 0 0 18px color-mix(in srgb, var(--a2ui-color-primary) 38%, transparent);
     }
     .timeline-journey .timeline-item:nth-of-type(even) .timeline-dot {
       right: auto;
@@ -136,26 +143,38 @@
     .timeline-journey .timeline-content {
       position: relative;
       overflow: hidden;
-      min-height: 0;
-      padding: 16px 18px;
-      border-radius: 10px;
-      box-shadow: none;
+      min-height: 122px;
+      padding: 22px 24px 20px;
+      border-radius: 14px 5px 14px 5px;
+      box-shadow: 0 10px 28px color-mix(in srgb, var(--a2ui-color-primary) 9%, transparent);
     }
-    .timeline-journey .timeline-content::after { content: none; }
+    .timeline-journey .timeline-content::after {
+      content: "";
+      position: absolute;
+      width: 86px;
+      height: 86px;
+      right: -36px;
+      bottom: -48px;
+      border: 1px solid color-mix(in srgb, var(--a2ui-color-primary) 16%, transparent);
+      border-radius: 50%;
+      box-shadow: 0 0 0 14px color-mix(in srgb, var(--a2ui-color-primary) 5%, transparent), 0 0 0 30px color-mix(in srgb, var(--a2ui-color-primary) 3%, transparent);
+      pointer-events: none;
+    }
     .timeline-journey .timeline-time {
-      letter-spacing: .06em;
+      letter-spacing: .16em;
       font-size: 11px;
     }
     .timeline-journey .timeline-title {
-      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));
-      font-size: 16px;
-      line-height: 1.45;
-      font-weight: 680;
+      font-family: var(--a2learn-font-poetry, var(--a2ui-font-family-title, var(--a2ui-font-family)));
+      font-size: 19px;
+      line-height: 1.55;
+      font-weight: 700;
     }
     .timeline-journey .timeline-desc {
       position: relative;
       z-index: 1;
       line-height: 1.75;
+      font-family: var(--a2learn-font-poetry, var(--a2ui-font-family));
     }
     .timeline-journey .timeline-desc b {
       color: var(--a2ui-color-primary);
