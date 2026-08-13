@@ -196,8 +196,17 @@ export function sanitizeHtml(input: string, options?: { inline?: boolean }): str
   if (!input) return "";
   if (typeof window === "undefined") return input;
 
+  // Generation occasionally leaves a line containing only the closing braces
+  // of an abandoned JSON/template fragment (for example `}}}}},`). It is not
+  // course content and markdown renders it as a distracting paragraph. Do not
+  // touch fenced code blocks: braces inside an actual code example are valid.
+  const cleanedInput = input.split(/(```[\s\S]*?```)/g).map((part, index) => {
+    if (index % 2 === 1) return part;
+    return part.replace(/^\s*(?:[}\]]){3,}\s*,?\s*$/gm, "");
+  }).join("");
+
   // 1. Extract Math expressions to placeholders
-  const { text, mathMap } = extractMath(input);
+  const { text, mathMap } = extractMath(cleanedInput);
 
   // 2. Compile Markdown to HTML
   const renderedMd = options?.inline ? md.renderInline(text) : md.render(text);
