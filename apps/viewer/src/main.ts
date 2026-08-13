@@ -539,6 +539,9 @@ async function bootstrapViewer() {
     source: ViewerSourceOnline;
     sessionId?: string;
     resumeRequestVersion?: number;
+    keepInBackground?: boolean;
+    watchingInBackground?: boolean;
+    persisting?: boolean;
   } | null = null;
   const languageChangeControllers: Array<{ onLanguageChanged: () => void }> = [];
 
@@ -554,6 +557,75 @@ async function bootstrapViewer() {
                 : window.location.origin))
         ).trim();
 
+  const finalizeGeneration = async (
+    sessionId: string,
+    source: ViewerSourceOnline,
+    token: string | undefined,
+    openInViewer: boolean,
+  ) => {
+    if (!token || activeGeneration?.token !== token || activeGeneration.persisting) return;
+    activeGeneration.persisting = true;
+    const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
+    if (!apiBaseUrl) {
+      activeGeneration.persisting = false;
+      return;
+    }
+    const projectTitle = source.resourceText || source.resourceQuery || T[source.language === "en" ? "en" : "zh"].defaultGeneratedTitle;
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/projects/from-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(getStoredApiKey() ? { "X-OpenRouter-API-Key": getStoredApiKey() } : {}),
+        },
+        body: JSON.stringify({ sessionId, title: projectTitle, actor: "ai" }),
+      });
+      if (!res.ok || activeGeneration?.token !== token) {
+        if (activeGeneration?.token === token) activeGeneration.persisting = false;
+        return;
+      }
+      const data = (await res.json()) as { project?: { projectId?: string; id?: string; title?: string } };
+      const projectId = data?.project?.projectId || data?.project?.id;
+      if (!projectId || activeGeneration?.token !== token) {
+        if (activeGeneration?.token === token) activeGeneration.persisting = false;
+        return;
+      }
+      rememberProject(projectId, projectTitle);
+      if (currentPendingGenerationId === token) {
+        workspaceStore.completePendingGeneration(token, projectId, projectTitle);
+        currentPendingGenerationId = null;
+      } else {
+        workspaceStore.recordNewGeneration(projectId, projectTitle);
+      }
+      // Only replace the visible document when the user is still looking at
+      // the generating page. Background completion must not hijack navigation.
+      if (openInViewer && activeDoc.type === "generated") {
+        activeDoc = { type: "project", projectId, title: projectTitle };
+        updateProjectUrl(projectId);
+      }
+      activeGeneration = null;
+    } catch {
+      if (activeGeneration?.token === token) activeGeneration.persisting = false;
+    }
+  };
+
+  const keepGenerationRunningInBackground = () => {
+    const generation = activeGeneration;
+    if (!generation) return;
+    generation.keepInBackground = true;
+    if (generation.watchingInBackground) return;
+    generation.resumeRequestVersion = undefined;
+    if (!generation.sessionId) return;
+    generation.watchingInBackground = true;
+    void resumeOnlineSession(generation.source, generation.sessionId)
+      .then((session) => finalizeGeneration(session.sessionId, generation.source, generation.token, false))
+      .catch(() => {
+        if (activeGeneration?.token === generation.token) {
+          activeGeneration.watchingInBackground = false;
+        }
+      });
+  };
+
   const updateProjectUrl = (projectId: string | null) => {
     const url = new URL(window.location.href);
     if (projectId) url.searchParams.set("project", projectId);
@@ -563,10 +635,8 @@ async function bootstrapViewer() {
 
   const openProject = (project: RecentProject, expectedVersion?: number) => {
     if (currentPendingGenerationId) {
-      workspaceStore.failPendingGeneration(currentPendingGenerationId);
-      currentPendingGenerationId = null;
+      keepGenerationRunningInBackground();
     }
-    activeGeneration = null;
     workspaceStore.setActiveNode(project.id);
     return openProjectRuntime({
       project,
@@ -741,46 +811,14 @@ async function bootstrapViewer() {
       getLanguage: getLang,
       bootstrapOnline: (t, s, ic) => bootstrapOnline(t, s, ic, async (sessionId) => {
         if (!ic()) return;
-        const apiBaseUrl = editorApiBaseUrl().replace(/\/+$/, "");
-        if (!apiBaseUrl) return;
-        const projectTitle = s.resourceText || s.resourceQuery || T[getLang()].defaultGeneratedTitle;
-        try {
-          const res = await fetch(`${apiBaseUrl}/api/projects/from-session`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...(getStoredApiKey() ? { "X-OpenRouter-API-Key": getStoredApiKey() } : {}),
-            },
-            body: JSON.stringify({
-              sessionId,
-              title: projectTitle,
-              actor: "ai",
-            }),
-          });
-          if (res.ok && ic()) {
-            const data = (await res.json()) as { project?: { projectId?: string; id?: string; title?: string } };
-            const projectId = data?.project?.projectId || data?.project?.id;
-            if (projectId) {
-              activeDoc = { type: "project", projectId, title: projectTitle };
-              rememberProject(projectId, projectTitle);
-              if (currentPendingGenerationId) {
-                workspaceStore.completePendingGeneration(currentPendingGenerationId, projectId, projectTitle);
-                currentPendingGenerationId = null;
-              } else {
-                workspaceStore.recordNewGeneration(projectId, projectTitle);
-              }
-              if (activeGeneration?.token === generationToken) {
-                activeGeneration = null;
-              }
-              updateProjectUrl(projectId);
-            }
-          }
-        } catch {
-          // Gracefully fallback: in-memory session still active
-        }
+        await finalizeGeneration(sessionId, s, generationToken, true);
       }, existingSessionId, (sessionId) => {
         if (!generationToken || activeGeneration?.token !== generationToken) return;
         activeGeneration.sessionId = sessionId;
+        if (activeGeneration.keepInBackground) {
+          keepGenerationRunningInBackground();
+          return;
+        }
         const resumeVersion = activeGeneration.resumeRequestVersion;
         if (resumeVersion === undefined) return;
         activeGeneration.resumeRequestVersion = undefined;
@@ -802,10 +840,8 @@ async function bootstrapViewer() {
 
   const selectExample = async (id: string) => {
     if (currentPendingGenerationId) {
-      workspaceStore.failPendingGeneration(currentPendingGenerationId);
-      currentPendingGenerationId = null;
+      keepGenerationRunningInBackground();
     }
-    activeGeneration = null;
     const requestVersion = ++loadVersion;
     const isCurrent = () => requestVersion === loadVersion;
     const item = getExampleItems(getLang()).find((i) => i.id === id);
@@ -852,10 +888,8 @@ async function bootstrapViewer() {
 
   const selectBundledDatabaseLesson = async (id: string) => {
     if (currentPendingGenerationId) {
-      workspaceStore.failPendingGeneration(currentPendingGenerationId);
-      currentPendingGenerationId = null;
+      keepGenerationRunningInBackground();
     }
-    activeGeneration = null;
     const lesson = bundledDatabaseLessons[id];
     if (!lesson || lesson.messages.length === 0) return;
     const requestVersion = ++loadVersion;
