@@ -165,7 +165,8 @@
       font-size: 11px;
     }
     .timeline-journey .timeline-title {
-      font-family: var(--a2learn-font-poetry, var(--a2ui-font-family-title, var(--a2ui-font-family)));
+      /* Keep long, prominent headings crisp; reserve the poetry face for reading text. */
+      font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));
       font-size: 19px;
       line-height: 1.55;
       font-weight: 700;
