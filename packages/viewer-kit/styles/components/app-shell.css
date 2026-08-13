@@ -391,10 +391,10 @@
       background: color-mix(in srgb, var(--a2ui-color-primary) 10%, var(--a2ui-color-surface));
     }
     .action-menu-item.danger {
-      color: var(--a2ui-color-error, #dc2626);
+      color: var(--a2ui-color-error);
     }
     .action-menu-item.danger:hover {
-      background: color-mix(in srgb, var(--a2ui-color-error, #dc2626) 10%, var(--a2ui-color-surface));
+      background: color-mix(in srgb, var(--a2ui-color-error) 10%, var(--a2ui-color-surface));
     }
 
     /* Small Modal Dialogs */
@@ -763,7 +763,7 @@
     .app-modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.55);
+      background: var(--a2learn-overlay-surface, rgba(0, 0, 0, 0.55));
       backdrop-filter: blur(6px);
       z-index: 9999;
       display: flex;
@@ -814,7 +814,7 @@
     }
     .app-modal-close:hover {
       color: var(--app-text);
-      background: rgba(125, 125, 125, 0.12);
+      background: color-mix(in srgb, var(--a2ui-color-on-surface) 10%, transparent);
     }
     .app-modal-body {
       display: flex;
@@ -858,7 +858,7 @@
     }
     .app-btn-secondary:hover {
       color: var(--app-text);
-      background: rgba(125, 125, 125, 0.1);
+      background: color-mix(in srgb, var(--a2ui-color-on-surface) 8%, transparent);
     }
     .app-btn-primary {
       background: var(--a2ui-color-primary);
@@ -913,13 +913,37 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
     }
-    .generation-template-option {
+    .generation-template-groups {
+      display: grid;
+      gap: 16px;
+    }
+    .generation-template-scope {
+      display: grid;
+      gap: 8px;
+    }
+    .generation-template-scope-title {
       display: flex;
-      align-items: stretch;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      color: var(--app-muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .generation-template-scope-title::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: var(--a2ui-color-border);
+    }
+    .generation-template-option {
+      display: block;
       border: 1px solid var(--a2ui-color-border);
-      border-radius: 10px;
-      overflow: hidden;
+      border-radius: 12px;
       background: var(--a2ui-color-surface);
+      transition: border-color 140ms ease, background 140ms ease;
     }
     .generation-template-option:has(input:checked) {
       border-color: var(--a2ui-color-primary);
@@ -927,10 +951,11 @@
     }
     .generation-template-copy {
       display: flex;
-      flex: 1;
       align-items: flex-start;
       gap: 8px;
-      padding: 10px;
+      min-height: 104px;
+      box-sizing: border-box;
+      padding: 12px;
       color: var(--app-text);
       cursor: pointer;
       min-width: 0;
@@ -940,22 +965,16 @@
       accent-color: var(--a2ui-color-primary);
       flex: none;
     }
-    .generation-template-copy > span {
+    .generation-template-details {
       display: flex;
       min-width: 0;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
-    .generation-template-preview {
-      align-self: center;
-      margin-right: 8px;
-      border: 0;
-      background: transparent;
+    .generation-template-meta {
       color: var(--a2ui-color-primary);
-      cursor: pointer;
-      font: inherit;
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 10.5px;
+      line-height: 1.35;
     }
     .generation-advanced-settings {
       border-top: 1px solid var(--a2ui-color-border);
@@ -1147,8 +1166,8 @@
       font-weight: 600;
     }
     .viewer-state.error {
-      border-color: color-mix(in oklab, #ef4444 44%, var(--a2ui-color-border));
-      background: color-mix(in oklab, #ef4444 10%, var(--a2ui-color-surface));
+      border-color: color-mix(in oklab, var(--a2ui-color-error) 44%, var(--a2ui-color-border));
+      background: color-mix(in oklab, var(--a2ui-color-error) 10%, var(--a2ui-color-surface));
     }
     pre, code {
       font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -1157,9 +1176,9 @@
       margin: 14px 0;
       padding: 16px 18px;
       border-radius: 12px;
-      background: #1e2433;
-      border: 1px solid #2d3652;
-      color: #e2e8f0;
+      background: var(--a2ui-color-code-surface);
+      border: 1px solid var(--a2learn-code-border, rgba(255, 255, 255, 0.12));
+      color: var(--a2ui-color-code-text);
       font-size: 13px;
       line-height: 1.65;
       overflow-x: auto;
@@ -1179,10 +1198,10 @@
     code {
       padding: 2px 6px;
       border-radius: 6px;
-      background: rgba(99, 102, 241, 0.12);
-      color: #6366f1;
+      background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface-subtle));
+      color: var(--a2ui-color-primary);
       font-size: 0.875em;
-      border: 1px solid rgba(99, 102, 241, 0.18);
+      border: 1px solid color-mix(in srgb, var(--a2ui-color-primary) 18%, transparent);
     }
 
     /* Term Tooltip Styling (Just-In-Time Glossary) */
@@ -1198,12 +1217,12 @@
       cursor: help;
       padding: 0 4px;
       border-radius: 4px;
-      background: rgba(13, 148, 136, 0.05);
+      background: color-mix(in srgb, var(--a2ui-color-primary) 8%, transparent);
       transition: all 0.2s ease;
     }
     .a2learn-term-tooltip:hover,
     .a2learn-term-tooltip:focus {
-      background: rgba(13, 148, 136, 0.12);
+      background: color-mix(in srgb, var(--a2ui-color-primary) 18%, transparent);
     }
     .a2learn-term-tooltip .term-badge {
       font-size: 11px;
@@ -1219,8 +1238,8 @@
       transform: translateX(-50%) translateY(6px);
       width: 250px;
       padding: 12px 14px;
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
+      background: var(--a2ui-color-surface);
+      border: 1px solid var(--a2ui-color-border);
       border-radius: 14px;
       box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
       z-index: 999;
@@ -1232,7 +1251,7 @@
       white-space: normal;
       font-weight: normal;
       text-decoration: none;
-      color: #111827;
+      color: var(--a2ui-color-on-surface);
       line-height: 1.5;
     }
     .a2learn-term-tooltip .tooltip-popup::after {
@@ -1243,7 +1262,7 @@
       transform: translateX(-50%);
       border-width: 6px;
       border-style: solid;
-      border-color: #ffffff transparent transparent transparent;
+      border-color: var(--a2ui-color-surface) transparent transparent transparent;
     }
     .a2learn-term-tooltip:hover .tooltip-popup,
     .a2learn-term-tooltip:focus .tooltip-popup {
@@ -1260,14 +1279,14 @@
     .a2learn-term-tooltip .tooltip-desc {
       font-size: 12.5px;
       line-height: 1.5;
-      color: #374151;
+      color: var(--a2ui-color-on-surface);
       margin: 0;
     }
     .a2learn-term-tooltip .tooltip-explore-btn {
       margin-top: 4px;
-      background: #f9fafb;
+      background: var(--a2ui-color-surface-subtle);
       color: var(--a2ui-color-primary);
-      border: 1px solid #e5e7eb;
+      border: 1px solid var(--a2ui-color-border);
       border-radius: 8px;
       padding: 5px 10px;
       font-size: 12px;
@@ -1283,18 +1302,6 @@
       background: var(--a2ui-color-primary);
       color: var(--a2ui-color-on-primary, #ffffff);
       border-color: var(--a2ui-color-primary);
-    }
-    @media (prefers-color-scheme: dark) {
-      pre {
-        background: #0d1117;
-        border-color: #30363d;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-      }
-      code {
-        background: rgba(129, 140, 248, 0.15);
-        color: #a5b4fc;
-        border-color: rgba(129, 140, 248, 0.22);
-      }
     }
     @media (max-width: 960px) {
       .app-layout {

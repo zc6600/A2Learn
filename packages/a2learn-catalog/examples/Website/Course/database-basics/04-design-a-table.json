@@ -1,0 +1,287 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "database-basics-lesson-4",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "database-basics-lesson-4",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "path",
+            "scene",
+            "dialogue",
+            "model",
+            "table",
+            "bad",
+            "explanation",
+            "sandbox",
+            "quiz",
+            "summary"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "第 4 讲：怎样设计一张不容易混乱的表？"
+        },
+        {
+          "id": "path",
+          "component": "LearningPath",
+          "title": "数据库入门 6 讲",
+          "activeStepId": "4",
+          "steps": [
+            {
+              "id": "1",
+              "title": "认识数据库"
+            },
+            {
+              "id": "2",
+              "title": "向数据库提问"
+            },
+            {
+              "id": "3",
+              "title": "修改数据"
+            },
+            {
+              "id": "4",
+              "title": "设计表"
+            },
+            {
+              "id": "5",
+              "title": "连接多张表"
+            },
+            {
+              "id": "6",
+              "title": "完成小项目"
+            }
+          ]
+        },
+        {
+          "id": "scene",
+          "component": "AnalogyCard",
+          "title": "同名的人，应该怎样区分？",
+          "analogy": "班里有两位同学都叫小林。一位来自北京，另一位来自杭州。如果我们只用姓名查找记录，程序可能找到第一位就停下来，无法确定你要修改哪一个人。解决办法是给每条记录一个不会重复的编号，就像图书馆给每本书分配条形码、学校给每位同学分配学号。这个编号就是主键的直觉来源：它不是为了好看，而是为了让一条记录拥有可靠身份。"
+        },
+        {
+          "id": "dialogue",
+          "component": "ScenarioDialogue",
+          "topic": "💬 设计表时，姓名能不能当唯一编号？",
+          "characters": {
+            "beginner": {
+              "name": "小周",
+              "avatar": "👩‍💻",
+              "alignment": "left"
+            },
+            "engineer": {
+              "name": "工程师",
+              "avatar": "🧑‍🔧",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "beginner",
+              "content": "我们可以直接用姓名找学生吧？这样就不用额外增加 id 列了。"
+            },
+            {
+              "characterId": "engineer",
+              "content": "姓名可能重复，也可能改名，更可能因为输入格式不同而匹配失败。用于识别记录的字段最好稳定、唯一，而且不依赖人的习惯。"
+            },
+            {
+              "characterId": "beginner",
+              "content": "所以 id 更像数据库内部使用的学号，姓名只是展示给人看的内容？"
+            },
+            {
+              "characterId": "engineer",
+              "content": "正是这样。人喜欢读姓名，程序更适合依靠稳定的 id 找到准确记录。"
+            }
+          ]
+        },
+        {
+          "id": "model",
+          "component": "MentalModel",
+          "title": "把主键想成记录的身份证号码",
+          "description": "名字适合人类交流，但不一定唯一；id 是程序识别一条记录时更可靠的把手。",
+          "icon": "🪪",
+          "diagramTitle": "一张表怎样表达两位同名学生",
+          "diagram": "students\n┌────┬──────┬──────┐\n│ id │ name │ city │\n├────┼──────┼──────┤\n│ 1  │ 小林 │ 北京 │\n│ 2  │ 小林 │ 杭州 │\n└────┴──────┴──────┘",
+          "pillarsTitle": "三个设计词",
+          "pillars": [
+            {
+              "title": "主键 Primary Key",
+              "description": "唯一识别一条记录的字段，通常叫 id。",
+              "icon": "🔑"
+            },
+            {
+              "title": "字段 Field",
+              "description": "表中的一列，例如 name、city 或 age。",
+              "icon": "🧱"
+            },
+            {
+              "title": "类型 Type",
+              "description": "字段允许保存什么形式的值，例如数字或文字。",
+              "icon": "🔤"
+            }
+          ],
+          "analogyTitle": "为什么 id 不应该随便变化？",
+          "analogy": "如果图书馆把一本书的条形码每天更换，借阅记录就很难继续指向同一本书。数据库中的 id 也应该稳定，其他表以后会通过它找到这条记录。"
+        },
+        {
+          "id": "table",
+          "component": "DataTable",
+          "title": "students 表的字段设计",
+          "caption": "表结构先把每种信息的职责说清楚。",
+          "columns": [
+            {
+              "key": "field",
+              "label": "字段"
+            },
+            {
+              "key": "meaning",
+              "label": "保存什么"
+            },
+            {
+              "key": "type",
+              "label": "示例类型"
+            },
+            {
+              "key": "rule",
+              "label": "简单规则"
+            }
+          ],
+          "rows": [
+            {
+              "id": "1",
+              "cells": {
+                "field": "id",
+                "meaning": "唯一编号",
+                "type": "整数",
+                "rule": "不能重复"
+              }
+            },
+            {
+              "id": "2",
+              "cells": {
+                "field": "name",
+                "meaning": "姓名",
+                "type": "文字",
+                "rule": "不能为空"
+              }
+            },
+            {
+              "id": "3",
+              "cells": {
+                "field": "city",
+                "meaning": "城市",
+                "type": "文字",
+                "rule": "一种信息"
+              }
+            },
+            {
+              "id": "4",
+              "cells": {
+                "field": "age",
+                "meaning": "年龄",
+                "type": "整数",
+                "rule": "合理数字"
+              }
+            }
+          ]
+        },
+        {
+          "id": "bad",
+          "component": "ConceptCard",
+          "title": "容易混乱的设计：把一切塞进 profile",
+          "tags": [
+            "混合字段",
+            "重复信息",
+            "难以查询"
+          ],
+          "definition": "如果把 `北京 / 19 岁 / 喜欢篮球` 全部放在 profile 一列，人可以勉强阅读，但程序很难只筛选城市、只修改年龄，或者统计所有喜欢篮球的人。",
+          "example": "profile = '北京，19 岁，喜欢篮球'\n\n问题：\n1. 城市和年龄没有独立边界。\n2. 不同人可能使用不同写法。\n3. 修改年龄时可能误伤整段文字。",
+          "relatedConcepts": [
+            "可查询",
+            "可修改",
+            "字段边界"
+          ]
+        },
+        {
+          "id": "explanation",
+          "component": "DetailedExplanation",
+          "title": "类型是给数据设定的边界",
+          "icon": "📏",
+          "estimatedReadTime": "7 分钟",
+          "content": "数据类型可以帮助数据库发现明显错误。age 应该是数字，如果有人把‘十九岁左右’写进去，程序就不能稳定地比较年龄；city 应该是文字，如果把一张图片直接放进去，也不符合这个字段的职责。不同数据库对类型的具体名字可能不同，初学时先建立两个基本分类：数字用来计算，文字用来描述。<br><br>设计表时还要问：一行代表什么？每列保存什么？怎样唯一找到一行？如果这三个问题回答清楚，表结构通常已经有了可靠的起点。不要因为‘以后可能用到’就把所有内容都塞进一张表；字段越多，职责越模糊，修改和理解的成本越高。"
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "动手试试：用 id 找到准确的同名记录",
+          "description": "即使两个学生同名，也不要依赖姓名猜测目标。",
+          "language": "javascript",
+          "code": "const students = [\n  { id: 1, name: \"小林\", city: \"北京\" },\n  { id: 2, name: \"小林\", city: \"杭州\" }\n];\n\n// 通过 name 查找会得到两条记录，无法确认是哪一位。\nconst sameNames = students.filter((student) => student.name === \"小林\");\nconsole.log(\"同名记录:\", sameNames);\n\n// 通过稳定的 id=2，可以准确找到杭州的小林。\nconst target = students.find((student) => student.id === 2);\nconsole.log(\"目标记录:\", target);",
+          "runLocally": true
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "表设计检查",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "主键最主要的作用是什么？",
+              "options": [
+                "唯一识别一条记录",
+                "让表格变彩色",
+                "保存所有备注",
+                "替代全部列"
+              ],
+              "correctIndex": 0,
+              "explanation": "主键像记录的唯一身份证号。"
+            },
+            {
+              "id": "q2",
+              "question": "为什么姓名不总适合当主键？",
+              "options": [
+                "姓名太短",
+                "姓名可能重复或发生变化",
+                "数据库不支持姓名",
+                "姓名不能显示"
+              ],
+              "correctIndex": 1,
+              "explanation": "姓名可能重名，且可能因为改名或输入差异而变化。"
+            },
+            {
+              "id": "q3",
+              "question": "‘一列只保存一种信息’带来的好处是什么？",
+              "options": [
+                "更容易查询和修改",
+                "让所有记录变成同一行",
+                "不需要任何规则",
+                "自动连接所有表"
+              ],
+              "correctIndex": 0,
+              "explanation": "字段职责清楚，程序才容易按照列进行操作。"
+            }
+          ]
+        },
+        {
+          "id": "summary",
+          "component": "AnalogyCard",
+          "title": "本讲总结：先设计身份，再设计内容",
+          "analogy": "一张好表像一份清晰的名册：每个人有稳定的编号，每一列只记录一种资料，每种资料都有合适的类型。这样后续查询、修改，甚至把多张表连接起来时，都会有可靠的基础。下一讲我们会遇到一个真实世界的问题：一个学生可以报名多门课，一门课也可以有很多学生。多张表怎样把这些关系表达出来？"
+        }
+      ]
+    }
+  }
+]

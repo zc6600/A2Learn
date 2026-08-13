@@ -2,6 +2,7 @@ import {
   GENERATION_COMPONENTS,
   GENERATION_TEMPLATES,
   LOCAL_EXAMPLES,
+  REFERENCE_PACKS,
   MAX_AUTO_GENERATED_IMAGES,
   MAX_ENABLED_COMPONENTS,
   MAX_EXAMPLE_CASES,
@@ -54,20 +55,32 @@ export function staticExampleAudioUrl(exampleId: string, language: Lang): string
   return new URL(path.replace(/^\/+/, ""), document.baseURI).toString();
 }
 
+function templateDifficultyLabel(
+  template: (typeof GENERATION_TEMPLATES)[number],
+  lang: Lang,
+): string {
+  const difficulty = lang === "zh"
+    ? { beginner: "入门", intermediate: "中级", advanced: "高级" }[template.difficulty]
+    : { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" }[template.difficulty];
+  const pedagogy = lang === "zh"
+    ? { "problem-driven": "问题驱动", "theory-lab": "原理实验", "project-based": "项目实践", research: "研究解析", "poetry-reading": "诗词赏析" }[template.pedagogy]
+    : { "problem-driven": "Problem-driven", "theory-lab": "Theory lab", "project-based": "Project-based", research: "Research", "poetry-reading": "Poetry reading" }[template.pedagogy];
+  return `${difficulty} · ${pedagogy} · ${template.depth === "deep" ? (lang === "zh" ? "深度内容" : "Deep content") : (lang === "zh" ? "标准内容" : "Standard content")}`;
+}
+
 export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): string {
   const copy = lang === "zh"
     ? {
         heading: "生成配置",
         note: "这些偏好会保存在当前浏览器，并用于定制下一次生成。",
         templates: "选择生成模板",
-        templatesCopy: "先选一个与你的内容最接近的模板；它会自动配置组件、案例和页面风格。",
-        preview: "预览",
+        templatesCopy: "模板只选择学习难度和教学方式；组件与参考课程会自动匹配。",
         advanced: "高级自定义",
-        advancedCopy: "需要精细控制时，再展开修改组件、案例、风格和配图预算。修改后会成为自定义配置。",
+        advancedCopy: "只有需要覆盖自动配置时才展开。手动修改组件或案例后，会变成自定义配置。",
         components: "本次可生成的组件",
         componentsCopy: "选择本次页面可使用的组件；全部关闭时只会保留基础文字与布局。",
         examples: "参考案例",
-        examplesCopy: "选择可供生成时参考的本地案例（如 Hash Table）；选中案例会同时启用它使用的组件。",
+        examplesCopy: "模板会自动选择参考课程；这里仅用于高级覆盖。",
         exampleUses: "使用组件：",
         theme: "页面风格",
         themeCopy: "影响页面的颜色、字体、留白和卡片质感。",
@@ -94,14 +107,13 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
         heading: "Generation settings",
         note: "These preferences are saved in this browser and customize your next generation.",
         templates: "Choose a generation template",
-        templatesCopy: "Start with the template closest to your content. It configures components, references, and page style together.",
-        preview: "Preview",
+        templatesCopy: "Choose a difficulty and teaching style; components and reference lessons are matched automatically.",
         advanced: "Advanced customization",
-        advancedCopy: "Expand only when you need to tune components, references, style, or the image budget. Changes become a custom configuration.",
+        advancedCopy: "Expand only when you need to override the automatic choices. Manual changes become a custom configuration.",
         components: "Components available for this run",
         componentsCopy: "Choose the components available for this page. With none selected, only basic text and layout remain.",
         examples: "Reference examples",
-        examplesCopy: "Choose local examples (such as Hash Table). Selecting one also enables the components it uses.",
+        examplesCopy: "Templates select reference lessons automatically; use this only for an advanced override.",
         exampleUses: "Uses: ",
         theme: "Page style",
         themeCopy: "Changes the page color, typography, spacing, and card feel.",
@@ -173,17 +185,25 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
       </span>
     </label>`;
 
-  const templateOptions = GENERATION_TEMPLATES.map((template) => `
+  const templateOption = (template: (typeof GENERATION_TEMPLATES)[number]) => `
     <div class="generation-template-option">
       <label class="generation-template-copy">
         <input class="generation-template-input" type="radio" name="generation-template" value="${template.id}" ${profile.templateId === template.id ? "checked" : ""} />
-        <span>
+        <span class="generation-template-details">
           <span class="generation-theme-label">${escapeHtml(template.label[lang])}</span>
           <span class="generation-theme-description">${escapeHtml(template.description[lang])}</span>
+          <span class="generation-template-meta">${escapeHtml(templateDifficultyLabel(template, lang))}</span>
+          <span class="generation-template-meta">${escapeHtml(`${lang === "zh" ? "课程系列：" : "Course series: "}${template.referencePackIds.map((id) => REFERENCE_PACKS.find((pack) => pack.id === id)?.label[lang] || id).join(lang === "zh" ? "、" : ", ") || (lang === "zh" ? "无" : "None")}`)}</span>
+          <span class="generation-template-meta">${escapeHtml(`${lang === "zh" ? "参考案例：" : "Reference examples: "}${template.referenceExampleIds.map((id) => LOCAL_EXAMPLES.find((example) => example.id === id)?.label[lang] || id).join(lang === "zh" ? "、" : ", ")}`)}</span>
         </span>
       </label>
-      <button class="generation-template-preview" type="button" data-template-preview="${template.id}">${copy.preview}</button>
-    </div>`).join("");
+    </div>`;
+  const templateOptions = (["computing", "poetry"] as const).map((scope) => {
+    const label = scope === "computing"
+      ? (lang === "zh" ? "计算机课程模板" : "Computer learning templates")
+      : (lang === "zh" ? "诗词课程模板" : "Poetry learning templates");
+    return `<section class="generation-template-scope"><p class="generation-template-scope-title">${label}</p><div class="generation-template-grid">${GENERATION_TEMPLATES.filter((template) => template.scope === scope).map(templateOption).join("")}</div></section>`;
+  }).join("");
 
   const exampleCategoryLabels = {
     paper: copy.paperExamples,
@@ -218,7 +238,7 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
       <section class="generation-settings-section">
         <p class="generation-settings-section-title">${copy.templates}</p>
         <p class="generation-settings-section-copy">${copy.templatesCopy}</p>
-        <div class="generation-template-grid">${templateOptions}</div>
+        <div class="generation-template-groups">${templateOptions}</div>
       </section>
       <details class="generation-advanced-settings">
         <summary>${copy.advanced}</summary>
@@ -275,7 +295,8 @@ export function profileFromSettingsInputs(): GenerationProfile {
   const templateId = document.querySelector<HTMLInputElement>("input[name='generation-template']:checked")?.value || "custom";
   const imageGenerationLimit = (document.getElementById("generation-image-limit") as HTMLInputElement | null)?.valueAsNumber;
   const visualIntent = (document.getElementById("generation-visual-intent") as HTMLTextAreaElement | null)?.value || "";
-  return normalizeGenerationProfile({ version: 1, templateId, enabledComponents, exampleIds, themeId, displayMode, imageGenerationLimit, visualIntent });
+  const template = GENERATION_TEMPLATES.find((item) => item.id === templateId);
+  return normalizeGenerationProfile({ version: 1, templateId, enabledComponents, exampleIds, referencePackIds: template?.referencePackIds || [], themeId, displayMode, imageGenerationLimit, visualIntent });
 }
 
 export function syncGenerationSettingsInputs(profile: GenerationProfile): void {

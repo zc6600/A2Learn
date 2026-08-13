@@ -1,0 +1,83 @@
+:host {
+  display: block;
+  margin: var(--a2ui-spacing-l) 0;
+}
+
+.table-card {
+  background: var(--a2ui-color-surface);
+  border: 1px solid var(--a2ui-color-border);
+  border-radius: var(--a2ui-border-radius);
+  padding: var(--a2ui-spacing-l);
+}
+
+.title {
+  margin: 0;
+  color: var(--a2ui-color-on-surface);
+  font-size: var(--a2ui-font-size-l);
+  line-height: 1.4;
+}
+
+.caption {
+  margin: 8px 0 var(--a2ui-spacing-m);
+  color: var(--app-muted, var(--a2ui-color-on-surface));
+  font-size: var(--a2ui-font-size-s);
+  line-height: 1.6;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--a2ui-color-border);
+  border-radius: calc(var(--a2ui-border-radius) - 2px);
+}
+
+table {
+  width: 100%;
+  min-width: 420px;
+  border-collapse: collapse;
+  color: var(--a2ui-color-on-surface);
+  font-size: var(--a2ui-font-size-s);
+}
+
+th,
+td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--a2ui-color-border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+th {
+  background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--a2ui-color-primary) 3%, var(--a2ui-color-surface));
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr:hover {
+  background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
+}
+
+.empty-message {
+  margin: 0;
+  padding: var(--a2ui-spacing-l);
+  color: var(--app-muted, var(--a2ui-color-on-surface));
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .table-card {
+    padding: var(--a2ui-spacing-m);
+  }
+
+  th,
+  td {
+    padding: 9px 11px;
+  }
+}

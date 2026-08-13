@@ -4,9 +4,9 @@
       font-family: var(--a2ui-font-family, sans-serif);
     }
     .mm-container {
-      border: 1px solid var(--a2ui-color-border, #e2e8f0);
+      border: 1px solid var(--a2ui-color-border);
       border-radius: var(--a2ui-border-radius, 16px);
-      background: var(--a2ui-color-surface, #ffffff);
+      background: var(--a2ui-color-surface);
       overflow: visible;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -16,9 +16,9 @@
       transform: translateY(-2px);
     }
     .header {
-      background: linear-gradient(135deg, color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 8%, var(--a2ui-color-surface, #ffffff)), color-mix(in oklab, var(--a2ui-color-secondary, #6366f1) 4%, var(--a2ui-color-surface, #ffffff)));
+      background: linear-gradient(135deg, color-mix(in oklab, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface)), color-mix(in oklab, var(--a2ui-color-secondary) 4%, var(--a2ui-color-surface)));
       padding: var(--a2ui-spacing-l, 24px);
-      border-bottom: 1px solid var(--a2ui-color-border, #e2e8f0);
+      border-bottom: 1px solid var(--a2ui-color-border);
       display: flex;
       align-items: center;
       gap: 16px;
@@ -28,11 +28,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--a2ui-color-surface, #ffffff);
+      background: var(--a2ui-color-surface);
       width: 52px;
       height: 52px;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--a2ui-color-border);
       flex-shrink: 0;
     }
     .title-area {
@@ -44,7 +45,7 @@
       margin: 0;
       font-size: 22px;
       font-weight: 800;
-      color: var(--a2ui-color-on-surface, #1e293b);
+      color: var(--a2ui-color-on-surface);
       letter-spacing: -0.5px;
     }
     .subtitle {
@@ -53,7 +54,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      color: var(--a2ui-color-primary, #3b82f6);
+      color: var(--a2ui-color-primary);
     }
     .body {
       padding: var(--a2ui-spacing-l, 24px);
@@ -64,13 +65,13 @@
     .description {
       font-size: 16px;
       line-height: 1.65;
-      color: var(--a2ui-color-on-surface, #334155);
+      color: var(--a2ui-color-on-surface);
       margin: 0;
     }
     .section-title {
       font-size: 13px;
       font-weight: 700;
-      color: color-mix(in oklab, var(--a2ui-color-on-surface, #1e293b) 60%, transparent);
+      color: color-mix(in oklab, var(--a2ui-color-on-surface) 60%, transparent);
       text-transform: uppercase;
       letter-spacing: 1.5px;
       margin: 0 0 12px 0;
@@ -84,8 +85,8 @@
       gap: 16px;
     }
     .pillar-card {
-      background: color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 2%, var(--a2ui-color-surface, #ffffff));
-      border: 1px solid color-mix(in oklab, var(--a2ui-color-border, #e2e8f0) 80%, transparent);
+      background: color-mix(in oklab, var(--a2ui-color-primary) 2%, var(--a2ui-color-surface));
+      border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 80%, transparent);
       border-radius: 12px;
       padding: 16px;
       transition: all 0.2s ease;
@@ -94,8 +95,8 @@
       gap: 8px;
     }
     .pillar-card:hover {
-      background: color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 4%, var(--a2ui-color-surface, #ffffff));
-      border-color: color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 20%, transparent);
+      background: color-mix(in oklab, var(--a2ui-color-primary) 4%, var(--a2ui-color-surface));
+      border-color: color-mix(in oklab, var(--a2ui-color-primary) 20%, transparent);
     }
     .pillar-header {
       display: flex;
@@ -108,34 +109,31 @@
     .pillar-title {
       font-size: 15px;
       font-weight: 700;
-      color: var(--a2ui-color-on-surface, #1e293b);
+      color: var(--a2ui-color-on-surface);
       margin: 0;
     }
     .pillar-desc {
       font-size: 13.5px;
       line-height: 1.5;
-      color: color-mix(in oklab, var(--a2ui-color-on-surface, #334155) 80%, transparent);
+      color: color-mix(in oklab, var(--a2ui-color-on-surface) 80%, transparent);
       margin: 0;
     }
     .diagram-box {
-      background: #0f172a;
-      color: #38bdf8;
+      background: color-mix(in oklab, var(--a2ui-color-surface) 97%, black);
+      border: 1px solid var(--a2ui-color-border);
       border-radius: 12px;
-      padding: 20px;
-      font-family: "JetBrains Mono", "Fira Code", monospace;
-      font-size: 13.5px;
-      line-height: 1.6;
+      padding: 16px;
       overflow-x: auto;
-      border: 1px solid #1e293b;
-      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
     }
     .diagram-box pre {
       margin: 0;
       white-space: pre;
+      color: var(--a2ui-color-on-surface);
     }
     .analogy-box {
-      background: color-mix(in oklab, var(--a2ui-color-secondary, #6366f1) 5%, var(--a2ui-color-surface, #ffffff));
-      border-left: 4px solid var(--a2ui-color-secondary, #6366f1);
+      background: color-mix(in oklab, var(--a2ui-color-secondary) 5%, var(--a2ui-color-surface));
+      border-left: 4px solid var(--a2ui-color-secondary);
       border-radius: 4px 12px 12px 4px;
       padding: 20px;
       position: relative;
@@ -143,7 +141,7 @@
     .analogy-header {
       font-size: 14px;
       font-weight: 800;
-      color: var(--a2ui-color-secondary, #6366f1);
+      color: var(--a2ui-color-secondary);
       margin: 0 0 8px 0;
       display: flex;
       align-items: center;
@@ -152,7 +150,7 @@
     .analogy-content {
       font-size: 15px;
       line-height: 1.6;
-      color: var(--a2ui-color-on-surface, #334155);
+      color: var(--a2ui-color-on-surface);
       margin: 0;
     }
     .analogy-content p {
@@ -161,19 +159,11 @@
     .analogy-content p:last-child {
       margin-bottom: 0;
     }
-    .diagram-box {
-      background: color-mix(in oklab, var(--a2ui-color-surface, #ffffff) 97%, black);
-      border: 1px solid var(--a2ui-color-border, #e2e8f0);
-      border-radius: 12px;
-      padding: 16px;
-      overflow-x: auto;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
-    }
     .visual-step-line {
       margin-bottom: 12px;
       font-size: 14px;
       line-height: 1.6;
-      color: var(--a2ui-color-on-surface, #1e293b);
+      color: var(--a2ui-color-on-surface);
     }
     .visual-step-line:last-child {
       margin-bottom: 0;
@@ -190,32 +180,33 @@
       display: inline-flex;
       flex-direction: column;
       align-items: center;
-      background: var(--a2ui-color-surface, #ffffff);
-      border: 1px solid var(--a2ui-color-border, #cbd5e1);
+      background: var(--a2ui-color-surface);
+      border: 1px solid var(--a2ui-color-border);
       border-radius: 8px;
       padding: 4px 8px;
       min-width: 40px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
     .visual-memory-cell.highlight {
-      background: #dcfce7;
-      border-color: #10b981;
-      color: #047857;
+      background: color-mix(in srgb, var(--a2ui-color-success) 12%, var(--a2ui-color-surface));
+      border-color: var(--a2ui-color-success);
+      color: var(--a2ui-color-success);
       font-weight: 700;
     }
     .cell-idx {
       font-size: 10px;
-      color: var(--app-muted, #64748b);
+      color: var(--app-muted);
       font-family: monospace;
     }
     .cell-val {
       font-size: 13px;
       font-weight: 600;
       font-family: monospace;
+      color: var(--a2ui-color-on-surface);
     }
     .step-suffix {
       font-size: 13px;
-      color: var(--app-muted, #64748b);
+      color: var(--app-muted);
     }
     .visual-flow-line {
       display: flex;
@@ -223,8 +214,8 @@
       gap: 8px;
       padding: 12px 14px;
       margin-bottom: 10px;
-      background: color-mix(in oklab, var(--a2ui-color-surface, #ffffff) 92%, black 5%);
-      border: 1px solid var(--a2ui-color-border, #cbd5e1);
+      background: var(--a2ui-color-surface-subtle);
+      border: 1px solid var(--a2ui-color-border);
       border-radius: 10px;
       transition: all 0.2s ease;
     }
@@ -235,12 +226,12 @@
       transform: translateY(-1px);
     }
     .visual-flow-line.variant-warn {
-      background: color-mix(in oklab, #fef2f2 85%, var(--a2ui-color-surface, #ffffff));
-      border-color: #fca5a5;
+      background: color-mix(in srgb, var(--a2ui-color-warning) 8%, var(--a2ui-color-surface));
+      border-color: color-mix(in srgb, var(--a2ui-color-warning) 30%, var(--a2ui-color-border));
     }
     .visual-flow-line.variant-success {
-      background: color-mix(in oklab, #f0fdf4 85%, var(--a2ui-color-surface, #ffffff));
-      border-color: #86efac;
+      background: color-mix(in srgb, var(--a2ui-color-success) 8%, var(--a2ui-color-surface));
+      border-color: color-mix(in srgb, var(--a2ui-color-success) 30%, var(--a2ui-color-border));
     }
     .visual-flow-header {
       display: flex;
@@ -260,16 +251,16 @@
       font-family: var(--a2ui-font-family, sans-serif);
     }
     .variant-warn .flow-badge {
-      background: #fee2e2;
-      color: #991b1b;
+      background: color-mix(in srgb, var(--a2ui-color-warning) 15%, transparent);
+      color: var(--a2ui-color-warning);
     }
     .variant-success .flow-badge {
-      background: #dcfce7;
-      color: #166534;
+      background: color-mix(in srgb, var(--a2ui-color-success) 15%, transparent);
+      color: var(--a2ui-color-success);
     }
     .variant-info .flow-badge {
-      background: #e0f2fe;
-      color: #075985;
+      background: color-mix(in srgb, var(--a2ui-color-primary) 15%, transparent);
+      color: var(--a2ui-color-primary);
     }
     .visual-flow-nodes {
       display: flex;
@@ -280,18 +271,18 @@
     .flow-node {
       display: inline-flex;
       align-items: center;
-      background: var(--a2ui-color-surface, #ffffff);
-      border: 1px solid var(--a2ui-color-border, #cbd5e1);
+      background: var(--a2ui-color-surface);
+      border: 1px solid var(--a2ui-color-border);
       border-radius: 6px;
       padding: 4px 10px;
       font-size: 13px;
       font-family: var(--a2ui-font-family-mono, monospace);
       font-weight: 600;
-      color: var(--a2ui-color-on-surface, #1e293b);
+      color: var(--a2ui-color-on-surface);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
     .flow-separator {
-      color: #94a3b8;
+      color: var(--app-muted);
       font-size: 14px;
       font-weight: 700;
     }

@@ -47,6 +47,16 @@ describe("Workspace Tree & Store Unit Tests", async () => {
     assert.ok(aiLessons.length >= 2, "AI series should have at least 2 curated lessons");
     assert.ok(aiLessons.some((l) => l.id === "paper-attention"), "Attention lesson should exist");
     assert.ok(aiLessons.some((l) => l.id === "agent-react"), "ReAct Agent lesson should exist");
+
+    const computingChildren = workspaceStore.getChildren("curated_computing");
+    const databaseFolder = computingChildren.find((node) => node.id === "curated_database_basics");
+    assert.ok(databaseFolder, "Database Basics should be a nested folder in Computing");
+    assert.equal(databaseFolder.type, "folder");
+    assert.equal(databaseFolder.isBuiltin, true);
+    const databaseLessons = workspaceStore.getChildren("curated_database_basics");
+    assert.equal(databaseLessons.length, 6, "Database Basics should contain six lessons");
+    assert.equal(databaseLessons[0].id, "database-basics-lesson-1");
+    assert.equal(databaseLessons[5].id, "database-basics-lesson-6");
   });
 
   test("Creates and nests user folders", () => {
@@ -246,4 +256,3 @@ describe("Workspace Tree & Store Unit Tests", async () => {
     assert.equal(workspaceStore.getState().nodes[lessonA].parentId, null);
   });
 });
-

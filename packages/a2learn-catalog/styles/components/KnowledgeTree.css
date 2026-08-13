@@ -50,7 +50,7 @@
       margin-bottom: var(--a2ui-spacing-l);
       padding: var(--a2ui-spacing-m);
       border-left: 4px solid var(--a2ui-color-primary);
-      background: #f8f9fa;
+      background: var(--a2ui-color-surface-subtle);
       border-radius: 0 8px 8px 0;
     }
     .node-title {
@@ -75,7 +75,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 16px;
-      background: white;
+      background: var(--a2ui-color-surface);
       border: 1px solid var(--a2ui-color-border);
       border-radius: 8px;
       cursor: pointer;

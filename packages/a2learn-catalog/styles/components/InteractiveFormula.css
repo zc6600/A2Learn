@@ -4,9 +4,9 @@
         font-family: var(--a2ui-font-family, sans-serif);
       }
       .formula-card {
-        border: 1px solid var(--a2ui-color-border, #e2e8f0);
+        border: 1px solid var(--a2ui-color-border);
         border-radius: var(--a2ui-border-radius, 16px);
-        background: var(--a2ui-color-surface, #ffffff);
+        background: var(--a2ui-color-surface);
         padding: var(--a2ui-spacing-xl, 32px);
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
       }
@@ -18,15 +18,15 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 1px;
-        color: var(--a2ui-color-primary, #3b82f6);
-        background: color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 8%, var(--a2ui-color-surface, #ffffff));
+        color: var(--a2ui-color-primary);
+        background: color-mix(in oklab, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
         padding: 4px 10px;
         border-radius: 20px;
         margin-bottom: 20px;
       }
       .formula-display {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: var(--a2ui-color-surface-subtle);
+        border: 1px solid var(--a2ui-color-border);
         border-radius: 12px;
         padding: 24px;
         text-align: center;
@@ -36,7 +36,7 @@
       }
       .formula-katex {
         display: inline-block;
-        color: var(--a2ui-color-on-surface, #0f172a);
+        color: var(--a2ui-color-on-surface);
       }
       .formula-display .katex {
         font-size: 1.35em;
@@ -46,12 +46,12 @@
         font-size: 18px;
         font-weight: 700;
         white-space: pre-wrap;
-        color: #b91c1c;
+        color: var(--a2ui-color-error);
       }
       .description {
         font-size: 15px;
         line-height: 1.6;
-        color: var(--a2ui-color-on-surface, #334155);
+        color: var(--a2ui-color-on-surface);
         margin-bottom: 24px;
       }
       .section-title {
@@ -59,9 +59,9 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 1px;
-        color: var(--app-muted, #64748b);
+        color: var(--app-muted);
         margin: 20px 0 12px 0;
-        border-bottom: 1px dashed var(--a2ui-color-border, #e2e8f0);
+        border-bottom: 1px dashed var(--a2ui-color-border);
         padding-bottom: 6px;
       }
       .variables-grid {
@@ -71,8 +71,8 @@
         margin-bottom: 24px;
       }
       .variable-item {
-        background: color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 3%, var(--a2ui-color-surface, #ffffff));
-        border: 1px solid var(--a2ui-color-border, #e2e8f0);
+        background: color-mix(in oklab, var(--a2ui-color-primary) 3%, var(--a2ui-color-surface));
+        border: 1px solid var(--a2ui-color-border);
         border-radius: 10px;
         padding: 12px 14px;
         display: flex;
@@ -81,8 +81,8 @@
         transition: all 0.2s ease;
       }
       .variable-item:hover {
-        border-color: var(--a2ui-color-primary, #3b82f6);
-        background: var(--a2ui-color-surface, #ffffff);
+        border-color: var(--a2ui-color-primary);
+        background: var(--a2ui-color-surface);
         transform: translateY(-1px);
       }
       .var-symbol {
@@ -93,9 +93,9 @@
         font-family: var(--a2ui-font-family, sans-serif);
         font-weight: 700;
         font-size: 14px;
-        color: var(--a2ui-color-primary, #3b82f6);
-        background: color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 8%, var(--a2ui-color-surface, #ffffff));
-        border: 1px solid color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 20%, transparent);
+        color: var(--a2ui-color-primary);
+        background: color-mix(in oklab, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
+        border: 1px solid color-mix(in oklab, var(--a2ui-color-primary) 20%, transparent);
         padding: 4px 10px;
         border-radius: 6px;
         min-width: 32px;
@@ -105,7 +105,7 @@
       }
       .var-explanation {
         font-size: 13px;
-        color: var(--a2ui-color-on-surface, #334155);
+        color: var(--a2ui-color-on-surface);
         line-height: 1.5;
         flex: 1;
       }
@@ -115,12 +115,12 @@
         gap: 12px;
       }
       .step-item {
-        border: 1px solid var(--a2ui-color-border, #e2e8f0);
+        border: 1px solid var(--a2ui-color-border);
         border-radius: 8px;
         overflow: hidden;
       }
       .step-header {
-        background: #f8fafc;
+        background: var(--a2ui-color-surface-subtle);
         padding: 12px 16px;
         display: flex;
         justify-content: space-between;
@@ -128,16 +128,16 @@
         cursor: pointer;
         font-weight: 600;
         font-size: 14px;
-        color: var(--a2ui-color-on-surface, #1e293b);
+        color: var(--a2ui-color-on-surface);
         user-select: none;
       }
       .step-header:hover {
-        background: #f1f5f9;
+        background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface-subtle));
       }
       .step-body {
         padding: 16px;
-        background: var(--a2ui-color-surface, #ffffff);
-        border-top: 1px solid var(--a2ui-color-border, #e2e8f0);
+        background: var(--a2ui-color-surface);
+        border-top: 1px solid var(--a2ui-color-border);
         display: none;
       }
       .step-body-open {
@@ -146,17 +146,17 @@
       .step-latex {
         margin-bottom: 8px;
         text-align: center;
-        background: #fafafa;
+        background: var(--a2ui-color-surface-subtle);
         padding: 8px;
         border-radius: 6px;
         overflow-x: auto;
       }
       .step-latex .katex {
-        color: var(--a2ui-color-secondary, #6366f1);
+        color: var(--a2ui-color-secondary);
         font-size: 1.05em;
       }
       .step-explanation {
         font-size: 13px;
         line-height: 1.5;
-        color: var(--a2ui-color-on-surface, #475569);
+        color: var(--a2ui-color-on-surface);
       }

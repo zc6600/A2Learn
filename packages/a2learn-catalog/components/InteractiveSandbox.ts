@@ -185,7 +185,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
       html: ["#e34c26", "#ffffff"],
       css: ["#264de4", "#ffffff"],
     };
-    const [bg, fg] = palette[language] || ["var(--a2ui-color-primary)", "#ffffff"];
+    const [bg, fg] = palette[language] || ["var(--a2ui-color-primary)", "var(--a2ui-color-on-primary, #ffffff)"];
     return `--badge-bg: ${bg}; --badge-fg: ${fg};`;
   }
 
@@ -250,7 +250,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
             <!DOCTYPE html>
             <html>
             <head>
-              <style>body { font-family: monospace; padding: 12px; margin: 0; color: #333; white-space: pre-wrap; }</style>
+              <style>body { font-family: monospace; padding: 12px; margin: 0; color: inherit; white-space: pre-wrap; }</style>
             </head>
             <body>
               <div id="log"></div>
@@ -350,7 +350,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
             <html>
             <head>
               <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
-              <style>body { font-family: monospace; padding: 12px; margin: 0; color: #333; white-space: pre-wrap; }</style>
+              <style>body { font-family: monospace; padding: 12px; margin: 0; color: inherit; white-space: pre-wrap; }</style>
             </head>
             <body>
               <div id="status">Loading Python environment...</div>

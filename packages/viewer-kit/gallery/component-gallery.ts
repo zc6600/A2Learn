@@ -1,5 +1,5 @@
 export type A2uiMessageLike = Record<string, unknown>;
-export type DemoCategory = "component" | "website" | "course";
+export type DemoCategory = "component" | "website" | "course" | "computer";
 
 export interface DemoItem {
   id: string;
@@ -124,9 +124,16 @@ function filenameToTitle(relPath: string): string {
 }
 
 function resolveCategory(relPath: string): DemoCategory {
-  const topLevel = relPath.split("/")[0]?.toLowerCase() ?? "";
+  const pathSegments = relPath.split("/").map((segment) => segment.toLowerCase());
+  const topLevel = pathSegments[0] ?? "";
+  if (pathSegments.includes("course") || pathSegments.includes("courses")) {
+    return "course";
+  }
   if (topLevel === "scenarios" || topLevel === "website" || topLevel === "websites") {
     return "website";
+  }
+  if (topLevel === "computer" || topLevel === "computing") {
+    return "computer";
   }
   if (topLevel === "course" || topLevel === "courses") {
     return "course";

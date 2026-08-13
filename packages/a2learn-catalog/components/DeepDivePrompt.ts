@@ -13,7 +13,7 @@ export class A2learnDeepDivePromptElement extends A2uiLitElement<typeof DeepDive
   ];
 
   protected createController() {
-    return new A2uiController(this, DeepDivePromptApi);
+    return new A2uiController(this, DeepDivePromptApi as any);
   }
 
   private resolveString(value: unknown): string {
@@ -29,41 +29,56 @@ export class A2learnDeepDivePromptElement extends A2uiLitElement<typeof DeepDive
     return "";
   }
 
-  private handlePromptClick(id: string) {
-    const props = (this as any).controller?.props;
-    if (props?.selectedId || !props?.onPromptSelect) return; // Prevent multiple clicks if already selected
+  private handlePromptClick(promptLabel: string, promptId: string) {
+    const props = this.controller?.props;
 
-    (this as any).context.dispatchAction({
-      ...(props.onPromptSelect as Record<string, unknown>),
-      context: { selectedId: id },
-    });
+    // 1. Dispatch A2UI action if configured
+    if (props?.onPromptSelect) {
+      this.context.dispatchAction({
+        ...(props.onPromptSelect as Record<string, unknown>),
+        context: { selectedId: promptId, prompt: promptLabel },
+      });
+    }
+
+    // 2. Trigger global AI companion assistant for direct streaming response
+    this.dispatchEvent(
+      new CustomEvent("a2learn-explore-concept", {
+        detail: { prompt: promptLabel, concept: promptLabel },
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   render() {
-    const props = (this as any).controller?.props;
+    const props = this.controller?.props;
     if (!props) return nothing;
 
-    const prompts = props.prompts || [];
-    const selectedId = props.selectedId;
+    const prompts = (props.prompts as Array<Record<string, unknown>>) || [];
+    const selectedId = props.selectedId ? this.resolveString(props.selectedId) : undefined;
 
     if (prompts.length === 0) return nothing;
 
     return html`
-      <div>
-        <h5 class="deep-dive-title">${uiText("继续深挖", "Explore Further")}</h5>
+      <div class="deep-dive-box">
+        <div class="deep-dive-header">
+          <span class="deep-dive-title">${uiText("💬 推荐追问与深入探索", "💬 Suggested Follow-ups")}</span>
+        </div>
         <div class="prompts-container">
-          ${prompts.map((prompt: any) => {
-            const isSelected = prompt.id === selectedId;
-            const isDisabled = !!selectedId && !isSelected;
-            
+          ${prompts.map((prompt) => {
+            const promptId = this.resolveString(prompt.id);
+            const isSelected = promptId === selectedId;
+            const icon = prompt.icon ? this.resolveString(prompt.icon) : "";
+            const label = this.resolveString(prompt.label);
+
             return html`
               <button 
                 class="prompt-btn ${isSelected ? 'selected' : ''}" 
-                @click=${() => this.handlePromptClick(prompt.id)}
-                ?disabled=${isDisabled}
+                @click=${() => this.handlePromptClick(label, promptId)}
               >
-                ${prompt.icon ? html`<span class="icon">${this.resolveString(prompt.icon)}</span>` : nothing}
-                <span class="label">${unsafeHTML(sanitizeHtml(this.resolveString(prompt.label), { inline: true }))}</span>
+                ${icon ? html`<span class="icon">${icon}</span>` : nothing}
+                <span class="label">${unsafeHTML(sanitizeHtml(label, { inline: true }))}</span>
+                ${isSelected ? html`<span class="check-icon">✓</span>` : nothing}
               </button>
             `;
           })}
@@ -74,7 +89,7 @@ export class A2learnDeepDivePromptElement extends A2uiLitElement<typeof DeepDive
 }
 
 if (!customElements.get("a2learn-deep-dive-prompt")) {
-  customElements.define("a2learn-deep-dive-prompt", A2learnDeepDivePromptElement as any);
+  customElements.define("a2learn-deep-dive-prompt", A2learnDeepDivePromptElement);
 }
 
 export const A2learnDeepDivePrompt = {

@@ -56,9 +56,10 @@ def language_instruction(target_language: str) -> str:
 def load_a2ui_examples_text(
     target_language: str,
     example_ids: tuple[str, ...] | None = None,
+    reference_pack_ids: tuple[str, ...] = (),
 ) -> str:
     if example_ids is not None:
-        return load_reference_examples(example_ids, target_language)
+        return load_reference_examples(example_ids, target_language, reference_pack_ids)
 
     repo_root = Path(__file__).resolve().parent.parent.parent
     examples_dir = repo_root / "packages" / "a2learn-catalog" / "examples" / "Website"
@@ -101,7 +102,7 @@ def site_plan_system_prompt(
     component_choices = ", ".join(enabled_components) if enabled_components is not None else (
         "LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, "
         "ScenarioDialogue, SocialMoments, Timeline, ClozeTest, InteractiveSandbox, ResourceList, "
-        "PaperAbstract, LiteratureReference, InteractiveFormula"
+        "PaperAbstract, LiteratureReference, InteractiveFormula, DataTable"
     )
     return textwrap.dedent(
         f"""
@@ -131,6 +132,7 @@ def a2ui_system_prompt(
     example_ids: tuple[str, ...] | None = None,
     visual_intent: str = "",
     image_generation_limit: int = 2,
+    reference_pack_ids: tuple[str, ...] = (),
 ) -> str:
     lang_instruction = (
         "TARGET LANGUAGE: CHINESE (简体中文). All generated titles, descriptions, definitions, dialogues, analogies, and tooltips MUST be in clear, engaging, professional Chinese."
@@ -221,7 +223,7 @@ def a2ui_system_prompt(
         """
     ).strip()
 
-    examples_text = load_a2ui_examples_text(target_language, example_ids)
+    examples_text = load_a2ui_examples_text(target_language, example_ids, reference_pack_ids)
     if examples_text:
         system_prompt += "\n" + examples_text
     component_prompts = load_component_prompts(enabled_components)

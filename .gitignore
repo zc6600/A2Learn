@@ -16,3 +16,4 @@ data/*.sqlite3
 data/*.sqlite3-*
 data/knowledge-files/
 A2Learn-submission.zip
+*.pdf

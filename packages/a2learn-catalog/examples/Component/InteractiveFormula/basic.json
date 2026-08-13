@@ -1,0 +1,55 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "InteractiveFormula-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "InteractiveFormula-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "InteractiveFormula",
+          "latex": {
+            "literalString": "\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{Q K^T}{\\sqrt{d_k}}\\right) V"
+          },
+          "description": {
+            "literalString": "<b>缩放点积注意力（Scaled Dot-Product Attention）</b>是 Transformer 架构最核心的注意力计算机制。通过将查询矩阵与键矩阵做内积，衡量不同 Token 之间的相关性权重，进而对值矩阵进行加权求和。"
+          },
+          "variables": {
+            "Q": "Query（查询矩阵），代表当前正在寻求关联的目标特征向量。",
+            "K": "Key（键矩阵），代表所有输入位置用于被匹配的特征向量。",
+            "V": "Value（值矩阵），代表各输入位置携带的真实语义信息向量。",
+            "d_k": "Key 向量的维度大小，用于缩放点积以防止 Softmax 梯度进入饱和区。"
+          },
+          "derivationSteps": [
+            {
+              "step": "第一步：点积相似度计算",
+              "latex": "S = Q K^T",
+              "explanation": "计算每一个 Query 与全部 Key 的点积，得到原始注意力得分矩阵 $S$。"
+            },
+            {
+              "step": "第二步：尺度缩放稳定梯度",
+              "latex": "S' = \\frac{Q K^T}{\\sqrt{d_k}}",
+              "explanation": "当维度 $d_k$ 较大时，点积结果的方差会增大至 $d_k$。除以 $\\sqrt{d_k}$ 可将方差拉回 1，避免 Softmax 进入极小梯度的饱和区。"
+            },
+            {
+              "step": "第三步：Softmax 归一化权重",
+              "latex": "A = \\text{softmax}(S')",
+              "explanation": "沿行方向进行 Softmax 归一化，得到每一行和为 1 的非负注意力概率分布矩阵 $A$。"
+            },
+            {
+              "step": "第四步：加权汇聚生成输出",
+              "latex": "\\text{Output} = A V",
+              "explanation": "用注意力权重矩阵 $A$ 对特征矩阵 $V$ 进行线性加权，输出融合了全局上下文的全新特征表达。"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

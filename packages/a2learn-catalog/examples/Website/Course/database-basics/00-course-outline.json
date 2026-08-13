@@ -1,0 +1,31 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "database-basics-course-outline",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "database-basics-course-outline",
+      "components": [
+        {
+          "id": "root",
+          "component": "CourseOutline",
+          "courseTitle": "数据库入门：从第一张表到课程报名系统",
+          "description": "面向完全初学者的 6 讲课程。用熟悉的生活场景理解数据库，再用少量 SQL 完成一个小项目。",
+          "modules": [
+            { "id": "lesson-1", "title": "第 1 讲：数据库到底是什么？", "description": "理解数据库、表、行和列。", "status": "current" },
+            { "id": "lesson-2", "title": "第 2 讲：怎样向数据库提问？", "description": "学习 SELECT、WHERE、ORDER BY 和 LIMIT。", "status": "locked" },
+            { "id": "lesson-3", "title": "第 3 讲：怎样修改数据？", "description": "学习 INSERT、UPDATE 和 DELETE。", "status": "locked" },
+            { "id": "lesson-4", "title": "第 4 讲：怎样设计一张表？", "description": "认识 id、主键和整齐的数据结构。", "status": "locked" },
+            { "id": "lesson-5", "title": "第 5 讲：多张表怎样连接？", "description": "理解学生、课程和报名记录之间的关系。", "status": "locked" },
+            { "id": "lesson-6", "title": "第 6 讲：完成课程报名小项目", "description": "把前面知识组合成一个可操作的小系统。", "status": "locked" }
+          ]
+        }
+      ]
+    }
+  }
+]

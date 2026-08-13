@@ -168,10 +168,6 @@ def _fallback_action_response(
         selected_id = context_obj.get("selectedId")
         if isinstance(selected_id, str) and selected_id:
             updates.append({"id": source_component_id, "component": "DeepDivePrompt", "selectedId": selected_id})
-    elif component_type == "SectionNavigator":
-        section_id = context_obj.get("sectionId")
-        if isinstance(section_id, str) and section_id:
-            updates.append({"id": source_component_id, "component": "SectionNavigator", "activeSectionId": section_id})
     elif component_type == "CourseOutline":
         modules = current.get("modules")
         module_id = context_obj.get("moduleId")

@@ -1,0 +1,111 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "DragAndDropMatch-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "DragAndDropMatch-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "DragAndDropMatch",
+          "title": {
+            "literalString": "杜甫《登高》情景与意象内涵连线"
+          },
+          "instruction": {
+            "literalString": "请点击左侧诗句，再点击右侧对应的核心叙事意象，将它们一一配对。"
+          },
+          "leftLabel": {
+            "literalString": "诗句文本"
+          },
+          "rightLabel": {
+            "literalString": "叙事意象与情感"
+          },
+          "leftItems": [
+            {
+              "id": "l1",
+              "content": {
+                "literalString": "万里悲秋常作客"
+              }
+            },
+            {
+              "id": "l2",
+              "content": {
+                "literalString": "百年多病独登台"
+              }
+            },
+            {
+              "id": "l3",
+              "content": {
+                "literalString": "艰难苦恨繁霜鬓"
+              }
+            },
+            {
+              "id": "l4",
+              "content": {
+                "literalString": "潦倒新停浊酒杯"
+              }
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "r2",
+              "content": {
+                "literalString": "时间与生命衰朽，孤独与晚境悲凉"
+              }
+            },
+            {
+              "id": "r4",
+              "content": {
+                "literalString": "病体难支终停杯，满腔悲愤无处消解"
+              }
+            },
+            {
+              "id": "r1",
+              "content": {
+                "literalString": "空间上的漂泊无依，羁旅异乡之悲"
+              }
+            },
+            {
+              "id": "r3",
+              "content": {
+                "literalString": "家国时代与身世苦难的双重重压"
+              }
+            }
+          ],
+          "correctMatches": {
+            "l1": "r1",
+            "l2": "r2",
+            "l3": "r3",
+            "l4": "r4"
+          },
+          "successMessage": {
+            "literalString": "🎉 配对全部正确！杜甫以空间之广（万里）与时间之长（百年），层层递进将沉郁顿挫推向极致。"
+          },
+          "incorrectMessage": {
+            "literalString": "部分连线有误，请注意区分“空间漂泊（万里）”与“时间衰病（百年）”的意象层次。"
+          },
+          "matchExplanations": {
+            "l1": {
+              "literalString": "万里：极言空间之广阔与离乡之遥远，抒发长年漂泊之苦。"
+            },
+            "l2": {
+              "literalString": "百年：暮年之叹，多病残躯独上高台，悲凉入骨。"
+            },
+            "l3": {
+              "literalString": "霜鬓：国破家亡与身世坎坷凝聚于白发白须之间。"
+            },
+            "l4": {
+              "literalString": "停杯：因病戒酒，愁苦已极却连借酒浇愁都不可得。"
+            }
+          }
+        }
+      ]
+    }
+  }
+]

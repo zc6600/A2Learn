@@ -10,13 +10,13 @@
     cursor: help;
     padding: var(--a2learn-tooltip-term-padding, 0 4px);
     border-radius: var(--a2learn-tooltip-term-radius, 4px);
-    background: var(--a2learn-tooltip-term-background, rgba(13, 148, 136, 0.08));
+    background: var(--a2learn-tooltip-term-background, color-mix(in srgb, var(--a2ui-color-primary) 8%, transparent));
     transition: all 0.2s ease;
   }
   .a2learn-term-tooltip:hover,
   .a2learn-term-tooltip:focus,
   .a2learn-term-tooltip:focus-within {
-    background: var(--a2learn-tooltip-term-hover-background, rgba(13, 148, 136, 0.18));
+    background: var(--a2learn-tooltip-term-hover-background, color-mix(in srgb, var(--a2ui-color-primary) 18%, transparent));
   }
   .a2learn-term-tooltip .term-badge {
     font-size: 11px;
@@ -33,10 +33,10 @@
     transform: translateX(-50%) translateY(6px);
     width: var(--a2learn-tooltip-width, 250px);
     padding: 14px;
-    background: var(--a2learn-tooltip-surface, #ffffff) !important;
-    border: 1px solid var(--a2learn-tooltip-border, #e5e7eb) !important;
+    background: var(--a2learn-tooltip-surface, var(--a2ui-color-surface)) !important;
+    border: 1px solid var(--a2learn-tooltip-border, var(--a2ui-color-border)) !important;
     border-radius: var(--a2learn-tooltip-popup-radius, 14px) !important;
-    box-shadow: var(--a2learn-tooltip-shadow, 0 12px 32px rgba(15, 23, 42, 0.16)) !important;
+    box-shadow: var(--a2learn-tooltip-shadow, 0 12px 32px rgba(0, 0, 0, 0.16)) !important;
     z-index: 9999 !important;
     transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
     display: flex;
@@ -46,7 +46,7 @@
     white-space: normal;
     font-weight: normal;
     text-decoration: none;
-    color: var(--a2learn-tooltip-text, #111827) !important;
+    color: var(--a2learn-tooltip-text, var(--a2ui-color-on-surface)) !important;
     line-height: 1.5;
   }
   .a2learn-term-tooltip .tooltip-popup::after {
@@ -57,7 +57,7 @@
     transform: translateX(-50%);
     border-width: 6px;
     border-style: solid;
-    border-color: var(--a2learn-tooltip-surface, #ffffff) transparent transparent transparent;
+    border-color: var(--a2learn-tooltip-surface, var(--a2ui-color-surface)) transparent transparent transparent;
   }
   .a2learn-term-tooltip:hover .tooltip-popup,
   .a2learn-term-tooltip:focus .tooltip-popup,
@@ -79,16 +79,16 @@
     display: block !important;
     font-size: 12.5px;
     line-height: 1.5;
-    color: var(--a2learn-tooltip-description, #374151) !important;
+    color: var(--a2learn-tooltip-description, var(--a2ui-color-on-surface)) !important;
     margin: 0;
   }
   .a2learn-term-tooltip .tooltip-explore-btn {
     align-self: flex-end;
     min-width: 24px;
     margin-top: 2px;
-    background: var(--a2learn-tooltip-button-background, #f9fafb) !important;
+    background: var(--a2learn-tooltip-button-background, var(--a2ui-color-surface-subtle)) !important;
     color: var(--a2learn-tooltip-accent, var(--a2ui-color-primary)) !important;
-    border: 1px solid var(--a2learn-tooltip-border, #e5e7eb) !important;
+    border: 1px solid var(--a2learn-tooltip-border, var(--a2ui-color-border)) !important;
     border-radius: var(--a2learn-tooltip-button-radius, 8px);
     padding: 2px 6px;
     font-size: 11px;

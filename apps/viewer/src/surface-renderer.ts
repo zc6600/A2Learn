@@ -70,6 +70,51 @@ function getSurfaceTitle(surface: any): string {
 
 function injectPresentationContentTheme(): void {}
 
+function renderSurfacePager(
+  container: HTMLElement,
+  surfaces: any[],
+  activeId: string,
+): void {
+  if (surfaces.length <= 1) return;
+
+  const activeIndex = surfaces.findIndex((surface) => surface.id === activeId);
+  if (activeIndex < 0) return;
+
+  const pager = document.createElement("nav");
+  pager.className = "surface-pager";
+  pager.setAttribute("aria-label", getLang() === "zh" ? "页面导航" : "Page navigation");
+
+  const previous = document.createElement("button");
+  previous.type = "button";
+  previous.className = "surface-pager-button surface-pager-previous";
+  previous.textContent = getLang() === "zh" ? "上一页" : "Previous";
+  previous.disabled = activeIndex === 0;
+
+  const status = document.createElement("span");
+  status.className = "surface-pager-status";
+  status.textContent = getLang() === "zh"
+    ? `${activeIndex + 1} / ${surfaces.length}`
+    : `${activeIndex + 1} / ${surfaces.length}`;
+
+  const next = document.createElement("button");
+  next.type = "button";
+  next.className = "surface-pager-button surface-pager-next";
+  next.textContent = getLang() === "zh" ? "下一页" : "Next";
+  next.disabled = activeIndex === surfaces.length - 1;
+
+  const navigate = (index: number) => {
+    const target = surfaces[index]?.id;
+    if (typeof target === "string" && target) {
+      window.location.hash = `#/${target}`;
+    }
+  };
+
+  previous.addEventListener("click", () => navigate(activeIndex - 1));
+  next.addEventListener("click", () => navigate(activeIndex + 1));
+  pager.append(previous, status, next);
+  container.appendChild(pager);
+}
+
 function disposePresentationPage(): void {
   activePresentationPage?.dispose();
   activePresentationPage = null;
@@ -329,6 +374,8 @@ export function renderSurfaces(
     el.setAttribute("data-surface-id", activeSurface.id ?? "");
     container.appendChild(el);
   }
+
+  renderSurfacePager(container, surfaces, activeId || "");
 
   // A2UI's own component ids aren't reflected as DOM attributes anywhere, so
   // components like LearningPath that want to scroll to "targetComponentId"

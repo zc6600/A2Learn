@@ -1,0 +1,50 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "PaperAbstract-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "PaperAbstract-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "PaperAbstract",
+          "title": {
+            "literalString": "Attention Is All You Need"
+          },
+          "authors": [
+            "Ashish Vaswani",
+            "Noam Shazeer",
+            "Niki Parmar",
+            "Jakob Uszkoreit",
+            "Llion Jones",
+            "Aidan N. Gomez",
+            "Łukasz Kaiser",
+            "Illia Polosukhin"
+          ],
+          "venue": {
+            "literalString": "NeurIPS 2017"
+          },
+          "year": 2017,
+          "pdfUrl": {
+            "literalString": "https://arxiv.org/pdf/1706.03762.pdf"
+          },
+          "sourceUrl": {
+            "literalString": "https://arxiv.org/abs/1706.03762"
+          },
+          "tldr": {
+            "literalString": "提出纯基于自注意力机制的序列转换架构 **Transformer**，彻底抛弃 RNN 循环与 CNN 卷积，在机器翻译等 NLP 任务上实现质量突破并大幅提升并行训练速度。"
+          },
+          "abstract": {
+            "literalString": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train. Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU."
+          }
+        }
+      ]
+    }
+  }
+]

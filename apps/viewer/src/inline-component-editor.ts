@@ -70,18 +70,6 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
     { prop: "title", zh: "标题", en: "Title" },
     { prop: "steps", zh: "学习步骤", en: "Learning steps", itemFields: [{ prop: "title", zh: "标题", en: "Title" }] },
   ],
-  SectionNavigator: [
-    { prop: "title", zh: "标题", en: "Title" },
-    {
-      prop: "sections",
-      zh: "章节",
-      en: "Sections",
-      itemFields: [
-        { prop: "title", zh: "标题", en: "Title" },
-        { prop: "description", zh: "说明", en: "Description", multiline: true },
-      ],
-    },
-  ],
   ResourceList: [
     { prop: "title", zh: "标题", en: "Title" },
     {
@@ -124,11 +112,6 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
     { prop: "aiExplanation", zh: "说明", en: "Explanation", multiline: true },
   ],
   KnowledgeTree: [{ prop: "title", zh: "标题", en: "Title" }],
-  Achievement: [
-    { prop: "title", zh: "标题", en: "Title" },
-    { prop: "description", zh: "说明", en: "Description", multiline: true },
-    { prop: "icon", zh: "图标", en: "Icon" },
-  ],
   ClozeTest: [
     { prop: "text", zh: "题干", en: "Question", multiline: true },
     { prop: "explanation", zh: "解析", en: "Explanation", multiline: true },

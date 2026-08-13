@@ -89,22 +89,26 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
     {
       id: "hash-table",
       title: lang === "zh" ? "Hash Table 哈希冲突机制" : "Hash Table & Collisions",
+      order: 1,
     },
     {
       id: "js-async",
       title: lang === "zh" ? "JS 异步机制与事件循环" : "JS Async & Event Loop",
+      order: 3,
     },
     {
       id: "conversational",
       title: lang === "zh" ? "JS 闭包与作用域模块化" : "JS Closures & Scope",
+      order: 4,
     },
     {
       id: "non-linear",
       title: lang === "zh" ? "CSS Grid 二维响应式布局" : "CSS Grid 2D Layout",
+      order: 5,
     },
   ];
 
-  compLessons.forEach((lesson, index) => {
+  compLessons.forEach((lesson) => {
     nodes[lesson.id] = {
       id: lesson.id,
       title: lesson.title,
@@ -112,6 +116,44 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
       parentId: compFolderId,
       isBuiltin: true,
       category: "computing",
+      createdAt: now,
+      updatedAt: now,
+      order: lesson.order,
+    };
+  });
+
+  // 数据库入门是一个独立的 6 讲系列，作为计算机专区里的子文件夹展示。
+  // 这样课程导航和课程内容的组织方式保持一致，也方便以后继续添加系列课程。
+  const databaseFolderId = "curated_database_basics";
+  nodes[databaseFolderId] = {
+    id: databaseFolderId,
+    title: lang === "zh" ? "📁 数据库入门" : "📁 Database Basics",
+    type: "folder",
+    parentId: compFolderId,
+    isBuiltin: true,
+    category: "computing-database",
+    createdAt: now,
+    updatedAt: now,
+    order: 2,
+  };
+
+  const databaseLessons = [
+    { id: "database-basics-lesson-1", title: lang === "zh" ? "第 1 讲：数据库到底是什么？" : "Lesson 1: What Is a Database?" },
+    { id: "database-basics-lesson-2", title: lang === "zh" ? "第 2 讲：怎样向数据库提问？" : "Lesson 2: How to Ask a Database?" },
+    { id: "database-basics-lesson-3", title: lang === "zh" ? "第 3 讲：怎样修改数据？" : "Lesson 3: How to Change Data?" },
+    { id: "database-basics-lesson-4", title: lang === "zh" ? "第 4 讲：怎样设计一张表？" : "Lesson 4: How to Design a Table?" },
+    { id: "database-basics-lesson-5", title: lang === "zh" ? "第 5 讲：多张表怎样连接？" : "Lesson 5: How to Connect Tables?" },
+    { id: "database-basics-lesson-6", title: lang === "zh" ? "第 6 讲：完成课程报名小项目" : "Lesson 6: Build a Small Project" },
+  ];
+
+  databaseLessons.forEach((lesson, index) => {
+    nodes[lesson.id] = {
+      id: lesson.id,
+      title: lesson.title,
+      type: "lesson",
+      parentId: databaseFolderId,
+      isBuiltin: true,
+      category: "computing-database",
       createdAt: now,
       updatedAt: now,
       order: index + 1,
@@ -251,7 +293,9 @@ export class WorkspaceStore {
         if (isRecord(parsed) && parsed.version === 2 && isRecord(parsed.nodes)) {
           const userNodes: Record<string, WorkspaceNode> = {};
           Object.entries(parsed.nodes).forEach(([id, rawNode]) => {
-            if (defaultBuiltins[id]) return;
+            // Remove the old flat database example from localStorage after it
+            // becomes the nested curated series below.
+            if (defaultBuiltins[id] || id === "database-basics") return;
             const node = this.normalizeUserNode(id, rawNode, now);
             if (node) userNodes[id] = node;
           });

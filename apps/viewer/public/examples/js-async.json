@@ -22,6 +22,7 @@
             "mental-model-event-loop",
             "detailed-explanation-promise-all",
             "quiz",
+            "async-flashcards",
             "summary-and-terms",
             "resources"
           ]
@@ -161,6 +162,48 @@
               ],
               "correctIndex": 2,
               "explanation": "<b>解析：</b><br>1. <code>console.log('A')</code>：同步，立即执行 → 输出 A<br>2. <code>setTimeout</code>：宏任务，放入宏任务队列<br>3. <code>Promise.resolve().then</code>：微任务，放入微任务队列<br>4. <code>console.log('D')</code>：同步，立即执行 → 输出 D<br>5. 执行栈空，清空微任务队列 → 输出 C<br>6. 取一个宏任务执行 → 输出 B<br>因此顺序：<b>A → D → C → B</b>"
+            }
+          ]
+        },
+        {
+          "id": "async-flashcards",
+          "component": "Flashcard",
+          "cards": [
+            {
+              "id": "fc-1",
+              "front": {
+                "literalString": "为什么 `Promise.then` 的回调总比 `setTimeout(..., 0)` 先执行？"
+              },
+              "hint": {
+                "literalString": "提示：从微任务与宏任务的清空时机思考"
+              },
+              "back": {
+                "literalString": "**核心机制**：\n- `Promise.then` 属于 **微任务（Microtask）**；\n- `setTimeout` 属于 **宏任务（Macrotask）**。\n\n在 Event Loop 中，当前同步调用栈清空后，引擎会**优先清空全部微任务队列**，之后才会调度宏任务。"
+              }
+            },
+            {
+              "id": "fc-2",
+              "front": {
+                "literalString": "`async/await` 底层的实现原理是什么？"
+              },
+              "hint": {
+                "literalString": "提示：Generator 生成器 + Promise 自动执行器"
+              },
+              "back": {
+                "literalString": "**底层原理**：\n- `async/await` 是 **Generator + Promise** 的语法糖；\n- 编译器会包装出一个类似 `co` 库的自动执行器：遇到 `await` 暂停生成器，待 Promise resolve 后自动调用 `next(val)` 恢复执行并注入结果。"
+              }
+            },
+            {
+              "id": "fc-3",
+              "front": {
+                "literalString": "未捕获的 Promise rejection 会引发什么后果？如何全局兜底监听？"
+              },
+              "hint": {
+                "literalString": "提示：unhandledrejection 事件"
+              },
+              "back": {
+                "literalString": "**影响与全局捕获**：\n- 会在控制台抛出 `UnhandledPromiseRejection` 警告或导致 Node 进程退出；\n- **浏览器**：`window.addEventListener('unhandledrejection', e => ...)`；\n- **Node.js**：`process.on('unhandledRejection', (reason, p) => ...)`。"
+              }
             }
           ]
         },

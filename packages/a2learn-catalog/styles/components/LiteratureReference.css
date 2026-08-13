@@ -4,9 +4,9 @@
       font-family: var(--a2ui-font-family, sans-serif);
     }
     .ref-card {
-      border: 1px dashed var(--a2ui-color-border, #e2e8f0);
+      border: 1px dashed var(--a2ui-color-border);
       border-radius: var(--a2ui-border-radius, 12px);
-      background: color-mix(in oklab, var(--a2ui-color-surface, #ffffff) 98%, #000000);
+      background: color-mix(in oklab, var(--a2ui-color-surface) 98%, black);
       padding: var(--a2ui-spacing-l, 20px);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
       transition: all 0.2s ease;
@@ -18,8 +18,8 @@
     }
     .ref-card-clickable:hover {
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-      border-color: var(--a2ui-color-primary, #3b82f6);
-      background: var(--a2ui-color-surface, #ffffff);
+      border-color: var(--a2ui-color-primary);
+      background: var(--a2ui-color-surface);
     }
     .header {
       display: flex;
@@ -28,8 +28,8 @@
       margin-bottom: 8px;
     }
     .citation-badge {
-      background: var(--a2ui-color-primary, #3b82f6);
-      color: #ffffff;
+      background: var(--a2ui-color-primary);
+      color: var(--a2ui-color-on-primary, #ffffff);
       font-size: 11px;
       font-weight: 700;
       padding: 3px 8px;
@@ -41,29 +41,29 @@
       font-weight: 700;
       line-height: 1.4;
       margin: 0;
-      color: var(--a2ui-color-on-surface, #0f172a);
+      color: var(--a2ui-color-on-surface);
     }
     .ref-title-link {
       color: inherit;
       text-decoration: none;
     }
     .ref-title-link:hover {
-      color: var(--a2ui-color-primary, #3b82f6);
+      color: var(--a2ui-color-primary);
       text-decoration: underline;
     }
     .authors {
       font-size: 13px;
-      color: var(--app-muted, #64748b);
+      color: var(--app-muted);
       margin-left: 0;
       margin-bottom: 12px;
     }
     .quote-box {
-      background: color-mix(in oklab, var(--a2ui-color-primary, #3b82f6) 4%, var(--a2ui-color-surface, #ffffff));
-      border-left: 3px solid var(--a2ui-color-primary, #3b82f6);
+      background: color-mix(in oklab, var(--a2ui-color-primary) 4%, var(--a2ui-color-surface));
+      border-left: 3px solid var(--a2ui-color-primary);
       padding: 8px 12px;
       font-size: 13px;
       line-height: 1.5;
-      color: color-mix(in oklab, var(--a2ui-color-on-surface, #334155) 85%, transparent);
+      color: color-mix(in oklab, var(--a2ui-color-on-surface) 85%, transparent);
       margin: 8px 0 0 0;
       font-style: italic;
       border-radius: 0 6px 6px 0;
@@ -73,7 +73,7 @@
       justify-content: flex-end;
       font-size: 11px;
       font-weight: 600;
-      color: var(--a2ui-color-primary, #3b82f6);
+      color: var(--a2ui-color-primary);
       margin-top: 12px;
       opacity: 0.8;
     }

@@ -3,11 +3,9 @@ import { LitComponentApi, basicCatalog } from "@a2ui/lit/v0_9";
 import { A2learnLearningPath } from "./components/LearningPath";
 import { A2learnFlashcard } from "./components/Flashcard";
 import { A2learnQuizCard } from "./components/QuizCard";
-import { A2learnAchievement } from "./components/Achievement";
 import { A2learnConceptCard } from "./components/ConceptCard";
 import { A2learnKnowledgeTree } from "./components/KnowledgeTree";
 import { A2learnCourseOutline } from "./components/CourseOutline";
-import { A2learnSectionNavigator } from "./components/SectionNavigator";
 import { A2learnResourceList } from "./components/ResourceList";
 import { A2learnInteractiveSandbox } from "./components/InteractiveSandbox";
 import { A2learnClozeTest } from "./components/ClozeTest";
@@ -26,6 +24,7 @@ import { A2learnDetailedExplanation } from "./components/DetailedExplanation";
 import { A2learnPaperAbstract } from "./components/PaperAbstract";
 import { A2learnLiteratureReference } from "./components/LiteratureReference";
 import { A2learnInteractiveFormula } from "./components/InteractiveFormula";
+import { A2learnDataTable } from "./components/DataTable";
 
 export const a2learnCatalog = new Catalog<LitComponentApi>(
   "https://a2learn.ai/spec/v1/catalog.json",
@@ -35,10 +34,8 @@ export const a2learnCatalog = new Catalog<LitComponentApi>(
     A2learnConceptCard,
     A2learnFlashcard,
     A2learnQuizCard,
-    A2learnAchievement,
     A2learnKnowledgeTree,
     A2learnCourseOutline,
-    A2learnSectionNavigator,
     A2learnResourceList,
     A2learnInteractiveSandbox,
     A2learnClozeTest,
@@ -57,6 +54,7 @@ export const a2learnCatalog = new Catalog<LitComponentApi>(
     A2learnPaperAbstract,
     A2learnLiteratureReference,
     A2learnInteractiveFormula,
+    A2learnDataTable,
   ],
   basicCatalog?.functions ? Array.from(basicCatalog.functions.values()) : []
 );

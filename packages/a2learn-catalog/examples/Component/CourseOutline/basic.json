@@ -1,0 +1,53 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "CourseOutline-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "CourseOutline-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "CourseOutline",
+          "courseTitle": {
+            "literalString": "现代前端工程体系与架构设计"
+          },
+          "description": {
+            "literalString": "本大纲系统性拆解现代前端工程化的核心支柱，涵盖模块化打包、细粒度响应式系统、跨端运行时与全链路性能治理。"
+          },
+          "modules": [
+            {
+              "id": "mod-1",
+              "title": "模块一：现代模块化与打包编译底层",
+              "description": "深入 ESM 规范、CommonJS 互操作，剖析 Vite 的 Rollup + ESBuild 双引擎机制。",
+              "status": "completed"
+            },
+            {
+              "id": "mod-2",
+              "title": "模块二：响应式状态机与 UI 声明式渲染",
+              "description": "从 Virtual DOM Diff 算法到 Signals 细粒度依赖追踪，掌握现代 UI 架构演进。",
+              "status": "current"
+            },
+            {
+              "id": "mod-3",
+              "title": "模块三：服务端渲染与流式传输 (SSR / RSC)",
+              "description": "从传统 Hydration 水合瓶颈到 React Server Components 的流式协议与 Islands 架构。",
+              "status": "locked"
+            },
+            {
+              "id": "mod-4",
+              "title": "模块四：全链路性能度量与 Core Web Vitals 调优",
+              "description": "聚焦 LCP、INP、CLS 核心性能指标，落地企业级前端效能与监控体系。",
+              "status": "locked"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

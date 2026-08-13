@@ -12,12 +12,12 @@
       transition: all 0.3s ease;
     }
     .cloze-card.correct {
-      border-color: var(--a2ui-color-success, #4caf50);
-      background: color-mix(in oklab, var(--a2ui-color-success, #4caf50) 5%, var(--a2ui-color-surface));
+      border-color: var(--a2ui-color-success);
+      background: color-mix(in oklab, var(--a2ui-color-success) 5%, var(--a2ui-color-surface));
     }
     .cloze-card.incorrect {
-      border-color: var(--a2ui-color-error, #f44336);
-      background: color-mix(in oklab, var(--a2ui-color-error, #f44336) 5%, var(--a2ui-color-surface));
+      border-color: var(--a2ui-color-error);
+      background: color-mix(in oklab, var(--a2ui-color-error) 5%, var(--a2ui-color-surface));
     }
     .text-content {
       font-size: 16px;
@@ -50,25 +50,25 @@
     }
 
     .blank-input.is-correct {
-      border-color: var(--a2ui-color-success, #4caf50);
+      border-color: var(--a2ui-color-success);
       border-style: solid;
-      background: color-mix(in oklab, var(--a2ui-color-success, #4caf50) 10%, transparent);
-      color: color-mix(in oklab, var(--a2ui-color-success, #4caf50) 80%, black);
+      background: color-mix(in oklab, var(--a2ui-color-success) 10%, transparent);
+      color: var(--a2ui-color-success);
       font-weight: 600;
     }
     .blank-input.is-incorrect {
-      border-color: var(--a2ui-color-error, #f44336);
+      border-color: var(--a2ui-color-error);
       border-style: solid;
-      background: color-mix(in oklab, var(--a2ui-color-error, #f44336) 10%, transparent);
-      color: color-mix(in oklab, var(--a2ui-color-error, #f44336) 80%, black);
+      background: color-mix(in oklab, var(--a2ui-color-error) 10%, transparent);
+      color: var(--a2ui-color-error);
       text-decoration: line-through;
     }
 
     .correct-answer-hint {
       display: inline-block;
       font-size: 13px;
-      color: var(--a2ui-color-success, #4caf50);
-      background: color-mix(in oklab, var(--a2ui-color-success, #4caf50) 15%, transparent);
+      color: var(--a2ui-color-success);
+      background: color-mix(in oklab, var(--a2ui-color-success) 15%, transparent);
       padding: 2px 8px;
       border-radius: 4px;
       margin-left: 4px;
@@ -80,7 +80,7 @@
       display: inline-block;
       padding: 10px 24px;
       background: var(--a2ui-color-primary);
-      color: white;
+      color: var(--a2ui-color-on-primary, #ffffff);
       border: none;
       border-radius: 8px;
       font-size: 15px;

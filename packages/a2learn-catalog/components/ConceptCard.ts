@@ -13,7 +13,7 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
   ];
 
   protected createController() {
-    return new A2uiController(this, ConceptCardApi);
+    return new A2uiController(this, ConceptCardApi as any);
   }
 
   private resolveString(value: unknown): string {
@@ -48,79 +48,9 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
 
   private renderExample(exampleStr: string) {
     if (!exampleStr) return nothing;
-
-    let cleanStr = exampleStr.trim();
-    cleanStr = cleanStr.replace(/^<pre(?:\s+[^>]*)?>\s*<code(?:\s+[^>]*)?>([\s\S]*?)<\/code>\s*<\/pre>$/i, "$1");
-
-    const lines = cleanStr.split("\n");
-    const hasArrows = lines.some((line) => line.includes("->") || line.includes("➔") || line.includes("=>"));
-    const isMarkdown = /^```|^\s*#{1,6}\s|^\s*[-*+]\s|^\s*\d+[.)]\s/m.test(cleanStr);
-
-    if (hasArrows && !isMarkdown) {
-      return html`
-        <div class="example-box-flow">
-          ${lines.map((line) => {
-            let cleanLine = line
-              .replace(/^<pre(?:\s+[^>]*)?>/, "")
-              .replace(/^<code(?:\s+[^>]*)?>/, "")
-              .replace(/<\/code>$/, "")
-              .replace(/<\/pre>$/, "")
-              .replace(/^\/\/\s*/, "")
-              .replace(/^#\s*/, "")
-              .trim();
-            if (!cleanLine) return nothing;
-
-            const hasArrow = cleanLine.includes("->") || cleanLine.includes("➔") || cleanLine.includes("=>");
-            if (hasArrow) {
-              let title = "";
-              let flowContent = cleanLine;
-
-              const colonIdx = cleanLine.indexOf(":");
-              if (colonIdx !== -1 && colonIdx < cleanLine.search(/->|➔|=>/)) {
-                title = cleanLine.substring(0, colonIdx).trim();
-                flowContent = cleanLine.substring(colonIdx + 1).trim();
-              }
-
-              const isWarn = /传统|搜索|遍历|线性|慢|O\(N\)|警告|瓶颈/i.test(cleanLine);
-              const isSuccess = /哈希|计算|常数|突破|快|O\(1\)|一步|直接/i.test(cleanLine);
-              const variantClass = isWarn ? 'variant-warn' : isSuccess ? 'variant-success' : 'variant-info';
-              const icon = isWarn ? '🐢' : isSuccess ? '⚡' : '🔄';
-
-              const rawNodes = flowContent
-                .split(/->|➔|=>/)
-                .map((s) => s.replace(/<\/?[^>]+>/g, "").trim())
-                .filter(Boolean);
-
-              return html`
-                <div class="visual-flow-line ${variantClass}">
-                  ${title
-                    ? html`
-                        <div class="visual-flow-header">
-                          <span class="flow-badge">${icon} ${title}</span>
-                        </div>
-                      `
-                    : nothing}
-                  <div class="visual-flow-nodes">
-                    ${rawNodes.map(
-                      (node, i) => html`
-                        ${i > 0 ? html`<span class="flow-separator">➔</span>` : nothing}
-                        <div class="flow-node">${unsafeHTML(sanitizeHtml(node, { inline: true }))}</div>
-                      `
-                    )}
-                  </div>
-                </div>
-              `;
-            }
-
-            return html`<div class="example-text-line">${unsafeHTML(sanitizeHtml(line, { inline: true }))}</div>`;
-          })}
-        </div>
-      `;
-    }
-
     return html`
-      <div class="example-box a2learn-markdown-body">
-        ${unsafeHTML(sanitizeHtml(cleanStr))}
+      <div class="example a2learn-markdown-body">
+        ${unsafeHTML(sanitizeHtml(exampleStr))}
       </div>
     `;
   }
@@ -140,7 +70,7 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       : "";
     const example = props.example ? this.resolveString(props.example) : "";
     const tags = props.tags ? (props.tags as unknown[]).map(t => this.resolveString(t)) : [];
-    const relatedConcepts = props.relatedConcepts ? (props.relatedConcepts as unknown[]).map(c => this.resolveString(c)) : [];
+    const relatedConcepts = props.relatedConcepts ? (props.relatedConcepts as unknown[]).map(c => this.resolveString(c).trim()).filter(Boolean) : [];
 
     return html`
       <div class="concept-card">
@@ -164,21 +94,24 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
             ${exampleTitle ? html`<h3 class="section-title">${exampleTitle}</h3>` : nothing}
             ${this.renderExample(example)}
           ` : nothing}
-
-          ${relatedConcepts.length > 0 ? html`
-            <details class="related-accordion">
-              <summary class="related-summary">
-                🔍 ${uiText("关联延伸探索", "Explore Related Concepts")} (${relatedConcepts.length})
-              </summary>
-              <div class="related-links">
-                ${relatedConcepts.map((concept: string) => html`
-                  <button class="related-link" @click=${() => this.handleRelatedClick(concept)}>
-                    ${concept} →
-                  </button>
-                `)}
-              </div>
-            </details>
-          ` : nothing}
+          ${relatedConcepts.length > 0
+        ? html`
+                <details class="related-accordion">
+                  <summary class="related-summary">
+                    ${uiText("相关概念", "Related Concepts")} (${relatedConcepts.length})
+                  </summary>
+                  <div class="related-links">
+                    ${relatedConcepts.map(
+          (concept: string) => html`
+                        <button class="related-link" @click=${() => this.handleRelatedClick(concept)}>
+                          ${concept}
+                        </button>
+                      `
+        )}
+                  </div>
+                </details>
+              `
+        : nothing}
         </div>
       </div>
     `;

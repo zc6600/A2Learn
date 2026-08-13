@@ -1,48 +1,139 @@
-    :host {
-      display: block;
-      perspective: 1000px;
-      margin: var(--a2ui-spacing-m) 0;
-    }
-    .card-inner {
-      position: relative;
-      width: 100%;
-      min-height: 200px;
-      text-align: center;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-      cursor: pointer;
-    }
-    .card-inner.flipped {
-      transform: rotateY(180deg);
-    }
-    .card-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: var(--a2ui-spacing-xl);
-      border-radius: var(--a2ui-border-radius);
-      border: 1px solid var(--a2ui-color-border);
-      background: var(--a2ui-color-surface);
-      box-shadow: var(--a2ui-card-box-shadow);
-      box-sizing: border-box;
-    }
-    .card-back {
-      transform: rotateY(180deg);
-      background: color-mix(in oklab, var(--a2ui-color-secondary) 10%, var(--a2ui-color-surface));
-    }
-    .card-label {
-      font-size: var(--a2ui-font-size-xs);
-      color: var(--app-muted);
-      margin-bottom: var(--a2ui-spacing-s);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .card-content {
-      font-size: var(--a2ui-font-size-m);
-      font-weight: 500;
-    }
+:host {
+  display: block;
+  margin: var(--a2ui-spacing-l, 20px) 0;
+  font-family: var(--a2ui-font-family, sans-serif);
+}
+
+.card-scene {
+  perspective: 1200px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.card-inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  grid-area: 1 / 1;
+  width: 100%;
+  min-height: 160px;
+  border-radius: var(--a2ui-card-border-radius, 14px);
+  border: 1.5px solid var(--a2ui-color-border);
+  box-sizing: border-box;
+  padding: 26px 28px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+}
+
+.card-scene:hover .card-face {
+  border-color: color-mix(in oklab, var(--a2ui-color-primary) 40%, transparent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.card-front {
+  background: var(--a2ui-color-surface);
+}
+
+.card-back {
+  background: color-mix(in oklab, var(--a2ui-color-primary) 4%, var(--a2ui-color-surface));
+  transform: rotateY(180deg);
+}
+
+/* Integrated Top-Right Navigation Bar */
+.card-top-bar {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+.card-count {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: color-mix(in oklab, var(--a2ui-color-on-surface) 45%, transparent);
+}
+
+.card-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 80%, transparent);
+  background: var(--a2ui-color-surface);
+  color: var(--a2ui-color-primary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.card-nav-btn:hover {
+  background: color-mix(in oklab, var(--a2ui-color-primary) 10%, var(--a2ui-color-surface));
+  border-color: var(--a2ui-color-primary);
+  transform: scale(1.08);
+}
+
+/* Card Body Typography */
+.card-body {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--a2ui-color-on-surface);
+  width: 100%;
+}
+
+.card-front .card-body {
+  text-align: center;
+  font-size: 15.5px;
+  font-weight: 500;
+}
+
+.card-back .card-body {
+  text-align: left;
+}
+
+.card-body p {
+  margin: 0 0 8px 0;
+}
+
+.card-body p:last-child {
+  margin-bottom: 0;
+}
+
+.card-body ol, .card-body ul {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+
+.card-body li {
+  margin: 4px 0;
+}
+
+.card-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: color-mix(in oklab, var(--a2ui-color-on-surface) 55%, transparent);
+  text-align: center;
+}

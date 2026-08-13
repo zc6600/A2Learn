@@ -62,6 +62,43 @@ import {
   type Lang,
 } from "./generation-profile";
 
+const bundledCourseFiles = import.meta.glob(
+  "../../../packages/a2learn-catalog/examples/Website/Course/database-basics/*.json",
+  { eager: true, import: "default" },
+) as Record<string, A2uiMessage[]>;
+
+const bundledCourseMessages = (fileName: string): A2uiMessage[] => {
+  const entry = Object.entries(bundledCourseFiles).find(([path]) => path.endsWith(`/${fileName}`));
+  return entry?.[1] || [];
+};
+
+const bundledDatabaseLessons: Record<string, { title: Record<Lang, string>; messages: A2uiMessage[] }> = {
+  "database-basics-lesson-1": {
+    title: { zh: "第 1 讲：数据库到底是什么？", en: "Lesson 1: What Is a Database?" },
+    messages: bundledCourseMessages("01-what-is-a-database.json"),
+  },
+  "database-basics-lesson-2": {
+    title: { zh: "第 2 讲：怎样向数据库提问？", en: "Lesson 2: How to Ask a Database?" },
+    messages: bundledCourseMessages("02-ask-the-database.json"),
+  },
+  "database-basics-lesson-3": {
+    title: { zh: "第 3 讲：怎样修改数据？", en: "Lesson 3: How to Change Data?" },
+    messages: bundledCourseMessages("03-change-data.json"),
+  },
+  "database-basics-lesson-4": {
+    title: { zh: "第 4 讲：怎样设计一张表？", en: "Lesson 4: How to Design a Table?" },
+    messages: bundledCourseMessages("04-design-a-table.json"),
+  },
+  "database-basics-lesson-5": {
+    title: { zh: "第 5 讲：多张表怎样连接？", en: "Lesson 5: How to Connect Tables?" },
+    messages: bundledCourseMessages("05-connect-tables.json"),
+  },
+  "database-basics-lesson-6": {
+    title: { zh: "第 6 讲：完成课程报名小项目", en: "Lesson 6: Build a Small Project" },
+    messages: bundledCourseMessages("06-build-a-small-project.json"),
+  },
+};
+
 let activeRuntime: {
   container: HTMLElement;
   processor: MessageProcessor<any>;
@@ -256,13 +293,10 @@ async function bootstrapOnline(
 }
 
 // Static offline previews have no backend to ask for new content, but a few
-// components (SectionNavigator, KnowledgeTree) dispatch an action on every
+// components (LearningPath, KnowledgeTree) dispatch an action on every
 // click regardless of mode. Without a handler those actions silently went
-// nowhere — cards looked clickable but did nothing. This gives them a real,
-// honest local behavior: SectionNavigator switches which card is highlighted
-// as current; KnowledgeTree steps into a child using the data it already has
-// (there's no deeper content to fetch in a static demo, so descending shows
-// the tree's own "leaf node" empty state instead of pretending to load more).
+// nowhere. This gives them a real local behavior: LearningPath switches which step
+// is highlighted as active; KnowledgeTree steps into a child using the data it already has.
 function extractInitialComponentSnapshots(messages: unknown): Map<string, Record<string, unknown>> {
   const snapshot = new Map<string, Record<string, unknown>>();
   if (!Array.isArray(messages)) return snapshot;
@@ -290,23 +324,8 @@ function applyStaticNavigation(
   const ctx = action.context || {};
   if (!surfaceId || !sourceComponentId) return;
 
-  if (action.name === "navigate_section" && typeof ctx.sectionId === "string") {
-    // SectionNavigator treats a card as "active" if EITHER activeSectionId
-    // matches OR the card's own status is "current" (source content usually
-    // hardcodes one section as "current"). Updating activeSectionId alone
-    // left the original card permanently highlighted too, so it looked like
-    // clicks did nothing. Also flip each section's own status field.
-    const current = (processor.model as any)?.getComponent?.(surfaceId, sourceComponentId);
-    const currentProps: any = current?.props ?? initialSnapshots.get(sourceComponentId) ?? {};
-    const sections: any[] = Array.isArray(currentProps.sections) ? currentProps.sections : [];
-    const updatedSections = sections.map((sec) => {
-      if (!sec || typeof sec !== "object") return sec;
-      if (sec.id === ctx.sectionId) {
-        return sec.status === "locked" ? sec : { ...sec, status: "current" };
-      }
-      return sec.status === "current" ? { ...sec, status: "available" } : sec;
-    });
-
+  if ((action.name === "learning_path_select" || action.name === "select_step" || action.name === "navigate_section") && (typeof ctx.stepId === "string" || typeof ctx.sectionId === "string")) {
+    const stepId = ctx.stepId || ctx.sectionId;
     processor.processMessages([
       {
         version: "v0.9",
@@ -315,9 +334,8 @@ function applyStaticNavigation(
           components: [
             {
               id: sourceComponentId,
-              component: "SectionNavigator",
-              activeSectionId: ctx.sectionId,
-              sections: updatedSections,
+              component: "LearningPath",
+              activeStepId: stepId,
             },
           ],
         },
@@ -376,6 +394,39 @@ async function bootstrapOffline(
   source: ViewerSourceOffline,
   isCurrent: () => boolean = () => true,
 ): Promise<void> {
+  if (source.messages) {
+    // Curated course lessons are bundled into the viewer, so they remain
+    // available on the static deployment without duplicating files under
+    // apps/viewer/public.
+    const messages = source.messages;
+    const initialSnapshots = extractInitialComponentSnapshots(messages);
+
+    let processor: MessageProcessor<any>;
+    processor = new MessageProcessor([a2learnCatalog], (action: any) =>
+      applyStaticNavigation(processor, container, action, initialSnapshots),
+    );
+    try {
+      processor.processMessages(messages);
+    } catch (err) {
+      showState(container, `A2UI message processing failed: ${String(err)}`, "error");
+      return;
+    }
+    if (!isCurrent()) return;
+    activeRuntime = {
+      container,
+      processor,
+      modeHint: "Offline mode: Previewing bundled course lesson.",
+    };
+    const allSurfaceIds = extractAllSurfaceIds(messages);
+    const currentHashId = readCurrentSurfaceHash();
+    if (!currentHashId || !allSurfaceIds.has(currentHashId)) {
+      const firstCreatedId = extractFirstCreatedSurfaceId(messages);
+      if (firstCreatedId) window.location.hash = `#/${firstCreatedId}`;
+    }
+    renderSurfaces(container, processor, "Offline mode: Previewing bundled course lesson.");
+    return;
+  }
+
   const configuredUrl = source.messagesUrl || "/generated/site_messages.json";
   const separator = configuredUrl.includes("?") ? "&" : "?";
   const res = await fetch(`${configuredUrl}${separator}ts=${Date.now()}`);
@@ -527,6 +578,10 @@ async function bootstrapViewer() {
         renderWorkspaceSidebar(sidebarSlot, {
           getLang,
           onSelectLesson: async (id: string) => {
+            if (bundledDatabaseLessons[id]) {
+              await selectBundledDatabaseLesson(id);
+              return;
+            }
             const builtinItem = getExampleItems(getLang()).find((i) => i.id === id);
             if (builtinItem) {
               await selectExample(id);
@@ -722,6 +777,25 @@ async function bootstrapViewer() {
     bindExampleAudio(staticAudioUrl);
   };
 
+  const selectBundledDatabaseLesson = async (id: string) => {
+    const lesson = bundledDatabaseLessons[id];
+    if (!lesson || lesson.messages.length === 0) return;
+    const requestVersion = ++loadVersion;
+    const isCurrent = () => requestVersion === loadVersion;
+    narrationController.resetForDocument(
+      document.getElementById("page-narration-button") as HTMLButtonElement | null,
+    );
+    activeDoc = { type: "example", exampleId: id, title: lesson.title[getLang()] };
+    workspaceStore.setActiveNode(id);
+    updateProjectUrl(null);
+    await startWithConfig(
+      { embed: false, source: { mode: "offline", messagesUrl: "", messages: lesson.messages } },
+      true,
+      requestVersion,
+    );
+    if (isCurrent()) bindExampleAudio(null);
+  };
+
   const onGenerate = (promptText: string) => {
     const target = container;
     if (!target) return;
@@ -822,6 +896,18 @@ async function bootstrapViewer() {
 
     const doc = activeDoc;
     if (doc.type === "example") {
+      const bundledLesson = bundledDatabaseLessons[doc.exampleId];
+      if (bundledLesson) {
+        activeDoc = { ...doc, title: bundledLesson.title[newLang] };
+        await startWithConfig(
+          { embed: false, source: { mode: "offline", messagesUrl: "", messages: bundledLesson.messages } },
+          true,
+          requestVersion,
+        );
+        if (requestVersion !== loadVersion) return;
+        bindExampleAudio(null, newLang);
+        return;
+      }
       const item = getExampleItems(newLang).find((i) => i.id === doc.exampleId);
       if (item) {
         await startWithConfig({ embed: false, source: { mode: "offline", messagesUrl: item.messagesUrl } }, true, requestVersion);

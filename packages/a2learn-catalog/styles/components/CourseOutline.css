@@ -55,7 +55,7 @@
       box-shadow: 0 4px 12px color-mix(in oklab, var(--a2ui-color-primary) 15%, transparent);
     }
     .module-item.status-completed .module-title {
-      color: #16a34a;
+      color: var(--a2ui-color-success);
     }
     .module-item.status-locked {
       opacity: 0.6;
@@ -73,10 +73,10 @@
       font-size: 14px;
       flex-shrink: 0;
     }
-    .status-current .status-icon { background: var(--a2ui-color-primary); color: white; }
-    .status-completed .status-icon { background: #16a34a; color: white; }
-    .status-locked .status-icon { background: var(--app-muted); color: white; }
-    .status-expanded .status-icon { background: var(--a2ui-color-primary); color: white; }
+    .status-current .status-icon { background: var(--a2ui-color-primary); color: var(--a2ui-color-on-primary, #ffffff); }
+    .status-completed .status-icon { background: var(--a2ui-color-success); color: var(--a2ui-color-on-primary, #ffffff); }
+    .status-locked .status-icon { background: var(--app-muted); color: var(--a2ui-color-on-primary, #ffffff); }
+    .status-expanded .status-icon { background: var(--a2ui-color-primary); color: var(--a2ui-color-on-primary, #ffffff); }
 
     .module-content {
       flex: 1;
@@ -98,7 +98,7 @@
       font-size: 13px;
       font-weight: 600;
       background: var(--a2ui-color-primary);
-      color: white;
+      color: var(--a2ui-color-on-primary, #ffffff);
       border: none;
       cursor: pointer;
     }

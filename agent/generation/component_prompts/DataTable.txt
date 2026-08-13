@@ -1,0 +1,8 @@
+DataTable component guidance:
+- Use DataTable when the learner needs to compare structured records, see a small dataset, or map database concepts such as tables, rows, and columns.
+- Required shape: columns is an ordered array of objects with stable key, learner-facing label, and optional align; rows is an array of objects with optional id and a cells object keyed by column key.
+- Keep tables small and readable: usually 2-6 columns and 2-8 rows. Prefer concrete beginner-friendly data over abstract placeholders.
+- Give every column a clear label. Keep each cell short; use a separate DetailedExplanation or ConceptCard for long explanations.
+- Use caption to explain what the table shows. Use emptyMessage only when an empty state is meaningful.
+- Do not put a Markdown table inside DataTable props. Do not invent extra column keys that are missing from columns.
+- For a beginner lesson, introduce the table in plain language before using terms such as row, column, record, or field.

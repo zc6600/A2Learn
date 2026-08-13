@@ -66,8 +66,20 @@ export const FlashcardApi = {
   schema: z
     .object({
       ...CommonProps,
-      front: DynamicStringSchema.describe("闪卡正面内容 (Markdown)"),
-      back: DynamicStringSchema.describe("闪卡反面内容 (Markdown)"),
+      title: DynamicStringSchema.optional().describe("闪卡组标题，如 '核心概念抽背'"),
+      cards: z
+        .array(
+          z.object({
+            id: z.string().optional(),
+            front: DynamicStringSchema.describe("闪卡正面内容 (Markdown)"),
+            back: DynamicStringSchema.describe("闪卡反面内容 (Markdown)"),
+            hint: DynamicStringSchema.optional().describe("正面可选的提示信息"),
+          })
+        )
+        .optional()
+        .describe("闪卡列表（支持多卡翻页与刷题）"),
+      front: DynamicStringSchema.optional().describe("单卡正面内容（向下兼容）"),
+      back: DynamicStringSchema.optional().describe("单卡反面内容（向下兼容）"),
       isFlipped: DynamicBooleanSchema.default(false).optional(),
       onFeedback: ActionSchema.optional().describe("用户反馈操作 (如掌握/需强化)"),
     })
@@ -125,19 +137,6 @@ const TestCaseSchema = z.object({
   status: z.enum(["pending", "passed", "failed"]).default("pending").optional().describe("测试状态"),
 });
 
-export const AchievementApi = {
-  name: "Achievement",
-  schema: z
-    .object({
-      ...CommonProps,
-      title: DynamicStringSchema.describe("成就名称"),
-      description: DynamicStringSchema.describe("成就描述"),
-      icon: DynamicStringSchema.describe("徽章图标 (Emoji 或 URL)"),
-      unlockedAt: DynamicStringSchema.optional().describe("解锁时间/日期文本"),
-    })
-    .strict(),
-} satisfies ComponentApi;
-
 export const ResourceListApi = {
   name: "ResourceList",
   schema: z
@@ -145,6 +144,27 @@ export const ResourceListApi = {
       ...CommonProps,
       title: DynamicStringSchema.optional().describe("模块标题（如：延伸阅读）"),
       resources: z.array(ResourceItemSchema).describe("资源列表"),
+    })
+    .strict(),
+} satisfies ComponentApi;
+
+export const DataTableApi = {
+  name: "DataTable",
+  schema: z
+    .object({
+      ...CommonProps,
+      title: DynamicStringSchema.optional().describe("表格标题"),
+      caption: DynamicStringSchema.optional().describe("表格说明，帮助学习者理解这组数据"),
+      columns: z.array(z.object({
+        key: z.string().describe("列的稳定键名，必须与行 cells 中的键对应"),
+        label: DynamicStringSchema.describe("学习者看到的列标题"),
+        align: z.enum(["left", "center", "right"]).default("left").optional().describe("列内容对齐方式"),
+      })).min(1).describe("表格列定义，按从左到右的顺序排列"),
+      rows: z.array(z.object({
+        id: z.string().optional().describe("行的稳定 ID"),
+        cells: z.record(DynamicStringSchema).describe("单元格数据，键必须来自 columns.key"),
+      })).describe("表格行数据，每一行是一条完整记录"),
+      emptyMessage: DynamicStringSchema.optional().describe("没有行数据时显示的提示"),
     })
     .strict(),
 } satisfies ComponentApi;
@@ -167,30 +187,6 @@ export const CourseOutlineApi = {
         })
       ).describe("课程大纲的模块列表"),
       onModuleSelect: ActionSchema.optional().describe("当用户点击某个模块时触发。Agent 收到后，应该在该模块下方原位生成（展开）子网页的组件内容。"),
-    })
-    .strict(),
-} satisfies ComponentApi;
-
-export const SectionNavigatorApi = {
-  name: "SectionNavigator",
-  schema: z
-    .object({
-      ...CommonProps,
-      sections: z.array(z.object({
-        id: z.string().describe("章节 ID"),
-        title: DynamicStringSchema.describe("章节标题"),
-        description: DynamicStringSchema.optional().describe("章节简短描述"),
-        icon: DynamicStringSchema.optional().describe("章节图标 (Emoji)"),
-        // Keep backward compatibility with existing examples ("current"/"pending").
-        status: z
-          .enum(["locked", "available", "pending", "current", "completed"])
-          .default("available")
-          .describe("章节状态"),
-        targetComponentId: z.string().optional().describe("点击后在当前页面内平滑滚动到的组件 ID（与 component.id 对应）"),
-        targetSurfaceId: z.string().optional().describe("点击后跳转到的另一个 surface ID（跨页导航）"),
-      })).describe("章节列表"),
-      activeSectionId: z.string().optional().describe("当前激活的章节 ID"),
-      onSectionClick: ActionSchema.optional().describe("点击章节卡片时触发的操作，用于 Agent 进行页面级路由切换"),
     })
     .strict(),
 } satisfies ComponentApi;

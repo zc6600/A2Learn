@@ -11,7 +11,7 @@ import "../markdown-surface";
 /**
  * 注入 Gallery 模式特有的布局样式
  */
-function injectGalleryStyles(): void {}
+function injectGalleryStyles(): void { }
 
 /**
  * 渲染 Gallery 列表和预览区域
@@ -26,7 +26,7 @@ function renderGalleryItems(
 
   const mockAgentHandler = (action: any) => {
     console.log("Mock Agent received action:", action);
-    
+
     // ======== Mock Agent - Cross Component Coordination ========
     if (action.name === "sandbox_status_change") {
       if (action.context.status === "success") {
@@ -50,7 +50,7 @@ function renderGalleryItems(
       }
     } else if (action.name === "oj_status_change") {
       if (action.context.status === "accepted") {
-        console.log("OJ Accepted -> Unlocking LearningPath Step 3 and showing Achievement");
+        console.log("OJ Accepted -> Unlocking LearningPath Step 3.");
         processor.processMessages([{
           version: "v0.9",
           updateComponents: {
@@ -59,14 +59,7 @@ function renderGalleryItems(
               {
                 id: "root",
                 component: "Column",
-                children: ["header", "learning-path", "intro-text", "concept", "sandbox", "oj", "achievement", "resources"]
-              },
-              {
-                id: "achievement",
-                component: "Achievement",
-                title: { literalString: "异步大师" },
-                description: { literalString: "你成功手写了 delay 函数，完全掌握了 Promise 的机制，太棒了！" },
-                icon: { literalString: "🏆" }
+                children: ["header", "learning-path", "intro-text", "concept", "sandbox", "oj", "resources"]
               },
               {
                 id: "learning-path",
@@ -83,17 +76,17 @@ function renderGalleryItems(
         }]);
       }
     }
-    // ======== Mock Agent - Non-Linear Routing (SectionNavigator) ========
-    else if (action.name === "navigate_section") {
-      const sectionId = action.context.sectionId;
+    // ======== Mock Agent - Non-Linear Routing (LearningPath) ========
+    else if (action.name === "navigate_section" || action.name === "learning_path_select") {
+      const sectionId = action.context.sectionId || action.context.stepId;
       console.log(`Navigating to section: ${sectionId}`);
 
       let newContent = [];
-      let activeSections = [
-        { id: "intro", title: "Grid 基础概念", description: "什么是网格容器、网格线和轨道", icon: "📐", status: "completed" },
-        { id: "template", title: "定义网格模板", description: "学习使用 grid-template-columns 等属性", icon: "📏", status: "available" },
-        { id: "placement", title: "放置网格项", description: "跨越行和列的高级布局技巧", icon: "🧩", status: "available" },
-        { id: "challenge", title: "终极实战挑战", description: "使用 Grid 还原复杂仪表盘 UI", icon: "⚔️", status: "locked" }
+      let activeSteps = [
+        { id: "intro", title: "1. Grid 基础概念", description: "什么是网格容器、网格线和轨道" },
+        { id: "template", title: "2. 定义网格模板", description: "学习使用 grid-template-columns 等属性" },
+        { id: "placement", title: "3. 放置网格项", description: "跨越行和列的高级布局技巧" },
+        { id: "challenge", title: "4. 终极实战挑战", description: "使用 Grid 还原复杂仪表盘 UI" }
       ];
 
       if (sectionId === "template") {
@@ -178,11 +171,11 @@ function renderGalleryItems(
           components: [
             {
               id: "navigator",
-              component: "SectionNavigator",
-              title: "选择要学习的章节：",
-              activeSectionId: sectionId,
-              onSectionClick: { name: "navigate_section", context: {} },
-              sections: activeSections
+              component: "LearningPath",
+              title: "CSS Grid 交互式学习路径",
+              activeStepId: sectionId,
+              onStepSelect: { name: "learning_path_select", context: {} },
+              steps: activeSteps
             },
             ...newContent
           ]
@@ -304,7 +297,7 @@ function renderGalleryItems(
             component: "QuizCard",
             status: isCorrect ? "correct" : "incorrect",
             selectedIndex: action.context.selectedIndex,
-            explanation: isCorrect 
+            explanation: isCorrect
               ? "<b>回答正确！</b><br>你做出了完美的选择。(Mock Agent Response)"
               : "<b>回答错误。</b><br>请仔细思考再试一次。(Mock Agent Response)"
           }]
@@ -342,6 +335,7 @@ function renderGalleryItems(
 
   const categories = {
     websites: items.filter((item) => item.category === "website"),
+    computer: items.filter((item) => item.category === "computer"),
     components: items.filter((item) => item.category === "component"),
     courses: items.filter((item) => item.category === "course"),
   };
@@ -367,6 +361,7 @@ function renderGalleryItems(
   };
 
   navHtml += renderCategory(categories.websites, "🚀 Website 示例", 8);
+  navHtml += renderCategory(categories.computer, "💻 Computer 示例", 16);
   navHtml += renderCategory(categories.components, "🧩 Component 示例", 16);
   navHtml += renderCategory(categories.courses, "📚 Course 示例", 16);
 

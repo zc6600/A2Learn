@@ -13,7 +13,6 @@ import {
 import {
   MAX_ENABLED_COMPONENTS,
   MAX_EXAMPLE_CASES,
-  getGenerationTemplate,
   getStoredGenerationProfile,
   profileForTemplate,
   setStoredGenerationProfile,
@@ -103,7 +102,6 @@ export function bindShellControls(options: ShellControlOptions): void {
   const promptInput = document.getElementById("app-prompt-input") as HTMLInputElement | null;
   const sourceLibraryButton = document.getElementById("app-source-library-btn");
   const templateInputs = document.querySelectorAll<HTMLInputElement>(".generation-template-input");
-  const templatePreviewButtons = document.querySelectorAll<HTMLButtonElement>(".generation-template-preview");
   const componentInputs = document.querySelectorAll<HTMLInputElement>(".generation-component-input");
   const exampleInputs = document.querySelectorAll<HTMLInputElement>(".generation-example-input");
   const keyPill = document.getElementById("app-key-pill");
@@ -137,14 +135,6 @@ export function bindShellControls(options: ShellControlOptions): void {
         syncGenerationSettingsInputs(profileForTemplate(input.value));
         document.querySelector<HTMLDetailsElement>(".generation-advanced-settings")?.removeAttribute("open");
       }
-    });
-  });
-
-  templatePreviewButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const template = getGenerationTemplate(button.dataset.templatePreview || "");
-      closeSettingsModal();
-      onSelectExample(template.previewExampleId);
     });
   });
 
@@ -217,15 +207,18 @@ export function bindGlobalListenersOnce(askAgent: (promptText: string) => void):
   if (globalListenersBound) return;
   globalListenersBound = true;
   window.addEventListener("a2learn-explore-concept", (event: Event) => {
-    const concept = (event as CustomEvent).detail?.concept;
-    if (!concept) return;
+    const detail = (event as CustomEvent).detail;
+    const prompt = detail?.prompt;
+    const concept = detail?.concept;
+    if (!prompt && !concept) return;
     const lang = getLang();
     if (!getStoredApiKey()) {
       openSettingsModal();
       alert(T[lang].needApiKeyExplore);
       return;
     }
-    askAgent(lang === "zh" ? `详细解释 ${concept}` : `Explain ${concept} in detail`);
+    const queryText = prompt || (lang === "zh" ? `详细解释 ${concept}` : `Explain ${concept} in detail`);
+    askAgent(queryText);
   });
   document.addEventListener("click", (event: MouseEvent) => {
     const button = event.composedPath().find(

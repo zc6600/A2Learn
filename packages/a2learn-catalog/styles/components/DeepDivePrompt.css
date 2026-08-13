@@ -1,66 +1,73 @@
-    :host {
-      display: block;
-      margin: var(--a2ui-spacing-l) 0;
-      font-family: var(--a2ui-font-family);
-    }
-    .prompts-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: flex-start;
-      margin-top: var(--a2ui-spacing-m);
-    }
-    .prompt-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: var(--a2ui-color-surface);
-      border: 1px solid var(--a2ui-color-primary);
-      border-radius: 20px;
-      color: var(--a2ui-color-primary);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-    .prompt-btn:hover:not(:disabled) {
-      background: var(--a2ui-color-primary);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    .prompt-btn.selected {
-      background: var(--a2ui-color-primary);
-      color: white;
-      box-shadow: 0 0 0 3px color-mix(in oklab, var(--a2ui-color-primary) 30%, transparent);
-      cursor: default;
-    }
-    .prompt-btn:disabled:not(.selected) {
-      opacity: 0.5;
-      cursor: not-allowed;
-      border-color: var(--a2ui-color-border);
-      color: var(--app-muted);
-    }
-    .icon {
-      font-size: 16px;
-    }
-    .deep-dive-title {
-      font-size: 13px;
-      color: var(--app-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin: 0 0 12px 0;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .deep-dive-title::before {
-      content: "";
-      display: block;
-      width: 20px;
-      height: 2px;
-      background: var(--a2ui-color-primary);
-    }
+:host {
+  display: block;
+  margin: var(--a2ui-spacing-l, 20px) 0;
+  font-family: var(--a2ui-font-family, sans-serif);
+}
+
+.deep-dive-box {
+  padding: 4px 0;
+}
+
+.deep-dive-header {
+  margin-bottom: 10px;
+}
+
+.deep-dive-title {
+  font-size: 12px;
+  color: color-mix(in oklab, var(--a2ui-color-on-surface) 60%, transparent);
+  letter-spacing: 0.3px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.prompts-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.prompt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  background: var(--a2ui-color-surface-subtle);
+  border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 80%, transparent);
+  border-radius: 999px;
+  color: var(--a2ui-color-on-surface);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.prompt-btn:hover {
+  background: color-mix(in oklab, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
+  border-color: color-mix(in oklab, var(--a2ui-color-primary) 35%, transparent);
+  color: var(--a2ui-color-primary);
+  transform: translateY(-1px);
+}
+
+.prompt-btn.selected {
+  background: color-mix(in oklab, var(--a2ui-color-primary) 12%, var(--a2ui-color-surface));
+  border-color: var(--a2ui-color-primary);
+  color: var(--a2ui-color-primary);
+  font-weight: 600;
+}
+
+.icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.check-icon {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--a2ui-color-primary);
+  margin-left: 2px;
+}

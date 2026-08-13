@@ -1,7 +1,7 @@
 # A2Learn Custom Component Library Design Document (v1.0)
 
 ## 1. Product Design Philosophy: How to Build an Excellent Interactive Learning Website?
-An excellent interactive learning website needs more than just high-quality content; it requires **product mechanisms** and **interaction design** to stimulate learning motivation and improve memory retention. Based on the AI Agent-driven model of A2UI, the core design philosophy of A2Learn products includes the following three dimensions:
+An excellent interactive learning website needs more than just high-quality content; it requires **product mechanisms** and **interaction design** to stimulate learning motivation and improve memory retention. Based on the AI Agent-driven model of A2UI, the core design philosophy of A2Learn products includes the following two core dimensions:
 
 1. **Cognitive Structuring**:
    - Learning cannot be fragmented; it must have a clear structure.
@@ -12,10 +12,6 @@ An excellent interactive learning website needs more than just high-quality cont
    - **Corresponding Components**:
      - `Flashcard`: Uses the principle of Spaced Repetition to strengthen conceptual memory.
      - `QuizCard`: Provides single/multiple-choice questions and gives **immediate** correct/incorrect feedback and explanations after the user answers, forming a closed loop.
-
-3. **Gamification & Positive Reinforcement**:
-   - Learning is contrary to human nature and needs to be converted from external motivation to internal drive. Timely achievement feedback promotes dopamine secretion.
-   - **Corresponding Component**: `Achievement`. When a user completes a difficult knowledge point or checks in consecutively, the Agent dynamically issues a beautiful achievement badge to enhance the sense of accomplishment.
 
 ---
 
@@ -83,29 +79,23 @@ To prevent users from getting lost when entering the gallery, A2Learn provides t
   - **Single Choice Question** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/QuizCard/basic.json)): "In what year did WWII break out?"
   - **Multiple Choice Question** (🔗 [Multi-select Example](../packages/a2learn-catalog/examples/Component/QuizCard/multi-select.json)): "Which of the following are basic data types in JavaScript?"
 
-### 2.4 Achievement [✅ Implemented]
-**Product Goal**: Gamified motivation. Displayed at key milestones.
-- **Usage Scenarios**:
-  - **Milestone Reached** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/Achievement/basic.json)): "Congratulations on finishing React Basics!"
-  - **Hidden Easter Eggs**: When a user clicks a "Deep Dive" button for an obscure concept, the Agent awards a "Curious Explorer" badge.
-
-### 2.5 ConceptCard [✅ Implemented]
+### 2.4 ConceptCard [✅ Implemented]
 **Product Goal**: The most basic micro-knowledge display. Used to rigorously present a specific hardcore concept.
 - **Usage Scenarios**:
   - **Noun Explanation** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/ConceptCard/basic.json)): "What is DOM?"
   - **Advanced Concepts with Extended Links** (🔗 [Advanced Example](../packages/a2learn-catalog/examples/Component/ConceptCard/advanced.json)): "What is Virtual DOM?", with related concepts like `Diff Algorithm` and `Fiber Architecture`.
 
-### 2.5.1 ResourceList [✅ Implemented]
+### 2.4.1 ResourceList [✅ Implemented]
 **Product Goal**: Provides a structured display of external links at the end of a concept explanation.
 - **Usage Scenarios** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/ResourceList/basic.json)): Recommended books, related GitHub repositories, Wikipedia links.
 
-### 2.5.2 LiteratureReference [In Planning / Paper2UI Exclusive]
+### 2.4.2 LiteratureReference [In Planning / Paper2UI Exclusive]
 **Product Goal**: Provides a structured display of academic citations when explaining prerequisite knowledge or related work.
 - **Usage Scenarios**: Paper background knowledge popularization, e.g., "Variants based on the Attention mechanism (Vaswani et al., 2017)".
 - **Attributes**: `citation` (e.g., "[1]"), `authors`, `title`, `url` (optional arXiv link), `highlightQuote` (relevant quote from the original).
 - **Interaction**: Clicking a citation triggers `onReferenceClick`, letting the Agent generate a mini-interpretation of the cited paper.
 
-### 2.5.3 InteractiveFormula [In Planning / Paper2UI Exclusive]
+### 2.4.3 InteractiveFormula [In Planning / Paper2UI Exclusive]
 **Product Goal**: Academic papers are often overwhelming with mathematical symbols. This component is used to break down complex LaTeX formulas, achieving "variable-level hover explanation."
 - **Usage Scenarios**: Loss functions in machine learning papers, physics derivations, etc.
 - **Attributes**:
@@ -114,49 +104,49 @@ To prevent users from getting lost when entering the gallery, A2Learn provides t
   - `derivationSteps`: (Optional) Array of derivation steps, supporting "Next" clicks to show the derivation process step-by-step.
 - **Interaction**: Users hover over a letter in the formula to see a plain-English explanation of the variable.
 
-### 2.6 InteractiveSandbox [✅ Refactored & Implemented]
+### 2.5 InteractiveSandbox [✅ Refactored & Implemented]
 **Product Goal**: A true "hands-on lab," a code editor and preview window running entirely in a frontend closed loop.
 - **Usage Scenarios**:
   - **Frontend Layout** (🔗 [HTML/CSS Example](../packages/a2learn-catalog/examples/Component/InteractiveSandbox/html-css.json)): Agent delivers an HTML/CSS skeleton for users to modify colors and see effects.
   - **Algorithm Verification** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/InteractiveSandbox/basic.json)): Provides a Python or JS function for users to change parameters and click run to see results directly in the frontend.
 
-### 2.7 ClozeTest [✅ Refactored & Implemented]
+### 2.6 ClozeTest [✅ Refactored & Implemented]
 **Product Goal**: Tests user Active Recall ability by providing a text with blanks that require accurate completion.
 - **Usage Scenarios**:
   - **Knowledge Point Completion** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/ClozeTest/basic.json)): "The core advantages of React are ___ and ___."
   - **Code Completion** (🔗 [Code Snippet Example](../packages/a2learn-catalog/examples/Component/ClozeTest/code.json)): Provides a function with missing core logic for users to fill in key API method names.
 
-### 2.9 Timeline [✅ Implemented]
+### 2.7 Timeline [✅ Implemented]
 **Product Goal**: Structurally displays historical events, development history, or process steps.
 - **Usage Scenarios**:
   - **Technology Evolution History** (🔗 [Basic Vertical Example](../packages/a2learn-catalog/examples/Component/Timeline/basic.json)): Evolution of Web frontend frameworks.
   - **Business Lifecycle** (🔗 [Horizontal Process Example](../packages/a2learn-catalog/examples/Component/Timeline/horizontal.json)): e.g., "The lifecycle of a requirement" (Review -> Design -> Development -> Testing).
 
-### 2.10 AnalogyCard [✅ Implemented]
+### 2.8 AnalogyCard [✅ Implemented]
 **Product Goal**: Provides vivid stories or analogies to explain complex hardcore knowledge. Visually distinct from the serious `ConceptCard`, with a more lively design.
 - **Usage Scenarios**:
   - **Common Metaphors** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/AnalogyCard/basic.json)): "Think of an API as a waiter in a restaurant."
   - **Decentralization Concepts** (🔗 [Blockchain Example](../packages/a2learn-catalog/examples/Component/AnalogyCard/blockchain.json)): "Think of blockchain as a public ledger shared by the whole class."
 
-### 2.11 ScenarioDialogue [✅ Implemented]
+### 2.9 ScenarioDialogue [✅ Implemented]
 **Product Goal**: Replaces traditional "flat text" with "two-person or multi-person chat bubbles" (similar to WhatsApp/WeChat) to enact abstract knowledge points.
 - **Usage Scenarios**:
   - **Novice vs Expert (Popular Science)** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/ScenarioDialogue/basic.json)): A three-person group chat discussing frontend framework debates.
   - **Inter-temporal Dialogue between Historical Figures** (🔗 [Historical Dialogue Example](../packages/a2learn-catalog/examples/Component/ScenarioDialogue/history.json)): Newton and Einstein debating "Absolute Space-Time vs Relative Space-Time" across time and space.
 
-### 2.12 DeepDivePrompt [✅ Implemented]
+### 2.10 DeepDivePrompt [✅ Implemented]
 **Product Goal**: As the soul component for AI interactive guidance, it is placed at the end of knowledge explanations, providing several guiding question buttons to encourage users to "continue deep diving."
 - **Usage Scenarios**:
   - **Unclicked State** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/DeepDivePrompt/basic.json)): Shows 3 clickable prompt buttons.
   - **Clicked State** (🔗 [Selected Example](../packages/a2learn-catalog/examples/Component/DeepDivePrompt/selected.json)): After the user clicks, the button becomes highlighted and disabled.
 
-### 2.13 CodeSnippet [✅ Implemented]
+### 2.11 CodeSnippet [✅ Implemented]
 **Product Goal**: A component purely for statically displaying beautiful code blocks with syntax highlighting.
 - **Usage Scenarios**:
   - **Static Display** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/CodeSnippet/basic.json)): Simple Python code display.
   - **Code Highlighting & Explanation** (🔗 [Line Highlight Example](../packages/a2learn-catalog/examples/Component/CodeSnippet/highlighted.json)): In React component code, highlights lines 4 and 7 involving Hooks, making it easier for the Agent to explain them in the body text.
 
-### 2.14 SmartAnnotationBoard [✅ Refactored & Implemented]
+### 2.12 SmartAnnotationBoard [✅ Refactored & Implemented]
 **Product Goal**: Used to collect open-ended subjective input from users and provide structured inline annotations, feedback, and scoring using the Agent.
 - **Usage Scenarios**:
   - **Subjective Question Input** (🔗 [Basic Example](../packages/a2learn-catalog/examples/Component/SmartAnnotationBoard/basic.json)): Prompts the user "Please describe your favorite movie in English."

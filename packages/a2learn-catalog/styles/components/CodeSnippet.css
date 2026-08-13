@@ -8,15 +8,15 @@
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      border: 1px solid var(--a2learn-code-border, #333);
+      border: 1px solid var(--a2learn-code-border, rgba(255, 255, 255, 0.12));
     }
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 8px 16px;
-      background: var(--a2learn-code-header, #2d2d2d);
-      border-bottom: 1px solid #444;
+      background: var(--a2learn-code-header, rgba(0, 0, 0, 0.25));
+      border-bottom: 1px solid var(--a2learn-code-border, rgba(255, 255, 255, 0.1));
     }
     .mac-dots {
       display: flex;
@@ -27,9 +27,9 @@
       height: 12px;
       border-radius: 50%;
     }
-    .dot.red { background: #ff5f56; }
-    .dot.yellow { background: #ffbd2e; }
-    .dot.green { background: #27c93f; }
+    .dot.red { background: var(--a2learn-code-dot-red, #ff5f56); }
+    .dot.yellow { background: var(--a2learn-code-dot-yellow, #ffbd2e); }
+    .dot.green { background: var(--a2learn-code-dot-green, #27c93f); }
 
     .title-area {
       display: flex;
@@ -37,24 +37,25 @@
       gap: 12px;
     }
     .file-name {
-      color: #ccc;
+      color: var(--a2ui-color-code-text);
+      opacity: 0.85;
       font-size: 13px;
       font-family: monospace;
     }
     .language-badge {
-      color: var(--a2learn-code-info, #4fc1ff);
+      color: var(--a2learn-code-info, var(--a2ui-color-primary));
       font-size: 11px;
       text-transform: uppercase;
       font-weight: 700;
       letter-spacing: 0.5px;
-      border: 1px solid var(--a2learn-code-info, #4fc1ff);
+      border: 1px solid var(--a2learn-code-info, var(--a2ui-color-primary));
       padding: 2px 6px;
       border-radius: 4px;
     }
     .copy-btn {
       background: transparent;
       border: none;
-      color: var(--a2learn-code-muted, #888);
+      color: var(--a2learn-code-muted, var(--app-muted));
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -63,10 +64,10 @@
       transition: color 0.2s;
     }
     .copy-btn:hover {
-      color: #fff;
+      color: var(--a2ui-color-code-text);
     }
     .copy-btn.copied {
-      color: var(--a2learn-code-info, #4fc1ff);
+      color: var(--a2learn-code-info, var(--a2ui-color-primary));
     }
     .code-content {
       padding: 16px;
@@ -87,12 +88,12 @@
     }
     .line.highlight {
       background: rgba(255, 255, 255, 0.1);
-      border-left-color: #4fc1ff;
+      border-left-color: var(--a2learn-code-info, var(--a2ui-color-primary));
     }
     .line-number {
       display: inline-block;
       width: 24px;
-      color: #858585;
+      color: var(--a2learn-code-muted, var(--app-muted));
       text-align: right;
       margin-right: 16px;
       user-select: none;

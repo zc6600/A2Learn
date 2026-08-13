@@ -27,16 +27,31 @@ export type LocalExample = {
   componentIds: string[];
 };
 
-// Templates are the primary, user-facing entry point.  They are intentionally
-// concrete profiles rather than prompt-only labels: choosing one always gives
-// the generator a coherent component set, visual treatment, and reference.
-export type GenerationTemplate = {
-  id: "general" | "paper" | "computing" | "poetry";
+export type ReferencePack = {
+  id: string;
   label: Record<Lang, string>;
   description: Record<Lang, string>;
-  previewExampleId: string;
-  enabledComponents: string[];
   exampleIds: string[];
+};
+
+export type TemplateDifficulty = "beginner" | "intermediate" | "advanced";
+export type TemplatePedagogy = "problem-driven" | "theory-lab" | "project-based" | "research" | "poetry-reading";
+
+// Templates describe the learning experience. The concrete component list is
+// resolved from the strategy below so adding a component does not require
+// editing every template by hand.
+export type GenerationTemplate = {
+  id: "beginner" | "theory-lab" | "project" | "research" | "poetry";
+  scope: "computing" | "poetry";
+  label: Record<Lang, string>;
+  description: Record<Lang, string>;
+  difficulty: TemplateDifficulty;
+  pedagogy: TemplatePedagogy;
+  depth: "standard" | "deep";
+  componentStrategy: "guided" | "experimental" | "build-first" | "paper-first";
+  promptGuidance: string;
+  referencePackIds: string[];
+  referenceExampleIds: string[];
   themeId: string;
   displayMode: "standard" | "presentation";
   imageGenerationLimit: number;
@@ -48,6 +63,7 @@ export type GenerationProfile = {
   templateId: GenerationTemplate["id"] | "custom";
   enabledComponents: string[];
   exampleIds: string[];
+  referencePackIds: string[];
   themeId: string;
   displayMode: "standard" | "presentation";
   imageGenerationLimit: number;
@@ -74,6 +90,7 @@ export const GENERATION_COMPONENTS: GenerationComponent[] = [
   { id: "RelationshipMatch", group: "practice", label: { zh: "关系匹配", en: "Relationship Match" }, description: { zh: "概念、意象或文本关系解读", en: "Match concepts, imagery, or relationships" } },
   { id: "Flashcard", group: "practice", label: { zh: "闪卡", en: "Flashcard" }, description: { zh: "正反面记忆与复习", en: "Front/back recall and revision" } },
   { id: "InteractiveSandbox", group: "practice", label: { zh: "交互沙盒", en: "Interactive Sandbox" }, description: { zh: "可操作的实验或演示", en: "Hands-on experiment or demo" } },
+  { id: "DataTable", group: "explain", label: { zh: "数据表格", en: "Data Table" }, description: { zh: "结构化数据与记录对比", en: "Structured data and record comparison" } },
   { id: "InteractiveFormula", group: "practice", label: { zh: "交互公式", en: "Interactive Formula" }, description: { zh: "参数可调的公式与推演", en: "Adjustable formulas and derivations" } },
   { id: "DeepDivePrompt", group: "explore", label: { zh: "延伸探索", en: "Deep Dive" }, description: { zh: "引导下一步追问与探索", en: "Guide follow-up questions and exploration" } },
   { id: "CodeSnippet", group: "practice", label: { zh: "代码片段", en: "Code Snippet" }, description: { zh: "带注释的代码或格式化文本", en: "Annotated code or formatted text" } },
@@ -84,6 +101,7 @@ export const GENERATION_COMPONENTS: GenerationComponent[] = [
 // resolve the same curated source files when constructing a few-shot prompt.
 export const LOCAL_EXAMPLES: LocalExample[] = [
   { id: "hash-table", category: "computing", label: { zh: "Hash Table 哈希表", en: "Hash Table" }, description: { zh: "哈希冲突与开放寻址法", en: "Hash collisions and open addressing" }, componentIds: ["AnalogyCard", "ClozeTest", "ConceptCard", "DetailedExplanation", "InteractiveSandbox", "LearningPath", "MentalModel", "QuizCard", "ScenarioDialogue"] },
+  { id: "database-basics", category: "computing", label: { zh: "数据库入门", en: "Database Basics" }, description: { zh: "从表、行、列到基础 SQL", en: "Tables, rows, columns, and beginner SQL" }, componentIds: ["AnalogyCard", "ConceptCard", "DataTable", "DetailedExplanation", "InteractiveSandbox", "LearningPath", "MentalModel", "QuizCard", "ScenarioDialogue"] },
   { id: "agent-react", category: "computing", label: { zh: "ReAct Agent 架构", en: "ReAct Agent Architecture" }, description: { zh: "手写 ReAct 循环引擎", en: "Hand-building a ReAct loop engine" }, componentIds: ["AnalogyCard", "ConceptCard", "DetailedExplanation", "MentalModel", "QuizCard", "ScenarioDialogue"] },
   { id: "js-async", category: "computing", label: { zh: "JS 异步与事件循环", en: "JS Async & the Event Loop" }, description: { zh: "手写 Promise.all 实现", en: "Implementing Promise.all from scratch" }, componentIds: ["AnalogyCard", "ConceptCard", "DetailedExplanation", "MentalModel", "QuizCard", "ResourceList", "ScenarioDialogue"] },
   { id: "conversational", category: "computing", label: { zh: "JS 闭包与作用域", en: "JS Closures & Scope" }, description: { zh: "闭包模块模式与私有变量", en: "The module pattern and private variables via closures" }, componentIds: ["AnalogyCard", "ConceptCard", "DetailedExplanation", "MentalModel", "QuizCard", "ResourceList", "ScenarioDialogue"] },
@@ -92,6 +110,35 @@ export const LOCAL_EXAMPLES: LocalExample[] = [
   { id: "biophysics-ai", category: "paper", label: { zh: "AI 驱动生物物理 (AlphaFold)", en: "AI-Driven Biophysics (AlphaFold)" }, description: { zh: "AlphaFold3 扩散模块解析", en: "Breaking down AlphaFold3's diffusion module" }, componentIds: ["AnalogyCard", "ClozeTest", "ConceptCard", "DeepDivePrompt", "DetailedExplanation", "LearningPath", "MentalModel", "QuizCard", "RelationshipMatch", "ResourceList", "ScenarioDialogue", "Timeline"] },
   { id: "poetry-social", category: "poetry", label: { zh: "《春江花月夜》· 词注、月行与两地相望", en: "Spring River, Flower, Moon, Night · Glosses, Moon Path, Two Shores" }, description: { zh: "从原文词注、月光路径到人物之间的相望与判断", en: "From source glosses and moon path to distance, perspective, and a short judgement" }, componentIds: ["DetailedExplanation", "RelationshipMatch", "ScenarioDialogue", "Timeline"] },
   { id: "deng-gao", category: "poetry", label: { zh: "《登高》· 七律之冠与四联镜头解码", en: "Climbing the Height · Peak Seven-Char Octave & Four Couplets Lens" }, description: { zh: "杜甫夔州高台独白、从宇宙宏大到一人白发与十四字愁苦解码", en: "Du Fu's monologue at Kuizhou, from cosmic grandness to white hair and fourteen-character sorrow" }, componentIds: ["DeepDivePrompt", "DetailedExplanation", "DragAndDropMatch", "ScenarioDialogue", "Timeline"] },
+];
+
+export const REFERENCE_PACKS: ReferencePack[] = [
+  {
+    id: "database-basics-series",
+    label: { zh: "数据库入门六讲", en: "Database Basics: Six Lessons" },
+    description: { zh: "用一个完整的初学者系列学习问题驱动、表格和代码实验。", en: "A beginner series built around problem-driven explanation, tables, and code labs." },
+    // This pack is loaded from the six long-form course files, not from the
+    // shorter gallery preview named database-basics.
+    exampleIds: [],
+  },
+  {
+    id: "hash-table-lab",
+    label: { zh: "Hash Table 原理实验", en: "Hash Table Theory Lab" },
+    description: { zh: "从性能痛点、心智模型到带注释的实现实验。", en: "From a performance problem to a mental model and annotated implementation lab." },
+    exampleIds: ["hash-table"],
+  },
+  {
+    id: "computer-paper-deep-dive",
+    label: { zh: "计算机论文深度解析", en: "Computer Paper Deep Dive" },
+    description: { zh: "使用摘要、公式、脉络和批判性问题理解计算机论文。", en: "Use abstracts, formulas, context, and critical questions to read computer papers." },
+    exampleIds: ["paper-attention", "biophysics-ai"],
+  },
+  {
+    id: "poetry-reading",
+    label: { zh: "诗词赏析案例", en: "Poetry reading examples" },
+    description: { zh: "保留原文、意象、关系和情绪推进的诗词课程结构。", en: "Preserve source text, imagery, relationships, and emotional progression." },
+    exampleIds: ["poetry-social", "deng-gao"],
+  },
 ];
 
 export const RENDER_THEMES: RenderTheme[] = [
@@ -132,63 +179,83 @@ export const RENDER_THEMES: RenderTheme[] = [
   },
 ];
 
-const DEFAULT_COMPONENTS = [
-  "AnalogyCard",
-  "ClozeTest",
-  "LearningPath",
-  "ConceptCard",
-  "MentalModel",
-  "DetailedExplanation",
-  "InteractiveFormula",
-  "InteractiveSandbox",
-  "PaperAbstract",
-  "QuizCard",
-  "ResourceList",
-  "ScenarioDialogue",
-  "Timeline",
-];
-
 export const GENERATION_TEMPLATES: GenerationTemplate[] = [
   {
-    id: "general",
-    label: { zh: "通用讲解", en: "General explanation" },
-    description: { zh: "适合大多数学习主题的清晰讲解与练习。", en: "Clear explanation and practice for most learning topics." },
-    previewExampleId: "hash-table",
-    enabledComponents: DEFAULT_COMPONENTS,
-    exampleIds: ["hash-table", "paper-attention"],
+    id: "beginner",
+    scope: "computing",
+    label: { zh: "入门循序渐进", en: "Guided beginner" },
+    description: { zh: "从生活场景和问题出发，逐步建立概念，再用练习确认理解。", en: "Start from a practical problem, build concepts gradually, and confirm understanding with practice." },
+    difficulty: "beginner",
+    pedagogy: "problem-driven",
+    depth: "deep",
+    componentStrategy: "guided",
+    promptGuidance: "面向完全初学者。先提出一个生活化或实际工作中的问题，再用简单语言建立模型；每个新术语第一次出现时立即解释。保留丰富行间注释、具体数据、小练习和本讲总结。",
+    referencePackIds: ["database-basics-series"],
+    referenceExampleIds: ["database-basics", "conversational"],
     themeId: "learning-default",
     displayMode: "standard",
     imageGenerationLimit: 2,
   },
   {
-    id: "paper",
-    label: { zh: "论文详解", en: "Paper deep dive" },
-    description: { zh: "从摘要、公式到脉络，适合论文和技术文章。", en: "From abstract and formula to context, for papers and technical writing." },
-    previewExampleId: "paper-attention",
-    enabledComponents: ["AnalogyCard", "InteractiveFormula", "MentalModel", "PaperAbstract", "QuizCard", "ResourceList", "ScenarioDialogue", "Timeline"],
-    exampleIds: ["paper-attention"],
+    id: "theory-lab",
+    scope: "computing",
+    label: { zh: "技术原理实验", en: "Technical theory lab" },
+    description: { zh: "先解释原理为什么存在，再用具体数据和可运行代码验证它。", en: "Explain why the mechanism exists, then verify it with concrete data and runnable code." },
+    difficulty: "intermediate",
+    pedagogy: "theory-lab",
+    depth: "deep",
+    componentStrategy: "experimental",
+    promptGuidance: "先说明性能或工程痛点，再从第一性原理解释机制；用具体数据逐步演算，并提供可以运行的代码实验。不要只给抽象定义。",
+    referencePackIds: ["hash-table-lab"],
+    referenceExampleIds: ["hash-table", "js-async", "agent-react"],
     themeId: "learning-default",
     displayMode: "standard",
     imageGenerationLimit: 0,
   },
   {
-    id: "computing",
-    label: { zh: "计算机专区", en: "Computing" },
-    description: { zh: "概念、代码与可操作练习并重。", en: "Balances concepts, code, and hands-on practice." },
-    previewExampleId: "hash-table",
-    enabledComponents: ["AnalogyCard", "ClozeTest", "ConceptCard", "DetailedExplanation", "InteractiveSandbox", "LearningPath", "MentalModel", "QuizCard", "ScenarioDialogue"],
-    exampleIds: ["hash-table"],
+    id: "project",
+    scope: "computing",
+    label: { zh: "项目实战", en: "Project-based" },
+    description: { zh: "从需求拆解开始，边设计边实现，最后完成一个可检查的小项目。", en: "Start from requirements, design while building, and finish with a checkable small project." },
+    difficulty: "beginner",
+    pedagogy: "project-based",
+    depth: "deep",
+    componentStrategy: "build-first",
+    promptGuidance: "围绕一个小而完整的计算机项目组织课程。先拆需求和数据，再边实现边解释；每段代码都保留详细行间注释，最后用验收清单检查项目。",
+    referencePackIds: ["database-basics-series"],
+    referenceExampleIds: ["database-basics", "agent-react", "js-async", "non-linear"],
+    themeId: "learning-default",
+    displayMode: "standard",
+    imageGenerationLimit: 0,
+  },
+  {
+    id: "research",
+    scope: "computing",
+    label: { zh: "论文深度解析", en: "Research deep dive" },
+    description: { zh: "面向计算机论文：先读问题和摘要，再拆解方法、公式、证据与局限。", en: "For computer science papers: move from the problem and abstract to methods, formulas, evidence, and limits." },
+    difficulty: "advanced",
+    pedagogy: "research",
+    depth: "deep",
+    componentStrategy: "paper-first",
+    promptGuidance: "面向有基础的计算机学习者。先交代论文要解决的问题和贡献，再解释方法、公式、实验依据与局限；区分论文事实、直觉解释和批判性问题。",
+    referencePackIds: ["computer-paper-deep-dive"],
+    referenceExampleIds: ["paper-attention", "biophysics-ai"],
     themeId: "learning-default",
     displayMode: "standard",
     imageGenerationLimit: 0,
   },
   {
     id: "poetry",
+    scope: "poetry",
     label: { zh: "诗词赏析", en: "Poetry reading" },
-    description: { zh: "先读完整原文，再沿着意象进入诗的情绪与结构。", en: "Read the complete source first, then follow its imagery into feeling and structure." },
-    previewExampleId: "poetry-social",
-    enabledComponents: ["DetailedExplanation", "RelationshipMatch", "ScenarioDialogue", "Timeline"],
-    exampleIds: ["poetry-social"],
+    description: { zh: "保留原文与逐层赏析，用意象、关系和情绪理解诗词。", en: "Read the source first, then use imagery, relationships, and emotion to understand the poem." },
+    difficulty: "beginner",
+    pedagogy: "poetry-reading",
+    depth: "deep",
+    componentStrategy: "poetry-reading",
+    promptGuidance: "面向诗词学习：先保留完整原文，再用逐句解释、意象关系、情绪推进和适量练习帮助理解。不要把诗词改写成技术课程。",
+    referencePackIds: ["poetry-reading"],
+    referenceExampleIds: ["poetry-social", "deng-gao"],
     themeId: "learning-default",
     displayMode: "standard",
     imageGenerationLimit: 0,
@@ -197,9 +264,10 @@ export const GENERATION_TEMPLATES: GenerationTemplate[] = [
 
 export const DEFAULT_GENERATION_PROFILE: GenerationProfile = {
   version: 1,
-  templateId: "general",
-  enabledComponents: DEFAULT_COMPONENTS,
-  exampleIds: ["hash-table", "paper-attention"],
+  templateId: "beginner",
+  enabledComponents: [],
+  exampleIds: [],
+  referencePackIds: ["database-basics-series"],
   themeId: "learning-default",
   displayMode: "standard",
   imageGenerationLimit: 2,
@@ -209,8 +277,23 @@ export const DEFAULT_GENERATION_PROFILE: GenerationProfile = {
 const PROFILE_STORAGE_KEY = "a2learn_generation_profile_v1";
 const KNOWN_COMPONENT_IDS = new Set(GENERATION_COMPONENTS.map((component) => component.id));
 const KNOWN_EXAMPLE_IDS = new Set(LOCAL_EXAMPLES.map((example) => example.id));
+const KNOWN_REFERENCE_PACK_IDS = new Set(REFERENCE_PACKS.map((pack) => pack.id));
 const KNOWN_THEME_IDS = new Set(RENDER_THEMES.map((theme) => theme.id));
 const KNOWN_TEMPLATE_IDS = new Set(GENERATION_TEMPLATES.map((template) => template.id));
+const LEGACY_TEMPLATE_IDS: Record<string, GenerationTemplate["id"]> = {
+  general: "beginner",
+  computing: "theory-lab",
+  paper: "research",
+  poetry: "poetry",
+};
+
+const COMPONENT_STRATEGIES: Record<GenerationTemplate["componentStrategy"], string[]> = {
+  guided: ["LearningPath", "AnalogyCard", "ConceptCard", "MentalModel", "DetailedExplanation", "DataTable", "ScenarioDialogue", "InteractiveSandbox", "QuizCard"],
+  experimental: ["LearningPath", "AnalogyCard", "ConceptCard", "MentalModel", "DetailedExplanation", "InteractiveSandbox", "CodeSnippet", "DataTable", "QuizCard", "ClozeTest", "ScenarioDialogue"],
+  "build-first": ["LearningPath", "AnalogyCard", "ConceptCard", "DetailedExplanation", "DataTable", "InteractiveSandbox", "CodeSnippet", "QuizCard", "ScenarioDialogue", "MentalModel"],
+  "paper-first": ["LearningPath", "PaperAbstract", "ConceptCard", "MentalModel", "DetailedExplanation", "InteractiveFormula", "DataTable", "RelationshipMatch", "QuizCard", "ResourceList", "ScenarioDialogue", "Timeline", "DeepDivePrompt"],
+  "poetry-reading": ["LearningPath", "DetailedExplanation", "RelationshipMatch", "ScenarioDialogue", "Timeline", "QuizCard", "DeepDivePrompt"],
+};
 // Themes that were formerly auto-linked to specific templates. Now that templates
 // no longer drive theme switching, a stored profile with one of these IDs should
 // be silently migrated to the neutral default so old localStorage values do not
@@ -227,6 +310,26 @@ function uniqueKnownExampleIds(value: unknown): string[] {
   return Array.from(new Set(value.filter((id): id is string => typeof id === "string" && KNOWN_EXAMPLE_IDS.has(id)))).slice(0, MAX_EXAMPLE_CASES);
 }
 
+function uniqueKnownReferencePackIds(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return Array.from(new Set(value.filter((id): id is string => typeof id === "string" && KNOWN_REFERENCE_PACK_IDS.has(id))));
+}
+
+function resolveTemplate(template: GenerationTemplate): { enabledComponents: string[]; exampleIds: string[] } {
+  const packExampleIds = template.referencePackIds.flatMap((packId) =>
+    REFERENCE_PACKS.find((pack) => pack.id === packId)?.exampleIds || [],
+  );
+  const exampleIds = Array.from(new Set([...template.referenceExampleIds, ...packExampleIds]));
+  const exampleComponents = exampleIds.flatMap((exampleId) =>
+    LOCAL_EXAMPLES.find((example) => example.id === exampleId)?.componentIds || [],
+  );
+  const strategyComponents = COMPONENT_STRATEGIES[template.componentStrategy] || [];
+  return {
+    enabledComponents: Array.from(new Set([...strategyComponents, ...exampleComponents])).filter((id) => KNOWN_COMPONENT_IDS.has(id)).slice(0, MAX_ENABLED_COMPONENTS),
+    exampleIds: exampleIds.slice(0, MAX_EXAMPLE_CASES),
+  };
+}
+
 function imageGenerationLimit(value: unknown): number {
   if (typeof value !== "number" || !Number.isInteger(value)) return DEFAULT_GENERATION_PROFILE.imageGenerationLimit;
   return Math.max(0, Math.min(MAX_AUTO_GENERATED_IMAGES, value));
@@ -234,25 +337,42 @@ function imageGenerationLimit(value: unknown): number {
 
 export function normalizeGenerationProfile(value: unknown): GenerationProfile {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return { ...DEFAULT_GENERATION_PROFILE, enabledComponents: [...DEFAULT_COMPONENTS], exampleIds: [...DEFAULT_GENERATION_PROFILE.exampleIds] };
+    const resolved = resolveTemplate(GENERATION_TEMPLATES[0]);
+    return { ...DEFAULT_GENERATION_PROFILE, ...resolved, referencePackIds: [...GENERATION_TEMPLATES[0].referencePackIds] };
   }
   const raw = value as Partial<GenerationProfile>;
-  const allowedComponents = Array.isArray(raw.enabledComponents)
+  const rawTemplateId = typeof raw.templateId === "string" ? raw.templateId : "";
+  const migratedTemplateId = LEGACY_TEMPLATE_IDS[rawTemplateId] || rawTemplateId;
+  const templateId = KNOWN_TEMPLATE_IDS.has(migratedTemplateId as GenerationTemplate["id"])
+    ? migratedTemplateId as GenerationTemplate["id"]
+    : "custom";
+  const template = templateId === "custom" ? null : getGenerationTemplate(templateId);
+  const resolved = template ? resolveTemplate(template) : { enabledComponents: [], exampleIds: [] };
+  // A selected template owns its automatic defaults. Old saved profiles may
+  // still contain the previous template's hand-maintained arrays; discard
+  // those stale values. Manual overrides set templateId to custom first.
+  const allowedComponents = template
+    ? resolved.enabledComponents
+    : Array.isArray(raw.enabledComponents)
     ? uniqueKnownComponentIds(raw.enabledComponents, MAX_ENABLED_COMPONENTS)
-    : [...DEFAULT_COMPONENTS];
-  const exampleIds = uniqueKnownExampleIds(raw.exampleIds).filter((exampleId) =>
+    : resolved.enabledComponents;
+  const exampleIds = (template ? resolved.exampleIds : (Array.isArray(raw.exampleIds) ? uniqueKnownExampleIds(raw.exampleIds) : resolved.exampleIds)).filter((exampleId) =>
     (LOCAL_EXAMPLES.find((example) => example.id === exampleId)?.componentIds || [])
       .every((componentId) => allowedComponents.includes(componentId)),
   );
+  const referencePackIds = template
+    ? [...template.referencePackIds]
+    : Array.isArray(raw.referencePackIds)
+    ? uniqueKnownReferencePackIds(raw.referencePackIds)
+    : (template?.referencePackIds || []);
   return {
     version: 1,
     // Old saved profiles predate templates. Preserve their actual selections
     // and show them as a custom profile instead of silently replacing them.
-    templateId: typeof raw.templateId === "string" && KNOWN_TEMPLATE_IDS.has(raw.templateId as GenerationTemplate["id"])
-      ? raw.templateId as GenerationTemplate["id"]
-      : "custom",
+    templateId,
     enabledComponents: allowedComponents,
     exampleIds,
+    referencePackIds,
     themeId: typeof raw.themeId === "string" && KNOWN_THEME_IDS.has(raw.themeId) && !LEGACY_TEMPLATE_LINKED_THEMES.has(raw.themeId)
       ? raw.themeId
       : DEFAULT_GENERATION_PROFILE.themeId,
@@ -263,7 +383,9 @@ export function normalizeGenerationProfile(value: unknown): GenerationProfile {
       ? "presentation"
       : "standard",
     imageGenerationLimit: imageGenerationLimit(raw.imageGenerationLimit),
-    visualIntent: typeof raw.visualIntent === "string" ? raw.visualIntent.slice(0, 500) : "",
+    visualIntent: typeof raw.visualIntent === "string" && raw.visualIntent.trim()
+      ? raw.visualIntent.slice(0, 500)
+      : (template?.promptGuidance || ""),
   };
 }
 
@@ -273,15 +395,17 @@ export function getGenerationTemplate(templateId: string): GenerationTemplate {
 
 export function profileForTemplate(templateId: string): GenerationProfile {
   const template = getGenerationTemplate(templateId);
+  const resolved = resolveTemplate(template);
   return {
     version: 1,
     templateId: template.id,
-    enabledComponents: [...template.enabledComponents],
-    exampleIds: [...template.exampleIds],
+    enabledComponents: [...resolved.enabledComponents],
+    exampleIds: [...resolved.exampleIds],
+    referencePackIds: [...template.referencePackIds],
     themeId: template.themeId,
     displayMode: template.displayMode,
     imageGenerationLimit: template.imageGenerationLimit,
-    visualIntent: "",
+    visualIntent: template.promptGuidance,
   };
 }
 

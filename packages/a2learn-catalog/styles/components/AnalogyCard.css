@@ -38,11 +38,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: white;
+      background: var(--a2ui-color-surface);
       width: 40px;
       height: 40px;
       border-radius: 50%;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid var(--a2ui-color-border);
     }
     .title {
       font-size: 16px;
@@ -56,16 +57,16 @@
       z-index: 1;
       font-size: 16px;
       line-height: 1.7;
-      color: var(--a2ui-color-on-surface, #111827);
-      background: var(--a2ui-color-surface-subtle, #f9fafb);
-      border: 1px solid var(--a2ui-color-border, #e5e7eb);
+      color: var(--a2ui-color-on-surface);
+      background: var(--a2ui-color-surface-subtle);
+      border: 1px solid var(--a2ui-color-border);
       padding: 16px;
       border-radius: 12px;
     }
     /* Style markdown elements inside analogy */
     .content p {
       margin-top: 0;
-      color: var(--a2ui-color-on-surface, #111827);
+      color: var(--a2ui-color-on-surface);
     }
     .content p:last-child {
       margin-bottom: 0;
@@ -76,13 +77,13 @@
     }
     .content hr {
       border: none;
-      border-top: 1px dashed var(--a2ui-color-border, #cbd5e1);
+      border-top: 1px dashed var(--a2ui-color-border);
       margin: 16px 0;
     }
     .terms-section {
       margin-top: 12px;
       padding-top: 12px;
-      border-top: 1px dashed var(--a2ui-color-border, #cbd5e1);
+      border-top: 1px dashed var(--a2ui-color-border);
     }
     .terms-section-title {
       font-size: 13px;

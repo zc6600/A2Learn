@@ -1,0 +1,278 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "database-basics-lesson-5",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "database-basics-lesson-5",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "path",
+            "scene",
+            "dialogue",
+            "model",
+            "tables",
+            "concept",
+            "explanation",
+            "sandbox",
+            "quiz",
+            "summary"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "第 5 讲：多张表怎样连接起来？"
+        },
+        {
+          "id": "path",
+          "component": "LearningPath",
+          "title": "数据库入门 6 讲",
+          "activeStepId": "5",
+          "steps": [
+            {
+              "id": "1",
+              "title": "认识数据库"
+            },
+            {
+              "id": "2",
+              "title": "向数据库提问"
+            },
+            {
+              "id": "3",
+              "title": "修改数据"
+            },
+            {
+              "id": "4",
+              "title": "设计表"
+            },
+            {
+              "id": "5",
+              "title": "连接多张表"
+            },
+            {
+              "id": "6",
+              "title": "完成小项目"
+            }
+          ]
+        },
+        {
+          "id": "scene",
+          "component": "AnalogyCard",
+          "title": "一个学生可以报名很多门课",
+          "analogy": "如果把学生信息和报名信息放在同一张大表里，小雨报名三门课，就要把姓名、城市等资料重复三次；当小雨搬家时，还要修改三行。课程名称也会被很多学生重复保存，改一次课程名就要到处修改。更清楚的办法是分开保存：students 表只保存学生，courses 表只保存课程，enrollments 表只保存‘谁报名了哪门课’。分开保存并不意味着信息断开，编号会帮助我们在查询时重新把它们连接起来。"
+        },
+        {
+          "id": "dialogue",
+          "component": "ScenarioDialogue",
+          "topic": "💬 为什么要多一张 enrollments 表？",
+          "characters": {
+            "learner": {
+              "name": "小雨",
+              "avatar": "👩‍🎓",
+              "alignment": "left"
+            },
+            "architect": {
+              "name": "设计老师",
+              "avatar": "🧑‍🏫",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "learner",
+              "content": "students 和 courses 已经有了，为什么还要 enrollments？"
+            },
+            {
+              "characterId": "architect",
+              "content": "因为‘报名’不是学生本身，也不是课程本身，而是两者之间发生的一件事。一个学生能有多条报名记录，一门课程也能被很多学生报名。"
+            },
+            {
+              "characterId": "learner",
+              "content": "所以 enrollments 的一行代表一次报名，并保存 student_id 和 course_id？"
+            },
+            {
+              "characterId": "architect",
+              "content": "对。它像一张关系清单：看到两个编号，就知道哪位学生和哪门课程发生了联系。"
+            }
+          ]
+        },
+        {
+          "id": "model",
+          "component": "MentalModel",
+          "title": "把编号想成不同表之间的接头",
+          "description": "每张表保存自己的信息，编号让数据库知道哪些记录彼此相关。",
+          "icon": "🔗",
+          "diagramTitle": "一次报名如何连接三张表",
+          "diagram": "students.id = 1\n       ↑ student_id\nenrollments: 1 ─── 10\n                         ↓ course_id\ncourses.id = 10",
+          "pillarsTitle": "三个角色",
+          "pillars": [
+            {
+              "title": "主键 id",
+              "description": "本表中唯一识别一条记录的编号。",
+              "icon": "🔑"
+            },
+            {
+              "title": "外部编号",
+              "description": "在另一张表中保存对方主键的值。",
+              "icon": "➡️"
+            },
+            {
+              "title": "关系记录",
+              "description": "描述两个对象之间发生了什么。",
+              "icon": "🧷"
+            }
+          ],
+          "analogyTitle": "借书卡上的编号",
+          "analogy": "借书记录不必重复写整本书的书名，只要保存书的编号；也不必重复写读者的全部资料，只要保存读者编号。需要展示完整信息时，再根据编号找到它们。"
+        },
+        {
+          "id": "tables",
+          "component": "DataTable",
+          "title": "三张表的最小结构",
+          "caption": "报名表保存关系，不重复保存学生和课程的所有信息。",
+          "columns": [
+            {
+              "key": "table",
+              "label": "表"
+            },
+            {
+              "key": "id",
+              "label": "关键编号"
+            },
+            {
+              "key": "row",
+              "label": "一行代表什么"
+            },
+            {
+              "key": "example",
+              "label": "示例"
+            }
+          ],
+          "rows": [
+            {
+              "id": "1",
+              "cells": {
+                "table": "students",
+                "id": "id",
+                "row": "一位学生",
+                "example": "1，小雨"
+              }
+            },
+            {
+              "id": "2",
+              "cells": {
+                "table": "courses",
+                "id": "id",
+                "row": "一门课程",
+                "example": "10，数据库入门"
+              }
+            },
+            {
+              "id": "3",
+              "cells": {
+                "table": "enrollments",
+                "id": "student_id + course_id",
+                "row": "一次报名关系",
+                "example": "1 报名 10"
+              }
+            }
+          ]
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "JOIN：把相关记录重新组合",
+          "tags": [
+            "JOIN",
+            "ON",
+            "匹配编号"
+          ],
+          "definition": "JOIN 的直觉是：拿一张表中的编号，到另一张表中找到相同编号的记录，然后把需要的列放到一起。ON 后面的条件说明‘通过哪些字段匹配’。",
+          "example": "```sql\nSELECT students.name, courses.title\nFROM enrollments\nJOIN students ON enrollments.student_id = students.id\nJOIN courses ON enrollments.course_id = courses.id;\n```\n\n读成一句话：从报名表出发，根据 student_id 找学生姓名，再根据 course_id 找课程名称。",
+          "relatedConcepts": [
+            "匹配",
+            "编号",
+            "查询"
+          ]
+        },
+        {
+          "id": "explanation",
+          "component": "DetailedExplanation",
+          "title": "为什么关系表可以很简单？",
+          "icon": "🧱",
+          "estimatedReadTime": "7 分钟",
+          "content": "enrollments 不需要重复保存学生姓名、城市和课程完整介绍。它只保存连接所需的编号，以及报名时间、状态等属于‘报名这件事’的内容。这样学生搬家时只需要修改 students 表，课程改名时只需要修改 courses 表，报名记录不会因为重复文字而产生一堆需要同步的地方。<br><br>看到 `student_id` 时，可以把它读成‘这次报名属于哪位学生’；看到 `course_id` 时，可以读成‘这次报名对应哪门课程’。暂时不必担心复杂术语，先理解编号如何指向另一张表。JOIN 只是在查询结果中临时把相关列放到一起，底层数据仍然各自保存。<br><br>遇到多表查询时，先画出编号箭头，再写 JOIN，通常比直接背语法更容易。"
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "动手试试：用 JavaScript 模拟 JOIN",
+          "description": "先找到报名关系，再用两个编号分别去学生表和课程表中寻找对象。",
+          "language": "javascript",
+          "code": "const students = [{ id: 1, name: \"小雨\" }, { id: 2, name: \"小林\" }];\nconst courses = [{ id: 10, title: \"数据库入门\" }, { id: 20, title: \"JavaScript\" }];\nconst enrollments = [{ studentId: 1, courseId: 10 }, { studentId: 2, courseId: 20 }];\n\n// 每一条 enrollment 是一次关系，先拿到两个编号。\nconst result = enrollments.map((enrollment) => {\n  // student_id 连接 students.id。\n  const student = students.find((item) => item.id === enrollment.studentId);\n  // course_id 连接 courses.id。\n  const course = courses.find((item) => item.id === enrollment.courseId);\n  // 把两张表中真正想展示的列组合成一行结果。\n  return { student: student.name, course: course.title };\n});\n\nconsole.log(\"报名结果:\", result);",
+          "runLocally": true
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "多表连接检查",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "enrollments 表的一行最适合代表什么？",
+              "options": [
+                "一次报名关系",
+                "所有学生",
+                "一门课程的完整介绍",
+                "数据库服务器"
+              ],
+              "correctIndex": 0,
+              "explanation": "它保存谁和哪门课发生了报名关系。"
+            },
+            {
+              "id": "q2",
+              "question": "student_id 通常指向哪里？",
+              "options": [
+                "students 表中的 id",
+                "课程价格",
+                "数据库名称",
+                "学生的密码"
+              ],
+              "correctIndex": 0,
+              "explanation": "通过 student_id 可以找到 students 表中的学生记录。"
+            },
+            {
+              "id": "q3",
+              "question": "JOIN 的直觉作用是什么？",
+              "options": [
+                "删除两张表",
+                "根据匹配条件组合相关记录",
+                "把所有列改成 id",
+                "自动生成课程内容"
+              ],
+              "correctIndex": 1,
+              "explanation": "JOIN 按 ON 条件找到相关记录并组合结果。"
+            }
+          ]
+        },
+        {
+          "id": "summary",
+          "component": "AnalogyCard",
+          "title": "本讲总结：分开保存，需要时连接",
+          "analogy": "学生、课程和报名是三类不同的东西，因此可以分别放在三张表里。主键让每条记录有身份，外部编号保存表之间的联系，JOIN 在查询时把这些联系翻译成读者看得懂的结果。下一讲我们会把六讲知识组合起来，设计一个小小的课程报名系统。重点不在写出复杂代码，而在学会从需求反推表和操作。"
+        }
+      ]
+    }
+  }
+]

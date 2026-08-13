@@ -1,0 +1,314 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "database-basics-lesson-6",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "database-basics-lesson-6",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "path",
+            "scene",
+            "dialogue",
+            "plan",
+            "tables",
+            "explanation",
+            "concept",
+            "sandbox",
+            "result",
+            "quiz",
+            "summary",
+            "next"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "第 6 讲：完成一个课程报名小项目"
+        },
+        {
+          "id": "path",
+          "component": "LearningPath",
+          "title": "数据库入门 6 讲",
+          "activeStepId": "6",
+          "steps": [
+            {
+              "id": "1",
+              "title": "认识数据库"
+            },
+            {
+              "id": "2",
+              "title": "向数据库提问"
+            },
+            {
+              "id": "3",
+              "title": "修改数据"
+            },
+            {
+              "id": "4",
+              "title": "设计表"
+            },
+            {
+              "id": "5",
+              "title": "连接多张表"
+            },
+            {
+              "id": "6",
+              "title": "完成小项目"
+            }
+          ]
+        },
+        {
+          "id": "scene",
+          "component": "AnalogyCard",
+          "title": "今天要解决的真实需求",
+          "analogy": "一个小型学习平台需要保存学生和课程。学生可以报名课程，老师想知道‘谁报名了数据库入门’，学生也想查看‘我报名了哪些课程’。我们不做登录页面，也不做复杂权限，只完成最核心的资料管理：保存 students、保存 courses、保存 enrollments，并能够添加、修改、查询和删除测试记录。小项目的目标不是堆功能，而是练习怎样把现实需求拆成清楚的数据结构。"
+        },
+        {
+          "id": "dialogue",
+          "component": "ScenarioDialogue",
+          "topic": "💬 开始项目：先写需求还是先写 SQL？",
+          "characters": {
+            "builder": {
+              "name": "小陈",
+              "avatar": "🧑‍💻",
+              "alignment": "left"
+            },
+            "mentor": {
+              "name": "导师",
+              "avatar": "🧑‍🏫",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "builder",
+              "content": "我先把 SQL 写出来，遇到问题再想表结构，可以吗？"
+            },
+            {
+              "characterId": "mentor",
+              "content": "先把需求中的名词和动作列出来会更稳：有哪些东西要保存？每种东西一行代表什么？用户要执行查看、添加、修改还是删除？"
+            },
+            {
+              "characterId": "builder",
+              "content": "名词是学生、课程、报名；动作是添加学生、添加课程、报名和查询报名结果。"
+            },
+            {
+              "characterId": "mentor",
+              "content": "很好。名词帮助我们设计表，动作帮助我们设计 SQL。先画结构，再写操作，最后用小数据验证结果。"
+            }
+          ]
+        },
+        {
+          "id": "plan",
+          "component": "ConceptCard",
+          "title": "项目拆解清单",
+          "tags": [
+            "需求",
+            "表结构",
+            "操作流程"
+          ],
+          "definition": "这个项目需要三张表：students、courses、enrollments。students 和 courses 保存对象，enrollments 保存对象之间的报名关系。",
+          "example": "1. 创建 students 表，加入小雨、小林。\n2. 创建 courses 表，加入数据库入门、JavaScript。\n3. 新增一条报名关系。\n4. 用 JOIN 查询学生和课程名称。\n5. 修改或删除一条测试报名。\n\n每一步都能对应到前五讲学过的一个概念。",
+          "relatedConcepts": [
+            "增删改查",
+            "主键",
+            "JOIN"
+          ]
+        },
+        {
+          "id": "tables",
+          "component": "DataTable",
+          "title": "三张表的职责",
+          "caption": "每张表只负责一种主要对象或一种关系。",
+          "columns": [
+            {
+              "key": "table",
+              "label": "表名"
+            },
+            {
+              "key": "row",
+              "label": "一行代表"
+            },
+            {
+              "key": "columns",
+              "label": "主要列"
+            },
+            {
+              "key": "question",
+              "label": "能回答什么"
+            }
+          ],
+          "rows": [
+            {
+              "id": "1",
+              "cells": {
+                "table": "students",
+                "row": "一位学生",
+                "columns": "id, name",
+                "question": "学生是谁？"
+              }
+            },
+            {
+              "id": "2",
+              "cells": {
+                "table": "courses",
+                "row": "一门课程",
+                "columns": "id, title",
+                "question": "课程是什么？"
+              }
+            },
+            {
+              "id": "3",
+              "cells": {
+                "table": "enrollments",
+                "row": "一次报名",
+                "columns": "student_id, course_id, status",
+                "question": "谁报名了什么？"
+              }
+            }
+          ]
+        },
+        {
+          "id": "explanation",
+          "component": "DetailedExplanation",
+          "title": "从需求到表结构的思考顺序",
+          "icon": "🧭",
+          "estimatedReadTime": "8 分钟",
+          "content": "第一步，圈出需求中的名词：学生、课程、报名。这些名词暗示了需要保存的对象。第二步，问每个对象的边界：一行 students 是一位学生，一行 courses 是一门课程，一行 enrollments 是一次报名。第三步，为每类对象安排主键。第四步，找出关系需要哪些编号：报名既要知道学生，也要知道课程，因此保存 student_id 和 course_id。<br><br>这样设计后，学生姓名不会在每条报名记录中重复，课程标题也不会到处复制。数据职责清楚，查询时再用 JOIN 组合。<br><br>项目完成后，可以用四个问题检查自己：保存了哪些类型的东西？每张表一行代表什么？怎样准确找到一行？这次操作会影响哪些记录？能按这个顺序拆解问题，就不必一上来背复杂语法。"
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "查询报名结果需要两步",
+          "tags": [
+            "INSERT",
+            "JOIN",
+            "SELECT"
+          ],
+          "definition": "报名时向 enrollments 添加一条关系；展示报名结果时，从 enrollments 出发，通过两个编号找到学生和课程，再选择需要展示的 name 和 title。",
+          "example": "```sql\nINSERT INTO enrollments (student_id, course_id, status)\nVALUES (1, 10, '学习中');\n\nSELECT students.name, courses.title, enrollments.status\nFROM enrollments\nJOIN students ON enrollments.student_id = students.id\nJOIN courses ON enrollments.course_id = courses.id;\n```",
+          "relatedConcepts": [
+            "添加",
+            "查询",
+            "连接"
+          ]
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "动手试试：运行一次完整报名流程",
+          "description": "代码中的每一步都对应项目中的一个真实动作，请特别阅读 JOIN 的两个 find。",
+          "language": "javascript",
+          "code": "const students = [{ id: 1, name: \"小雨\" }, { id: 2, name: \"小林\" }];\nconst courses = [{ id: 10, title: \"数据库入门\" }, { id: 20, title: \"JavaScript\" }];\nconst enrollments = [];\n\n// 1. INSERT：小陈加入 students 表。\nstudents.push({ id: 3, name: \"小陈\" });\n\n// 2. INSERT：小陈报名数据库入门。\n// 报名记录只保存两个编号，不重复保存姓名和课程标题。\nenrollments.push({ studentId: 3, courseId: 10, status: \"刚报名\" });\n\n// 3. JOIN：把编号换回人能读懂的名称。\nconst result = enrollments.map((enrollment) => {\n  const student = students.find((item) => item.id === enrollment.studentId);\n  const course = courses.find((item) => item.id === enrollment.courseId);\n  return { student: student.name, course: course.title, status: enrollment.status };\n});\n\nconsole.log(\"课程报名结果:\", result);",
+          "runLocally": true
+        },
+        {
+          "id": "result",
+          "component": "DataTable",
+          "title": "最终给用户看的结果",
+          "caption": "底层用编号保存，查询结果用名称展示。",
+          "columns": [
+            {
+              "key": "student",
+              "label": "学生"
+            },
+            {
+              "key": "course",
+              "label": "课程"
+            },
+            {
+              "key": "status",
+              "label": "状态"
+            }
+          ],
+          "rows": [
+            {
+              "id": "1",
+              "cells": {
+                "student": "小陈",
+                "course": "数据库入门",
+                "status": "刚报名"
+              }
+            },
+            {
+              "id": "2",
+              "cells": {
+                "student": "小雨",
+                "course": "JavaScript",
+                "status": "学习中"
+              }
+            }
+          ]
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "项目总结检查",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "保存‘谁报名了哪门课’最合适的结构是什么？",
+              "options": [
+                "只建一张长句子表",
+                "students、courses、enrollments 三张职责清楚的表",
+                "只保存课程名称",
+                "把所有数据放在 id 列"
+              ],
+              "correctIndex": 1,
+              "explanation": "学生、课程和报名关系是不同对象，分开保存更清楚。"
+            },
+            {
+              "id": "q2",
+              "question": "报名关系中为什么保存 student_id 和 course_id？",
+              "options": [
+                "为了连接对应的学生和课程",
+                "为了替代姓名展示",
+                "为了让课程自动变难",
+                "为了删除所有记录"
+              ],
+              "correctIndex": 0,
+              "explanation": "两个编号是关系表连接其他表的依据。"
+            },
+            {
+              "id": "q3",
+              "question": "这六讲最重要的学习方法是什么？",
+              "options": [
+                "先背完所有术语",
+                "从真实问题出发，拆出数据、表和操作",
+                "永远只用一张表",
+                "避免运行任何实验"
+              ],
+              "correctIndex": 1,
+              "explanation": "数据库学习的核心是把需求拆成可组织、可查询、可修改的数据。"
+            }
+          ]
+        },
+        {
+          "id": "summary",
+          "component": "AnalogyCard",
+          "title": "六讲总结：从整理资料到设计系统",
+          "analogy": "第一讲，你认识了数据库、表、行和列；第二讲，你学会用 SELECT、WHERE、ORDER BY、LIMIT 提问；第三讲，你学会用 INSERT、UPDATE、DELETE 让数据变化；第四讲，你知道主键和清晰字段为什么重要；第五讲，你学会用编号和 JOIN 连接多张表；第六讲，你把它们组合成了课程报名项目。<br><br>这不是数据库的终点，而是一套可以继续扩展的思考框架：先理解需求，再设计数据，最后选择操作。"
+        },
+        {
+          "id": "next",
+          "component": "DetailedExplanation",
+          "title": "接下来可以学什么？",
+          "icon": "🌱",
+          "estimatedReadTime": "4 分钟",
+          "content": "你可以继续为这个项目增加课程分类、报名时间、学习进度和教师信息。再往后，可以学习索引来加快查询，学习事务来保证多步操作的一致性，学习权限来控制谁能查看和修改数据。<br><br>但无论系统变得多复杂，都可以回到本系列的四个问题：保存什么？一行代表什么？怎样找到一行？这次操作会影响哪些记录？"
+        }
+      ]
+    }
+  }
+]

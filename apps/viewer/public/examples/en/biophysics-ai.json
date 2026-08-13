@@ -17,7 +17,6 @@
           "children": [
             "header",
             "intro-text",
-            "section-nav",
             "learning-path",
             "analogy-card",
             "concept-alphafold2",
@@ -45,52 +44,6 @@
           "id": "intro-text",
           "component": "Text",
           "text": "In 2021, DeepMind's **AlphaFold2** was published in *Nature*, solving the \"protein folding problem\" that had puzzled biologists for 50 years in one stroke. This wasn't just a milestone in AI history — it opened a new era for computational biophysics. Today, AI has deeply penetrated core fields like protein structure prediction, drug design, cryo-EM reconstruction, and molecular dynamics simulation, reshaping the paradigm of modern life-science research."
-        },
-        {
-          "id": "section-nav",
-          "component": "SectionNavigator",
-          "activeSectionId": "alphafold",
-          "onSectionClick": {
-            "name": "navigate_section",
-            "context": {}
-          },
-          "sections": [
-            {
-              "id": "alphafold",
-              "title": "AlphaFold & Structure Prediction",
-              "description": "From AlphaFold2 to AlphaFold3: the end of the protein-folding problem",
-              "icon": "🔵",
-              "status": "current"
-            },
-            {
-              "id": "plm",
-              "title": "Protein Language Models",
-              "description": "ESMFold, OmegaFold, and the new single-sequence prediction paradigm",
-              "icon": "🟣",
-              "status": "available"
-            },
-            {
-              "id": "drug",
-              "title": "AI Drug Discovery",
-              "description": "Molecule generation, virtual screening, and target identification",
-              "icon": "🟢",
-              "status": "available"
-            },
-            {
-              "id": "cryoem-ai",
-              "title": "Cryo-EM + AI",
-              "description": "DeepEMhancer and ModelAngelo accelerating structure resolution",
-              "icon": "🟡",
-              "status": "available"
-            },
-            {
-              "id": "md-ai",
-              "title": "AI Molecular Dynamics",
-              "description": "Neural-network potentials and new enhanced-sampling methods",
-              "icon": "🔴",
-              "status": "locked"
-            }
-          ]
         },
         {
           "id": "learning-path",

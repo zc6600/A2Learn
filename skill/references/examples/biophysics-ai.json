@@ -17,7 +17,6 @@
           "children": [
             "header",
             "intro-text",
-            "section-nav",
             "learning-path",
             "analogy-card",
             "concept-alphafold2",
@@ -45,56 +44,6 @@
           "id": "intro-text",
           "component": "Text",
           "text": "2021 年，DeepMind 的 **AlphaFold2** 在 *Nature* 发表，一举解决了困扰生物学界 50 年的「蛋白质折叠问题」。这不仅是 AI 史上的里程碑，更开启了计算生物物理学的新纪元。如今，AI 已深度渗透蛋白质结构预测、药物设计、冷冻电镜解析和分子动力学模拟等核心领域，正在重塑现代生命科学研究范式。"
-        },
-        {
-          "id": "section-nav",
-          "component": "SectionNavigator",
-          "activeSectionId": "alphafold",
-          "onSectionClick": {
-            "name": "navigate_section",
-            "context": {}
-          },
-          "sections": [
-            {
-              "id": "alphafold",
-              "title": "AlphaFold 与结构预测",
-              "description": "从 AlphaFold2 到 AlphaFold3：蛋白质折叠问题的终结",
-              "icon": "🔵",
-              "status": "current",
-              "targetComponentId": "concept-alphafold2"
-            },
-            {
-              "id": "plm",
-              "title": "蛋白质语言模型",
-              "description": "ESMFold、OmegaFold 等单序列预测新范式",
-              "icon": "🟣",
-              "status": "available",
-              "targetComponentId": "concept-plm"
-            },
-            {
-              "id": "drug",
-              "title": "AI 药物发现",
-              "description": "分子生成、虚拟筛选与靶点识别",
-              "icon": "🟢",
-              "status": "available",
-              "targetComponentId": "deep-dive"
-            },
-            {
-              "id": "cryoem-ai",
-              "title": "冷冻电镜 + AI",
-              "description": "DeepEMhancer、ModelAngelo 加速结构解析",
-              "icon": "🟡",
-              "status": "available",
-              "targetComponentId": "detailed-explanation-alphafold3"
-            },
-            {
-              "id": "md-ai",
-              "title": "AI 分子动力学",
-              "description": "神经网络势函数与增强采样新方法",
-              "icon": "🔴",
-              "status": "locked"
-            }
-          ]
         },
         {
           "id": "learning-path",

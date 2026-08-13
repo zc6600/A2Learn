@@ -211,6 +211,7 @@ def generate_a2ui_messages(
     example_ids: tuple[str, ...] | None = None,
     visual_intent: str = "",
     image_generation_limit: int = 2,
+    reference_pack_ids: tuple[str, ...] = (),
 ) -> list[dict[str, Any]]:
     system_prompt = a2ui_system_prompt(
         target_language,
@@ -221,6 +222,7 @@ def generate_a2ui_messages(
         example_ids,
         visual_intent,
         image_generation_limit,
+        reference_pack_ids,
     )
     user_prompt = (
         "Based on the following teaching resource, directly generate the A2UI message array (component tree).\n\n"
@@ -246,11 +248,12 @@ def generate_a2ui_messages_per_surface(
     example_ids: tuple[str, ...] | None = None,
     visual_intent: str = "",
     image_generation_limit: int = 2,
+    reference_pack_ids: tuple[str, ...] = (),
 ) -> list[dict[str, Any]]:
     surfaces = site_plan.get("surfaces") if isinstance(site_plan, dict) else None
     if not surfaces:
         return generate_a2ui_messages(
-            llm, resource_text, target_language, enabled_components, example_ids, visual_intent, image_generation_limit
+            llm, resource_text, target_language, enabled_components, example_ids, visual_intent, image_generation_limit, reference_pack_ids
         )
 
     site_overview = json.dumps(
@@ -273,6 +276,7 @@ def generate_a2ui_messages_per_surface(
             example_ids,
             visual_intent,
             image_generation_limit,
+            reference_pack_ids,
         )
         user_prompt = (
             "Generate A2UI messages (createSurface + updateComponents) only for the specified surface, "

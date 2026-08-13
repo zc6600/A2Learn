@@ -1,0 +1,261 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "database-basics-lesson-2",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "database-basics-lesson-2",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "path",
+            "scene",
+            "dialogue",
+            "concept",
+            "table",
+            "explanation",
+            "sandbox",
+            "sorting",
+            "quiz",
+            "summary"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "第 2 讲：怎样向数据库提问？"
+        },
+        {
+          "id": "path",
+          "component": "LearningPath",
+          "title": "数据库入门 6 讲",
+          "activeStepId": "2",
+          "steps": [
+            {
+              "id": "1",
+              "title": "认识数据库"
+            },
+            {
+              "id": "2",
+              "title": "向数据库提问"
+            },
+            {
+              "id": "3",
+              "title": "修改数据"
+            },
+            {
+              "id": "4",
+              "title": "设计表"
+            },
+            {
+              "id": "5",
+              "title": "连接多张表"
+            },
+            {
+              "id": "6",
+              "title": "完成小项目"
+            }
+          ]
+        },
+        {
+          "id": "scene",
+          "component": "AnalogyCard",
+          "title": "数据库不会读心，需要明确的问题",
+          "analogy": "图书管理员可以听懂‘帮我找一些适合初学者的书’，但数据库更像一台严格的检索机器：你必须告诉它看哪张表、返回哪几列、筛选什么条件。如果只说‘给我北京的学生’，数据库还需要知道你想看姓名、年龄，还是所有资料。SQL 的作用，就是把人的问题翻译成数据库可以执行的明确步骤。"
+        },
+        {
+          "id": "dialogue",
+          "component": "ScenarioDialogue",
+          "topic": "💬 小组讨论：‘北京学生’到底要查什么？",
+          "characters": {
+            "learner": {
+              "name": "小周",
+              "avatar": "🧑‍💻",
+              "alignment": "left"
+            },
+            "mentor": {
+              "name": "助教",
+              "avatar": "🧑‍🏫",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "learner",
+              "content": "我想查北京的学生，SQL 应该怎么写？"
+            },
+            {
+              "characterId": "mentor",
+              "content": "先问自己两个问题：你要从哪张表查？结果需要哪些列？如果答案是 students 表里的 name 和 age，就已经把问题说清楚了一半。"
+            },
+            {
+              "characterId": "learner",
+              "content": "然后再加上 city 等于北京的条件？"
+            },
+            {
+              "characterId": "mentor",
+              "content": "对。SELECT 负责‘拿哪些列’，WHERE 负责‘留下哪些行’。把职责分开，SQL 就不容易写乱。"
+            }
+          ]
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "查询的五个小积木",
+          "tags": [
+            "SELECT",
+            "FROM",
+            "WHERE",
+            "ORDER BY",
+            "LIMIT"
+          ],
+          "definition": "SELECT 选择要返回的列；FROM 指定数据来自哪张表；WHERE 筛选符合条件的行；ORDER BY 决定排列顺序；LIMIT 限制最多返回多少行。它们不是五个孤立的单词，而是一条查询从‘数据在哪里’到‘结果怎样展示’的完整过程。",
+          "example": "```sql\nSELECT name, age\nFROM students\nWHERE city = '北京'\nORDER BY age\nLIMIT 3;\n```\n\n读法是：从 students 表中选出 name 和 age，只留下北京学生，按年龄排序，最多显示三条。",
+          "relatedConcepts": [
+            "筛选",
+            "字段",
+            "结果顺序"
+          ]
+        },
+        {
+          "id": "table",
+          "component": "DataTable",
+          "title": "查询前的 students 表",
+          "caption": "WHERE 决定留下哪些行，SELECT 决定结果展示哪些列。",
+          "columns": [
+            {
+              "key": "name",
+              "label": "姓名"
+            },
+            {
+              "key": "city",
+              "label": "城市"
+            },
+            {
+              "key": "age",
+              "label": "年龄",
+              "align": "right"
+            }
+          ],
+          "rows": [
+            {
+              "id": "1",
+              "cells": {
+                "name": "小雨",
+                "city": "上海",
+                "age": "18"
+              }
+            },
+            {
+              "id": "2",
+              "cells": {
+                "name": "小林",
+                "city": "北京",
+                "age": "19"
+              }
+            },
+            {
+              "id": "3",
+              "cells": {
+                "name": "小周",
+                "city": "北京",
+                "age": "18"
+              }
+            },
+            {
+              "id": "4",
+              "cells": {
+                "name": "小陈",
+                "city": "深圳",
+                "age": "20"
+              }
+            }
+          ]
+        },
+        {
+          "id": "explanation",
+          "component": "DetailedExplanation",
+          "title": "把 SQL 当成一段可读的句子",
+          "icon": "🧩",
+          "estimatedReadTime": "7 分钟",
+          "content": "```sql\nSELECT name, age FROM students WHERE city = '北京';\n```\n\n先看 SELECT：结果只展示 name 和 age，不展示 city。再看 FROM：数据来自 students 表。最后看 WHERE：只有 city 等于北京的行可以留下。因此结果会有小林和小周，但每行只显示姓名和年龄。<br><br>初学时不要把整条 SQL 当成一串需要死记的符号。可以从左到右翻译：<b>选什么 → 从哪里选 → 哪些记录符合条件</b>。如果想临时查看所有列，可以写 `SELECT *`，但在真实项目中明确写出列名通常更容易理解。<br><br>ORDER BY 解决‘结果怎样排列’，LIMIT 解决‘结果太多时看多少条’。不写 ORDER BY 时，返回顺序不应该被当成固定承诺；如果业务要求最新的在前面，就明确写出排序条件。"
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "动手试试：模拟 SELECT 和 WHERE",
+          "description": "代码把 SQL 的两个职责拆成了两个步骤，请对照注释观察‘选列’和‘筛行’的区别。",
+          "language": "javascript",
+          "code": "const students = [\n  { name: \"小雨\", city: \"上海\", age: 18 },\n  { name: \"小林\", city: \"北京\", age: 19 },\n  { name: \"小周\", city: \"北京\", age: 18 },\n  { name: \"小陈\", city: \"深圳\", age: 20 }\n];\n\n// WHERE：先筛出 city 是北京的行。\nconst filteredRows = students.filter((student) => student.city === \"北京\");\n\n// SELECT：再从留下的行中取出 name 和 age 两列。\nconst selectedColumns = filteredRows.map((student) => ({ name: student.name, age: student.age }));\n\nconsole.log(\"查询结果:\", selectedColumns);",
+          "runLocally": true
+        },
+        {
+          "id": "sorting",
+          "component": "DetailedExplanation",
+          "title": "筛选、排序、限制可以组合",
+          "icon": "🔎",
+          "estimatedReadTime": "4 分钟",
+          "content": "```sql\nSELECT name, age\nFROM students\nWHERE city = '北京'\nORDER BY age ASC\nLIMIT 2;\n```\n\n这条语句先筛北京学生，再按年龄从小到大排序，最后取前两条。记住：LIMIT 不是‘随机拿两条’，它拿的是排序之后的前两条。遇到查询问题时，可以先单独验证 WHERE，再加 ORDER BY，最后加 LIMIT，这样出错时更容易定位。"
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "查询检查",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "SELECT 主要决定什么？",
+              "options": [
+                "选择要返回的列",
+                "删除表",
+                "给每行编号",
+                "启动服务器"
+              ],
+              "correctIndex": 0,
+              "explanation": "SELECT 后面通常写需要查看的列。"
+            },
+            {
+              "id": "q2",
+              "question": "WHERE 主要决定什么？",
+              "options": [
+                "表的颜色",
+                "哪些行符合筛选条件",
+                "数据库的名字",
+                "代码是否有注释"
+              ],
+              "correctIndex": 1,
+              "explanation": "WHERE 用来筛选记录。"
+            },
+            {
+              "id": "q3",
+              "question": "想让年龄从小到大排列，应该使用什么？",
+              "options": [
+                "ORDER BY age",
+                "DELETE age",
+                "INSERT age",
+                "DROP age"
+              ],
+              "correctIndex": 0,
+              "explanation": "ORDER BY 用来指定结果的排列顺序。"
+            }
+          ]
+        },
+        {
+          "id": "summary",
+          "component": "AnalogyCard",
+          "title": "本讲总结：把问题翻译成几个明确动作",
+          "analogy": "数据库提问不是猜谜，而是把问题拆成动作：从哪张表取（FROM），要哪些列（SELECT），哪些记录留下（WHERE），结果怎样排列或限制数量（ORDER BY、LIMIT）。下一讲我们会学习数据不是只读的：新同学要报名时，需要 INSERT；信息写错时，需要 UPDATE；测试记录不要了时，需要 DELETE。"
+        }
+      ]
+    }
+  }
+]

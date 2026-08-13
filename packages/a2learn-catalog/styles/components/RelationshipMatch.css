@@ -8,26 +8,26 @@
     .board {
       position: relative;
       overflow: hidden;
-      border: 1px solid var(--a2ui-color-border, #d9dde5);
+      border: 1px solid var(--a2ui-color-border);
       border-radius: var(--a2ui-card-border-radius, 16px);
-      background: var(--a2ui-color-surface, #fff);
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+      background: var(--a2ui-color-surface);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
     }
     header {
       padding: 20px 22px 16px;
-      border-bottom: 1px solid color-mix(in srgb, var(--a2ui-color-border, #d9dde5) 72%, transparent);
-      background: color-mix(in srgb, var(--a2ui-color-surface, #fff) 94%, var(--a2ui-color-primary, #2563eb));
+      border-bottom: 1px solid color-mix(in srgb, var(--a2ui-color-border) 72%, transparent);
+      background: color-mix(in srgb, var(--a2ui-color-surface) 94%, var(--a2ui-color-primary));
     }
     h3 {
       margin: 0;
-      color: var(--a2ui-color-on-surface, #1e293b);
+      color: var(--a2ui-color-on-surface);
       font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));
       font-size: 18px;
       line-height: 1.35;
     }
     .instruction {
       margin: 7px 0 0;
-      color: var(--app-muted, #64748b);
+      color: var(--app-muted);
       font-size: 14px;
       line-height: 1.55;
     }
@@ -36,8 +36,8 @@
       margin-top: 12px;
       padding: 4px 10px;
       border-radius: 999px;
-      background: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 12%, transparent);
-      color: var(--a2ui-color-primary, #2563eb);
+      background: color-mix(in srgb, var(--a2ui-color-primary) 12%, transparent);
+      color: var(--a2ui-color-primary);
       font-size: 12px;
       font-weight: 700;
     }
@@ -54,19 +54,19 @@
       flex-direction: column;
       gap: 14px;
       padding: 20px;
-      border: 1px solid var(--a2ui-color-border, #d9dde5);
+      border: 1px solid var(--a2ui-color-border);
       border-radius: 14px;
-      background: var(--a2ui-color-surface, #fff);
+      background: var(--a2ui-color-surface);
       transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     }
     .target-card.correct-card {
-      border-color: var(--a2ui-color-success, #16a34a);
-      background: color-mix(in srgb, var(--a2ui-color-success, #16a34a) 4%, var(--a2ui-color-surface, #fff));
+      border-color: var(--a2ui-color-success);
+      background: color-mix(in srgb, var(--a2ui-color-success) 4%, var(--a2ui-color-surface));
     }
     .target-card.incorrect-card {
-      border-color: var(--a2ui-color-error, #dc2626);
-      background: color-mix(in srgb, var(--a2ui-color-error, #dc2626) 4%, var(--a2ui-color-surface, #fff));
+      border-color: var(--a2ui-color-error);
+      background: color-mix(in srgb, var(--a2ui-color-error) 4%, var(--a2ui-color-surface));
     }
 
     .target-header {
@@ -76,7 +76,7 @@
       gap: 12px;
     }
     .target-content {
-      color: var(--a2ui-color-on-surface, #1e293b);
+      color: var(--a2ui-color-on-surface);
       font-size: 16px;
       font-weight: 700;
       line-height: 1.5;
@@ -88,16 +88,16 @@
       border-radius: 999px;
     }
     .card-badge.correct {
-      background: color-mix(in srgb, var(--a2ui-color-success, #16a34a) 12%, transparent);
-      color: var(--a2ui-color-success, #16a34a);
+      background: color-mix(in srgb, var(--a2ui-color-success) 12%, transparent);
+      color: var(--a2ui-color-success);
     }
     .card-badge.incorrect {
-      background: color-mix(in srgb, var(--a2ui-color-error, #dc2626) 12%, transparent);
-      color: var(--a2ui-color-error, #dc2626);
+      background: color-mix(in srgb, var(--a2ui-color-error) 12%, transparent);
+      color: var(--a2ui-color-error);
     }
 
     .options-label {
-      color: var(--app-muted, #64748b);
+      color: var(--app-muted);
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.05em;
@@ -117,10 +117,10 @@
       align-items: center;
       gap: 8px;
       padding: 9px 15px;
-      border: 1px solid var(--a2ui-color-border, #d9dde5);
+      border: 1px solid var(--a2ui-color-border);
       border-radius: 10px;
-      background: var(--a2ui-color-surface, #fff);
-      color: var(--a2ui-color-on-surface, #1e293b);
+      background: var(--a2ui-color-surface);
+      color: var(--a2ui-color-on-surface);
       cursor: pointer;
       font: inherit;
       font-size: 13.5px;
@@ -128,30 +128,30 @@
       line-height: 1.4;
       text-align: left;
       transition: all 0.18s ease;
-      box-shadow: 0 1.5px 4px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.03);
     }
     .option-chip:hover:not(:disabled) {
-      border-color: var(--a2ui-color-primary, #2563eb);
-      background: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 6%, var(--a2ui-color-surface, #fff));
+      border-color: var(--a2ui-color-primary);
+      background: color-mix(in srgb, var(--a2ui-color-primary) 6%, var(--a2ui-color-surface));
       transform: translateY(-1px);
     }
     .option-chip.selected {
-      border-color: var(--a2ui-color-primary, #2563eb);
-      background: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 12%, var(--a2ui-color-surface, #fff));
-      color: var(--a2ui-color-primary, #2563eb);
+      border-color: var(--a2ui-color-primary);
+      background: color-mix(in srgb, var(--a2ui-color-primary) 12%, var(--a2ui-color-surface));
+      color: var(--a2ui-color-primary);
       font-weight: 700;
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 20%, transparent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--a2ui-color-primary) 20%, transparent);
     }
     .option-chip.selected-correct {
-      border-color: var(--a2ui-color-success, #16a34a);
-      background: color-mix(in srgb, var(--a2ui-color-success, #16a34a) 12%, var(--a2ui-color-surface, #fff));
-      color: var(--a2ui-color-success, #16a34a);
+      border-color: var(--a2ui-color-success);
+      background: color-mix(in srgb, var(--a2ui-color-success) 12%, var(--a2ui-color-surface));
+      color: var(--a2ui-color-success);
       font-weight: 700;
     }
     .option-chip.selected-incorrect {
-      border-color: var(--a2ui-color-error, #dc2626);
-      background: color-mix(in srgb, var(--a2ui-color-error, #dc2626) 12%, var(--a2ui-color-surface, #fff));
-      color: var(--a2ui-color-error, #dc2626);
+      border-color: var(--a2ui-color-error);
+      background: color-mix(in srgb, var(--a2ui-color-error) 12%, var(--a2ui-color-surface));
+      color: var(--a2ui-color-error);
       font-weight: 700;
     }
     .option-chip:disabled {
@@ -162,20 +162,20 @@
     .feedback {
       margin: 0 22px 18px;
       padding: 14px 16px;
-      border-left: 4px solid var(--a2ui-color-primary, #2563eb);
-      background: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 6%, transparent);
-      color: var(--a2ui-color-on-surface, #1e293b);
+      border-left: 4px solid var(--a2ui-color-primary);
+      background: color-mix(in srgb, var(--a2ui-color-primary) 6%, transparent);
+      color: var(--a2ui-color-on-surface);
       font-size: 14px;
       line-height: 1.6;
       border-radius: 0 8px 8px 0;
     }
     .feedback.correct {
-      border-left-color: var(--a2ui-color-success, #16a34a);
-      background: color-mix(in srgb, var(--a2ui-color-success, #16a34a) 7%, transparent);
+      border-left-color: var(--a2ui-color-success);
+      background: color-mix(in srgb, var(--a2ui-color-success) 7%, transparent);
     }
     .feedback.incorrect {
-      border-left-color: var(--a2ui-color-error, #dc2626);
-      background: color-mix(in srgb, var(--a2ui-color-error, #dc2626) 7%, transparent);
+      border-left-color: var(--a2ui-color-error);
+      background: color-mix(in srgb, var(--a2ui-color-error) 7%, transparent);
     }
     .feedback strong { display: block; margin-bottom: 3px; }
     .feedback ul { margin: 9px 0 0; padding-left: 18px; }
@@ -186,31 +186,31 @@
       justify-content: flex-end;
       gap: 10px;
       padding: 18px 22px 22px;
-      border-top: 1px solid color-mix(in srgb, var(--a2ui-color-border, #d9dde5) 50%, transparent);
+      border-top: 1px solid color-mix(in srgb, var(--a2ui-color-border) 50%, transparent);
     }
     .btn {
       min-height: 38px;
       padding: 8px 16px;
-      border: 1px solid var(--a2ui-color-border, #d9dde5);
+      border: 1px solid var(--a2ui-color-border);
       border-radius: var(--a2learn-control-radius, 8px);
       background: transparent;
-      color: var(--a2ui-color-on-surface, #1e293b);
+      color: var(--a2ui-color-on-surface);
       cursor: pointer;
       font: inherit;
       font-size: 14px;
       font-weight: 650;
     }
     .btn:hover:not(:disabled) {
-      background: color-mix(in srgb, var(--a2ui-color-primary, #2563eb) 7%, var(--a2ui-color-surface, #fff));
+      background: color-mix(in srgb, var(--a2ui-color-primary) 7%, var(--a2ui-color-surface));
     }
     .submit {
-      border-color: var(--a2ui-color-primary, #2563eb);
-      background: var(--a2ui-color-primary, #2563eb);
-      color: var(--a2ui-color-on-primary, #fff);
+      border-color: var(--a2ui-color-primary);
+      background: var(--a2ui-color-primary);
+      color: var(--a2ui-color-on-primary, #ffffff);
     }
     .submit:hover:not(:disabled) {
       filter: brightness(1.06);
-      background: var(--a2ui-color-primary, #2563eb);
+      background: var(--a2ui-color-primary);
     }
     .btn:disabled { cursor: not-allowed; opacity: 0.48; }
 

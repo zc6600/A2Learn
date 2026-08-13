@@ -1,0 +1,121 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "RelationshipMatch-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "RelationshipMatch-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "RelationshipMatch",
+          "title": {
+            "literalString": "HTTP 状态码与语义关系匹配"
+          },
+          "instruction": {
+            "literalString": "请为左侧各个核心 HTTP 状态码点击选择最准确的语义与场景。"
+          },
+          "leftLabel": {
+            "literalString": "HTTP 状态码"
+          },
+          "rightLabel": {
+            "literalString": "语义与典型场景"
+          },
+          "leftItems": [
+            {
+              "id": "code-200",
+              "content": {
+                "literalString": "200 OK"
+              }
+            },
+            {
+              "id": "code-301",
+              "content": {
+                "literalString": "301 Moved Permanently"
+              }
+            },
+            {
+              "id": "code-401",
+              "content": {
+                "literalString": "401 Unauthorized"
+              }
+            },
+            {
+              "id": "code-403",
+              "content": {
+                "literalString": "403 Forbidden"
+              }
+            },
+            {
+              "id": "code-502",
+              "content": {
+                "literalString": "502 Bad Gateway"
+              }
+            }
+          ],
+          "rightItems": [
+            {
+              "id": "desc-401",
+              "content": {
+                "literalString": "客户端未认证，需要提供有效凭据（如 Token）"
+              }
+            },
+            {
+              "id": "desc-200",
+              "content": {
+                "literalString": "请求成功，服务器已正常返回所请求的数据"
+              }
+            },
+            {
+              "id": "desc-502",
+              "content": {
+                "literalString": "反向代理或网关从上游后端服务收到了无效响应"
+              }
+            },
+            {
+              "id": "desc-301",
+              "content": {
+                "literalString": "请求资源已被永久移动至新 URI，爬虫将转移权重"
+              }
+            },
+            {
+              "id": "desc-403",
+              "content": {
+                "literalString": "服务器理解请求但拒绝执行，用户无对应操作权限"
+              }
+            }
+          ],
+          "correctMatches": {
+            "code-200": "desc-200",
+            "code-301": "desc-301",
+            "code-401": "desc-401",
+            "code-403": "desc-403",
+            "code-502": "desc-502"
+          },
+          "matchExplanations": {
+            "code-200": {
+              "literalString": "标准成功响应，GET/POST 请求最常见的正常返回状态。"
+            },
+            "code-301": {
+              "literalString": "永久重定向，搜索引擎会自动将旧 URL 的索引权重转移到新地址。"
+            },
+            "code-401": {
+              "literalString": "身份鉴权缺失或无效，应引导用户重新登录或刷新 Token。"
+            },
+            "code-403": {
+              "literalString": "即使用户已经完成登录，但由于角色（如非管理员）没有权限操作该资源。"
+            },
+            "code-502": {
+              "literalString": "通常是 Nginx / 网关代理与后端 Node.js / Go 应用进程通信断开或崩溃导致。"
+            }
+          }
+        }
+      ]
+    }
+  }
+]

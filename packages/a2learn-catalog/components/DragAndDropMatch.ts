@@ -17,9 +17,10 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
   @state() private selectedLeftId: string | null = null;
   @state() private matches: Record<string, string> = {};
   @state() private status: "idle" | "correct" | "incorrect" = "idle";
+  @state() private dragOverRightId: string | null = null;
 
   protected createController() {
-    return new A2uiController(this, DragAndDropMatchApi);
+    return new A2uiController(this, DragAndDropMatchApi as any);
   }
 
   private text(value: unknown): string {
@@ -33,7 +34,14 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
 
   private handleLeftClick(id: string) {
     if (this.status !== "idle") return;
+
     if (this.selectedLeftId === id) {
+      // Toggle unpair if already paired and clicked again
+      if (this.matches[id]) {
+        const next = { ...this.matches };
+        delete next[id];
+        this.matches = next;
+      }
       this.selectedLeftId = null;
     } else {
       this.selectedLeftId = id;
@@ -74,7 +82,7 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
 
   private reset() {
     this.selectedLeftId = null;
-
+    this.dragOverRightId = null;
     this.matches = {};
     this.status = "idle";
     this.requestUpdate();
@@ -85,9 +93,9 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
     const isCorrect = Object.entries(correct).every(([left, right]) => this.matches[left] === right);
     this.status = isCorrect ? "correct" : "incorrect";
     this.requestUpdate();
-    const props = (this as any).controller?.props;
+    const props = this.controller?.props;
     if (props?.onMatchComplete) {
-      (this as any).context.dispatchAction({
+      this.context.dispatchAction({
         ...(props.onMatchComplete as Record<string, unknown>),
         context: { isCorrect, userMatches: this.matches },
       });
@@ -102,12 +110,24 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
     this.requestUpdate();
   }
 
-  private handleDragOver(e: DragEvent) {
+  private handleDragOver(e: DragEvent, rightId: string) {
     e.preventDefault();
+    if (this.dragOverRightId !== rightId) {
+      this.dragOverRightId = rightId;
+      this.requestUpdate();
+    }
+  }
+
+  private handleDragLeave(e: DragEvent, rightId: string) {
+    if (this.dragOverRightId === rightId) {
+      this.dragOverRightId = null;
+      this.requestUpdate();
+    }
   }
 
   private handleDrop(e: DragEvent, rightId: string) {
     e.preventDefault();
+    this.dragOverRightId = null;
     const leftId = e.dataTransfer?.getData("text/plain") || this.selectedLeftId;
     if (leftId) {
       this.selectedLeftId = leftId;
@@ -116,12 +136,12 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
   }
 
   render() {
-    const props = (this as any).controller?.props;
+    const props = this.controller?.props;
     if (!props) return nothing;
 
-    const leftItems = props.leftItems || [];
-    const rightItems = props.rightItems || [];
-    const correct = props.correctMatches || {};
+    const leftItems = (props.leftItems as Array<Record<string, unknown>>) || [];
+    const rightItems = (props.rightItems as Array<Record<string, unknown>>) || [];
+    const correct = (props.correctMatches as Record<string, string>) || {};
     const answered = this.status !== "idle";
     const complete = leftItems.length > 0 && Object.keys(this.matches).length === leftItems.length;
 
@@ -141,12 +161,19 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
     const explanations =
       props.matchExplanations && answered
         ? leftItems
-            .map((item: any) => ({ label: this.text(item.content), content: this.text(props.matchExplanations[item.id]) }))
-            .filter((item: { content: string }) => item.content)
+            .map((item) => {
+              const itemId = this.text(item.id);
+              const explanationMap = props.matchExplanations as Record<string, unknown>;
+              return {
+                label: this.text(item.content),
+                content: this.text(explanationMap[itemId]),
+              };
+            })
+            .filter((item) => item.content)
         : [];
 
     // Helper map to assign index numbers (1, 2, 3...) to pairings
-    const leftIdsOrder = leftItems.map((i: any) => i.id);
+    const leftIdsOrder = leftItems.map((i) => this.text(i.id));
     const getPairNumber = (leftId: string): number => leftIdsOrder.indexOf(leftId) + 1;
 
     return html`
@@ -162,31 +189,32 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
           <div class="column-box">
             <div class="column-title">${leftLabel}</div>
             <div class="items-stack">
-              ${leftItems.map((item: any) => {
-                const isSelected = this.selectedLeftId === item.id;
-                const pairedRightId = this.matches[item.id];
+              ${leftItems.map((item) => {
+                const itemId = this.text(item.id);
+                const isSelected = this.selectedLeftId === itemId;
+                const pairedRightId = this.matches[itemId];
                 const isPaired = Boolean(pairedRightId);
-                const pairNum = getPairNumber(item.id);
+                const pairNum = getPairNumber(itemId);
 
                 let statusClass = isSelected ? "active-selected" : isPaired ? "paired" : "";
                 if (answered && isPaired) {
-                  statusClass = correct[item.id] === pairedRightId ? "correct" : "incorrect";
+                  statusClass = correct[itemId] === pairedRightId ? "correct" : "incorrect";
                 }
 
                 return html`
                   <div
                     class="match-card ${statusClass}"
                     draggable=${!answered ? "true" : "false"}
-                    @dragstart=${(e: DragEvent) => this.handleDragStart(e, item.id)}
-                    @click=${() => this.handleLeftClick(item.id)}
+                    @dragstart=${(e: DragEvent) => this.handleDragStart(e, itemId)}
+                    @click=${() => this.handleLeftClick(itemId)}
                   >
-                    <span>${this.text(item.content)}</span>
+                    <span class="card-text">${this.text(item.content)}</span>
                     ${isPaired
-                      ? html`<span class="pair-badge ${answered ? (correct[item.id] === pairedRightId ? "correct" : "incorrect") : ""}">
+                      ? html`<span class="pair-badge ${answered ? (correct[itemId] === pairedRightId ? "correct" : "incorrect") : ""}">
                           #${pairNum}
                         </span>`
                       : isSelected
-                      ? html`<span class="pair-badge">点击选择右侧 →</span>`
+                      ? html`<span class="pair-indicator active">→</span>`
                       : nothing}
                   </div>
                 `;
@@ -198,30 +226,36 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
           <div class="column-box">
             <div class="column-title">${rightLabel}</div>
             <div class="items-stack">
-              ${rightItems.map((rItem: any) => {
-                // Find which left item is paired with this rItem.id
-                const pairedLeftEntry = Object.entries(this.matches).find(([_, val]) => val === rItem.id);
+              ${rightItems.map((rItem) => {
+                const rItemId = this.text(rItem.id);
+                // Find which left item is paired with this rItemId
+                const pairedLeftEntry = Object.entries(this.matches).find(([_, val]) => val === rItemId);
                 const pairedLeftId = pairedLeftEntry ? pairedLeftEntry[0] : null;
                 const isPaired = Boolean(pairedLeftId);
                 const pairNum = pairedLeftId ? getPairNumber(pairedLeftId) : null;
+                const isDragOver = this.dragOverRightId === rItemId;
 
                 let statusClass = isPaired ? "paired" : "";
+                if (isDragOver) statusClass += " drag-over";
                 if (answered && pairedLeftId) {
-                  statusClass = correct[pairedLeftId] === rItem.id ? "correct" : "incorrect";
+                  statusClass = correct[pairedLeftId] === rItemId ? "correct" : "incorrect";
                 }
 
                 return html`
                   <div
                     class="match-card ${statusClass}"
-                    @dragover=${this.handleDragOver}
-                    @drop=${(e: DragEvent) => this.handleDrop(e, rItem.id)}
-                    @click=${() => this.handleRightClick(rItem.id)}
+                    @dragover=${(e: DragEvent) => this.handleDragOver(e, rItemId)}
+                    @dragleave=${(e: DragEvent) => this.handleDragLeave(e, rItemId)}
+                    @drop=${(e: DragEvent) => this.handleDrop(e, rItemId)}
+                    @click=${() => this.handleRightClick(rItemId)}
                   >
-                    <span>${this.text(rItem.content)}</span>
+                    <span class="card-text">${this.text(rItem.content)}</span>
                     ${isPaired
-                      ? html`<span class="pair-badge ${answered ? (correct[pairedLeftId!] === rItem.id ? "correct" : "incorrect") : ""}">
+                      ? html`<span class="pair-badge ${answered ? (correct[pairedLeftId!] === rItemId ? "correct" : "incorrect") : ""}">
                           #${pairNum}
                         </span>`
+                      : this.selectedLeftId
+                      ? html`<span class="pair-indicator target">+</span>`
                       : nothing}
                   </div>
                 `;
@@ -234,10 +268,10 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
           ? html`
               <div class="feedback ${this.status}" role="status" aria-live="polite">
                 <strong>${this.status === "correct" ? uiText("匹配完成", "Complete") : uiText("再想一想", "Try again")}</strong>
-                ${feedback}
+                <p class="feedback-text">${feedback}</p>
                 ${explanations.length
                   ? html`<ul>
-                      ${explanations.map((item: { label: string; content: string }) => html`<li><b>${item.label}</b>：${unsafeHTML(sanitizeHtml(item.content, { inline: true }))}</li>`)}
+                      ${explanations.map((item) => html`<li><b>${item.label}</b>：${unsafeHTML(sanitizeHtml(item.content, { inline: true }))}</li>`)}
                     </ul>`
                   : nothing}
               </div>
@@ -258,7 +292,7 @@ export class A2learnDragAndDropMatchElement extends A2uiLitElement<typeof DragAn
 }
 
 if (!customElements.get("a2learn-drag-drop-match")) {
-  customElements.define("a2learn-drag-drop-match", A2learnDragAndDropMatchElement as any);
+  customElements.define("a2learn-drag-drop-match", A2learnDragAndDropMatchElement);
 }
 
 export const A2learnDragAndDropMatch = { ...DragAndDropMatchApi, tagName: "a2learn-drag-drop-match" };

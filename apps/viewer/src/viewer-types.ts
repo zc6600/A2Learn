@@ -26,6 +26,8 @@ export type SessionActionResponse = {
 export type ViewerSourceOffline = {
   mode: "offline";
   messagesUrl: string;
+  /** Optional bundled messages, used for curated course lessons. */
+  messages?: A2uiMessage[];
   themeVars?: Record<string, string>;
   themeId?: string;
 };

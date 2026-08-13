@@ -1,0 +1,33 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "DataTable-basic",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "DataTable-basic",
+      "components": [
+        {
+          "id": "root",
+          "component": "DataTable",
+          "title": "课程报名记录",
+          "caption": "每一行是一位学生，每一列表示一种信息。",
+          "columns": [
+            { "key": "name", "label": "姓名" },
+            { "key": "course", "label": "课程" },
+            { "key": "progress", "label": "进度", "align": "right" }
+          ],
+          "rows": [
+            { "id": "student-1", "cells": { "name": "小雨", "course": "数据库入门", "progress": "第 1 章" } },
+            { "id": "student-2", "cells": { "name": "小林", "course": "JavaScript", "progress": "第 3 章" } },
+            { "id": "student-3", "cells": { "name": "小周", "course": "CSS 布局", "progress": "已完成" } }
+          ]
+        }
+      ]
+    }
+  }
+]

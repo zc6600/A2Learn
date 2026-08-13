@@ -134,6 +134,7 @@ def _node_generate_messages(state: AgentState) -> AgentState:
             profile.example_ids,
             profile.visual_intent,
             profile.image_generation_limit,
+            profile.reference_pack_ids,
         )
     else:
         if site_plan:
@@ -150,6 +151,7 @@ def _node_generate_messages(state: AgentState) -> AgentState:
             profile.example_ids,
             profile.visual_intent,
             profile.image_generation_limit,
+            profile.reference_pack_ids,
         )
     max_repair_attempts = int(os.getenv("A2LEARN_MAX_REPAIR_ATTEMPTS", "2"))
     messages = _validate_or_repair(

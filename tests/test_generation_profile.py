@@ -81,6 +81,65 @@ class GenerationProfileTests(unittest.TestCase):
         self.assertIn("Reference example (hash-table)", examples)
         self.assertNotIn("paper-attention", examples)
 
+    def test_loads_selected_database_reference_pack_as_a_compact_series(self) -> None:
+        profile = normalize_generation_profile(
+            {
+                "templateId": "beginner",
+                "enabledComponents": [
+                    "AnalogyCard", "ConceptCard", "DataTable", "DetailedExplanation",
+                    "InteractiveSandbox", "LearningPath", "MentalModel", "QuizCard", "ScenarioDialogue",
+                ],
+                "exampleIds": ["database-basics"],
+                "referencePackIds": ["database-basics-series"],
+            }
+        )
+        self.assertEqual(profile.reference_pack_ids, ("database-basics-series",))
+        self.assertIn("Reference pack (database-basics-series)", load_reference_examples(profile.example_ids, "zh", profile.reference_pack_ids))
+        self.assertIn("01-what-is-a-database.json", load_reference_examples(profile.example_ids, "zh", profile.reference_pack_ids))
+        self.assertIn("06-build-a-small-project.json", load_reference_examples(profile.example_ids, "zh", profile.reference_pack_ids))
+
+    def test_template_adds_learning_guidance_when_intent_is_omitted(self) -> None:
+        profile = normalize_generation_profile(
+            {
+                "templateId": "project",
+                "enabledComponents": ["ConceptCard"],
+                "exampleIds": [],
+                "visualIntent": "",
+            }
+        )
+        self.assertIn("项目", profile.visual_intent)
+
+    def test_template_can_resolve_defaults_without_manual_component_lists(self) -> None:
+        profile = normalize_generation_profile({"templateId": "beginner"})
+        self.assertIn("DataTable", profile.enabled_components)
+        self.assertIn("QuizCard", profile.enabled_components)
+        self.assertEqual(profile.reference_pack_ids, ("database-basics-series",))
+
+    def test_all_learning_templates_resolve_their_reference_examples(self) -> None:
+        expected = {
+            "beginner": {"database-basics", "conversational"},
+            "theory-lab": {"hash-table", "js-async", "agent-react"},
+            "project": {"database-basics", "agent-react", "js-async", "non-linear"},
+            "research": {"paper-attention", "biophysics-ai"},
+            "poetry": {"poetry-social", "deng-gao"},
+        }
+        for template_id, example_ids in expected.items():
+            profile = normalize_generation_profile({"templateId": template_id})
+            self.assertEqual(set(profile.example_ids), example_ids)
+
+    def test_legacy_template_does_not_keep_stale_component_and_example_choices(self) -> None:
+        profile = normalize_generation_profile(
+            {
+                "templateId": "general",
+                "enabledComponents": ["PaperAbstract", "InteractiveFormula"],
+                "exampleIds": ["paper-attention", "biophysics-ai"],
+            }
+        )
+        self.assertEqual(profile.template_id, "beginner")
+        self.assertIn("DataTable", profile.enabled_components)
+        self.assertNotIn("PaperAbstract", profile.enabled_components)
+        self.assertEqual(set(profile.example_ids), {"database-basics", "conversational"})
+
     def test_poetry_example_combines_reading_and_narrative_path(self) -> None:
         profile = normalize_generation_profile(
             {

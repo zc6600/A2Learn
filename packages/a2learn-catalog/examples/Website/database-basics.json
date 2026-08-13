@@ -1,0 +1,616 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "database-basics-module-1",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "database-basics-module-1",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-1",
+            "learning-path-1",
+            "background-1",
+            "chat-1",
+            "mental-model-1",
+            "concept-1",
+            "explanation-1",
+            "sandbox-1",
+            "quiz-1"
+          ]
+        },
+        {
+          "id": "header-1",
+          "component": "Text",
+          "variant": "h1",
+          "text": "数据库入门：把杂乱的信息整理好"
+        },
+        {
+          "id": "learning-path-1",
+          "component": "LearningPath",
+          "title": "从生活中的记录到数据库",
+          "activeStepId": "1",
+          "steps": [
+            {
+              "id": "1",
+              "title": "1. 为什么不能只用一堆文件？",
+              "targetSurfaceId": "database-basics-module-1"
+            },
+            {
+              "id": "2",
+              "title": "2. 表、行和列是什么？",
+              "targetSurfaceId": "database-basics-module-2"
+            },
+            {
+              "id": "3",
+              "title": "3. 怎样找到和修改记录？",
+              "targetSurfaceId": "database-basics-module-3"
+            }
+          ]
+        },
+        {
+          "id": "background-1",
+          "component": "AnalogyCard",
+          "title": "先从一个熟悉的问题开始",
+          "analogy": "<b>想象你在经营一个小图书角</b>：你一开始只有十几本书，拿一本本子记下书名和借阅人，就已经够用了。<br><br><b>书越来越多以后</b>：几千本书散落在许多页纸上，你想找“某位同学借了什么”，需要一页一页翻；有人改了电话号码，还要在好几处记录里同时修改；两个人同时登记时，甚至可能把内容写乱。<br><br><b>数据库要解决的事情</b>：它像一个会帮你整理、查找和修改记录的电子管理员。你只需要告诉它“我要找什么”或“我要改什么”，它就负责在大量记录中完成这件事。"
+        },
+        {
+          "id": "chat-1",
+          "component": "ScenarioDialogue",
+          "topic": "💬 小组讨论：为什么网站需要数据库？",
+          "characters": {
+            "xiaoming": {
+              "name": "小明（刚开始学编程）",
+              "avatar": "🧑‍💻",
+              "alignment": "left"
+            },
+            "teacher": {
+              "name": "老师",
+              "avatar": "👩‍🏫",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "xiaoming",
+              "content": "老师，我把用户信息写在一个 JSON 文件里不就行了吗？"
+            },
+            {
+              "characterId": "teacher",
+              "content": "数据很少时当然可以。可是用户一多，你就要自己处理查找、修改、同时保存和数据整理，这些工作很容易出错。"
+            },
+            {
+              "characterId": "xiaoming",
+              "content": "所以数据库不是一个神秘的黑盒，而是专门替程序管理大量记录的工具？"
+            },
+            {
+              "characterId": "teacher",
+              "content": "对。今天先记住一句话：数据库就是一个能可靠保存、查找和修改数据的地方。我们先学会怎样把数据摆整齐，再学习怎样向它提问。"
+            }
+          ]
+        },
+        {
+          "id": "mental-model-1",
+          "component": "MentalModel",
+          "title": "把数据库想成一个会整理的资料室",
+          "description": "数据库不是只能存数字的黑色盒子。你可以把它想成一个资料室：它知道每份资料放在哪里，也知道怎样根据你的要求找到、添加、修改或删除资料。",
+          "icon": "🗄️",
+          "diagramTitle": "📚 从请求到记录",
+          "diagram": "程序提出问题 → 数据库找到相关记录 → 数据库把结果交给程序\n程序提交新信息 → 数据库检查并保存 → 以后可以再次找到这条记录",
+          "pillarsTitle": "数据库先帮我们做三件事",
+          "pillars": [
+            {
+              "title": "保存",
+              "description": "把用户、商品、订单等信息放在一个稳定的地方。",
+              "icon": "💾"
+            },
+            {
+              "title": "查找",
+              "description": "根据名字、编号或其他条件找到需要的记录。",
+              "icon": "🔍"
+            },
+            {
+              "title": "修改",
+              "description": "信息发生变化时，只更新需要改变的那一条记录。",
+              "icon": "✏️"
+            }
+          ],
+          "analogyTitle": "💡 和普通文件有什么区别？",
+          "analogy": "普通文件更像一叠需要手动翻阅的纸；数据库更像有目录、有管理员的资料室。文件仍然是保存数据的一种方式，但数据库专门提供了查找和修改大量记录的规则。"
+        },
+        {
+          "id": "concept-1",
+          "component": "ConceptCard",
+          "title": "先理解一个词：数据库",
+          "tags": [
+            "保存数据",
+            "查找数据",
+            "修改数据"
+          ],
+          "definition": "<b>数据库</b>就是一个专门管理数据的系统。它不只是把内容保存下来，还提供了统一的方法，让程序可以按照条件读取、添加、修改和删除记录。<br><br>不同数据库的使用方式会不同，但初学时可以先把它看成一个“很会整理资料的电子表格”。",
+          "example": "**生活里的例子**\n\n一个课程网站可能需要保存：\n\n- 学生的姓名\n- 学生报名了哪门课\n- 学生上次学到了哪里\n\n如果只有一两条记录，手写也能完成；当记录变成几万条时，就需要数据库来统一管理。\n\n**今天的学习目标**\n\n先不用记住很多名词。只要能说清楚“数据库用来保存、查找和修改大量数据”，就已经迈出了第一步。",
+          "relatedConcepts": [
+            "数据",
+            "记录",
+            "表"
+          ]
+        },
+        {
+          "id": "explanation-1",
+          "component": "DetailedExplanation",
+          "title": "数据库和应用程序怎样配合？",
+          "icon": "🤝",
+          "estimatedReadTime": "2 分钟入门阅读",
+          "content": "可以把一个网站想成三部分：用户看到的页面、负责处理请求的程序，以及负责保存资料的数据库。\n\n当用户登录时，程序会把“这个用户名对应的密码是否正确？”交给数据库；数据库找到记录后，把结果交还给程序，程序再决定显示登录成功还是失败。\n\n数据库通常不会自己猜测你想要什么。程序需要用一种数据库能理解的语言描述请求。最常见的一种语言叫 **SQL**，但现在不用急着学习完整语法。接下来的例子只会用几句非常短的 SQL，让你先感受“向数据库提问”是什么样子。"
+        },
+        {
+          "id": "sandbox-1",
+          "component": "InteractiveSandbox",
+          "title": "动手试试：从一组记录中找到一个人",
+          "description": "这段 JavaScript 用数组模拟一个很小的数据库。先看懂“保存几条记录”和“按照姓名查找”就够了。",
+          "language": "javascript",
+          "code": "// 先准备三条用户记录。每条记录都用一个对象表示，像数据库里的一行资料。\nconst users = [\n  { name: \"小雨\", city: \"上海\" },\n  { name: \"小林\", city: \"北京\" },\n  { name: \"小周\", city: \"广州\" }\n];\n\n// 现在提出一个问题：请找到名字是“小林”的那条记录。\n// find 会从前往后检查，找到符合条件的记录后就返回它。\nconst wantedUser = users.find((user) => user.name === \"小林\");\n\nconsole.log(\"找到的用户:\", wantedUser);\nconsole.log(\"这个小例子说明：数据保存好以后，程序可以按照条件取回它。\");",
+          "runLocally": true
+        },
+        {
+          "id": "quiz-1",
+          "component": "QuizCard",
+          "title": "🧠 入门检查：数据库是做什么的？",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "下面哪句话最适合描述数据库？",
+              "options": [
+                "只能用来画网页的工具",
+                "专门帮助程序保存、查找和修改数据的系统",
+                "只负责把电脑变快的硬件",
+                "一种只能保存图片的文件格式"
+              ],
+              "correctIndex": 1,
+              "explanation": "数据库的核心作用是管理数据：保存数据，并按照程序提出的要求查找、添加、修改或删除数据。"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "database-basics-module-2",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "database-basics-module-2",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-2",
+            "learning-path-2",
+            "background-2",
+            "chat-2",
+            "mental-model-2",
+            "table-2",
+            "concept-2",
+            "explanation-2",
+            "sandbox-2",
+            "quiz-2"
+          ]
+        },
+        {
+          "id": "header-2",
+          "component": "Text",
+          "variant": "h1",
+          "text": "表、行和列：把资料摆整齐"
+        },
+        {
+          "id": "learning-path-2",
+          "component": "LearningPath",
+          "title": "从生活中的记录到数据库",
+          "activeStepId": "2",
+          "steps": [
+            {
+              "id": "1",
+              "title": "1. 为什么不能只用一堆文件？",
+              "targetSurfaceId": "database-basics-module-1"
+            },
+            {
+              "id": "2",
+              "title": "2. 表、行和列是什么？",
+              "targetSurfaceId": "database-basics-module-2"
+            },
+            {
+              "id": "3",
+              "title": "3. 怎样找到和修改记录？",
+              "targetSurfaceId": "database-basics-module-3"
+            }
+          ]
+        },
+        {
+          "id": "background-2",
+          "component": "AnalogyCard",
+          "title": "先看一张课程报名表",
+          "analogy": "<b>一张普通表格</b>：假设我们要记录课程报名信息，可以有三列：姓名、课程、学习进度。每报名一个人，就新增一行。<br><br><b>它和数据库里的表很像</b>：数据库中的一张“表”，就是一组结构相似的记录。每一行代表一个人或一件事，每一列代表这条记录的一个信息。<br><br><b>为什么要这样摆？</b>：如果每个人的姓名、课程和进度都放在固定位置，程序就能更容易地读取和修改，不必猜测每段文字是什么意思。"
+        },
+        {
+          "id": "chat-2",
+          "component": "ScenarioDialogue",
+          "topic": "💬 认识数据库里的表、行和列",
+          "characters": {
+            "xiaoming": {
+              "name": "小明",
+              "avatar": "🧑‍💻",
+              "alignment": "left"
+            },
+            "teacher": {
+              "name": "老师",
+              "avatar": "👩‍🏫",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "xiaoming",
+              "content": "我看到数据库里的 table 这个词了，它是不是就等于一张表格？"
+            },
+            {
+              "characterId": "teacher",
+              "content": "可以先这样理解。table 通常翻译成“表”，它里面放着一类相似的记录，比如所有学生，或者所有商品。"
+            },
+            {
+              "characterId": "xiaoming",
+              "content": "那一行就是一个学生，列就是姓名、年龄这些信息？"
+            },
+            {
+              "characterId": "teacher",
+              "content": "完全正确。记成一句话：表放同一类记录，行代表一条记录，列说明这条记录有哪些信息。"
+            }
+          ]
+        },
+        {
+          "id": "mental-model-2",
+          "component": "MentalModel",
+          "title": "一张表就像一张有固定标题的清单",
+          "description": "表的标题先规定每一列要放什么，下面的每一行再填写具体内容。这样每条记录的形状相同，程序才容易统一处理。",
+          "icon": "📋",
+          "diagramTitle": "📊 学生表的样子",
+          "diagram": "students 表\n┌──────┬──────┬────────┐\n│ 姓名 │ 城市 │ 年龄   │  ← 列：每一列说明一种信息\n├──────┼──────┼────────┤\n│ 小雨 │ 上海 │ 18     │  ← 行：一位学生的完整记录\n│ 小林 │ 北京 │ 19     │\n└──────┴──────┴────────┘",
+          "pillarsTitle": "三个最重要的词",
+          "pillars": [
+            {
+              "title": "表 Table",
+              "description": "保存同一类东西的一组记录，例如 students 表保存学生。",
+              "icon": "🗂️"
+            },
+            {
+              "title": "行 Row",
+              "description": "表中的一条完整记录，例如小雨的姓名、城市和年龄。",
+              "icon": "➡️"
+            },
+            {
+              "title": "列 Column",
+              "description": "记录中的一种信息，例如姓名列或城市列。",
+              "icon": "⬇️"
+            }
+          ],
+          "analogyTitle": "💡 用通讯录记忆",
+          "analogy": "通讯录是一张表；其中一个联系人是一行；姓名、电话、城市分别是列。以后看到 table、row、column，只要先回想这本通讯录即可。"
+        },
+        {
+          "id": "table-2",
+          "component": "DataTable",
+          "title": "课程报名记录",
+          "caption": "每一行是一位学生，每一列表示一种信息。",
+          "columns": [
+            { "key": "name", "label": "姓名" },
+            { "key": "course", "label": "课程" },
+            { "key": "progress", "label": "进度", "align": "right" }
+          ],
+          "rows": [
+            { "id": "student-1", "cells": { "name": "小雨", "course": "数据库入门", "progress": "第 1 章" } },
+            { "id": "student-2", "cells": { "name": "小林", "course": "JavaScript", "progress": "第 3 章" } },
+            { "id": "student-3", "cells": { "name": "小周", "course": "CSS 布局", "progress": "已完成" } }
+          ]
+        },
+        {
+          "id": "concept-2",
+          "component": "ConceptCard",
+          "title": "表、行、列：数据库的基本积木",
+          "tags": [
+            "Table 表",
+            "Row 行",
+            "Column 列"
+          ],
+          "definition": "数据库通常会把数据分成一张张表。<b>表</b>表示一类数据，<b>行</b>表示其中的一条记录，<b>列</b>表示记录中的一种信息。<br><br>例如 `students` 表可以有 `name`、`city`、`age` 三列；小林这一行就是一条完整的学生记录。",
+          "example": "**students 表**\n\n| name | city | age |\n| --- | --- | --- |\n| 小雨 | 上海 | 18 |\n| 小林 | 北京 | 19 |\n\n- 这整张清单是一个表\n- 小林这一横行是一条记录\n- city 这一竖列表示城市\n\n程序之后可以说：“请给我 city 是北京的记录。”这就是在按照列的内容查找行。",
+          "relatedConcepts": [
+            "记录",
+            "字段",
+            "SQL"
+          ]
+        },
+        {
+          "id": "explanation-2",
+          "component": "DetailedExplanation",
+          "title": "为什么每一列最好只表达一种信息？",
+          "icon": "🧱",
+          "estimatedReadTime": "2 分钟入门阅读",
+          "content": "初学时可以遵守一个简单习惯：一列只放一种信息。比如把姓名放在 `name` 列，把城市放在 `city` 列，不要把“ 小林，北京 ”整个句子塞进一个格子里。\n\n这样做的好处很直观：程序想找北京的学生时，只需要看 `city` 这一列；想修改小林的城市时，也能准确找到需要改变的位置。\n\n数据库里还会使用一些更严格的规则来保证数据整齐，但现在只要记住“同一列放同一种信息”，就足够完成入门学习。"
+        },
+        {
+          "id": "sandbox-2",
+          "component": "InteractiveSandbox",
+          "title": "动手试试：按照城市筛选学生",
+          "description": "这段代码把每个对象看成一行，用一个条件找出住在北京的学生。",
+          "language": "javascript",
+          "code": "// 每个对象代表 students 表中的一行。\nconst students = [\n  { name: \"小雨\", city: \"上海\", age: 18 },\n  { name: \"小林\", city: \"北京\", age: 19 },\n  { name: \"小周\", city: \"北京\", age: 18 }\n];\n\n// filter 会保留所有符合条件的行，而不是只保留第一行。\n// 这里的条件是：city 这一列的值必须等于“北京”。\nconst studentsInBeijing = students.filter((student) => student.city === \"北京\");\n\nconsole.log(\"住在北京的学生:\", studentsInBeijing);\nconsole.log(\"一张表可以有很多行，每一行都有相同的列。\");",
+          "runLocally": true
+        },
+        {
+          "id": "quiz-2",
+          "component": "QuizCard",
+          "title": "🧠 入门检查：表、行和列",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "在 students 表中，“小林，北京，19”最接近下面哪一种描述？",
+              "options": [
+                "一张表",
+                "一列",
+                "一行记录",
+                "一个数据库服务器"
+              ],
+              "correctIndex": 2,
+              "explanation": "这三个值一起描述了一位学生，所以它们组成表中的一行，也就是一条完整记录。"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "database-basics-module-3",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "database-basics-module-3",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-3",
+            "learning-path-3",
+            "background-3",
+            "chat-3",
+            "mental-model-3",
+            "concept-3",
+            "explanation-3",
+            "sandbox-3",
+            "quiz-3",
+            "db-flashcards",
+            "summary-3"
+          ]
+        },
+        {
+          "id": "header-3",
+          "component": "Text",
+          "variant": "h1",
+          "text": "用最简单的 SQL 操作数据"
+        },
+        {
+          "id": "learning-path-3",
+          "component": "LearningPath",
+          "title": "从生活中的记录到数据库",
+          "activeStepId": "3",
+          "steps": [
+            {
+              "id": "1",
+              "title": "1. 为什么不能只用一堆文件？",
+              "targetSurfaceId": "database-basics-module-1"
+            },
+            {
+              "id": "2",
+              "title": "2. 表、行和列是什么？",
+              "targetSurfaceId": "database-basics-module-2"
+            },
+            {
+              "id": "3",
+              "title": "3. 怎样找到和修改记录？",
+              "targetSurfaceId": "database-basics-module-3"
+            }
+          ]
+        },
+        {
+          "id": "background-3",
+          "component": "AnalogyCard",
+          "title": "把 SQL 想成写给资料管理员的短句",
+          "analogy": "<b>你不需要亲自翻资料室</b>：你只要告诉管理员“给我北京的学生”，管理员就会帮你找到。SQL 就是程序用来向数据库表达要求的一种语言。<br><br><b>先学四个动作</b>：查看已有记录、添加新记录、修改旧记录、删除不需要的记录。这四个动作覆盖了最常见的数据管理工作。<br><br><b>学习重点</b>：不要先背长长的语法。先理解每条 SQL 想做什么，再慢慢熟悉它的写法。"
+        },
+        {
+          "id": "chat-3",
+          "component": "ScenarioDialogue",
+          "topic": "💬 用四个动作管理学生记录",
+          "characters": {
+            "xiaoming": {
+              "name": "小明",
+              "avatar": "🧑‍💻",
+              "alignment": "left"
+            },
+            "teacher": {
+              "name": "老师",
+              "avatar": "👩‍🏫",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "xiaoming",
+              "content": "老师，SQL 是不是数据库专用的编程语言？"
+            },
+            {
+              "characterId": "teacher",
+              "content": "可以把它理解成“向数据库说清楚要求”的语言。比如 SELECT 是查看，INSERT 是添加，UPDATE 是修改，DELETE 是删除。"
+            },
+            {
+              "characterId": "xiaoming",
+              "content": "我先记住它们分别对应看、加、改、删，就不会把 SQL 当成一堆死记的单词了。"
+            },
+            {
+              "characterId": "teacher",
+              "content": "对。写 SQL 时最重要的是先想清楚自己要对哪张表做什么，再写出对应的句子。尤其是修改和删除时，要确认条件，不要误改整张表。"
+            }
+          ]
+        },
+        {
+          "id": "mental-model-3",
+          "component": "MentalModel",
+          "title": "数据库最常见的四个动作",
+          "description": "把数据管理想成整理一张名单：查看名单、在名单末尾登记新人、改正某人的信息、移除不再需要的记录。",
+          "icon": "🛠️",
+          "diagramTitle": "📊 看、加、改、删",
+          "diagram": "SELECT  查看：找出符合条件的记录\nINSERT  添加：放入一条新记录\nUPDATE  修改：改变已有记录的某个信息\nDELETE  删除：移除不需要的记录",
+          "pillarsTitle": "四句最小 SQL",
+          "pillars": [
+            {
+              "title": "SELECT",
+              "description": "我想看看哪些记录。",
+              "icon": "👀"
+            },
+            {
+              "title": "INSERT",
+              "description": "我想新增一条记录。",
+              "icon": "➕"
+            },
+            {
+              "title": "UPDATE / DELETE",
+              "description": "我想修改或移除已有记录。",
+              "icon": "📝"
+            }
+          ],
+          "analogyTitle": "💡 像编辑通讯录",
+          "analogy": "查一个联系人是 SELECT，添加联系人是 INSERT，改电话号码是 UPDATE，删除联系人是 DELETE。先把动作和生活中的行为对应起来，SQL 就不再抽象。"
+        },
+        {
+          "id": "concept-3",
+          "component": "ConceptCard",
+          "title": "SQL：向数据库提出明确请求",
+          "tags": [
+            "查看 SELECT",
+            "添加 INSERT",
+            "修改 UPDATE",
+            "删除 DELETE"
+          ],
+          "definition": "SQL 是一组用来操作数据库的语句。初学时先认识四个动词：<b>SELECT</b> 查看，<b>INSERT</b> 添加，<b>UPDATE</b> 修改，<b>DELETE</b> 删除。<br><br>例如：`SELECT name FROM students WHERE city = '北京';` 可以读成“请从 students 表中找出城市是北京的学生姓名”。",
+          "example": "```sql\n-- 查看：找到住在北京的学生\nSELECT name FROM students WHERE city = '北京';\n\n-- 添加：登记一位新学生\nINSERT INTO students (name, city, age)\nVALUES ('小陈', '深圳', 18);\n\n-- 修改：把小林的城市改成杭州\nUPDATE students SET city = '杭州' WHERE name = '小林';\n\n-- 删除：移除小陈这条记录\nDELETE FROM students WHERE name = '小陈';\n```\n\n每条语句都可以先用自然语言读一遍，再检查它会影响哪些记录。尤其是 UPDATE 和 DELETE，`WHERE` 条件决定了修改或删除的范围。",
+          "relatedConcepts": [
+            "查询",
+            "条件",
+            "记录"
+          ]
+        },
+        {
+          "id": "explanation-3",
+          "component": "DetailedExplanation",
+          "title": "读懂一条查询语句",
+          "icon": "🔎",
+          "estimatedReadTime": "3 分钟入门阅读",
+          "content": "我们拆开这一句：`SELECT name FROM students WHERE city = '北京';`\n\n- `SELECT name`：我想看到 name 这一列。\n- `FROM students`：数据来自 students 表。\n- `WHERE city = '北京'`：只保留城市是北京的记录。\n\n这就像在对资料管理员说：“请打开学生名单，只把住在北京的人的姓名给我。”以后遇到更复杂的 SQL，也可以先按这种方式把句子拆成几个小问题：我要看什么？从哪张表看？要满足什么条件？\n\n先把 SELECT 读懂，比一次记住所有 SQL 语法更重要。"
+        },
+        {
+          "id": "sandbox-3",
+          "component": "InteractiveSandbox",
+          "title": "动手试试：模拟添加、查询、修改和删除",
+          "description": "下面不用真正连接数据库，而是用 JavaScript 数组模拟四个常见动作。每个注释都对应一种 SQL 操作。",
+          "language": "javascript",
+          "code": "// 这组数据模拟数据库里的 students 表。\nlet students = [\n  { name: \"小雨\", city: \"上海\" },\n  { name: \"小林\", city: \"北京\" }\n];\n\n// SELECT：查看住在北京的记录，不改变原来的数据。\nconsole.log(\"查询结果:\", students.filter((student) => student.city === \"北京\"));\n\n// INSERT：添加一条新记录，就像新同学来报名。\nstudents.push({ name: \"小周\", city: \"广州\" });\n\n// UPDATE：找到小林，只修改他的城市。\nconst studentToUpdate = students.find((student) => student.name === \"小林\");\nif (studentToUpdate) {\n  studentToUpdate.city = \"杭州\";\n}\n\n// DELETE：保留不是小周的记录，相当于删除小周。\nstudents = students.filter((student) => student.name !== \"小周\");\n\nconsole.log(\"最后的学生表:\", students);",
+          "runLocally": true
+        },
+        {
+          "id": "quiz-3",
+          "component": "QuizCard",
+          "title": "🧠 入门检查：读懂最简单的 SQL",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "下面哪条语句的意思是“查看 students 表中城市为北京的学生”？",
+              "options": [
+                "INSERT students WHERE city = '北京'",
+                "SELECT name FROM students WHERE city = '北京'",
+                "UPDATE students SET city = '北京'",
+                "DELETE FROM students WHERE city = '北京'"
+              ],
+              "correctIndex": 1,
+              "explanation": "SELECT 表示查看，FROM students 表示从 students 表读取，WHERE 则限定只看城市为北京的记录。"
+            }
+          ]
+        },
+        {
+          "id": "db-flashcards",
+          "component": "Flashcard",
+          "cards": [
+            {
+              "id": "db-fc-1",
+              "front": {
+                "literalString": "在关系型数据库中，**主键（Primary Key）** 的核心作用是什么？"
+              },
+              "hint": {
+                "literalString": "提示：唯一性与索引加速"
+              },
+              "back": {
+                "literalString": "**主键三大作用**：\n1. **唯一身份标识**：保证表中的每一行数据都可以被精准、唯一地区分；\n2. **非空约束**：主键列不允许为 `NULL`；\n3. **聚簇索引加速**：数据库默认基于主键建立索引，极大提升根据 ID 查询和更新的速度。"
+              }
+            },
+            {
+              "id": "db-fc-2",
+              "front": {
+                "literalString": "SQL 中的 `WHERE` 和 `HAVING` 过滤条件有什么本质区别？"
+              },
+              "hint": {
+                "literalString": "提示：分组（GROUP BY）之前还是之后？"
+              },
+              "back": {
+                "literalString": "**本质区别**：\n- **`WHERE`**：在 **数据分组（GROUP BY）之前** 对单行记录进行筛选，不能直接使用聚合函数（如 `COUNT()`、`AVG()`）；\n- **`HAVING`**：在 **数据分组聚合之后** 对汇总统计出来的结果进行过滤。"
+              }
+            },
+            {
+              "id": "db-fc-3",
+              "front": {
+                "literalString": "`DELETE`、`TRUNCATE` 和 `DROP` 删除数据有什么区别？"
+              },
+              "hint": {
+                "literalString": "提示：逐行删除 vs 清空整表 vs 销毁表结构"
+              },
+              "back": {
+                "literalString": "**核心区别**：\n- **`DELETE`**：逐行删除，记录详细事务日志，支持事务回滚（`ROLLBACK`），速度较慢；\n- **`TRUNCATE`**：快速清空整表数据并重置自增 ID，保留表结构定义，不可逐行回滚；\n- **`DROP`**：彻底连同数据和表结构定义一起删除，释放全部磁盘空间。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "summary-3",
+          "component": "AnalogyCard",
+          "title": "今天只需要记住这几句话",
+          "analogy": "数据库像一个会整理资料的管理员：<br><br>1. <b>数据库</b>负责保存、查找和修改大量数据。<br>2. <b>表</b>保存同一类记录，<b>行</b>是一条记录，<b>列</b>是一种信息。<br>3. <b>SQL</b>是向数据库提出要求的语言。<br>4. <b>SELECT、INSERT、UPDATE、DELETE</b>分别对应查看、添加、修改和删除。<br><br>先把这些生活化的对应关系记住，就已经完成了数据库入门。以后再学习索引、关联和事务时，都可以回到这张“整理好的清单”上继续往前走。"
+        }
+      ]
+    }
+  }
+]

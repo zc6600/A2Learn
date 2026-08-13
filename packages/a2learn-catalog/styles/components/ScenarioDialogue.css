@@ -12,8 +12,8 @@
         flex-direction: column;
       }
       .chat-container.wechat-group {
-        background: var(--a2learn-dialogue-wechat-surface, #ededed);
-        border-color: var(--a2learn-dialogue-wechat-border, #d6d6d6);
+        background: var(--a2learn-dialogue-wechat-surface, var(--a2ui-color-surface-subtle));
+        border-color: var(--a2learn-dialogue-wechat-border, var(--a2ui-color-border));
         border-radius: 8px;
       }
     .chat-header {
@@ -32,9 +32,9 @@
       align-items: center;
       justify-content: center;
       padding: 10px 52px;
-      background: var(--a2learn-dialogue-wechat-header, #f7f7f7);
-      border-bottom-color: #dedede;
-      color: #111;
+      background: var(--a2learn-dialogue-wechat-header, var(--a2ui-color-surface));
+      border-bottom: 1px solid var(--a2ui-color-border);
+      color: var(--a2ui-color-on-surface);
       font-size: 16px;
       font-weight: 650;
     }
@@ -42,8 +42,8 @@
       margin: 12px 16px -2px;
       padding: 7px 10px;
       border-radius: 5px;
-      background: rgba(255,255,255,.58);
-      color: #777;
+      background: color-mix(in srgb, var(--a2ui-color-surface) 60%, transparent);
+      color: var(--app-muted);
       font-size: 12px;
       line-height: 1.5;
       text-align: center;
@@ -139,7 +139,7 @@
       margin: 0;
     }
     .bubble pre {
-      background: rgba(0,0,0,0.05);
+      background: color-mix(in srgb, var(--a2ui-color-on-surface) 5%, transparent);
       padding: 8px;
       border-radius: 6px;
       overflow-x: auto;
@@ -157,17 +157,17 @@
       border-top-left-radius: 4px;
     }
 
-    /* Right Bubble Style (Like WeChat Green) */
+    /* Right Bubble Style */
     .message-row.right .bubble {
-      background: var(--a2learn-dialogue-wechat-bubble, #95ec69);
-      color: #000;
-      border: 1px solid #89d961;
+      background: var(--a2learn-dialogue-wechat-bubble, color-mix(in srgb, var(--a2ui-color-success) 22%, var(--a2ui-color-surface)));
+      color: var(--a2ui-color-on-surface);
+      border: 1px solid var(--a2ui-color-border);
       border-top-right-radius: 4px;
     }
     .wechat-group .message-row .bubble,
     .wechat-group .message-row.right .bubble {
-      background: #fff;
-      color: #191919;
+      background: var(--a2ui-color-surface);
+      color: var(--a2ui-color-on-surface);
       border: 0;
       border-radius: 4px;
     }
@@ -280,7 +280,7 @@
       padding: 18px 18px 20px;
       border: 1px solid color-mix(in srgb, var(--a2ui-color-primary) 24%, var(--a2ui-color-border));
       border-radius: 2px 16px 2px 16px;
-      background: color-mix(in srgb, var(--a2ui-color-surface) 90%, #fffef8);
+      background: color-mix(in srgb, var(--a2ui-color-surface) 92%, var(--a2ui-color-surface-subtle));
       color: var(--a2ui-color-on-surface);
       box-shadow: 5px 6px 0 color-mix(in srgb, var(--a2ui-color-primary) 7%, transparent);
       font-family: var(--a2ui-font-family-title, var(--a2ui-font-family));

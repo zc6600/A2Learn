@@ -1,0 +1,258 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "database-basics-lesson-3",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "database-basics-lesson-3",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "path",
+            "scene",
+            "dialogue",
+            "concept",
+            "table",
+            "explanation",
+            "sandbox",
+            "safety",
+            "quiz",
+            "summary"
+          ]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "第 3 讲：怎样添加、修改和删除数据？"
+        },
+        {
+          "id": "path",
+          "component": "LearningPath",
+          "title": "数据库入门 6 讲",
+          "activeStepId": "3",
+          "steps": [
+            {
+              "id": "1",
+              "title": "认识数据库"
+            },
+            {
+              "id": "2",
+              "title": "向数据库提问"
+            },
+            {
+              "id": "3",
+              "title": "修改数据"
+            },
+            {
+              "id": "4",
+              "title": "设计表"
+            },
+            {
+              "id": "5",
+              "title": "连接多张表"
+            },
+            {
+              "id": "6",
+              "title": "完成小项目"
+            }
+          ]
+        },
+        {
+          "id": "scene",
+          "component": "AnalogyCard",
+          "title": "报名表不是写完就永远不变",
+          "analogy": "开学第一天，三位同学的信息被录入 students 表。下午又有新同学加入，这需要添加一行；小林搬到了杭州，这需要修改一行；测试时误录入了一条重复记录，这需要删除一行。数据库最常见的工作就是面对这些变化。我们可以把它们记成四个动作：查（SELECT）、加（INSERT）、改（UPDATE）、删（DELETE）。"
+        },
+        {
+          "id": "dialogue",
+          "component": "ScenarioDialogue",
+          "topic": "💬 修改数据前，为什么要先查询？",
+          "characters": {
+            "developer": {
+              "name": "小陈",
+              "avatar": "🧑‍💻",
+              "alignment": "left"
+            },
+            "reviewer": {
+              "name": "代码审查员",
+              "avatar": "🛡️",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "developer",
+              "content": "我想把小林的城市改成杭州，直接写 UPDATE 不就行了吗？"
+            },
+            {
+              "characterId": "reviewer",
+              "content": "先用 SELECT 检查 WHERE 条件会找到哪些行。姓名可能重复，也可能有拼写差异。修改前确认目标，能减少误改。"
+            },
+            {
+              "characterId": "developer",
+              "content": "如果忘记写 WHERE 呢？"
+            },
+            {
+              "characterId": "reviewer",
+              "content": "那条 UPDATE 可能会影响整张表。数据库不会因为你‘本来只想改一行’就自动猜测意图。安全条件必须由我们明确写出来。"
+            }
+          ]
+        },
+        {
+          "id": "concept",
+          "component": "ConceptCard",
+          "title": "四个动作：看、加、改、删",
+          "tags": [
+            "SELECT",
+            "INSERT",
+            "UPDATE",
+            "DELETE"
+          ],
+          "definition": "SELECT 查看已有记录；INSERT 添加新记录；UPDATE 修改已有记录；DELETE 删除记录。它们都应该和清晰的目标条件一起使用。",
+          "example": "```sql\nINSERT INTO students (name, city)\nVALUES ('小陈', '深圳');\n\nUPDATE students SET city = '杭州'\nWHERE id = 3;\n\nDELETE FROM students\nWHERE id = 3;\n```\n\nINSERT 指定要填写的列，UPDATE 指定新的值，DELETE 指定要删除的目标。",
+          "relatedConcepts": [
+            "记录",
+            "条件",
+            "安全操作"
+          ]
+        },
+        {
+          "id": "table",
+          "component": "DataTable",
+          "title": "三种写操作各自负责什么",
+          "caption": "不要把添加、修改、删除混成一个模糊的动作。",
+          "columns": [
+            {
+              "key": "action",
+              "label": "动作"
+            },
+            {
+              "key": "meaning",
+              "label": "意思"
+            },
+            {
+              "key": "example",
+              "label": "例子"
+            },
+            {
+              "key": "risk",
+              "label": "注意"
+            }
+          ],
+          "rows": [
+            {
+              "id": "1",
+              "cells": {
+                "action": "INSERT",
+                "meaning": "添加记录",
+                "example": "增加小陈",
+                "risk": "列和值要对应"
+              }
+            },
+            {
+              "id": "2",
+              "cells": {
+                "action": "UPDATE",
+                "meaning": "修改记录",
+                "example": "改城市",
+                "risk": "必须限制目标"
+              }
+            },
+            {
+              "id": "3",
+              "cells": {
+                "action": "DELETE",
+                "meaning": "删除记录",
+                "example": "删测试数据",
+                "risk": "误删通常难恢复"
+              }
+            }
+          ]
+        },
+        {
+          "id": "explanation",
+          "component": "DetailedExplanation",
+          "title": "三种写法的共同结构",
+          "icon": "✍️",
+          "estimatedReadTime": "7 分钟",
+          "content": "INSERT 需要说明‘往哪张表的哪些列写入什么值’；UPDATE 需要说明‘哪张表的哪些列改成什么’，并用 WHERE 指定目标行；DELETE 需要说明‘从哪张表删除’，同样应该用 WHERE 限定范围。<br><br>可以把 UPDATE 想成拿着一张修改申请单：先写目标表，再写要改的新值，最后写清楚申请影响哪一条记录。DELETE 更像销毁申请，必须比普通查询更谨慎。<br><br>真实项目里还会使用事务、权限和备份来保护数据，但在入门阶段先养成一个习惯：<b>修改或删除前，先用同样的 WHERE 写 SELECT 检查目标。</b>如果 SELECT 返回的行数不是你预期的数量，就先停下来检查条件，而不是继续执行。"
+        },
+        {
+          "id": "sandbox",
+          "component": "InteractiveSandbox",
+          "title": "动手试试：用数组模拟增删改",
+          "description": "这段代码不是数据库，而是帮助你观察三种动作分别怎样改变记录。请先看注释，再运行。",
+          "language": "javascript",
+          "code": "let students = [\n  { id: 1, name: \"小雨\", city: \"上海\" },\n  { id: 2, name: \"小林\", city: \"北京\" }\n];\n\n// INSERT：新增一条完整记录。\nstudents.push({ id: 3, name: \"小陈\", city: \"深圳\" });\n\n// UPDATE：先按照稳定的 id 找到目标，再只修改 city。\nconst target = students.find((student) => student.id === 3);\nif (target) target.city = \"杭州\";\n\n// DELETE：保留 id 不等于 3 的记录，相当于删除测试记录。\nstudents = students.filter((student) => student.id !== 3);\n\nconsole.log(\"最后的 students 表:\", students);",
+          "runLocally": true
+        },
+        {
+          "id": "safety",
+          "component": "DetailedExplanation",
+          "title": "WHERE：避免一次改掉所有人",
+          "icon": "⚠️",
+          "estimatedReadTime": "5 分钟",
+          "content": "```sql\n-- 先检查目标\nSELECT * FROM students WHERE id = 2;\n\n-- 确认只有小林这一行后，再修改\nUPDATE students SET city = '杭州' WHERE id = 2;\n```\n\n如果写成 `UPDATE students SET city = '杭州';`，数据库会把所有学生的 city 都改成杭州。DELETE 也是一样：没有 WHERE 时，可能把整张表的记录全部删除。这里的关键不是‘记住一条危险语法’，而是理解数据库只会执行你写出的范围。它不会根据上下文替你补充条件。<br><br>稳定的 id 往往比姓名更适合当条件，因为姓名可能重复。执行后还可以再次 SELECT，确认结果真的符合预期。"
+        },
+        {
+          "id": "quiz",
+          "component": "QuizCard",
+          "title": "增删改检查",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "新增一条记录应该使用什么？",
+              "options": [
+                "INSERT",
+                "UPDATE",
+                "DELETE",
+                "WHERE"
+              ],
+              "correctIndex": 0,
+              "explanation": "INSERT 用于向表中添加记录。"
+            },
+            {
+              "id": "q2",
+              "question": "为什么 UPDATE 和 DELETE 通常要写 WHERE？",
+              "options": [
+                "让语句更漂亮",
+                "限制只影响目标记录",
+                "让表自动排序",
+                "把列变成行"
+              ],
+              "correctIndex": 1,
+              "explanation": "WHERE 用于限定影响范围，避免误改或误删整张表。"
+            },
+            {
+              "id": "q3",
+              "question": "执行危险修改前最好的习惯是什么？",
+              "options": [
+                "直接运行并祈祷",
+                "先用相同条件 SELECT 检查目标行",
+                "删除数据库再重建",
+                "把所有条件去掉"
+              ],
+              "correctIndex": 1,
+              "explanation": "先查看目标记录，能帮助确认条件和影响范围。"
+            }
+          ]
+        },
+        {
+          "id": "summary",
+          "component": "AnalogyCard",
+          "title": "本讲总结：数据会变，所以操作必须有边界",
+          "analogy": "数据库像一份不断更新的班级名册。SELECT 让你查看名册，INSERT 添加新同学，UPDATE 修正资料，DELETE 清理错误记录。每次修改都要先说清楚‘是哪一行’，而 WHERE 就是给操作画出的边界。下一讲我们会面对一个更基础的问题：一张表应该怎样设计，才能让每条记录都有可靠的身份？"
+        }
+      ]
+    }
+  }
+]

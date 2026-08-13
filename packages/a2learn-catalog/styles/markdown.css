@@ -59,8 +59,8 @@ p {
 .a2learn-markdown-body blockquote {
   margin: 0.8em 0;
   padding: 0.6em 1em;
-  border-left: 3.5px solid var(--a2ui-color-primary, #0d9488);
-  background: var(--a2learn-quote-bg, rgba(13, 148, 136, 0.06));
+  border-left: 3.5px solid var(--a2ui-color-primary);
+  background: var(--a2learn-quote-bg, color-mix(in srgb, var(--a2ui-color-primary) 6%, transparent));
   border-radius: 0 8px 8px 0;
   color: inherit;
   opacity: 0.92;
@@ -75,7 +75,7 @@ p {
   border-collapse: collapse;
   margin: 0.8em 0;
   font-size: 0.92em;
-  border: 1px solid var(--app-border, rgba(140, 140, 160, 0.2));
+  border: 1px solid var(--a2ui-color-border, var(--app-outline));
   border-radius: 6px;
   overflow: hidden;
 }
@@ -83,12 +83,12 @@ p {
 .a2learn-markdown-body th,
 .a2learn-markdown-body td {
   padding: 8px 12px;
-  border: 1px solid var(--app-border, rgba(140, 140, 160, 0.2));
+  border: 1px solid var(--a2ui-color-border, var(--app-outline));
   text-align: left;
 }
 
 .a2learn-markdown-body th {
-  background: var(--app-card-nested, rgba(140, 140, 160, 0.08));
+  background: var(--a2ui-color-surface-subtle);
   font-weight: 600;
 }
 
@@ -97,8 +97,8 @@ p {
   font-size: 0.88em;
   padding: 0.15em 0.4em;
   border-radius: 4px;
-  background: var(--a2learn-inline-code-bg, rgba(13, 148, 136, 0.1));
-  color: var(--a2learn-inline-code-color, #0d9488);
+  background: var(--a2learn-inline-code-bg, color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface-subtle, transparent)));
+  color: var(--a2learn-inline-code-color, var(--a2ui-color-primary));
   font-weight: 500;
 }
 
@@ -107,9 +107,9 @@ p {
   margin: 0.8em 0;
   border-radius: 10px;
   overflow: hidden;
-  background: #1e1e2e;
-  color: #cdd6f4;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--a2ui-color-code-surface);
+  color: var(--a2ui-color-code-text);
+  border: 1px solid var(--a2learn-code-border, rgba(255, 255, 255, 0.12));
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
@@ -118,9 +118,9 @@ p {
   justify-content: space-between;
   align-items: center;
   padding: 6px 12px;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--a2learn-code-header, rgba(0, 0, 0, 0.35));
   font-size: 11px;
-  color: #a6adc8;
+  color: var(--a2learn-code-muted, var(--app-muted));
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -130,7 +130,7 @@ p {
 .code-copy-btn {
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #cdd6f4;
+  color: var(--a2ui-color-code-text);
   border-radius: 4px;
   padding: 2px 8px;
   font-size: 11px;
@@ -141,13 +141,13 @@ p {
 
 .code-copy-btn:hover {
   background: rgba(255, 255, 255, 0.22);
-  color: #ffffff;
+  color: var(--a2ui-color-on-primary, #ffffff);
 }
 
 .code-copy-btn.copied {
-  background: #10b981;
-  color: #ffffff;
-  border-color: #10b981;
+  background: var(--a2ui-color-success);
+  color: var(--a2ui-color-on-primary, #ffffff);
+  border-color: var(--a2ui-color-success);
 }
 
 .a2learn-code-block pre,
@@ -171,7 +171,7 @@ p {
 }
 
 .a2learn-markdown-body a {
-  color: var(--a2ui-color-primary, #0d9488);
+  color: var(--a2ui-color-primary);
   text-decoration: underline;
   text-underline-offset: 3px;
   transition: opacity 0.2s ease;
@@ -184,7 +184,7 @@ p {
 .a2learn-markdown-body hr {
   margin: 1.2em 0;
   border: none;
-  border-top: 1px solid var(--app-border, rgba(140, 140, 160, 0.2));
+  border-top: 1px solid var(--a2ui-color-border, var(--app-outline));
 }
 
 .a2learn-markdown-body del {
