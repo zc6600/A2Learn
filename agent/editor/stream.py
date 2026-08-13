@@ -63,15 +63,13 @@ def stream_page_editor_agent(
 
         if mode == "messages":
             chunk = data[0] if isinstance(data, (tuple, list)) and data else data
-            tool_chunks = getattr(chunk, "tool_call_chunks", None)
-            if not tool_chunks:
-                content = getattr(chunk, "content", None)
-                if isinstance(content, str) and content:
-                    yield PageEditorEvent("text_delta", {"delta": content})
-                elif isinstance(content, list):
-                    for part in content:
-                        if isinstance(part, dict) and part.get("type") == "text" and part.get("text"):
-                            yield PageEditorEvent("text_delta", {"delta": part["text"]})
+            # ``stream_mode=messages`` includes ToolMessage chunks too. A
+            # read tool such as get_page_document returns the entire document
+            # as JSON; treating it as an assistant delta leaks that protocol
+            # payload into the floating Q&A panel.
+            if _is_assistant_text_chunk(chunk):
+                for delta in _text_parts(getattr(chunk, "content", None)):
+                    yield PageEditorEvent("text_delta", {"delta": delta})
             continue
 
         if mode == "updates" and isinstance(data, Mapping):
@@ -157,9 +155,30 @@ def _events_for_messages(messages: list[Any]) -> Iterator[PageEditorEvent]:
             continue
 
         if getattr(message, "type", None) == "ai" and not tool_calls:
-            content = getattr(message, "content", "")
-            text = content if isinstance(content, str) else str(content)
-            yield PageEditorEvent("assistant_message", {"text": text})
+            text = "".join(_text_parts(getattr(message, "content", None)))
+            if text:
+                yield PageEditorEvent("assistant_message", {"text": text})
+
+
+def _is_assistant_text_chunk(chunk: Any) -> bool:
+    """Keep only natural-language model chunks out of mixed agent streams."""
+    if getattr(chunk, "type", None) == "tool" or getattr(chunk, "tool_call_id", None):
+        return False
+    return not (getattr(chunk, "tool_call_chunks", None) or getattr(chunk, "tool_calls", None))
+
+
+def _text_parts(content: Any) -> Iterator[str]:
+    """Extract text blocks without serializing structured provider payloads."""
+    if isinstance(content, str):
+        if content:
+            yield content
+        return
+    if isinstance(content, list):
+        for part in content:
+            if isinstance(part, Mapping) and part.get("type") == "text":
+                value = part.get("text")
+                if isinstance(value, str) and value:
+                    yield value
 
 
 def _parse_tool_content(content: Any) -> dict[str, Any] | None:

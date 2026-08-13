@@ -108,6 +108,34 @@ class PageEditorAgentTests(unittest.TestCase):
         self.assertEqual(events[1].data["delta"], " world!")
         self.assertEqual(events[2].data["text"], "Hello world!")
 
+    def test_stream_does_not_emit_tool_result_json_as_chat_text(self) -> None:
+        fake_agent = SimpleNamespace(
+            stream=lambda *_args, **_kwargs: [
+                # Tool output is included in LangGraph's messages stream and
+                # must never be forwarded to the floating Q&A bubble.
+                ("messages", (SimpleNamespace(
+                    content='{"documentId":"lesson-1","components":[]}',
+                    type="tool",
+                    name="get_page_document",
+                    tool_call_id="call-1",
+                    tool_call_chunks=[],
+                ), {})),
+                ("messages", (SimpleNamespace(content="A clear answer.", tool_call_chunks=[]), {})),
+            ]
+        )
+
+        events = list(stream_page_editor_agent(
+            fake_agent,
+            "What is this lesson about?",
+            document_id="lesson-1",
+            user_id="user-1",
+            page_document_store=PageDocumentStore(),
+            thread_id="thread-1",
+        ))
+
+        self.assertEqual([event.event for event in events], ["text_delta", "done"])
+        self.assertEqual(events[0].data["delta"], "A clear answer.")
+
     def test_stream_stops_after_an_invalid_page_operation(self) -> None:
         fake_agent = SimpleNamespace(
             stream=lambda *_args, **_kwargs: [
