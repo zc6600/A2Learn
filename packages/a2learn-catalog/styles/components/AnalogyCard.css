@@ -5,43 +5,43 @@
     }
     .analogy-container {
       position: relative;
-      background: color-mix(in oklab, var(--a2ui-color-primary) 3%, var(--a2ui-color-surface));
-      border: 1px solid color-mix(in oklab, var(--a2ui-color-primary) 20%, var(--a2ui-color-border));
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: none;
+      background: var(--a2ui-color-surface);
+      border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 82%, transparent);
+      border-radius: 10px;
+      padding: 18px 20px 18px 22px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
       overflow: visible;
     }
     .analogy-container::before {
       content: "";
       position: absolute;
-      inset: 14px auto 14px 0;
-      width: 3px;
+      inset: 18px auto 18px 0;
+      width: 2px;
       border-radius: 0 3px 3px 0;
       background: var(--a2ui-color-primary);
     }
     .header {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 9px;
+      margin-bottom: 10px;
       position: relative;
       z-index: 1;
     }
     .icon {
-      font-size: 18px;
+      font-size: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      background: color-mix(in srgb, var(--a2ui-color-primary) 10%, var(--a2ui-color-surface));
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
       border: 0;
     }
     .title {
-      font-size: 15px;
-      font-weight: 750;
+      font-size: 14px;
+      font-weight: 720;
       color: var(--a2ui-color-on-surface);
       letter-spacing: 0;
       margin: 0;
@@ -50,7 +50,7 @@
       position: relative;
       z-index: 1;
       font-size: 15px;
-      line-height: 1.75;
+      line-height: 1.7;
       color: var(--a2ui-color-on-surface);
       background: transparent;
       border: 0;
@@ -76,13 +76,13 @@
     }
     .terms-section {
       margin-top: 14px;
-      padding: 12px 14px;
-      border: 0;
-      border-radius: 10px;
-      background: color-mix(in srgb, var(--a2ui-color-surface-subtle) 70%, transparent);
+      padding: 12px 0 0;
+      border-top: 1px solid color-mix(in srgb, var(--a2ui-color-border) 70%, transparent);
+      border-radius: 0;
+      background: transparent;
     }
     .terms-section-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--a2ui-color-on-surface);
       margin: 0 0 8px 0;

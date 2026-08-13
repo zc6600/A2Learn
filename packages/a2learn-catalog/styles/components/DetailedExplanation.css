@@ -4,53 +4,53 @@
       font-family: var(--a2ui-font-family-title, var(--a2ui-font-family, sans-serif));
     }
     .explanation-card {
-      border: 1px solid var(--a2ui-color-border);
-      border-radius: var(--a2ui-border-radius, 16px);
+      border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 86%, transparent);
+      border-radius: 10px;
       background: var(--a2ui-color-surface);
-      padding: var(--a2ui-spacing-xl, 32px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      padding: 24px 26px;
+      box-shadow: none;
       position: relative;
       transition: all 0.3s ease;
     }
     .explanation-card:hover {
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+      border-color: color-mix(in oklab, var(--a2ui-color-primary) 32%, var(--a2ui-color-border));
     }
     .meta-badge {
       position: absolute;
-      top: 20px;
-      right: 20px;
-      background: color-mix(in oklab, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
-      color: var(--a2ui-color-primary);
-      padding: 4px 10px;
-      border-radius: 20px;
+      top: 22px;
+      right: 24px;
+      background: transparent;
+      color: color-mix(in oklab, var(--a2ui-color-on-surface) 50%, transparent);
+      padding: 0;
+      border-radius: 0;
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.25px;
       display: flex;
       align-items: center;
       gap: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      box-shadow: none;
     }
     .header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 9px;
+      margin-bottom: 14px;
     }
     .icon {
-      font-size: 24px;
+      font-size: 19px;
     }
     .title {
       margin: 0;
-      font-size: 20px;
-      font-weight: 800;
+      font-size: 19px;
+      font-weight: 740;
       color: var(--a2ui-color-on-surface);
-      letter-spacing: -0.5px;
+      letter-spacing: -0.2px;
       font-family: var(--a2ui-font-family-title, var(--a2ui-font-family, sans-serif));
     }
     .content-body {
-      font-size: 16px;
-      line-height: 1.8;
+      font-size: 15.5px;
+      line-height: 1.72;
       color: var(--a2ui-color-on-surface);
       font-family: var(--a2ui-font-family-title, var(--a2ui-font-family, sans-serif));
       text-align: var(--a2learn-detailed-content-align, start);
