@@ -841,6 +841,10 @@
     .app-modal-input:focus {
       border-color: var(--a2ui-color-primary);
     }
+    .app-api-key-input-masked {
+      -webkit-text-security: disc;
+      text-security: disc;
+    }
     .app-modal-footer {
       display: flex;
       justify-content: flex-end;

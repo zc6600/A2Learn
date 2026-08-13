@@ -87,10 +87,17 @@ export function renderAppFrame(
           <p>${chrome.modalBodyIntroHtml}</p>
           <input
             id="app-api-key-input"
-            type="password"
-            class="app-modal-input"
+            type="text"
+            class="app-modal-input app-api-key-input-masked"
             placeholder="sk-or-v1-xxxxxxxxxxxxxxxx"
             autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-bwignore="true"
+            data-form-type="other"
           />
           <p style="font-size: 12px; color: var(--app-muted);">
             ${chrome.modalBodyFooter}
