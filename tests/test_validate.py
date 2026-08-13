@@ -102,6 +102,26 @@ class ValidateMessagesTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_a2ui_messages(only_create)
 
+    def test_rejects_non_string_component_identity_without_type_error(self) -> None:
+        messages = [
+            {
+                "version": "v0.9",
+                "createSurface": {
+                    "surfaceId": "main",
+                    "catalogId": "https://a2learn.ai/spec/v1/catalog.json",
+                },
+            },
+            {
+                "version": "v0.9",
+                "updateComponents": {
+                    "surfaceId": "main",
+                    "components": [{"id": "root", "component": {"name": "Column"}}],
+                },
+            },
+        ]
+        with self.assertRaisesRegex(ValueError, "non-empty string 'component'"):
+            validate_a2ui_messages(messages, permitted_custom_components=("ConceptCard",))
+
 
 if __name__ == "__main__":
     unittest.main()

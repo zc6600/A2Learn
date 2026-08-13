@@ -46,6 +46,28 @@ class ValidateOrRepairTests(unittest.TestCase):
         self.assertIn("catalogId", repair.call_args.args[2])
         self.assertEqual(result, VALID_MESSAGES)
 
+    def test_repairs_component_with_non_string_type(self) -> None:
+        malformed = [
+            *VALID_MESSAGES[:1],
+            {
+                "version": "v0.9",
+                "updateComponents": {
+                    "surfaceId": "main",
+                    "components": [{"id": "root", "component": {"name": "Column"}}],
+                },
+            },
+        ]
+        with patch(
+            "agent.generation.engine.repair_a2ui_messages", return_value=VALID_MESSAGES
+        ) as repair:
+            result = _validate_or_repair(
+                object(), malformed, max_repair_attempts=2, permitted_custom_components=("ConceptCard",)
+            )
+
+        self.assertEqual(result, VALID_MESSAGES)
+        self.assertEqual(repair.call_count, 1)
+        self.assertIn("non-empty string 'component'", repair.call_args.args[2])
+
     def test_raises_after_exhausting_repair_attempts(self) -> None:
         with patch(
             "agent.generation.engine.repair_a2ui_messages", return_value=INVALID_MESSAGES

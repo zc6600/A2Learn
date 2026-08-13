@@ -43,15 +43,9 @@ proxy:
 env:
   clear:
     A2LEARN_ALLOWED_ORIGINS: https://a2learn.zc6600.wiki
-    # google/gemini-3.5-flash-lite was tried here but OpenRouter returns a
-    # 403 "not available in your region" from this server's location
-    # (Aliyun Hangzhou). deepseek/deepseek-v4-flash worked but hit
-    # intermittent JSON-formatting failures even after the agent/llm.py
-    # fixes (greedy fence matching, prompt guardrail, retry-on-parse-failure,
-    # max_tokens). Trying qwen/qwen3.7-flash next — faster locally (~100s vs
-    # 180-400s for the full 3-step pipeline) and, being an Alibaba model,
-    # should be reachable from this Aliyun box.
-    OPENROUTER_MODEL: qwen/qwen3.7-flash
+    # The generation pipeline needs reliable JSON schema adherence across
+    # curriculum planning, site planning, and A2UI component generation.
+    OPENROUTER_MODEL: deepseek/deepseek-v4-flash
 
 aliases:
   logs: app logs -f
