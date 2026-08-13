@@ -106,6 +106,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   let sources: KnowledgeSource[] = [];
   const chosen = new Set<string>();
   let isLoading = false;
+  let hasLoadError = false;
 
   const setMessage = (value: string) => {
     message.textContent = value;
@@ -136,7 +137,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     for (const sourceId of [...chosen]) {
       if (!readyIds.has(sourceId)) chosen.delete(sourceId);
     }
-    if (sources.length === 0 && !isLoading) {
+    if (sources.length === 0 && !isLoading && !hasLoadError) {
       const empty = document.createElement("p");
       empty.className = "a2learn-library-message";
       empty.textContent = copy.empty;
@@ -182,20 +183,26 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   const loadSources = async () => {
     const baseUrl = apiBaseUrl();
     if (!baseUrl) {
+      hasLoadError = true;
       setMessage(getText(options).noBackend);
+      renderSources();
       return;
     }
     isLoading = true;
+    hasLoadError = false;
     refresh.disabled = true;
     setMessage(getText(options).loading);
     try {
       const response = await fetch(`${baseUrl}/api/knowledge/sources`, { headers: requestHeaders(options.getApiKey()) });
-      if (!response.ok) throw new Error(String(response.status));
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json() as { sources?: KnowledgeSource[] };
       sources = Array.isArray(payload.sources) ? payload.sources : [];
+      hasLoadError = false;
       setMessage("");
     } catch (error) {
-      setMessage(`${getText(options).loadFailed} (${String(error)})`);
+      hasLoadError = true;
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      setMessage(`${getText(options).loadFailed} (${errorMsg})`);
     } finally {
       isLoading = false;
       refresh.disabled = false;
