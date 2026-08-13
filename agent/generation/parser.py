@@ -145,7 +145,6 @@ def _parse_detailed_explanation(de: Any) -> dict[str, Any] | None:
             "id": "detailed-explanation",
             "component": "DetailedExplanation",
             "title": de.get("title"),
-            "icon": de.get("icon", "📖"),
             "estimatedReadTime": de.get("estimatedReadTime", "3 分钟阅读"),
             "content": de.get("content", ""),
         }

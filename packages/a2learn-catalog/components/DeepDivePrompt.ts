@@ -68,7 +68,6 @@ export class A2learnDeepDivePromptElement extends A2uiLitElement<typeof DeepDive
           ${prompts.map((prompt) => {
             const promptId = this.resolveString(prompt.id);
             const isSelected = promptId === selectedId;
-            const icon = prompt.icon ? this.resolveString(prompt.icon) : "";
             const label = this.resolveString(prompt.label);
 
             return html`
@@ -76,7 +75,6 @@ export class A2learnDeepDivePromptElement extends A2uiLitElement<typeof DeepDive
                 class="prompt-btn ${isSelected ? 'selected' : ''}" 
                 @click=${() => this.handlePromptClick(label, promptId)}
               >
-                ${icon ? html`<span class="icon">${icon}</span>` : nothing}
                 <span class="label">${unsafeHTML(sanitizeHtml(label, { inline: true }))}</span>
                 ${isSelected ? html`<span class="check-icon">✓</span>` : nothing}
               </button>

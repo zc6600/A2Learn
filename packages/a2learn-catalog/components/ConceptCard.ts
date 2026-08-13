@@ -60,7 +60,6 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
     if (!props) return nothing;
 
     const title = this.resolveString(props.title);
-    const icon = props.icon ? this.resolveString(props.icon) : "";
     const definitionTitle = props.definitionTitle !== undefined
       ? this.resolveString(props.definitionTitle)
       : "";
@@ -76,7 +75,6 @@ export class A2learnConceptCardElement extends A2uiLitElement<typeof ConceptCard
       <div class="concept-card">
         <div class="header">
           <h2 class="title">
-            ${icon ? html`<span class="title-icon">${icon}</span>` : nothing}
             <span>${title}</span>
           </h2>
           ${tags.length > 0 ? html`

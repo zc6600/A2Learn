@@ -69,7 +69,7 @@ export class A2learnLiteratureReferenceElement extends A2uiLitElement<typeof Lit
             ${url
               ? html`
                   <a class="ref-title-link" href="${url}" target="_blank" @click=${(e: Event) => e.stopPropagation()}>
-                    ${title} 🔗
+                    ${title}
                   </a>
                 `
               : title}

@@ -58,8 +58,8 @@ export class A2learnPaperAbstractElement extends A2uiLitElement<typeof PaperAbst
         ${venue || year
           ? html`
               <div class="meta-info">
-                ${venue ? html`<span>🏫 ${venue}</span>` : nothing}
-                ${year ? html`<span>📅 ${year}</span>` : nothing}
+                ${venue ? html`<span>${venue}</span>` : nothing}
+                ${year ? html`<span>${year}</span>` : nothing}
               </div>
             `
           : nothing}
@@ -68,7 +68,6 @@ export class A2learnPaperAbstractElement extends A2uiLitElement<typeof PaperAbst
           ? html`
               <div class="tldr-box">
                 <div class="tldr-title">
-                  <span>💡</span>
                   <span>Core Takeaway (TL;DR)</span>
                 </div>
                 <div class="tldr-content a2learn-markdown-body">${unsafeHTML(sanitizeHtml(tldr))}</div>
@@ -85,14 +84,14 @@ export class A2learnPaperAbstractElement extends A2uiLitElement<typeof PaperAbst
                 ${pdfUrl
                   ? html`
                       <a class="btn btn-primary" href="${pdfUrl}" target="_blank">
-                        <span>📥</span> Download PDF
+                        Download PDF
                       </a>
                     `
                   : nothing}
                 ${sourceUrl
                   ? html`
                       <a class="btn btn-secondary" href="${sourceUrl}" target="_blank">
-                        <span>🔗</span> View Source
+                        View Source
                       </a>
                     `
                   : nothing}

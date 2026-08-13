@@ -125,7 +125,7 @@ export class A2learnFlashcardElement extends A2uiLitElement<typeof FlashcardApi>
             </div>
 
             ${currentCard.hint
-              ? html`<div class="card-hint">💡 ${currentCard.hint}</div>`
+              ? html`<div class="card-hint">${currentCard.hint}</div>`
               : nothing}
           </div>
 

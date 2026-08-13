@@ -198,6 +198,10 @@ def a2ui_system_prompt(
           5. Summarize the module with an intuitive takeaway and connected terminology.
         - PURE CONTENT TITLES:
           Write clean, direct subject-matter titles for all components and headers.
+        - NO DECORATIVE EMOJI: Do not add emoji icons to titles, headings,
+          cards, labels, or option text. Use typography and concise wording for
+          hierarchy. Keep only functional status symbols when their meaning
+          cannot be communicated by text alone.
         - CONCRETE REAL EXAMPLES (用具体数据步步演推代替抽象公式):
           When explaining data structures or algorithms, NEVER use abstract formulas like "shifting half the array O(N)".
           ALWAYS provide a concrete step-by-step numeric trace:

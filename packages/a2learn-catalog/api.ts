@@ -111,7 +111,7 @@ export const ConceptCardApi = {
     .object({
       ...CommonProps,
       title: DynamicStringSchema.describe("概念名称"),
-      icon: DynamicStringSchema.optional().describe("可选的概念图标或 Emoji"),
+      icon: DynamicStringSchema.optional().describe("兼容旧内容的图标字段；新内容请省略，界面将以文字层级呈现"),
       definitionTitle: DynamicStringSchema.optional().describe("定义/解析小节标题（如 '哲思升华'），省略时默认为 '核心定义'"),
       definition: DynamicStringSchema.describe("核心定义（支持 Markdown）"),
       exampleTitle: DynamicStringSchema.optional().describe("示例/案例小节标题（如 '对比解析'），省略时默认为 '实践示例'"),
@@ -293,7 +293,7 @@ export const AnalogyCardApi = {
     .object({
       ...CommonProps,
       title: DynamicStringSchema.default("打个比方").describe("类比卡片的标题"),
-      icon: DynamicStringSchema.default("💡").describe("类比卡片的图标 (Emoji)"),
+      icon: DynamicStringSchema.optional().describe("兼容旧内容的图标字段；新内容请省略"),
       analogy: DynamicStringSchema.describe("类比或故事的详细内容（支持 Markdown）"),
     })
     .strict(),
@@ -369,7 +369,7 @@ export const DeepDivePromptApi = {
       prompts: z.array(z.object({
         id: z.string(),
         label: DynamicStringSchema.describe("提示选项的文本，如 '举个生活中的例子'"),
-        icon: DynamicStringSchema.optional().describe("提示选项的图标 (Emoji)，如 '🤔'"),
+        icon: DynamicStringSchema.optional().describe("兼容旧内容的图标字段；新内容请省略"),
       })).describe("深挖选项列表"),
       selectedId: z.string().optional().describe("当前被用户选中的提示 ID"),
       onPromptSelect: ActionSchema.optional().describe("用户点击提示按钮时触发，Agent 收到后应在下方追加新内容"),
@@ -451,7 +451,7 @@ export const MentalModelApi = {
       ...CommonProps,
       title: DynamicStringSchema.describe("心智模型名称，例如 'MVC 架构' 或 'Event Loop'"),
       description: DynamicStringSchema.describe("高层次的整体心智模型描述（支持 Markdown）"),
-      icon: DynamicStringSchema.optional().describe("心智模型图标 (Emoji)"),
+      icon: DynamicStringSchema.optional().describe("兼容旧内容的图标字段；新内容请省略"),
       analogy: DynamicStringSchema.optional().describe("生活中的生动类比，帮助建立直觉（支持 Markdown）"),
       diagram: DynamicStringSchema.optional().describe("结构/流程示意图，例如文本流程或 ASCII Art"),
       pillars: z
@@ -459,7 +459,7 @@ export const MentalModelApi = {
           z.object({
             title: DynamicStringSchema.describe("要素名称"),
             description: DynamicStringSchema.describe("要素描述"),
-            icon: DynamicStringSchema.optional().describe("要素图标 (Emoji)"),
+            icon: DynamicStringSchema.optional().describe("兼容旧内容的图标字段；新内容请省略"),
           })
         )
         .optional()
@@ -475,7 +475,7 @@ export const DetailedExplanationApi = {
       ...CommonProps,
       title: DynamicStringSchema.optional().describe("章节/深入介绍的标题"),
       content: DynamicStringSchema.describe("深入讲解的核心 Markdown 文本内容"),
-      icon: DynamicStringSchema.optional().describe("讲解卡片的图标 (Emoji)"),
+      icon: DynamicStringSchema.optional().describe("兼容旧内容的图标字段；新内容请省略"),
       estimatedReadTime: DynamicStringSchema.optional().describe("预计阅读时间，例如 '5 分钟阅读'"),
       contentAlign: z.enum(["start", "center"]).default("start").optional().describe("正文对齐方式。center 适合诗歌、引文等需要居中阅读的短行文本。"),
     })

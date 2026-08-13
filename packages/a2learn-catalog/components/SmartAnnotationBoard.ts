@@ -166,7 +166,7 @@ export class A2learnSmartAnnotationBoardElement extends A2uiLitElement<typeof Sm
             ` : nothing}
             ${feedback.inlineAnnotations?.length > 0 ? html`
               <p style="font-size: 13px; color: var(--app-muted); margin-top: 12px; margin-bottom: 0;">
-                💡 ${uiText("提示：将鼠标悬浮在原文的高亮片段上，可以查看行内批注详情。", "Tip: Hover over highlighted text to view its inline annotation.")}
+                ${uiText("提示：将鼠标悬浮在原文的高亮片段上，可以查看行内批注详情。", "Tip: Hover over highlighted text to view its inline annotation.")}
               </p>
             ` : nothing}
           </div>
