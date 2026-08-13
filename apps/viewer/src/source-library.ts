@@ -102,18 +102,41 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   generate.type = "button";
   const courseActions = document.createElement("div");
   courseActions.className = "a2learn-library-course-actions";
+  const lessonCountLabel = document.createElement("label");
+  lessonCountLabel.className = "a2learn-library-field-label";
   const lessonCount = document.createElement("input");
   lessonCount.type = "number";
   lessonCount.min = "1";
   lessonCount.max = "100";
   lessonCount.value = "10";
   lessonCount.className = "a2learn-library-lesson-count";
+  lessonCountLabel.htmlFor = "a2learn-library-lesson-count";
+  lessonCount.id = lessonCountLabel.htmlFor;
   const createCourse = document.createElement("button");
   createCourse.className = "a2learn-library-button";
   createCourse.type = "button";
-  courseActions.append(lessonCount, createCourse);
+  courseActions.append(lessonCountLabel, lessonCount, createCourse);
+  const manualStart = document.createElement("button");
+  manualStart.className = "a2learn-library-button";
+  manualStart.type = "button";
   const manual = document.createElement("section");
   manual.className = "a2learn-library-manual-course";
+  manual.hidden = true;
+  const manualHead = document.createElement("header");
+  manualHead.className = "a2learn-library-manual-head";
+  const manualHeading = document.createElement("div");
+  manualHeading.className = "a2learn-library-manual-heading";
+  const manualSource = document.createElement("p");
+  manualSource.className = "a2learn-library-manual-source";
+  const manualBack = document.createElement("button");
+  manualBack.className = "a2learn-library-button";
+  manualBack.type = "button";
+  manualHead.append(manualHeading, manualSource, manualBack);
+  const manualReader = document.createElement("iframe");
+  manualReader.className = "a2learn-library-pdf-reader";
+  manualReader.title = "PDF reader";
+  const manualForm = document.createElement("div");
+  manualForm.className = "a2learn-library-manual-form";
   const manualTitle = document.createElement("input");
   manualTitle.className = "a2learn-library-lesson-count";
   const lessonTitle = document.createElement("input");
@@ -136,8 +159,9 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   const generateManual = document.createElement("button");
   generateManual.className = "a2learn-library-button primary";
   generateManual.type = "button";
-  manual.append(manualTitle, lessonTitle, pageStart, pageEnd, addLesson, manualLessons, generateManual);
-  footer.append(selected, generate, courseActions, manual);
+  manualForm.append(manualTitle, lessonTitle, pageStart, pageEnd, addLesson, manualLessons, generateManual);
+  manual.append(manualHead, manualReader, manualForm);
+  footer.append(selected, generate, courseActions, manualStart, manual);
   panel.append(header, actions, hint, message, sourcesElement, goal, footer);
   root.append(panel);
   document.body.appendChild(root);
@@ -145,6 +169,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   let sources: KnowledgeSource[] = [];
   const chosen = new Set<string>();
   let readerLessons: Array<{ title: string; pageStart: number; pageEnd: number }> = [];
+  let manualOpen = false;
   let isLoading = false;
   let hasLoadError = false;
 
@@ -168,7 +193,11 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     goal.placeholder = copy.goal;
     generate.textContent = copy.generate;
     lessonCount.setAttribute("aria-label", options.getLanguage() === "zh" ? "课程课时数" : "Number of lessons");
+    lessonCountLabel.textContent = options.getLanguage() === "zh" ? "课程课时数" : "Lessons";
     createCourse.textContent = options.getLanguage() === "zh" ? "生成整本书课程" : "Plan book course";
+    manualStart.textContent = options.getLanguage() === "zh" ? "按 PDF 页手动拆分课程" : "Split a PDF into lessons";
+    manualHeading.textContent = options.getLanguage() === "zh" ? "按 PDF 页手动拆分" : "Split the PDF into lessons";
+    manualBack.textContent = options.getLanguage() === "zh" ? "返回资料库" : "Back to library";
     manualTitle.placeholder = options.getLanguage() === "zh" ? "课程名称（手动拆分）" : "Course title (manual split)";
     lessonTitle.placeholder = options.getLanguage() === "zh" ? "课时名称" : "Lesson title";
     pageStart.setAttribute("aria-label", options.getLanguage() === "zh" ? "起始 PDF 页" : "Start PDF page");
@@ -227,6 +256,21 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     selected.textContent = copy.selected.replace("{count}", String(chosen.size));
     generate.disabled = chosen.size === 0;
     createCourse.disabled = chosen.size === 0;
+    const selectedPdf = sources.find((source) => chosen.has(source.sourceId) && source.filename.toLowerCase().endsWith(".pdf"));
+    const canOpenManual = chosen.size === 1 && Boolean(selectedPdf);
+    manualStart.disabled = !canOpenManual;
+    if (manualOpen && !selectedPdf) manualOpen = false;
+    panel.classList.toggle("manual-open", manualOpen);
+    manual.hidden = !manualOpen;
+    if (manualOpen && selectedPdf) {
+      manualSource.textContent = `${selectedPdf.title} · ${selectedPdf.pageCount || "?"} PDF ${options.getLanguage() === "zh" ? "页" : "pages"}`;
+      const sourceUrl = `${apiBaseUrl()}/api/knowledge/sources/${encodeURIComponent(selectedPdf.sourceId)}/original`;
+      if (manualReader.src !== sourceUrl) manualReader.src = sourceUrl;
+      pageEnd.max = String(selectedPdf.pageCount || "");
+      pageStart.max = String(selectedPdf.pageCount || "");
+    } else {
+      manualReader.removeAttribute("src");
+    }
     generateManual.disabled = chosen.size !== 1 || readerLessons.length === 0 || !manualTitle.value.trim();
     manualLessons.replaceChildren(...readerLessons.map((lesson, index) => {
       const item = document.createElement("div");
@@ -300,6 +344,8 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
         body,
       });
       if (!response.ok) throw new Error(String(response.status));
+      const payload = await response.json() as { source?: KnowledgeSource };
+      if (payload.source?.extractionStatus === "ready") chosen.add(payload.source.sourceId);
       await loadSources();
     } catch (error) {
       setMessage(`${getText(options).uploadFailed} (${String(error)})`);
@@ -319,6 +365,19 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     }
     panel.classList.remove("open");
     options.onGenerate([...chosen], goal.value.trim());
+  });
+  manualStart.addEventListener("click", () => {
+    const selectedPdf = sources.find((source) => chosen.has(source.sourceId) && source.filename.toLowerCase().endsWith(".pdf"));
+    if (!selectedPdf || chosen.size !== 1) {
+      setMessage(options.getLanguage() === "zh" ? "请先只选择一份 PDF 资料。" : "Select exactly one PDF source first.");
+      return;
+    }
+    manualOpen = true;
+    renderSources();
+  });
+  manualBack.addEventListener("click", () => {
+    manualOpen = false;
+    renderSources();
   });
   createCourse.addEventListener("click", () => {
     if (chosen.size === 0) {

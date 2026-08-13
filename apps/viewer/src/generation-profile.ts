@@ -294,11 +294,7 @@ const COMPONENT_STRATEGIES: Record<GenerationTemplate["componentStrategy"], stri
   "paper-first": ["LearningPath", "PaperAbstract", "ConceptCard", "MentalModel", "DetailedExplanation", "InteractiveFormula", "DataTable", "RelationshipMatch", "QuizCard", "ResourceList", "ScenarioDialogue", "Timeline", "DeepDivePrompt"],
   "poetry-reading": ["LearningPath", "DetailedExplanation", "RelationshipMatch", "ScenarioDialogue", "Timeline", "QuizCard", "DeepDivePrompt"],
 };
-// Themes that were formerly auto-linked to specific templates. Now that templates
-// no longer drive theme switching, a stored profile with one of these IDs should
-// be silently migrated to the neutral default so old localStorage values do not
-// keep forcing an unexpected colour scheme on the user.
-const LEGACY_TEMPLATE_LINKED_THEMES = new Set(["poetry-ink", "editorial"]);
+
 
 function uniqueKnownComponentIds(value: unknown, limit: number): string[] {
   if (!Array.isArray(value)) return [];
@@ -373,7 +369,7 @@ export function normalizeGenerationProfile(value: unknown): GenerationProfile {
     enabledComponents: allowedComponents,
     exampleIds,
     referencePackIds,
-    themeId: typeof raw.themeId === "string" && KNOWN_THEME_IDS.has(raw.themeId) && !LEGACY_TEMPLATE_LINKED_THEMES.has(raw.themeId)
+    themeId: typeof raw.themeId === "string" && KNOWN_THEME_IDS.has(raw.themeId)
       ? raw.themeId
       : DEFAULT_GENERATION_PROFILE.themeId,
     // Before display modes were separate, selecting the old presentation theme

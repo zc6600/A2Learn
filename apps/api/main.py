@@ -648,6 +648,24 @@ def get_knowledge_source_chunks(source_id: str, query: str | None = None, limit:
         raise HTTPException(status_code=404, detail="KNOWLEDGE_SOURCE_NOT_FOUND") from exc
 
 
+@app.get("/api/knowledge/sources/{source_id}/original")
+def get_knowledge_source_original(source_id: str) -> FileResponse:
+    """Serve a retained PDF inline for the reader-defined course editor."""
+    try:
+        source = knowledge_store.get(source_id)
+        path = knowledge_store.original_file(source_id)
+    except KnowledgeSourceNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="KNOWLEDGE_SOURCE_NOT_FOUND") from exc
+    if path.suffix.lower() != ".pdf":
+        raise HTTPException(status_code=422, detail="KNOWLEDGE_SOURCE_NOT_A_PDF")
+    return FileResponse(
+        path,
+        media_type="application/pdf",
+        filename=source.filename,
+        content_disposition_type="inline",
+    )
+
+
 @app.post("/api/book-courses/manual", response_model=BookCoursePlanResponse, status_code=201)
 def create_manual_book_course(payload: ManualBookCourseRequest) -> BookCoursePlanResponse:
     """Persist reader-selected PDF ranges without asking an LLM to infer structure."""

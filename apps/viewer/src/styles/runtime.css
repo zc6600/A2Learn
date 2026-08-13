@@ -257,38 +257,57 @@
     .a2learn-inline-editor-note { color: var(--app-muted); font-size: 12px; line-height: 1.45; }
 
 /* apps/viewer/src/source-library.ts */
-.a2learn-library-panel { position: fixed; z-index: 30; top: 148px; right: max(20px, calc((100vw - 1200px) / 2)); display: none; width: min(390px, calc(100vw - 28px)); max-height: min(620px, calc(100vh - 168px)); overflow: auto; box-sizing: border-box; padding: 16px; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-shell-radius, 16px); background: var(--a2ui-color-surface); box-shadow: 0 20px 56px rgba(15, 23, 42, .2); color: var(--a2ui-color-on-surface); }
-    .a2learn-library-panel.open { display: grid; gap: 12px; }
+#a2learn-source-library { position: fixed; z-index: 29; inset: 0; pointer-events: none; }
+    #a2learn-source-library:has(.a2learn-library-panel.open) { pointer-events: auto; background: rgba(15, 23, 42, .18); backdrop-filter: blur(2px); }
+    .a2learn-library-panel { position: fixed; z-index: 30; top: 112px; right: max(24px, calc((100vw - 1248px) / 2)); display: none; width: min(440px, calc(100vw - 32px)); max-height: min(680px, calc(100vh - 136px)); overflow: auto; box-sizing: border-box; border: 1px solid color-mix(in srgb, var(--a2ui-color-border) 88%, transparent); border-radius: 18px; background: var(--a2ui-color-surface); box-shadow: 0 28px 80px rgba(15, 23, 42, .26), 0 4px 16px rgba(15, 23, 42, .08); color: var(--a2ui-color-on-surface); }
+    .a2learn-library-panel.manual-open { top: 40px; right: auto; left: 50%; translate: -50% 0; width: min(1080px, calc(100vw - 32px)); max-height: calc(100vh - 80px); }
+    .a2learn-library-panel.open { display: grid; gap: 0; animation: a2learn-library-enter .18s ease-out; }
     .a2learn-library-head, .a2learn-library-actions, .a2learn-library-source-head, .a2learn-library-source-meta { display: flex; align-items: center; gap: 8px; }
-    .a2learn-library-head { justify-content: space-between; }
-    .a2learn-library-title { margin: 0; font: 750 17px/1.2 var(--a2ui-font-family-title, sans-serif); }
-    .a2learn-library-close, .a2learn-library-button { border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 9px); padding: 7px 9px; background: var(--a2ui-color-surface-subtle); color: inherit; cursor: pointer; font: 600 12px/1.2 inherit; }
-    .a2learn-library-button.primary { border-color: var(--a2ui-color-primary); background: var(--a2ui-color-primary); color: var(--a2ui-color-on-primary, #ffffff); }
-    .a2learn-library-button:disabled { cursor: not-allowed; opacity: .5; }
-    .a2learn-library-hint, .a2learn-library-message, .a2learn-library-source-meta { color: var(--app-muted); font-size: 12px; line-height: 1.45; }
-    .a2learn-library-hint, .a2learn-library-message { margin: 0; }
+    .a2learn-library-head { justify-content: space-between; padding: 18px 20px 14px; border-bottom: 1px solid var(--a2ui-color-border); }
+    .a2learn-library-title { margin: 0; letter-spacing: -.02em; font: 750 19px/1.2 var(--a2ui-font-family-title, sans-serif); }
+    .a2learn-library-close, .a2learn-library-button { min-height: 34px; box-sizing: border-box; border: 1px solid var(--a2ui-color-border); border-radius: 9px; padding: 7px 11px; background: var(--a2ui-color-surface-subtle); color: inherit; cursor: pointer; font: 650 12px/1.2 inherit; transition: background .16s ease, border-color .16s ease, transform .16s ease; }
+    .a2learn-library-close { width: 32px; padding: 0; border-radius: 50%; font-size: 20px; font-weight: 400; line-height: 1; }
+    .a2learn-library-close:hover, .a2learn-library-button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--a2ui-color-primary) 45%, var(--a2ui-color-border)); background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface)); }
+    .a2learn-library-button.primary { border-color: var(--a2ui-color-primary); background: var(--a2ui-color-primary); color: var(--a2ui-color-on-primary, #ffffff); box-shadow: 0 5px 12px color-mix(in srgb, var(--a2ui-color-primary) 24%, transparent); }
+    .a2learn-library-button.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--a2ui-color-primary) 88%, #000); color: var(--a2ui-color-on-primary, #ffffff); transform: translateY(-1px); }
+    .a2learn-library-button:disabled { cursor: not-allowed; opacity: .48; }
+    .a2learn-library-hint, .a2learn-library-message, .a2learn-library-source-meta { color: var(--app-muted); font-size: 12px; line-height: 1.55; }
+    .a2learn-library-hint { margin: 14px 20px 0; padding: 9px 11px; border-radius: 9px; background: color-mix(in srgb, var(--a2ui-color-primary) 6%, var(--a2ui-color-surface-subtle)); }
+    .a2learn-library-message { margin: 12px 20px 0; }
     .a2learn-library-file-input { display: none; }
-    .a2learn-library-sources { display: grid; gap: 8px; max-height: 270px; overflow: auto; }
-    .a2learn-library-source { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 9px; padding: 10px; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 9px); }
-    .a2learn-library-source input { margin-top: 3px; accent-color: var(--a2ui-color-primary); }
+    .a2learn-library-actions { gap: 8px; padding: 14px 20px 0; }
+    .a2learn-library-sources { display: grid; gap: 8px; max-height: 254px; margin: 14px 20px 0; overflow: auto; }
+    .a2learn-library-sources > .a2learn-library-message { margin: 0; padding: 20px 14px; border: 1px dashed var(--a2ui-color-border); border-radius: 12px; text-align: center; }
+    .a2learn-library-source { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: 11px; border: 1px solid var(--a2ui-color-border); border-radius: 12px; background: color-mix(in srgb, var(--a2ui-color-surface) 94%, var(--a2ui-color-surface-subtle)); cursor: pointer; transition: border-color .16s ease, background .16s ease; }
+    .a2learn-library-source:hover { border-color: color-mix(in srgb, var(--a2ui-color-primary) 40%, var(--a2ui-color-border)); background: color-mix(in srgb, var(--a2ui-color-primary) 4%, var(--a2ui-color-surface)); }
+    .a2learn-library-source input { margin: 3px 0 0; accent-color: var(--a2ui-color-primary); }
     .a2learn-library-source-name { overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
     .a2learn-library-source-meta { flex-wrap: wrap; margin-top: 4px; }
-    .a2learn-library-status { padding: 2px 6px; border-radius: var(--a2learn-pill-radius, 999px); background: var(--a2ui-color-surface-subtle); font-size: 11px; }
+    .a2learn-library-status { padding: 2px 7px; border-radius: var(--a2learn-pill-radius, 999px); background: var(--a2ui-color-surface-subtle); font-size: 11px; font-weight: 650; }
     .a2learn-library-status.ready { background: color-mix(in srgb, var(--a2ui-color-success) 15%, transparent); color: var(--a2ui-color-success); }
     .a2learn-library-status.pending { background: color-mix(in srgb, var(--a2ui-color-warning) 15%, transparent); color: var(--a2ui-color-warning); }
     .a2learn-library-status.failed { background: color-mix(in srgb, var(--a2ui-color-error) 15%, transparent); color: var(--a2ui-color-error); }
-    .a2learn-library-goal { width: 100%; min-height: 64px; box-sizing: border-box; resize: vertical; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 9px); padding: 9px; background: var(--a2ui-color-surface); color: inherit; font: inherit; font-size: 13px; }
-    .a2learn-library-footer { display: grid; gap: 8px; }
-    .a2learn-library-course-actions { display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 8px; }
-    .a2learn-library-advanced-toggle { border: 0; padding: 4px 0; background: transparent; color: var(--app-muted); cursor: pointer; text-align: left; font: 600 12px/1.2 inherit; }
-    .a2learn-library-advanced { display: grid; gap: 10px; }
-    .a2learn-library-lesson-count { min-width: 0; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 9px); padding: 7px; background: var(--a2ui-color-surface); color: inherit; font: inherit; }
-    .a2learn-library-manual-course { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 4px; border-top: 1px solid var(--a2ui-color-border); }
-    .a2learn-library-manual-course > :first-child, .a2learn-library-manual-course > :nth-child(6), .a2learn-library-manual-course > :last-child { grid-column: 1 / -1; }
+    .a2learn-library-goal { width: auto; min-height: 76px; box-sizing: border-box; margin: 14px 20px 0; resize: vertical; border: 1px solid var(--a2ui-color-border); border-radius: 12px; padding: 10px 11px; background: var(--a2ui-color-surface); color: inherit; font: inherit; font-size: 13px; line-height: 1.45; }
+    .a2learn-library-footer { display: grid; gap: 10px; margin-top: 16px; padding: 14px 20px 20px; border-top: 1px solid var(--a2ui-color-border); background: color-mix(in srgb, var(--a2ui-color-surface-subtle) 55%, transparent); }
+    .a2learn-library-footer > .a2learn-library-message { margin: 0; font-variant-numeric: tabular-nums; }
+    .a2learn-library-footer > .a2learn-library-button.primary { width: 100%; min-height: 38px; }
+    .a2learn-library-course-actions { display: grid; grid-template-columns: auto 68px minmax(0, 1fr); align-items: center; gap: 8px; }
+    .a2learn-library-field-label { color: var(--app-muted); font-size: 12px; font-weight: 650; white-space: nowrap; }
+    .a2learn-library-lesson-count { min-width: 0; min-height: 34px; box-sizing: border-box; border: 1px solid var(--a2ui-color-border); border-radius: 9px; padding: 7px; background: var(--a2ui-color-surface); color: inherit; font: inherit; }
+    .a2learn-library-manual-course { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 14px; padding-top: 4px; border-top: 1px solid var(--a2ui-color-border); }
+    .a2learn-library-manual-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; grid-column: 1 / -1; align-items: center; }
+    .a2learn-library-manual-heading { font: 750 15px/1.25 var(--a2ui-font-family-title, sans-serif); }
+    .a2learn-library-manual-source { grid-column: 1; margin: 0; overflow: hidden; color: var(--app-muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .a2learn-library-manual-head .a2learn-library-button { grid-column: 2; grid-row: 1 / span 2; }
+    .a2learn-library-pdf-reader { width: 100%; min-height: 460px; border: 1px solid var(--a2ui-color-border); border-radius: 12px; background: var(--a2ui-color-surface-subtle); }
+    .a2learn-library-manual-form { display: grid; align-content: start; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .a2learn-library-manual-form > :first-child, .a2learn-library-manual-form > :nth-child(6), .a2learn-library-manual-form > :last-child { grid-column: 1 / -1; }
     .a2learn-library-manual-lessons { display: grid; gap: 5px; max-height: 120px; overflow: auto; }
-    .a2learn-library-manual-lesson { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--app-muted); }
+    .a2learn-library-manual-lesson { display: flex; justify-content: space-between; gap: 8px; padding: 7px 8px; border-radius: 8px; background: var(--a2ui-color-surface); font-size: 12px; color: var(--app-muted); }
     .a2learn-library-manual-lesson button { border: 0; background: transparent; color: inherit; cursor: pointer; }
-    @media (max-width: 640px) { .a2learn-library-panel { top: 118px; right: 12px; } }
+    .a2learn-library-panel :is(button, input, textarea):focus-visible { outline: 2px solid color-mix(in srgb, var(--a2ui-color-primary) 70%, transparent); outline-offset: 2px; }
+    @keyframes a2learn-library-enter { from { opacity: 0; transform: translateY(-8px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @media (max-width: 760px) { .a2learn-library-panel, .a2learn-library-panel.manual-open { top: 16px; right: 16px; left: 16px; translate: none; width: auto; max-height: calc(100vh - 32px); } .a2learn-library-manual-course { grid-template-columns: 1fr; } .a2learn-library-pdf-reader { min-height: 360px; } }
 
 /* apps/viewer/src/surface-renderer.ts */
 .surface-tabs-container {

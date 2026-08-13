@@ -1,5 +1,10 @@
 /* minimal: visual tokens only; structure belongs in base/components. */
 html[data-a2learn-theme="minimal"] {
+  color-scheme: light;
+  --app-bg: #ffffff;
+  --app-text: #111827;
+  --app-muted: #6b7280;
+  --app-outline: #d1d5db;
   --a2ui-color-primary: #1f2937;
   --a2ui-color-on-primary: #ffffff;
   --a2ui-color-secondary: #4b5563;
@@ -9,6 +14,7 @@ html[data-a2learn-theme="minimal"] {
   --a2ui-color-surface: #ffffff;
   --a2ui-color-surface-subtle: #f9fafb;
   --a2ui-color-on-surface: #111827;
+  --a2ui-color-on-background: #1f2937;
   --a2ui-color-border: #d1d5db;
   --a2ui-card-border-radius: 0px;
   --a2ui-card-box-shadow: none;

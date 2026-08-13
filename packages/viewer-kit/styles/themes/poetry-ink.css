@@ -1,5 +1,10 @@
 /* poetry-ink: visual tokens only; structure belongs in base/components. */
 html[data-a2learn-theme="poetry-ink"] {
+  color-scheme: light;
+  --app-bg: #f6eedc;
+  --app-text: #2f2923;
+  --app-muted: #665342;
+  --app-outline: #d9c9ae;
   --a2ui-color-primary: #7a3e1d;
   --a2ui-color-on-primary: #fbf5e8;
   --a2ui-color-secondary: #536b4e;

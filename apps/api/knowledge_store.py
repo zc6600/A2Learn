@@ -310,6 +310,19 @@ class KnowledgeStore:
                 raise KnowledgeSourceNotFoundError(source_id)
             return self._source_from_row(connection, row)
 
+    def original_file(self, source_id: str) -> Path:
+        """Return the locally retained original after resolving it through source metadata."""
+        with closing(self._connection()) as connection:
+            row = connection.execute(
+                "SELECT storage_path FROM knowledge_sources WHERE source_id = ?", (source_id,)
+            ).fetchone()
+        if row is None:
+            raise KnowledgeSourceNotFoundError(source_id)
+        path = Path(row["storage_path"])
+        if not path.is_file():
+            raise KnowledgeSourceNotFoundError(source_id)
+        return path
+
     def list(self) -> list[KnowledgeSource]:
         with closing(self._connection()) as connection:
             rows = connection.execute(
