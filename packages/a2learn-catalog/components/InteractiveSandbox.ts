@@ -580,7 +580,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
 
         ${description ? html`
           <div class="description">
-            💡 <strong>${uiText("提示：", "Note:")}</strong>${unsafeHTML(sanitizeHtml(description))}
+            <strong>${uiText("提示：", "Note:")}</strong> ${unsafeHTML(sanitizeHtml(description))}
           </div>
         ` : nothing}
       </div>

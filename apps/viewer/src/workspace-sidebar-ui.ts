@@ -97,10 +97,10 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
       const menuDropdownHtml = isMenuOpen
         ? `
           <div class="tree-action-menu-dropdown" id="dropdown-${node.id}">
-            ${isFolder ? `<button class="action-menu-item" data-action="new-subfolder" data-node-id="${node.id}">📁 ${copy.newSubfolder}</button>` : ""}
-            <button class="action-menu-item" data-action="start-rename" data-node-id="${node.id}">✏️ ${copy.rename}</button>
-            <button class="action-menu-item" data-action="open-move" data-node-id="${node.id}">📂 ${copy.moveTo}</button>
-            <button class="action-menu-item danger" data-action="confirm-delete" data-node-id="${node.id}">🗑️ ${copy.deleteItem}</button>
+            ${isFolder ? `<button class="action-menu-item" data-action="new-subfolder" data-node-id="${node.id}">${copy.newSubfolder}</button>` : ""}
+            <button class="action-menu-item" data-action="start-rename" data-node-id="${node.id}">${copy.rename}</button>
+            <button class="action-menu-item" data-action="open-move" data-node-id="${node.id}">${copy.moveTo}</button>
+            <button class="action-menu-item danger" data-action="confirm-delete" data-node-id="${node.id}">${copy.deleteItem}</button>
           </div>
         `
         : "";
@@ -173,12 +173,11 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
       <aside class="workspace-sidebar" id="workspace-sidebar">
         <div class="sidebar-header">
           <div class="sidebar-brand">
-            <span class="sidebar-brand-icon">📚</span>
             <span class="sidebar-brand-title">${copy.workspaceTitle}</span>
           </div>
           <div class="sidebar-header-actions">
             <button id="sidebar-new-folder-btn" class="sidebar-icon-btn" title="${copy.newFolder}">
-              ➕
+              +
             </button>
             <button id="sidebar-collapse-toggle" class="sidebar-icon-btn" title="${copy.collapseSidebar}">
               ◀
@@ -191,7 +190,7 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
             type="text"
             id="sidebar-search-input"
             class="sidebar-search-input"
-            placeholder="${lang === "zh" ? "🔍 快速过滤课程..." : "🔍 Filter lessons..."}"
+            placeholder="${lang === "zh" ? "快速过滤课程..." : "Filter lessons..."}"
             value="${searchTerm.replace(/"/g, "&quot;")}"
           />
         </div>
@@ -225,7 +224,7 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
         <div id="sidebar-move-modal" class="app-modal-backdrop hidden">
           <div class="app-modal small-modal">
             <div class="app-modal-header">
-              <h3 class="app-modal-title">📁 ${copy.selectTargetFolder}</h3>
+              <h3 class="app-modal-title">${copy.selectTargetFolder}</h3>
               <button id="move-modal-close" class="app-modal-close">✕</button>
             </div>
             <div class="app-modal-body">
@@ -617,9 +616,9 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
     const folderOptions = workspaceStore.getUserFolderOptions(node.type === "folder" ? nodeId : undefined);
 
     select.innerHTML = `
-      <option value="__root__">📂 ${copy.moveToRoot}</option>
+      <option value="__root__">${copy.moveToRoot}</option>
       ${folderOptions
-        .map((f) => `<option value="${f.id}"${node.parentId === f.id ? " selected" : ""}>${"  ".repeat(f.depth)}📁 ${f.title}</option>`)
+        .map((f) => `<option value="${f.id}"${node.parentId === f.id ? " selected" : ""}>${"  ".repeat(f.depth)}${f.title}</option>`)
         .join("")}
     `;
 

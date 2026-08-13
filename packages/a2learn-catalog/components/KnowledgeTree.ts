@@ -56,7 +56,7 @@ export class A2learnKnowledgeTreeElement extends A2uiLitElement<typeof Knowledge
         <!-- 面包屑导航 -->
         ${path.length > 0 || currentNode ? html`
           <div class="breadcrumb">
-            <span class="crumb-item" @click=${() => this.handleNavigate("root")}>🏠 ${uiText("根目录", "Root")}</span>
+            <span class="crumb-item" @click=${() => this.handleNavigate("root")}>${uiText("根目录", "Root")}</span>
             ${path.map((p: any) => html`
               <span class="crumb-separator">/</span>
               <span class="crumb-item" @click=${() => this.handleNavigate(p.id)}>

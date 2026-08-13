@@ -64,7 +64,7 @@ function updateKeyPillStatus(): void {
   const lang = getLang();
   if (key) {
     pill.className = "app-key-pill active";
-    pill.textContent = lang === "zh" ? "🔑 API Key 已配置" : "🔑 API Key configured";
+    pill.textContent = lang === "zh" ? "API Key 已配置" : "API Key configured";
   } else {
     pill.className = "app-key-pill missing";
     pill.textContent = CHROME_STRINGS[lang].keyPillMissingLabel;

@@ -62,7 +62,7 @@ export class A2learnDeepDivePromptElement extends A2uiLitElement<typeof DeepDive
     return html`
       <div class="deep-dive-box">
         <div class="deep-dive-header">
-          <span class="deep-dive-title">${uiText("💬 推荐追问与深入探索", "💬 Suggested Follow-ups")}</span>
+          <span class="deep-dive-title">${uiText("推荐追问与深入探索", "Suggested Follow-ups")}</span>
         </div>
         <div class="prompts-container">
           ${prompts.map((prompt) => {

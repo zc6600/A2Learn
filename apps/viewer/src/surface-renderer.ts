@@ -44,12 +44,12 @@ function getSurfaceTitle(surface: any): string {
   const rawId = (surface.id || "Page").toLowerCase();
   const lang = getLang();
   const fallbackLabels: Record<string, [string, string]> = {
-    concept: ["💡 核心概念", "💡 Core Concept"],
-    analogy: ["💡 直觉类比", "💡 Intuitive Analogy"],
-    quiz: ["✍️ 自测练习", "✍️ Self Check"],
-    outline: ["📚 课程大纲", "📚 Course Outline"],
-    detail: ["📖 详细讲解", "📖 Deep Dive"],
-    mental: ["🧠 心智模型", "🧠 Mental Model"],
+    concept: ["核心概念", "Core Concept"],
+    analogy: ["直觉类比", "Intuitive Analogy"],
+    quiz: ["自测练习", "Self Check"],
+    outline: ["课程大纲", "Course Outline"],
+    detail: ["详细讲解", "Deep Dive"],
+    mental: ["心智模型", "Mental Model"],
   };
   const pickLabel = (key: string) => fallbackLabels[key][lang === "zh" ? 0 : 1];
   if (rawId.includes("main") || rawId.includes("concept")) return pickLabel("concept");

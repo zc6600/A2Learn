@@ -233,8 +233,8 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       resizeTopLeft.setAttribute("title", english ? "Drag to resize" : "拖拽调整大小");
     }
     launcher.textContent = isQuestionMode
-      ? (english ? "✦ Ask about case" : "✦ 案例问答")
-      : (english ? "✦ Edit case" : "✦ 修改案例");
+      ? (english ? "Ask about case" : "案例问答")
+      : (english ? "Edit case" : "修改案例");
     title.textContent = isQuestionMode
       ? (english ? "Learning Q&A" : "学习问答")
       : (english ? "Page Editor Agent" : "页面编辑 Agent");

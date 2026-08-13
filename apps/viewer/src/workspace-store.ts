@@ -32,7 +32,7 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const aiFolderId = "curated_ai_series";
   nodes[aiFolderId] = {
     id: aiFolderId,
-    title: lang === "zh" ? "🤖 现代 AI 核心前沿" : "🤖 Modern AI & Frontiers",
+    title: lang === "zh" ? "现代 AI 核心前沿" : "Modern AI & Frontiers",
     type: "folder",
     parentId: null,
     isBuiltin: true,
@@ -75,7 +75,7 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const compFolderId = "curated_computing";
   nodes[compFolderId] = {
     id: compFolderId,
-    title: lang === "zh" ? "💻 计算机与核心算法" : "💻 Computer Systems & Web",
+    title: lang === "zh" ? "计算机与核心算法" : "Computer Systems & Web",
     type: "folder",
     parentId: null,
     isBuiltin: true,
@@ -127,7 +127,7 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const databaseFolderId = "curated_database_basics";
   nodes[databaseFolderId] = {
     id: databaseFolderId,
-    title: lang === "zh" ? "📁 数据库入门" : "📁 Database Basics",
+    title: lang === "zh" ? "数据库入门" : "Database Basics",
     type: "folder",
     parentId: compFolderId,
     isBuiltin: true,
@@ -164,7 +164,7 @@ function getBuiltinNodes(lang: Lang): Record<string, WorkspaceNode> {
   const humFolderId = "curated_humanities";
   nodes[humFolderId] = {
     id: humFolderId,
-    title: lang === "zh" ? "🏮 经典诗词与文学赏析" : "🏮 Classical Poetry Reading",
+    title: lang === "zh" ? "经典诗词与文学赏析" : "Classical Poetry Reading",
     type: "folder",
     parentId: null,
     isBuiltin: true,
