@@ -91,7 +91,6 @@ def _parse_mental_model(mm: Any) -> dict[str, Any] | None:
             "component": "MentalModel",
             "title": mm.get("title"),
             "description": mm.get("description", ""),
-            "icon": mm.get("icon", "🧠"),
             "analogy": mm.get("analogy", ""),
             "diagram": mm.get("diagram", ""),
             "pillars": mm.get("pillars", []),

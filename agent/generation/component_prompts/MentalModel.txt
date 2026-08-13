@@ -1,3 +1,5 @@
 COMPONENT MentalModel:
 - Explain the system as a small number of connected parts or pillars.
 - Introduce an intuitive analogy only when it clarifies the mechanism, and keep it faithful to the source.
+- Use a concise, complete teaching title (for example, "编号如何连接不同的数据表"), not a fragment or a decorative label.
+- Do not supply emoji icons for the model or its pillars; clear text, a diagram, and precise labels provide the hierarchy.

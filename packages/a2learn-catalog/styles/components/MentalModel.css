@@ -4,24 +4,25 @@
       font-family: var(--a2ui-font-family, sans-serif);
     }
     .mm-container {
-      border: 1px solid var(--a2ui-color-border);
-      border-radius: var(--a2ui-border-radius, 16px);
+      border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 86%, transparent);
+      border-radius: 10px;
       background: var(--a2ui-color-surface);
       overflow: visible;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: none;
+      transition: border-color 0.2s ease;
     }
     .mm-container:hover {
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-      transform: translateY(-2px);
+      box-shadow: none;
+      transform: none;
+      border-color: color-mix(in oklab, var(--a2ui-color-primary) 35%, var(--a2ui-color-border));
     }
     .header {
-      background: linear-gradient(135deg, color-mix(in oklab, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface)), color-mix(in oklab, var(--a2ui-color-secondary) 4%, var(--a2ui-color-surface)));
-      padding: var(--a2ui-spacing-l, 24px);
+      background: transparent;
+      padding: 20px 22px 14px;
       border-bottom: 1px solid var(--a2ui-color-border);
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 0;
     }
     .icon-badge {
       font-size: 28px;
@@ -43,10 +44,10 @@
     }
     .title {
       margin: 0;
-      font-size: 22px;
-      font-weight: 800;
+      font-size: 19px;
+      font-weight: 720;
       color: var(--a2ui-color-on-surface);
-      letter-spacing: -0.5px;
+      letter-spacing: -0.02em;
     }
     .subtitle {
       margin: 0;
@@ -57,10 +58,10 @@
       color: var(--a2ui-color-primary);
     }
     .body {
-      padding: var(--a2ui-spacing-l, 24px);
+      padding: 18px 22px 22px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
     }
     .description {
       font-size: 16px;
@@ -72,8 +73,8 @@
       font-size: 13px;
       font-weight: 700;
       color: color-mix(in oklab, var(--a2ui-color-on-surface) 60%, transparent);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
+      text-transform: none;
+      letter-spacing: 0.01em;
       margin: 0 0 12px 0;
       display: flex;
       align-items: center;
