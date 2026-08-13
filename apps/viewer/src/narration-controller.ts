@@ -210,7 +210,15 @@ export class NarrationController {
       this.activeAudio = null;
       this.activeUrl = null;
       this.resetButton();
-      this.showPlaybackError(audio.error?.message || "The audio could not be loaded.");
+      const err = audio.error;
+      let reason = "The audio could not be loaded.";
+      if (err) {
+        if (err.code === 2) reason = `网络加载失败 (Network error): ${audioUrl}`;
+        else if (err.code === 3) reason = `音频解码失败 (Decode error): ${audioUrl}`;
+        else if (err.code === 4) reason = `音频资源未找到或格式不支持 (404/Not supported): ${audioUrl}`;
+        else if (err.message) reason = `${err.message} (${audioUrl})`;
+      }
+      this.showPlaybackError(reason);
     };
 
     result.replaceChildren(header, audio);

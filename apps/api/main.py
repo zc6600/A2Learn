@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import threading
 import uuid
 from collections.abc import Iterator
 from contextlib import asynccontextmanager
@@ -25,7 +26,7 @@ from agent.editor.agent import (
 from agent.editor.stream import stream_page_editor_agent
 from agent.generation.action_response import build_action_response
 from agent.generation.engine import run_agent
-from agent.generation.llm import build_page_editor_llm
+from agent.generation.llm import build_llm, build_page_editor_llm, plan_book_course
 from agent.generation.media.image_generation import GeneratedImageStore
 from agent.generation.media.narration import (
     audio_dir,
@@ -50,6 +51,7 @@ from apps.api.knowledge_store import (
     KnowledgeSourceNotReadyError,
     KnowledgeStore,
 )
+from apps.api.course_store import CourseLessonNotFoundError, CourseNotFoundError, CourseStore
 from apps.api.mcp_server import configure_mcp_publisher, mcp, mcp_http_app
 from apps.api.page_document_store import (
     DocumentAlreadyExistsError,
@@ -131,6 +133,25 @@ class KnowledgeSourceListResponse(BaseModel):
 
 class KnowledgeChunkListResponse(BaseModel):
     chunks: list[dict[str, Any]]
+
+
+class BookCoursePlanRequest(BaseModel):
+    source_ids: list[str] = Field(alias="sourceIds", min_length=1, max_length=10)
+    lesson_count: int = Field(alias="lessonCount", ge=1, le=100)
+    language: Literal["zh", "en"] = "zh"
+
+
+class BookCoursePlanResponse(BaseModel):
+    course: dict[str, Any]
+
+
+class BookCoursePlanningJobResponse(BaseModel):
+    job: dict[str, Any]
+
+
+class CourseLessonGenerationResponse(BaseModel):
+    lesson: dict[str, Any]
+    session_id: str = Field(alias="sessionId")
 
 class StatelessActionRequest(BaseModel):
     action: dict[str, Any]
@@ -259,6 +280,7 @@ configure_mcp_publisher(
     os.getenv("A2LEARN_VIEWER_PUBLIC_URL", "https://a2learn.zc6600.wiki"),
 )
 knowledge_store = KnowledgeStore.from_env()
+course_store = CourseStore.from_env()
 generated_image_store = GeneratedImageStore.from_env()
 # Example narration is a static asset, separate from generated per-request
 # audio. In production this points at the persistent Kamal volume; locally it
@@ -448,6 +470,21 @@ def get_example_audio(example_id: str, language: Literal["zh", "en"]) -> FileRes
     )
 
 
+@app.get("/examples/audio/{filename}")
+def get_example_audio_by_filename(filename: str) -> FileResponse:
+    """Serve a bundled example narration directly by filename."""
+    if not re.fullmatch(r"^[a-zA-Z0-9_-]+\.(zh|en)\.mp3$", filename):
+        raise HTTPException(status_code=404, detail="EXAMPLE_AUDIO_NOT_FOUND")
+    path = (example_audio_dir / filename).resolve()
+    if not path.is_file() or path.parent != example_audio_dir.resolve():
+        raise HTTPException(status_code=404, detail="EXAMPLE_AUDIO_NOT_FOUND")
+    return FileResponse(
+        path,
+        media_type="audio/mpeg",
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )
+
+
 @app.post("/api/page-documents/{document_id}/narration")
 async def generate_narration(
     document_id: str,
@@ -575,6 +612,112 @@ def get_knowledge_source_chunks(source_id: str, query: str | None = None, limit:
         return KnowledgeChunkListResponse(chunks=[chunk.to_dict() for chunk in knowledge_store.chunks(source_id, query, limit)])
     except KnowledgeSourceNotFoundError as exc:
         raise HTTPException(status_code=404, detail="KNOWLEDGE_SOURCE_NOT_FOUND") from exc
+
+
+@app.post("/api/book-courses", response_model=BookCoursePlanResponse, status_code=201)
+def create_book_course_plan(
+    payload: BookCoursePlanRequest,
+    authorization: str | None = Header(default=None),
+    x_openrouter_api_key: str | None = Header(default=None),
+    x_api_key: str | None = Header(default=None),
+) -> BookCoursePlanResponse:
+    """Plan a whole book first; individual lessons are generated separately."""
+    api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
+    try:
+        context = knowledge_store.build_course_planning_context(payload.source_ids)
+        plan = plan_book_course(build_llm(api_key), context, payload.lesson_count, payload.language)
+        lessons = plan.get("lessons")
+        if not isinstance(lessons, list) or len(lessons) != payload.lesson_count:
+            raise ValueError("Planner did not return the requested number of lessons.")
+        course = course_store.create(
+            source_ids=payload.source_ids,
+            title=str(plan.get("title") or "Untitled course"),
+            summary=str(plan.get("summary") or ""),
+            target_language=payload.language,
+            lessons=lessons,
+        )
+        return BookCoursePlanResponse(course=course.to_dict())
+    except KnowledgeSourceNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="KNOWLEDGE_SOURCE_NOT_FOUND") from exc
+    except KnowledgeSourceNotReadyError as exc:
+        raise HTTPException(status_code=409, detail=f"KNOWLEDGE_SOURCE_NOT_READY: {exc}") from exc
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail=f"INVALID_BOOK_COURSE_PLAN: {exc}") from exc
+
+
+def _run_book_course_plan(job_id: str, payload: BookCoursePlanRequest, api_key: str | None) -> None:
+    try:
+        context = knowledge_store.build_course_planning_context(payload.source_ids)
+        plan = plan_book_course(build_llm(api_key), context, payload.lesson_count, payload.language)
+        lessons = plan.get("lessons")
+        if not isinstance(lessons, list) or len(lessons) != payload.lesson_count:
+            raise ValueError("Planner did not return the requested number of lessons.")
+        course = course_store.create(
+            source_ids=payload.source_ids, title=str(plan.get("title") or "Untitled course"),
+            summary=str(plan.get("summary") or ""), target_language=payload.language, lessons=lessons,
+        )
+        course_store.complete_planning_job(job_id, course.course_id)
+    except Exception as exc:  # Retain failure for polling; do not lose it in a thread traceback.
+        course_store.fail_planning_job(job_id, str(exc))
+
+
+@app.post("/api/book-course-jobs", response_model=BookCoursePlanningJobResponse, status_code=202)
+def queue_book_course_plan(
+    payload: BookCoursePlanRequest,
+    authorization: str | None = Header(default=None),
+    x_openrouter_api_key: str | None = Header(default=None),
+    x_api_key: str | None = Header(default=None),
+) -> BookCoursePlanningJobResponse:
+    job = course_store.create_planning_job()
+    api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
+    threading.Thread(target=_run_book_course_plan, args=(job.job_id, payload, api_key), daemon=True).start()
+    return BookCoursePlanningJobResponse(job=job.to_dict())
+
+
+@app.get("/api/book-course-jobs/{job_id}", response_model=BookCoursePlanningJobResponse)
+def get_book_course_planning_job(job_id: str) -> BookCoursePlanningJobResponse:
+    try:
+        return BookCoursePlanningJobResponse(job=course_store.get_planning_job(job_id).to_dict())
+    except CourseNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="BOOK_COURSE_JOB_NOT_FOUND") from exc
+
+
+@app.get("/api/book-courses/{course_id}", response_model=BookCoursePlanResponse)
+def get_book_course_plan(course_id: str) -> BookCoursePlanResponse:
+    try:
+        return BookCoursePlanResponse(course=course_store.get(course_id).to_dict())
+    except CourseNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="BOOK_COURSE_NOT_FOUND") from exc
+
+
+@app.post("/api/book-courses/{course_id}/lessons/{lesson_id}/generate", response_model=CourseLessonGenerationResponse)
+def generate_book_course_lesson(
+    course_id: str,
+    lesson_id: str,
+    authorization: str | None = Header(default=None),
+    x_openrouter_api_key: str | None = Header(default=None),
+    x_api_key: str | None = Header(default=None),
+) -> CourseLessonGenerationResponse:
+    """Queue one lesson through the existing asynchronous generator."""
+    api_key = _extract_api_key(authorization, x_openrouter_api_key, x_api_key)
+    try:
+        course = course_store.get(course_id)
+        lesson = course_store.get_lesson(course_id, lesson_id)
+        query = " ".join((lesson.title, *lesson.objectives, *lesson.key_concepts))
+        context = knowledge_store.build_lesson_context(
+            list(course.source_ids), list(lesson.source_pages), query=query
+        )
+        session = store.create(resource_text=context, api_key=api_key, target_language=course.target_language)
+        updated = course_store.set_lesson_generation(course_id, lesson_id, session.session_id)
+        return CourseLessonGenerationResponse(lesson=updated.to_dict(), sessionId=session.session_id)
+    except CourseNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="BOOK_COURSE_NOT_FOUND") from exc
+    except CourseLessonNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="BOOK_COURSE_LESSON_NOT_FOUND") from exc
+    except KnowledgeSourceNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="KNOWLEDGE_SOURCE_NOT_FOUND") from exc
+    except KnowledgeSourceNotReadyError as exc:
+        raise HTTPException(status_code=409, detail=f"KNOWLEDGE_SOURCE_NOT_READY: {exc}") from exc
 
 
 @app.post("/api/page-documents", response_model=PageDocumentResponse, status_code=201)

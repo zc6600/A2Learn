@@ -44,14 +44,11 @@ export function setAudioEnabled(enabled: boolean): void {
 export function staticExampleAudioUrl(exampleId: string, language: Lang): string | null {
   const path = STATIC_EXAMPLE_AUDIO[exampleId]?.[language];
   if (!path) return null;
-  const remoteBaseUrl = AUDIO_ASSET_BASE_URL || API_AUDIO_ASSET_BASE_URL;
-  if (remoteBaseUrl) {
-    return new URL(path.replace(/^\/+/, ""), `${remoteBaseUrl.replace(/\/+$/, "")}/`).toString();
+  if (AUDIO_ASSET_BASE_URL) {
+    return new URL(path.replace(/^\/+/, ""), `${AUDIO_ASSET_BASE_URL.replace(/\/+$/, "")}/`).toString();
   }
-  // Resolve against the current document so static examples also work when
-  // the viewer is hosted below a project subpath during local development
-  // (for example /A2Learn/). Production builds should use the external audio
-  // asset base URL so the MP3 files do not need to live in Git.
+  // Resolve against the current document so bundled static examples work
+  // seamlessly in both local development and static production deployments.
   return new URL(path.replace(/^\/+/, ""), document.baseURI).toString();
 }
 
