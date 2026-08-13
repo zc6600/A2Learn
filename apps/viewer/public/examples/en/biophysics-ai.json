@@ -18,17 +18,53 @@
             "header",
             "intro-text",
             "learning-path",
+            "section-research-question-site-aibio-biophysics",
+            "section-method-evidence-site-aibio-biophysics",
+            "section-verification-site-aibio-biophysics",
+            "section-further-reading-site-aibio-biophysics"
+          ]
+        },
+        {
+          "id": "section-research-question-site-aibio-biophysics",
+          "component": "LearningSection",
+          "eyebrow": "Research question and context",
+          "title": "Why is protein folding so hard to predict?",
+          "children": [
             "analogy-card",
             "concept-alphafold2",
             "timeline-milestones",
-            "scenario-dialogue",
+            "scenario-dialogue"
+          ]
+        },
+        {
+          "id": "section-method-evidence-site-aibio-biophysics",
+          "component": "LearningSection",
+          "eyebrow": "Method and evidence",
+          "title": "From protein language to diffusion generation",
+          "children": [
             "concept-plm",
             "concept-alphafold3",
-            "detailed-explanation-alphafold3",
+            "detailed-explanation-alphafold3"
+          ]
+        },
+        {
+          "id": "section-verification-site-aibio-biophysics",
+          "component": "LearningSection",
+          "eyebrow": "Check your understanding",
+          "title": "Walk through the structure-prediction pipeline",
+          "children": [
             "drag-match-methods",
             "mental-model-alphafold-pipeline",
             "cloze-test",
-            "quiz",
+            "quiz"
+          ]
+        },
+        {
+          "id": "section-further-reading-site-aibio-biophysics",
+          "component": "LearningSection",
+          "eyebrow": "Implications and further reading",
+          "title": "How is AI changing structural biology?",
+          "children": [
             "deep-dive",
             "summary-and-terms",
             "resources"

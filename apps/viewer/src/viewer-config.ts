@@ -60,11 +60,13 @@ function applyCustomThemeVars(vars?: Record<string, string>): void {
 export function applyGenerationTheme(
   themeId: string,
   displayMode: GenerationProfile["displayMode"] = "standard",
+  attentionMode: GenerationProfile["attentionMode"] = "calm",
 ): void {
   clearCustomThemeVars();
   const theme = getRenderTheme(themeId);
   document.documentElement.dataset.a2learnTheme = theme.id;
   document.documentElement.dataset.a2learnDisplayMode = displayMode;
+  document.documentElement.dataset.a2learnAttention = attentionMode;
 }
 
 export function applySourceTheme(source: ViewerSourceOffline | ViewerSourceOnline): void {
@@ -72,7 +74,11 @@ export function applySourceTheme(source: ViewerSourceOffline | ViewerSourceOnlin
   // use-case). For ordinary example / project loads, leave the active theme
   // unchanged so the user's selection persists across navigations.
   if (source.themeId) {
-    applyGenerationTheme(source.themeId);
+    applyGenerationTheme(
+      source.themeId,
+      (document.documentElement.dataset.a2learnDisplayMode as GenerationProfile["displayMode"] | undefined) || "standard",
+      (document.documentElement.dataset.a2learnAttention as GenerationProfile["attentionMode"] | undefined) || "calm",
+    );
   }
   // Embed/API themeVars are deliberately a temporary inline override layer,
   // not a second definition of any bundled theme.

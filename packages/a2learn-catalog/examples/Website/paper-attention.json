@@ -16,13 +16,40 @@
           "component": "Column",
           "children": [
             "header",
+            "section-research-question-site-paper-attention",
+            "section-method-evidence-site-paper-attention",
+            "section-further-reading-site-paper-attention"
+          ]
+        },
+        {
+          "id": "section-research-question-site-paper-attention",
+          "component": "LearningSection",
+          "eyebrow": "研究问题",
+          "title": "为什么序列建模需要重新分配注意力？",
+          "children": [
             "paper-abstract",
             "background-analogy",
-            "scenario-chat",
+            "scenario-chat"
+          ]
+        },
+        {
+          "id": "section-method-evidence-site-paper-attention",
+          "component": "LearningSection",
+          "eyebrow": "方法与证据",
+          "title": "用自注意力建立全局关系",
+          "children": [
             "prerequisite-timeline",
             "mental-model-attention",
             "attention-formula",
-            "quiz-comprehension",
+            "quiz-comprehension"
+          ]
+        },
+        {
+          "id": "section-further-reading-site-paper-attention",
+          "component": "LearningSection",
+          "eyebrow": "影响与延伸",
+          "title": "Attention 带来了什么？",
+          "children": [
             "summary-and-terms",
             "resources"
           ]

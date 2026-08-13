@@ -4,16 +4,12 @@
       font-family: var(--a2ui-font-family-title, var(--a2ui-font-family, sans-serif));
     }
     .explanation-card {
-      border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 86%, transparent);
-      border-radius: 10px;
-      background: var(--a2ui-color-surface);
-      padding: 24px 26px;
-      box-shadow: none;
+      border: var(--a2learn-reading-card-border, 0);
+      border-radius: var(--a2learn-reading-card-radius, 0);
+      background: var(--a2learn-reading-card-background, transparent);
+      padding: var(--a2learn-reading-card-padding, 14px 0);
+      box-shadow: var(--a2learn-reading-card-shadow, none);
       position: relative;
-      transition: all 0.3s ease;
-    }
-    .explanation-card:hover {
-      border-color: color-mix(in oklab, var(--a2ui-color-primary) 32%, var(--a2ui-color-border));
     }
     .meta-badge {
       position: absolute;
@@ -39,6 +35,14 @@
     }
     .icon {
       font-size: 19px;
+      display: var(--a2learn-decorative-icon-display, none);
+      width: 30px;
+      height: 30px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: var(--a2learn-emphasis-pill-background, transparent);
+      border: var(--a2learn-emphasis-pill-border, 0);
     }
     .title {
       margin: 0;

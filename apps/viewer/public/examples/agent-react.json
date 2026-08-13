@@ -16,14 +16,54 @@
           "component": "Column",
           "children": [
             "header",
-            "background-analogy",
-            "scenario-chat",
-            "mental-model-react",
-            "concept-synergy",
-            "detailed-implementation-from-scratch",
-            "quiz-comprehension",
-            "summary-and-terms"
+            "section-problem-site-agent-react",
+            "section-outline-site-agent-react",
+            "section-solution-site-agent-react",
+            "section-deepening-site-agent-react"
           ]
+        },
+        {
+          "id": "section-problem-site-agent-react",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "LLM 决策困境：静态推理与盲目调用的两难",
+          "children": [
+            "background-analogy",
+            "scenario-chat"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-site-agent-react",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "ReAct 运行机制与状态机模型",
+          "children": [
+            "mental-model-react",
+            "concept-synergy"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-site-agent-react",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "架构解析：从零手写 (From Scratch) 一个 ReAct Agent 引擎",
+          "children": [
+            "detailed-implementation-from-scratch",
+            "quiz-comprehension"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-site-agent-react",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "ReAct 范式的本质与应用",
+          "children": [
+            "summary-and-terms"
+          ],
+          "showTitle": false
         },
         {
           "id": "header",

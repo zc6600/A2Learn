@@ -1,6 +1,7 @@
 import { Catalog } from "@a2ui/web_core/v0_9";
 import { LitComponentApi, basicCatalog } from "@a2ui/lit/v0_9";
 import { A2learnLearningPath } from "./components/LearningPath";
+import { A2learnLearningSection } from "./components/LearningSection";
 import { A2learnFlashcard } from "./components/Flashcard";
 import { A2learnQuizCard } from "./components/QuizCard";
 import { A2learnConceptCard } from "./components/ConceptCard";
@@ -31,6 +32,7 @@ export const a2learnCatalog = new Catalog<LitComponentApi>(
   [
     ...(basicCatalog?.components ? Array.from(basicCatalog.components.values()) : []),
     A2learnLearningPath,
+    A2learnLearningSection,
     A2learnConceptCard,
     A2learnFlashcard,
     A2learnQuizCard,
@@ -60,4 +62,3 @@ export const a2learnCatalog = new Catalog<LitComponentApi>(
 );
 
 export { sanitizeHtml, katexStyles, markdownStyles, tooltipStyles } from "./utils/sanitize";
-

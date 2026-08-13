@@ -17,13 +17,7 @@
           "children": [
             "header-1",
             "learning-path-1",
-            "step1-background",
-            "step1-chat",
-            "step2-naive",
-            "step3-mindset",
-            "step4-implementation",
-            "step4-sandbox",
-            "step5-summary"
+            "section-problem-1", "section-outline-1", "section-solution-1", "section-deepening-1"
           ]
         },
         {
@@ -40,26 +34,41 @@
           "steps": [
             {
               "id": "1",
+              "stage": "problem",
               "title": "1. 数据多了，为什么找得更慢？",
               "targetSurfaceId": "surface-module-1"
             },
             {
               "id": "2",
+              "stage": "outline",
               "title": "2. 两个名字，为什么到了同一个位置？",
               "targetSurfaceId": "surface-module-2"
             },
             {
               "id": "3",
+              "stage": "solution",
               "title": "3. 位置快满了，速度为什么下降？",
               "targetSurfaceId": "surface-module-3"
             },
             {
               "id": "4",
+              "stage": "deepening",
               "title": "4. 遇到极端情况，系统怎么自我保护？",
               "targetSurfaceId": "surface-module-4"
             }
           ]
         },
+        {
+          "id": "section-problem-1",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "为什么数据一多，查找就开始拖慢系统？",
+          "summary": "当每次查询都要从头比对，数据规模会直接变成等待时间。",
+          "children": ["step1-background", "step1-chat"]
+        },
+        { "id": "section-outline-1", "component": "LearningSection", "stage": "outline", "title": "先看清数组的取舍", "summary": "知道编号时访问很快，但为了维持顺序而插入，往往需要搬动后面的内容。", "children": ["step2-naive"] },
+        { "id": "section-solution-1", "component": "LearningSection", "stage": "solution", "title": "把搜索改成定位计算", "summary": "哈希函数将 Key 转换成候选位置，使查找不必逐条扫描。", "children": ["step3-mindset", "step4-implementation"] },
+        { "id": "section-deepening-1", "component": "LearningSection", "stage": "deepening", "title": "亲手比较两种代价", "summary": "运行示例，观察数组搬迁与哈希直接定位的不同。", "children": ["step4-sandbox", "step5-summary"] },
         {
           "id": "step1-background",
           "component": "AnalogyCard",
@@ -107,7 +116,7 @@
           "title": "数组为什么适合直接取值，却不适合中间插入？",
           "description": "可以把内存中的数组想成一排编号明确的储物格。知道编号时，程序可以直接打开对应的格子；但如果要在中间增加一个格子，后面的物品就必须依次往后挪。理解这两个差别，就能看懂为什么“直接定位”很快，而“保持顺序并插入”可能很慢。",
           "icon": "🧠",
-          "diagramTitle": "📊 物理内存数据流动与搬迁演推",
+          "diagramTitle": "数组插入的内存变化",
           "diagram": "初始内存: [0:10 | 1:20 | 2:30 | 3:50 | 4:60]\n目标操作: 插入数字 25 到有序位置 (下标 2)\n步骤1 右移: 60->下标5, 50->下标4, 30->下标3  ==> [0:10 | 1:20 | 2:空 | 3:30 | 4:50 | 5:60]\n步骤2 写入: 25 写入已腾空的下标 2           ==> [0:10 | 1:20 | 2:25 | 3:30 | 4:50 | 5:60]",
           "pillarsTitle": "硬件特性与传统方案缺陷",
           "pillars": [
@@ -127,8 +136,8 @@
               "icon": "⚠️"
             }
           ],
-          "analogyTitle": "💡 真实数据搬迁开销步步演推",
-          "analogy": "<b>向已排序数组 [ 10, 20, 30, 50, 60 ] 中插入数字 25 的内存演推：</b><br><br>1. <b>定位槽位</b>：经过对比发现数字 25 应该插入到 20 和 30 之间（即目标下标 2）；<br>2. <b>内存搬迁</b>：由于物理数组内存空间必须连续，为了给 25 腾出物理空位，节点 60、50、30 必须在物理地址上整体右移 1 位（60 移动到下标 5，50 移动到 4，30 移动到 3）；<br>3. <b>数据写入</b>：将数字 25 写入已经腾空的物理下标 2。<br><br>💥 <b>痛感直击</b>：仅仅插入 1 个数字，就导致内存中 3 个元素被迫平移搬家！如果数组存有 100 万个数据，插入一次将在物理内存总线上搬迁 50 万个节点，性能极其低下！"
+          "analogyTitle": "插入操作的实际代价",
+          "analogy": "<b>向已排序数组 [ 10, 20, 30, 50, 60 ] 中插入数字 25：</b><br><br>1. <b>定位槽位</b>：经过对比发现数字 25 应该插入到 20 和 30 之间（即目标下标 2）；<br>2. <b>内存搬迁</b>：由于物理数组内存空间必须连续，为了给 25 腾出物理空位，节点 60、50、30 必须在物理地址上整体右移 1 位（60 移动到下标 5，50 移动到 4，30 移动到 3）；<br>3. <b>数据写入</b>：将数字 25 写入已经腾空的物理下标 2。<br><br><b>关键代价：</b>一次插入会迫使目标位置之后的元素整体移动。数组若有 100 万个数据，中间插入一次在最坏情况下可能搬迁约 50 万个元素。"
         },
         {
           "id": "step3-mindset",
@@ -191,13 +200,7 @@
           "children": [
             "header-2",
             "learning-path-2",
-            "step1-background-2",
-            "step1-chat-2",
-            "step2-naive-2",
-            "step3-mindset-2",
-            "step4-implementation-2",
-            "step5-summary-2",
-            "quiz-2"
+            "section-problem-2", "section-outline-2", "section-solution-2", "section-deepening-2"
           ]
         },
         {
@@ -234,6 +237,17 @@
             }
           ]
         },
+        {
+          "id": "section-problem-2",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "两个 Key 落在同一个位置时，数据如何安全共存？",
+          "summary": "碰撞无法避免；工程设计的关键是让冲突可保存、可查找。",
+          "children": ["step1-background-2", "step1-chat-2"]
+        },
+        { "id": "section-outline-2", "component": "LearningSection", "stage": "outline", "title": "碰撞为什么是必然的？", "summary": "无限输入映射到有限槽位，重复位置不是偶然故障。", "children": ["step2-naive-2"] },
+        { "id": "section-solution-2", "component": "LearningSection", "stage": "solution", "title": "让冲突有规则地继续存放", "summary": "链地址法与开放寻址法分别用纵向挂载和横向探测处理碰撞。", "children": ["step3-mindset-2", "step4-implementation-2"] },
+        { "id": "section-deepening-2", "component": "LearningSection", "stage": "deepening", "title": "比较两种工程取舍", "summary": "用总结和练习检验对内存布局与查找代价的理解。", "children": ["step5-summary-2", "quiz-2"] },
         {
           "id": "step1-background-2",
           "component": "AnalogyCard",
@@ -281,7 +295,7 @@
           "title": "鸽巢原理与冲突解决流派",
           "description": "当可用位置比待保存的名字少时，两个名字落到同一个位置是必然的。这是数量关系造成的结果，不是哈希函数突然失灵，也不是代码偶然出错。真正的设计问题是：碰撞发生之后，如何保存两条记录，并且还能把它们分别找回来？",
           "icon": "🐦",
-          "diagramTitle": "📊 输入映射冲突与节点覆写示意",
+          "diagramTitle": "碰撞时的数据状态",
           "diagram": "Alice 映射: [0:空 | 1:空 | 5:Alice | 6:空]\nDavid 冲突: [0:空 | 1:空 | 5:冲突!  | 6:空]\n\n直接覆写: 5号槽位 Alice 数据丢失！ ❌",
           "pillarsTitle": "数学原理与方案对比",
           "pillars": [
@@ -296,7 +310,7 @@
               "icon": "💥"
             }
           ],
-          "analogyTitle": "💡 碰撞后覆写的灾难剖析",
+          "analogyTitle": "直接覆写的后果",
           "analogy": "当两个名字占用同一个位置时，直接覆盖会让先来的记录消失。用户明明输入的是 Alice，却读到了 David 的资料。一个看起来只是“位置重复”的小问题，最终会变成严重的数据错误。"
         },
         {
@@ -370,13 +384,7 @@
           "children": [
             "header-3",
             "learning-path-3",
-            "step1-background-3",
-            "step1-chat-3",
-            "step2-naive-3",
-            "step3-mindset-3",
-            "step4-implementation-3",
-            "step5-summary-3",
-            "cloze-3"
+            "section-problem-3", "section-outline-3", "section-solution-3", "section-deepening-3"
           ]
         },
         {
@@ -413,6 +421,17 @@
             }
           ]
         },
+        {
+          "id": "section-problem-3",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "位置逐渐填满后，怎样守住查找速度？",
+          "summary": "负载因子决定何时扩容；重散列让新空间重新恢复均匀分布。",
+          "children": ["step1-background-3", "step1-chat-3"]
+        },
+        { "id": "section-outline-3", "component": "LearningSection", "stage": "outline", "title": "用负载因子读懂拥挤程度", "summary": "空位越少，碰撞后的探测与查找路径就越长。", "children": ["step2-naive-3"] },
+        { "id": "section-solution-3", "component": "LearningSection", "stage": "solution", "title": "扩容后重新安排位置", "summary": "重散列不是简单复制，而是让每条记录在更大表中重新定位。", "children": ["step3-mindset-3", "step4-implementation-3"] },
+        { "id": "section-deepening-3", "component": "LearningSection", "stage": "deepening", "title": "把阈值与代价记牢", "summary": "通过总结与填空练习巩固扩容的触发条件和成本。", "children": ["step5-summary-3", "cloze-3"] },
         {
           "id": "step1-background-3",
           "component": "AnalogyCard",
@@ -452,7 +471,7 @@
           "title": "拥挤度对碰撞率的指数级影响",
           "description": "表越拥挤，新的记录越难一次找到合适的位置。为了让查找保持稳定，系统通常会故意留出一部分空位，并在接近警戒线时提前扩容。",
           "icon": "📈",
-          "diagramTitle": "📊 满载分布与容量翻倍 Rehash 演推",
+          "diagramTitle": "扩容前后的分布",
           "diagram": "拥挤度90%: [0:占用 | 1:占用 | 2:占用 | 3:占用 | 4:空闲]\n容量翻倍:   [0:占用 | 1:空闲 | 2:占用 | 3:空闲 | ... | 9:空闲]",
           "pillarsTitle": "核心原则",
           "pillars": [
@@ -467,7 +486,7 @@
               "icon": "⚠️"
             }
           ],
-          "analogyTitle": "💡 静态大内存预分配分析",
+          "analogyTitle": "预分配的取舍",
           "analogy": "一开始就申请巨大内存空间（如 100 GB）会严重浪费内存资源，且无法预估应用实际需要存多少数据。"
         },
         {
@@ -540,13 +559,7 @@
           "children": [
             "header-4",
             "learning-path-4",
-            "step1-background-4",
-            "step1-chat-4",
-            "step2-naive-4",
-            "step3-mindset-4",
-            "step4-implementation-4",
-            "step5-summary-4",
-            "quiz-4"
+            "section-problem-4", "section-outline-4", "section-solution-4", "section-deepening-4"
           ]
         },
         {
@@ -583,6 +596,17 @@
             }
           ]
         },
+        {
+          "id": "section-problem-4",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "极端碰撞发生时，系统如何不被拖垮？",
+          "summary": "随机化入口与自适应结构共同限制最坏情况下的退化。",
+          "children": ["step1-background-4", "step1-chat-4"]
+        },
+        { "id": "section-outline-4", "component": "LearningSection", "stage": "outline", "title": "平均很快，不等于最坏情况安全", "summary": "当大量输入集中到一个槽位，哈希表会退化成漫长的逐个检查。", "children": ["step2-naive-4"] },
+        { "id": "section-solution-4", "component": "LearningSection", "stage": "solution", "title": "让攻击者无法预测，也无法拉长队列", "summary": "随机 Seed 降低可预测碰撞，树化为过长链路设定性能下限。", "children": ["step3-mindset-4", "step4-implementation-4"] },
+        { "id": "section-deepening-4", "component": "LearningSection", "stage": "deepening", "title": "验证工业级防线", "summary": "用总结与练习确认两层防御各自解决的问题。", "children": ["step5-summary-4", "quiz-4"] },
         {
           "id": "step1-background-4",
           "component": "AnalogyCard",
@@ -622,7 +646,7 @@
           "title": "最坏情况下的复杂度退化",
           "description": "哈希表平时之所以快，是因为数据通常会比较分散；如果输入被故意安排得非常集中，一个位置就会积累大量记录，查找便会退化成漫长的逐个检查。好的工程实现必须同时照顾常见情况和最坏情况。",
           "icon": "⚠️",
-          "diagramTitle": "📊 恶劣散列退化示意",
+          "diagramTitle": "极端分布下的退化",
           "diagram": "均匀分布: [0:Node | 1:Node | 2:Node | 3:Node]\n退化倾斜: [0:Node->Node->Node...10000个! | 1:空 | 2:空 | 3:空]",
           "pillarsTitle": "性能界限",
           "pillars": [
@@ -637,7 +661,7 @@
               "icon": "❌"
             }
           ],
-          "analogyTitle": "💡 盲目信任输入随机性的风险",
+          "analogyTitle": "输入分布的风险",
           "analogy": "如果攻击者提前准备大量会挤到同一位置的名字，就能让一个位置变成拥堵的长队。系统需要通过随机化位置计算和更稳健的存储结构，避免这条长队拖垮整个服务。"
         },
         {

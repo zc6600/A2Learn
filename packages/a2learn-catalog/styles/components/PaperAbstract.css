@@ -8,11 +8,7 @@
       border-radius: var(--a2ui-border-radius, 16px);
       background: var(--a2ui-color-surface);
       padding: var(--a2ui-spacing-xl, 32px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-      transition: box-shadow 0.2s ease;
-    }
-    .paper-card:hover {
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      box-shadow: none;
     }
     .badge {
       display: inline-flex;

@@ -96,13 +96,14 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
             const isWarn = /传统|搜索|遍历|线性|慢|O\(N\)|警告|瓶颈/i.test(cleanLine);
             const isSuccess = /哈希|计算|常数|突破|快|O\(1\)|一步|直接/i.test(cleanLine);
             const variantClass = isWarn ? 'variant-warn' : isSuccess ? 'variant-success' : 'variant-info';
+            const icon = isWarn ? '🐢' : isSuccess ? '⚡' : '🔄';
             const rawNodes = flowContent.split(/->|➔|=>/).map(s => s.trim()).filter(Boolean);
 
             return html`
               <div class="visual-flow-line ${variantClass}">
                 ${title ? html`
                   <div class="visual-flow-header">
-                    <span class="flow-badge">${title}</span>
+                    <span class="flow-badge"><span class="flow-icon" aria-hidden="true">${icon}</span>${title}</span>
                   </div>
                 ` : nothing}
                 <div class="visual-flow-nodes">
@@ -126,6 +127,7 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
     if (!props) return nothing;
 
     const title = this.resolveString(props.title);
+    const icon = props.icon ? this.resolveString(props.icon) : "";
     const description = this.resolveString(props.description);
     const analogy = props.analogy ? this.resolveString(props.analogy) : "";
     const analogyTitle = props.analogyTitle ? this.resolveString(props.analogyTitle) : uiText("举个例子", "Example");
@@ -137,6 +139,7 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
     return html`
       <div class="mm-container">
         <div class="header">
+          ${icon ? html`<span class="icon-badge" aria-hidden="true">${icon}</span>` : nothing}
           <div class="title-area">
             <h2 class="title">${title}</h2>
           </div>
@@ -152,9 +155,11 @@ export class A2learnMentalModelElement extends A2uiLitElement<typeof MentalModel
                     ${pillars.map((pillar) => {
                       const pTitle = this.resolveString(pillar.title);
                       const pDesc = this.resolveString(pillar.description);
+                      const pIcon = pillar.icon ? this.resolveString(pillar.icon) : "";
                       return html`
                         <div class="pillar-card">
                           <div class="pillar-header">
+                            ${pIcon ? html`<span class="pillar-icon" aria-hidden="true">${pIcon}</span>` : nothing}
                             <h4 class="pillar-title">${pTitle}</h4>
                           </div>
                           <div class="pillar-desc a2learn-markdown-body">${unsafeHTML(sanitizeHtml(pDesc))}</div>

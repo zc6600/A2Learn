@@ -16,13 +16,51 @@
           "component": "Column",
           "children": [
             "header-1",
-            "learning-path-1",
+            "section-problem-database-basics-module-1",
+            "section-outline-database-basics-module-1",
+            "section-solution-database-basics-module-1",
+            "section-deepening-database-basics-module-1"
+          ]
+        },
+        {
+          "id": "section-problem-database-basics-module-1",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "先从一个熟悉的问题开始",
+          "children": [
             "background-1",
-            "chat-1",
+            "chat-1"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-database-basics-module-1",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "把数据库想成一个会整理的资料室",
+          "children": [
             "mental-model-1",
-            "concept-1",
+            "concept-1"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-database-basics-module-1",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "数据库和应用程序怎样配合？",
+          "children": [
             "explanation-1",
-            "sandbox-1",
+            "sandbox-1"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-database-basics-module-1",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "入门检查：数据库是做什么的？",
+          "children": [
             "quiz-1"
           ]
         },
@@ -31,29 +69,6 @@
           "component": "Text",
           "variant": "h1",
           "text": "数据库入门：把杂乱的信息整理好"
-        },
-        {
-          "id": "learning-path-1",
-          "component": "LearningPath",
-          "title": "从生活中的记录到数据库",
-          "activeStepId": "1",
-          "steps": [
-            {
-              "id": "1",
-              "title": "1. 为什么不能只用一堆文件？",
-              "targetSurfaceId": "database-basics-module-1"
-            },
-            {
-              "id": "2",
-              "title": "2. 表、行和列是什么？",
-              "targetSurfaceId": "database-basics-module-2"
-            },
-            {
-              "id": "3",
-              "title": "3. 怎样找到和修改记录？",
-              "targetSurfaceId": "database-basics-module-3"
-            }
-          ]
         },
         {
           "id": "background-1",
@@ -198,45 +213,61 @@
           "component": "Column",
           "children": [
             "header-2",
-            "learning-path-2",
+            "section-problem-database-basics-module-2",
+            "section-outline-database-basics-module-2",
+            "section-solution-database-basics-module-2",
+            "section-deepening-database-basics-module-2"
+          ]
+        },
+        {
+          "id": "section-problem-database-basics-module-2",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "先看一张课程报名表",
+          "children": [
             "background-2",
-            "chat-2",
+            "chat-2"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-database-basics-module-2",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "一张表就像一张有固定标题的清单",
+          "children": [
             "mental-model-2",
-            "table-2",
+            "table-2"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-database-basics-module-2",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "表、行、列：数据库的基本积木",
+          "children": [
             "concept-2",
-            "explanation-2",
+            "explanation-2"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-database-basics-module-2",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "动手试试：按照城市筛选学生",
+          "children": [
             "sandbox-2",
             "quiz-2"
-          ]
+          ],
+          "showTitle": false
         },
         {
           "id": "header-2",
           "component": "Text",
           "variant": "h1",
           "text": "表、行和列：把资料摆整齐"
-        },
-        {
-          "id": "learning-path-2",
-          "component": "LearningPath",
-          "title": "从生活中的记录到数据库",
-          "activeStepId": "2",
-          "steps": [
-            {
-              "id": "1",
-              "title": "1. 为什么不能只用一堆文件？",
-              "targetSurfaceId": "database-basics-module-1"
-            },
-            {
-              "id": "2",
-              "title": "2. 表、行和列是什么？",
-              "targetSurfaceId": "database-basics-module-2"
-            },
-            {
-              "id": "3",
-              "title": "3. 怎样找到和修改记录？",
-              "targetSurfaceId": "database-basics-module-3"
-            }
-          ]
         },
         {
           "id": "background-2",
@@ -314,14 +345,45 @@
           "title": "课程报名记录",
           "caption": "每一行是一位学生，每一列表示一种信息。",
           "columns": [
-            { "key": "name", "label": "姓名" },
-            { "key": "course", "label": "课程" },
-            { "key": "progress", "label": "进度", "align": "right" }
+            {
+              "key": "name",
+              "label": "姓名"
+            },
+            {
+              "key": "course",
+              "label": "课程"
+            },
+            {
+              "key": "progress",
+              "label": "进度",
+              "align": "right"
+            }
           ],
           "rows": [
-            { "id": "student-1", "cells": { "name": "小雨", "course": "数据库入门", "progress": "第 1 章" } },
-            { "id": "student-2", "cells": { "name": "小林", "course": "JavaScript", "progress": "第 3 章" } },
-            { "id": "student-3", "cells": { "name": "小周", "course": "CSS 布局", "progress": "已完成" } }
+            {
+              "id": "student-1",
+              "cells": {
+                "name": "小雨",
+                "course": "数据库入门",
+                "progress": "第 1 章"
+              }
+            },
+            {
+              "id": "student-2",
+              "cells": {
+                "name": "小林",
+                "course": "JavaScript",
+                "progress": "第 3 章"
+              }
+            },
+            {
+              "id": "student-3",
+              "cells": {
+                "name": "小周",
+                "course": "CSS 布局",
+                "progress": "已完成"
+              }
+            }
           ]
         },
         {
@@ -397,14 +459,52 @@
           "component": "Column",
           "children": [
             "header-3",
-            "learning-path-3",
+            "section-problem-database-basics-module-3",
+            "section-outline-database-basics-module-3",
+            "section-solution-database-basics-module-3",
+            "section-deepening-database-basics-module-3"
+          ]
+        },
+        {
+          "id": "section-problem-database-basics-module-3",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "把 SQL 想成写给资料管理员的短句",
+          "children": [
             "background-3",
             "chat-3",
-            "mental-model-3",
+            "mental-model-3"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-database-basics-module-3",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "SQL：向数据库提出明确请求",
+          "children": [
             "concept-3",
-            "explanation-3",
+            "explanation-3"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-database-basics-module-3",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "动手试试：模拟添加、查询、修改和删除",
+          "children": [
             "sandbox-3",
-            "quiz-3",
+            "quiz-3"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-database-basics-module-3",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "今天只需要记住这几句话",
+          "children": [
             "db-flashcards",
             "summary-3"
           ]
@@ -414,29 +514,6 @@
           "component": "Text",
           "variant": "h1",
           "text": "用最简单的 SQL 操作数据"
-        },
-        {
-          "id": "learning-path-3",
-          "component": "LearningPath",
-          "title": "从生活中的记录到数据库",
-          "activeStepId": "3",
-          "steps": [
-            {
-              "id": "1",
-              "title": "1. 为什么不能只用一堆文件？",
-              "targetSurfaceId": "database-basics-module-1"
-            },
-            {
-              "id": "2",
-              "title": "2. 表、行和列是什么？",
-              "targetSurfaceId": "database-basics-module-2"
-            },
-            {
-              "id": "3",
-              "title": "3. 怎样找到和修改记录？",
-              "targetSurfaceId": "database-basics-module-3"
-            }
-          ]
         },
         {
           "id": "background-3",

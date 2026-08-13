@@ -65,6 +65,7 @@ export type GenerationProfile = {
   exampleIds: string[];
   referencePackIds: string[];
   themeId: string;
+  attentionMode: "calm" | "high";
   displayMode: "standard" | "presentation";
   imageGenerationLimit: number;
   visualIntent: string;
@@ -72,6 +73,7 @@ export type GenerationProfile = {
 
 export const GENERATION_COMPONENTS: GenerationComponent[] = [
   { id: "LearningPath", group: "explain", label: { zh: "学习路径", en: "Learning Path" }, description: { zh: "课程模块与学习进度", en: "Course structure and progress" } },
+  { id: "LearningSection", group: "explain", label: { zh: "内容分层", en: "Content Section" }, description: { zh: "为解释或研究内容自定义轻量分层；教学可用问题/解法，论文可用方法与证据；诗词不使用", en: "Use light custom sections for teaching or research: problem/solution or method/evidence; not for poetry" } },
   { id: "ConceptCard", group: "explain", label: { zh: "概念卡", en: "Concept Card" }, description: { zh: "核心概念、定义与例子", en: "Core concept, definition, and example" } },
   { id: "MentalModel", group: "explain", label: { zh: "心智模型", en: "Mental Model" }, description: { zh: "用比喻建立直觉", en: "Build intuition with analogy" } },
   { id: "DetailedExplanation", group: "explain", label: { zh: "深度讲解", en: "Detailed Explanation" }, description: { zh: "连续、系统的正文讲解", en: "Connected, structured explanation" } },
@@ -100,14 +102,14 @@ export const GENERATION_COMPONENTS: GenerationComponent[] = [
 // IDs, rather than a browser-only URL, are persisted so the API can later
 // resolve the same curated source files when constructing a few-shot prompt.
 export const LOCAL_EXAMPLES: LocalExample[] = [
-  { id: "hash-table", category: "computing", label: { zh: "Hash Table 哈希表", en: "Hash Table" }, description: { zh: "哈希冲突与开放寻址法", en: "Hash collisions and open addressing" }, componentIds: ["AnalogyCard", "ClozeTest", "ConceptCard", "DetailedExplanation", "InteractiveSandbox", "LearningPath", "MentalModel", "QuizCard", "ScenarioDialogue"] },
-  { id: "database-basics", category: "computing", label: { zh: "数据库入门", en: "Database Basics" }, description: { zh: "从表、行、列到基础 SQL", en: "Tables, rows, columns, and beginner SQL" }, componentIds: ["AnalogyCard", "ConceptCard", "DataTable", "DetailedExplanation", "InteractiveSandbox", "LearningPath", "MentalModel", "QuizCard", "ScenarioDialogue"] },
-  { id: "agent-react", category: "computing", label: { zh: "ReAct Agent 架构", en: "ReAct Agent Architecture" }, description: { zh: "手写 ReAct 循环引擎", en: "Hand-building a ReAct loop engine" }, componentIds: ["AnalogyCard", "ConceptCard", "DetailedExplanation", "MentalModel", "QuizCard", "ScenarioDialogue"] },
-  { id: "js-async", category: "computing", label: { zh: "JS 异步与事件循环", en: "JS Async & the Event Loop" }, description: { zh: "手写 Promise.all 实现", en: "Implementing Promise.all from scratch" }, componentIds: ["AnalogyCard", "ConceptCard", "DetailedExplanation", "MentalModel", "QuizCard", "ResourceList", "ScenarioDialogue"] },
-  { id: "conversational", category: "computing", label: { zh: "JS 闭包与作用域", en: "JS Closures & Scope" }, description: { zh: "闭包模块模式与私有变量", en: "The module pattern and private variables via closures" }, componentIds: ["AnalogyCard", "ConceptCard", "DetailedExplanation", "MentalModel", "QuizCard", "ResourceList", "ScenarioDialogue"] },
-  { id: "non-linear", category: "computing", label: { zh: "CSS Grid 二维布局", en: "CSS Grid 2D Layout" }, description: { zh: "零媒体查询的响应式网格", en: "Responsive grids with zero media queries" }, componentIds: ["AnalogyCard", "ConceptCard", "DetailedExplanation", "LearningPath", "MentalModel", "QuizCard", "ResourceList", "ScenarioDialogue"] },
-  { id: "paper-attention", category: "paper", label: { zh: "Transformer 注意力机制", en: "Transformer Attention" }, description: { zh: "缩放点积注意力四步推导", en: "Deriving scaled dot-product attention in four steps" }, componentIds: ["AnalogyCard", "InteractiveFormula", "MentalModel", "PaperAbstract", "QuizCard", "ResourceList", "ScenarioDialogue", "Timeline"] },
-  { id: "biophysics-ai", category: "paper", label: { zh: "AI 驱动生物物理 (AlphaFold)", en: "AI-Driven Biophysics (AlphaFold)" }, description: { zh: "AlphaFold3 扩散模块解析", en: "Breaking down AlphaFold3's diffusion module" }, componentIds: ["AnalogyCard", "ClozeTest", "ConceptCard", "DeepDivePrompt", "DetailedExplanation", "LearningPath", "MentalModel", "QuizCard", "RelationshipMatch", "ResourceList", "ScenarioDialogue", "Timeline"] },
+  { id: "hash-table", category: "computing", label: { zh: "Hash Table 哈希表", en: "Hash Table" }, description: { zh: "哈希冲突与开放寻址法", en: "Hash collisions and open addressing" }, componentIds: ["AnalogyCard", "ClozeTest", "ConceptCard", "DetailedExplanation", "InteractiveSandbox", "LearningPath", "LearningSection", "MentalModel", "QuizCard", "ScenarioDialogue"] },
+  { id: "database-basics", category: "computing", label: { zh: "数据库入门", en: "Database Basics" }, description: { zh: "从表、行、列到基础 SQL", en: "Tables, rows, columns, and beginner SQL" }, componentIds: ["AnalogyCard", "ConceptCard", "DataTable", "DetailedExplanation", "InteractiveSandbox", "LearningSection", "MentalModel", "QuizCard", "ScenarioDialogue"] },
+  { id: "agent-react", category: "computing", label: { zh: "ReAct Agent 架构", en: "ReAct Agent Architecture" }, description: { zh: "手写 ReAct 循环引擎", en: "Hand-building a ReAct loop engine" }, componentIds: ["AnalogyCard", "ConceptCard", "DetailedExplanation", "LearningSection", "MentalModel", "QuizCard", "ScenarioDialogue"] },
+  { id: "js-async", category: "computing", label: { zh: "JS 异步与事件循环", en: "JS Async & the Event Loop" }, description: { zh: "手写 Promise.all 实现", en: "Implementing Promise.all from scratch" }, componentIds: ["AnalogyCard", "ConceptCard", "DetailedExplanation", "LearningSection", "MentalModel", "QuizCard", "ResourceList", "ScenarioDialogue"] },
+  { id: "conversational", category: "computing", label: { zh: "JS 闭包与作用域", en: "JS Closures & Scope" }, description: { zh: "闭包模块模式与私有变量", en: "The module pattern and private variables via closures" }, componentIds: ["AnalogyCard", "ConceptCard", "DetailedExplanation", "LearningSection", "MentalModel", "QuizCard", "ResourceList", "ScenarioDialogue"] },
+  { id: "non-linear", category: "computing", label: { zh: "CSS Grid 二维布局", en: "CSS Grid 2D Layout" }, description: { zh: "零媒体查询的响应式网格", en: "Responsive grids with zero media queries" }, componentIds: ["AnalogyCard", "ConceptCard", "DetailedExplanation", "LearningPath", "LearningSection", "MentalModel", "QuizCard", "ResourceList", "ScenarioDialogue"] },
+  { id: "paper-attention", category: "paper", label: { zh: "Transformer 注意力机制", en: "Transformer Attention" }, description: { zh: "缩放点积注意力四步推导", en: "Deriving scaled dot-product attention in four steps" }, componentIds: ["AnalogyCard", "InteractiveFormula", "LearningSection", "MentalModel", "PaperAbstract", "QuizCard", "ResourceList", "ScenarioDialogue", "Timeline"] },
+  { id: "biophysics-ai", category: "paper", label: { zh: "AI 驱动生物物理 (AlphaFold)", en: "AI-Driven Biophysics (AlphaFold)" }, description: { zh: "AlphaFold3 扩散模块解析", en: "Breaking down AlphaFold3's diffusion module" }, componentIds: ["AnalogyCard", "ClozeTest", "ConceptCard", "DeepDivePrompt", "DetailedExplanation", "LearningPath", "LearningSection", "MentalModel", "QuizCard", "RelationshipMatch", "ResourceList", "ScenarioDialogue", "Timeline"] },
   { id: "poetry-social", category: "poetry", label: { zh: "《春江花月夜》· 词注、月行与两地相望", en: "Spring River, Flower, Moon, Night · Glosses, Moon Path, Two Shores" }, description: { zh: "从原文词注、月光路径到人物之间的相望与判断", en: "From source glosses and moon path to distance, perspective, and a short judgement" }, componentIds: ["DetailedExplanation", "RelationshipMatch", "ScenarioDialogue", "Timeline"] },
   { id: "deng-gao", category: "poetry", label: { zh: "《登高》· 七律之冠与四联镜头解码", en: "Climbing the Height · Peak Seven-Char Octave & Four Couplets Lens" }, description: { zh: "杜甫夔州高台独白、从宇宙宏大到一人白发与十四字愁苦解码", en: "Du Fu's monologue at Kuizhou, from cosmic grandness to white hair and fourteen-character sorrow" }, componentIds: ["DeepDivePrompt", "DetailedExplanation", "DragAndDropMatch", "ScenarioDialogue", "Timeline"] },
 ];
@@ -269,6 +271,7 @@ export const DEFAULT_GENERATION_PROFILE: GenerationProfile = {
   exampleIds: [],
   referencePackIds: ["database-basics-series"],
   themeId: "learning-default",
+  attentionMode: "calm",
   displayMode: "standard",
   imageGenerationLimit: 2,
   visualIntent: "",
@@ -372,6 +375,7 @@ export function normalizeGenerationProfile(value: unknown): GenerationProfile {
     themeId: typeof raw.themeId === "string" && KNOWN_THEME_IDS.has(raw.themeId)
       ? raw.themeId
       : DEFAULT_GENERATION_PROFILE.themeId,
+    attentionMode: raw.attentionMode === "high" ? "high" : "calm",
     // Before display modes were separate, selecting the old presentation theme
     // also enabled pagination. Preserve that saved preference during migration.
     displayMode: raw.displayMode === "presentation" ||
@@ -399,6 +403,7 @@ export function profileForTemplate(templateId: string): GenerationProfile {
     exampleIds: [...resolved.exampleIds],
     referencePackIds: [...template.referencePackIds],
     themeId: template.themeId,
+    attentionMode: "calm",
     displayMode: template.displayMode,
     imageGenerationLimit: template.imageGenerationLimit,
     visualIntent: template.promptGuidance,

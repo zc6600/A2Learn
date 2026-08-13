@@ -123,7 +123,7 @@ export function bindShellControls(options: ShellControlOptions): void {
     if (audioInput) setAudioEnabled(audioInput.checked);
     const narrationButton = document.getElementById("page-narration-button") as HTMLButtonElement | null;
     if (narrationButton) narrationButton.hidden = !isAudioEnabled();
-    applyGenerationTheme(profile.themeId, profile.displayMode);
+    applyGenerationTheme(profile.themeId, profile.displayMode, profile.attentionMode);
     const runtime = getRuntime();
     if (runtime) renderSurfaces(runtime.container, runtime.processor, runtime.modeHint);
     closeSettingsModal();
@@ -135,7 +135,7 @@ export function bindShellControls(options: ShellControlOptions): void {
         const nextProfile = profileForTemplate(input.value);
         syncGenerationSettingsInputs(nextProfile);
         const profile = setStoredGenerationProfile(nextProfile);
-        applyGenerationTheme(profile.themeId, profile.displayMode);
+        applyGenerationTheme(profile.themeId, profile.displayMode, profile.attentionMode);
         const runtime = getRuntime();
         if (runtime) renderSurfaces(runtime.container, runtime.processor, runtime.modeHint);
         document.querySelector<HTMLDetailsElement>(".generation-advanced-settings")?.removeAttribute("open");
@@ -183,7 +183,7 @@ export function bindShellControls(options: ShellControlOptions): void {
       if (input.checked) {
         markSettingsAsCustom();
         const profile = setStoredGenerationProfile(profileFromSettingsInputs());
-        applyGenerationTheme(profile.themeId, profile.displayMode);
+        applyGenerationTheme(profile.themeId, profile.displayMode, profile.attentionMode);
         const runtime = getRuntime();
         if (runtime) renderSurfaces(runtime.container, runtime.processor, runtime.modeHint);
       }
@@ -195,11 +195,19 @@ export function bindShellControls(options: ShellControlOptions): void {
       if (input.checked) {
         markSettingsAsCustom();
         const profile = setStoredGenerationProfile(profileFromSettingsInputs());
-        applyGenerationTheme(profile.themeId, profile.displayMode);
+        applyGenerationTheme(profile.themeId, profile.displayMode, profile.attentionMode);
         const runtime = getRuntime();
         if (runtime) renderSurfaces(runtime.container, runtime.processor, runtime.modeHint);
       }
     });
+  });
+
+  document.getElementById("generation-attention-mode")?.addEventListener("change", () => {
+    markSettingsAsCustom();
+    const profile = setStoredGenerationProfile(profileFromSettingsInputs());
+    applyGenerationTheme(profile.themeId, profile.displayMode, profile.attentionMode);
+    const runtime = getRuntime();
+    if (runtime) renderSurfaces(runtime.container, runtime.processor, runtime.modeHint);
   });
 
   document.getElementById("generation-image-limit")?.addEventListener("change", markSettingsAsCustom);

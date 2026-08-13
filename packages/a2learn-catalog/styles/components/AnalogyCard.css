@@ -5,20 +5,21 @@
     }
     .analogy-container {
       position: relative;
-      background: var(--a2ui-color-surface);
-      border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 82%, transparent);
-      border-radius: 10px;
-      padding: 18px 20px 18px 22px;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      background: var(--a2learn-emphasis-panel-background, color-mix(in oklab, var(--a2ui-color-surface) 96%, var(--a2ui-color-surface-subtle)));
+      border: var(--a2learn-emphasis-panel-border, 1px solid color-mix(in oklab, var(--a2ui-color-border) 72%, transparent));
+      border-radius: var(--a2learn-reading-card-radius, 12px);
+      padding: var(--a2learn-reading-card-padding, 18px 20px);
+      box-shadow: var(--a2learn-emphasis-panel-shadow, none);
       overflow: visible;
     }
     .analogy-container::before {
-      content: "";
+      content: var(--a2learn-emphasis-quote, "");
       position: absolute;
-      inset: 18px auto 18px 0;
-      width: 2px;
-      border-radius: 0 3px 3px 0;
-      background: var(--a2ui-color-primary);
+      top: -22px;
+      right: 18px;
+      font: 120px/1 Georgia, serif;
+      color: color-mix(in oklab, var(--a2ui-color-primary) 12%, transparent);
+      pointer-events: none;
     }
     .header {
       display: flex;
@@ -30,14 +31,14 @@
     }
     .icon {
       font-size: 16px;
-      display: flex;
+      display: var(--a2learn-emphasis-icon-display, none);
       align-items: center;
       justify-content: center;
       width: 24px;
       height: 24px;
       border-radius: 7px;
-      background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
-      border: 0;
+      background: var(--a2learn-emphasis-pill-background, color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface)));
+      border: var(--a2learn-emphasis-pill-border, 0);
     }
     .title {
       font-size: 14px;
@@ -52,10 +53,10 @@
       font-size: 15px;
       line-height: 1.7;
       color: var(--a2ui-color-on-surface);
-      background: transparent;
-      border: 0;
-      padding: 0;
-      border-radius: 0;
+      background: var(--a2learn-emphasis-content-background, transparent);
+      border: var(--a2learn-emphasis-content-border, 0);
+      padding: var(--a2learn-emphasis-content-padding, 0);
+      border-radius: var(--a2learn-emphasis-content-radius, 0);
     }
     /* Style markdown elements inside analogy */
     .content p {

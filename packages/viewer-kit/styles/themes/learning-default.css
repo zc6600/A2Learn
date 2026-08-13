@@ -22,8 +22,9 @@ html[data-a2learn-theme="learning-default"],
   --a2ui-font-size-m: 16px;
   --a2ui-font-size-l: 20px;
   --a2ui-font-size-xl: 26px;
-  --a2ui-font-size-2xl: 34px;
-  --a2ui-line-height-headings: 1.25;
+  /* Page titles should frame the lesson, not compete with its first component. */
+  --a2ui-font-size-2xl: 30px;
+  --a2ui-line-height-headings: 1.18;
   --a2ui-line-height-body: 1.65;
   --a2ui-spacing-xs: 6px;
   --a2ui-spacing-s: 10px;

@@ -16,13 +16,51 @@
           "component": "Column",
           "children": [
             "header",
+            "section-problem-site-js-async",
+            "section-outline-site-js-async",
+            "section-solution-site-js-async",
+            "section-deepening-site-js-async"
+          ]
+        },
+        {
+          "id": "section-problem-site-js-async",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "回调地狱：为什么异步代码让开发者崩溃？",
+          "children": [
             "background-pain",
             "scenario-chat",
-            "concept",
+            "concept"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-site-js-async",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "Event Loop 心智模型：单线程如何驾驭并发",
+          "children": [
             "mental-model-event-loop",
-            "detailed-explanation-promise-all",
+            "detailed-explanation-promise-all"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-site-js-async",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "把异步协作落到 Promise.all 的实现",
+          "children": [
             "quiz",
-            "async-flashcards",
+            "async-flashcards"
+          ]
+        },
+        {
+          "id": "section-deepening-site-js-async",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "JavaScript 异步模型的核心设计智慧",
+          "children": [
             "summary-and-terms",
             "resources"
           ]

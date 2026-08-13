@@ -5,16 +5,16 @@
       }
       .chat-container {
         background: color-mix(in oklab, var(--a2ui-color-surface) 95%, black);
-        border: 1px solid var(--a2ui-color-border);
-        border-radius: 16px;
+        border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 76%, transparent);
+        border-radius: 12px;
         overflow: visible;
         display: flex;
         flex-direction: column;
       }
       .chat-container.wechat-group {
         background: var(--a2learn-dialogue-wechat-surface, var(--a2ui-color-surface-subtle));
-        border-color: var(--a2learn-dialogue-wechat-border, var(--a2ui-color-border));
-        border-radius: 8px;
+        border-color: color-mix(in oklab, var(--a2ui-color-border) 76%, transparent);
+        border-radius: 12px;
       }
     .chat-header {
       background: var(--a2ui-color-surface);

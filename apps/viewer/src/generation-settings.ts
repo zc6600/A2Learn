@@ -83,6 +83,8 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
         exampleUses: "使用组件：",
         theme: "页面风格",
         themeCopy: "影响页面的颜色、字体、留白和卡片质感。",
+        attention: "重点强化",
+        attentionCopy: "在当前主题上叠加更明显的边框、阴影和重点提示，适合快速抓重点。",
         displayMode: "展示模式",
         displayModeCopy: "标准模式保留完整页面；演示模式会按内容自动分页，并支持全屏与右键翻页。",
         standardMode: "标准页面",
@@ -116,6 +118,8 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
         exampleUses: "Uses: ",
         theme: "Page style",
         themeCopy: "Changes the page color, typography, spacing, and card feel.",
+        attention: "High-attention emphasis",
+        attentionCopy: "Adds stronger borders, shadows, and emphasis on top of the current theme for quick scanning.",
         displayMode: "Display mode",
         displayModeCopy: "Standard keeps the full page; presentation paginates content and supports fullscreen and right-click navigation.",
         standardMode: "Standard page",
@@ -258,6 +262,15 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
         <div class="generation-theme-grid">${themeOptions}</div>
       </section>
       <section class="generation-settings-section">
+        <label class="generation-theme-option">
+          <input id="generation-attention-mode" type="checkbox" ${profile.attentionMode === "high" ? "checked" : ""} />
+          <span class="generation-theme-copy">
+            <span class="generation-theme-label">${copy.attention}</span>
+            <span class="generation-theme-description">${copy.attentionCopy}</span>
+          </span>
+        </label>
+      </section>
+      <section class="generation-settings-section">
         <p class="generation-settings-section-title">${copy.displayMode}</p>
         <p class="generation-settings-section-copy">${copy.displayModeCopy}</p>
         <div class="generation-theme-grid">${displayModeOptions}</div>
@@ -290,12 +303,13 @@ export function profileFromSettingsInputs(): GenerationProfile {
   const exampleIds = Array.from(document.querySelectorAll<HTMLInputElement>(".generation-example-input:checked"))
     .map((input) => input.dataset.exampleId || "");
   const themeId = document.querySelector<HTMLInputElement>("input[name='generation-theme']:checked")?.value;
+  const attentionMode = (document.getElementById("generation-attention-mode") as HTMLInputElement | null)?.checked ? "high" : "calm";
   const displayMode = document.querySelector<HTMLInputElement>("input[name='generation-display-mode']:checked")?.value;
   const templateId = document.querySelector<HTMLInputElement>("input[name='generation-template']:checked")?.value || "custom";
   const imageGenerationLimit = (document.getElementById("generation-image-limit") as HTMLInputElement | null)?.valueAsNumber;
   const visualIntent = (document.getElementById("generation-visual-intent") as HTMLTextAreaElement | null)?.value || "";
   const template = GENERATION_TEMPLATES.find((item) => item.id === templateId);
-  return normalizeGenerationProfile({ version: 1, templateId, enabledComponents, exampleIds, referencePackIds: template?.referencePackIds || [], themeId, displayMode, imageGenerationLimit, visualIntent });
+  return normalizeGenerationProfile({ version: 1, templateId, enabledComponents, exampleIds, referencePackIds: template?.referencePackIds || [], themeId, attentionMode, displayMode, imageGenerationLimit, visualIntent });
 }
 
 export function syncGenerationSettingsInputs(profile: GenerationProfile): void {
@@ -313,6 +327,8 @@ export function syncGenerationSettingsInputs(profile: GenerationProfile): void {
   if (intent) intent.value = profile.visualIntent;
   const selectedTheme = document.querySelector<HTMLInputElement>(`input[name='generation-theme'][value='${profile.themeId}']`);
   if (selectedTheme) selectedTheme.checked = true;
+  const attentionMode = document.getElementById("generation-attention-mode") as HTMLInputElement | null;
+  if (attentionMode) attentionMode.checked = profile.attentionMode === "high";
   const selectedDisplayMode = document.querySelector<HTMLInputElement>(`input[name='generation-display-mode'][value='${profile.displayMode}']`);
   if (selectedDisplayMode) selectedDisplayMode.checked = true;
   document.querySelectorAll<HTMLInputElement>(".generation-template-input").forEach((input) => {

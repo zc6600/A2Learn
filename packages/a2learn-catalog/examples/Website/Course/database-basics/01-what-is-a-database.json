@@ -16,55 +16,62 @@
           "component": "Column",
           "children": [
             "header",
-            "path",
+            "section-problem-database-basics-lesson-1",
+            "section-outline-database-basics-lesson-1",
+            "section-solution-database-basics-lesson-1",
+            "section-deepening-database-basics-lesson-1"
+          ]
+        },
+        {
+          "id": "section-problem-database-basics-lesson-1",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "先看一个会越来越乱的通讯录",
+          "children": [
             "scene",
             "dialogue",
-            "model",
+            "model"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-database-basics-lesson-1",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "students 表：一行就是一位学生",
+          "children": [
             "table",
-            "concept",
+            "concept"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-database-basics-lesson-1",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "为什么‘一列一种信息’很重要？",
+          "children": [
             "explanation",
-            "sandbox",
+            "sandbox"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-database-basics-lesson-1",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "第一讲检查",
+          "children": [
             "quiz",
             "summary"
-          ]
+          ],
+          "showTitle": false
         },
         {
           "id": "header",
           "component": "Text",
           "variant": "h1",
           "text": "第 1 讲：数据库到底是什么？"
-        },
-        {
-          "id": "path",
-          "component": "LearningPath",
-          "title": "数据库入门 6 讲",
-          "activeStepId": "1",
-          "steps": [
-            {
-              "id": "1",
-              "title": "认识数据库"
-            },
-            {
-              "id": "2",
-              "title": "向数据库提问"
-            },
-            {
-              "id": "3",
-              "title": "修改数据"
-            },
-            {
-              "id": "4",
-              "title": "设计表"
-            },
-            {
-              "id": "5",
-              "title": "连接多张表"
-            },
-            {
-              "id": "6",
-              "title": "完成小项目"
-            }
-          ]
         },
         {
           "id": "scene",

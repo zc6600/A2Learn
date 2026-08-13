@@ -16,55 +16,62 @@
           "component": "Column",
           "children": [
             "header",
-            "path",
+            "section-problem-database-basics-lesson-4",
+            "section-outline-database-basics-lesson-4",
+            "section-solution-database-basics-lesson-4",
+            "section-deepening-database-basics-lesson-4"
+          ]
+        },
+        {
+          "id": "section-problem-database-basics-lesson-4",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "同名的人，应该怎样区分？",
+          "children": [
             "scene",
             "dialogue",
-            "model",
+            "model"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-database-basics-lesson-4",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "students 表的字段设计",
+          "children": [
             "table",
-            "bad",
+            "bad"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-database-basics-lesson-4",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "类型是给数据设定的边界",
+          "children": [
             "explanation",
-            "sandbox",
+            "sandbox"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-database-basics-lesson-4",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "表设计检查",
+          "children": [
             "quiz",
             "summary"
-          ]
+          ],
+          "showTitle": false
         },
         {
           "id": "header",
           "component": "Text",
           "variant": "h1",
           "text": "第 4 讲：怎样设计一张不容易混乱的表？"
-        },
-        {
-          "id": "path",
-          "component": "LearningPath",
-          "title": "数据库入门 6 讲",
-          "activeStepId": "4",
-          "steps": [
-            {
-              "id": "1",
-              "title": "认识数据库"
-            },
-            {
-              "id": "2",
-              "title": "向数据库提问"
-            },
-            {
-              "id": "3",
-              "title": "修改数据"
-            },
-            {
-              "id": "4",
-              "title": "设计表"
-            },
-            {
-              "id": "5",
-              "title": "连接多张表"
-            },
-            {
-              "id": "6",
-              "title": "完成小项目"
-            }
-          ]
         },
         {
           "id": "scene",

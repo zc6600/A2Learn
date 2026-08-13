@@ -14,31 +14,101 @@
         {
           "id": "root",
           "component": "Column",
-          "children": ["header-1", "learning-path-1", "background-1", "chat-1", "mental-model-1", "concept-1", "explanation-1", "sandbox-1", "quiz-1"]
-        },
-        { "id": "header-1", "component": "Text", "variant": "h1", "text": "Database Basics: Organizing Messy Information" },
-        {
-          "id": "learning-path-1",
-          "component": "LearningPath",
-          "title": "From everyday notes to a database",
-          "activeStepId": "1",
-          "steps": [
-            { "id": "1", "title": "1. Why not use a pile of files?", "targetSurfaceId": "database-basics-module-1" },
-            { "id": "2", "title": "2. What are tables, rows, and columns?", "targetSurfaceId": "database-basics-module-2" },
-            { "id": "3", "title": "3. How do we find and change records?", "targetSurfaceId": "database-basics-module-3" }
+          "children": [
+            "header-1",
+            "section-problem-database-basics-module-1",
+            "section-outline-database-basics-module-1",
+            "section-solution-database-basics-module-1",
+            "section-deepening-database-basics-module-1"
           ]
         },
-        { "id": "background-1", "component": "AnalogyCard", "title": "Start with a familiar problem", "analogy": "<b>Imagine a small library corner</b>: with ten books, a notebook is enough. When there are thousands of books, finding who borrowed a book means turning page after page, and changing one phone number may require fixing several notes.<br><br><b>A database is a helpful records manager</b>: it stores information in an organized way and can find, add, change, or remove records when an application asks it to." },
+        {
+          "id": "section-problem-database-basics-module-1",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "Start with a familiar problem",
+          "children": [
+            "background-1",
+            "chat-1"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-database-basics-module-1",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "Think of a database as an organized records room",
+          "children": [
+            "mental-model-1",
+            "concept-1"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-database-basics-module-1",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "How does an application work with a database?",
+          "children": [
+            "explanation-1",
+            "sandbox-1"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-database-basics-module-1",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "Checkpoint: What does a database do?",
+          "children": [
+            "quiz-1"
+          ]
+        },
+        {
+          "id": "header-1",
+          "component": "Text",
+          "variant": "h1",
+          "text": "Database Basics: Organizing Messy Information"
+        },
+        {
+          "id": "background-1",
+          "component": "AnalogyCard",
+          "title": "Start with a familiar problem",
+          "analogy": "<b>Imagine a small library corner</b>: with ten books, a notebook is enough. When there are thousands of books, finding who borrowed a book means turning page after page, and changing one phone number may require fixing several notes.<br><br><b>A database is a helpful records manager</b>: it stores information in an organized way and can find, add, change, or remove records when an application asks it to."
+        },
         {
           "id": "chat-1",
           "component": "ScenarioDialogue",
           "topic": "💬 Discussion: Why do websites need databases?",
-          "characters": { "alex": { "name": "Alex (new programmer)", "avatar": "🧑‍💻", "alignment": "left" }, "teacher": { "name": "Teacher", "avatar": "👩‍🏫", "alignment": "right" } },
+          "characters": {
+            "alex": {
+              "name": "Alex (new programmer)",
+              "avatar": "🧑‍💻",
+              "alignment": "left"
+            },
+            "teacher": {
+              "name": "Teacher",
+              "avatar": "👩‍🏫",
+              "alignment": "right"
+            }
+          },
           "messages": [
-            { "characterId": "alex", "content": "Could I just store user information in one JSON file?" },
-            { "characterId": "teacher", "content": "For a few records, yes. As the number of users grows, you must handle searching, changing, and saving data safely by yourself." },
-            { "characterId": "alex", "content": "So a database is a tool that manages many records for an application?" },
-            { "characterId": "teacher", "content": "Exactly. For now, remember this: a database is a place that reliably stores, finds, and changes data." }
+            {
+              "characterId": "alex",
+              "content": "Could I just store user information in one JSON file?"
+            },
+            {
+              "characterId": "teacher",
+              "content": "For a few records, yes. As the number of users grows, you must handle searching, changing, and saving data safely by yourself."
+            },
+            {
+              "characterId": "alex",
+              "content": "So a database is a tool that manages many records for an application?"
+            },
+            {
+              "characterId": "teacher",
+              "content": "Exactly. For now, remember this: a database is a place that reliably stores, finds, and changes data."
+            }
           ]
         },
         {
@@ -51,63 +121,529 @@
           "diagram": "Program asks a question → Database finds matching records → Result goes back to the program\nProgram sends new information → Database saves it → The record can be found later",
           "pillarsTitle": "Three jobs a database helps with",
           "pillars": [
-            { "title": "Store", "description": "Keep users, products, and orders in a stable place.", "icon": "💾" },
-            { "title": "Find", "description": "Find records by a name, number, or other condition.", "icon": "🔍" },
-            { "title": "Change", "description": "Update the one record whose information changed.", "icon": "✏️" }
+            {
+              "title": "Store",
+              "description": "Keep users, products, and orders in a stable place.",
+              "icon": "💾"
+            },
+            {
+              "title": "Find",
+              "description": "Find records by a name, number, or other condition.",
+              "icon": "🔍"
+            },
+            {
+              "title": "Change",
+              "description": "Update the one record whose information changed.",
+              "icon": "✏️"
+            }
           ],
           "analogyTitle": "💡 How is it different from a normal file?",
           "analogy": "A normal file is like a stack of papers you search by hand. A database is like a records room with an index and an assistant."
         },
-        { "id": "concept-1", "component": "ConceptCard", "title": "One word first: database", "tags": ["Store data", "Find data", "Change data"], "definition": "A <b>database</b> is a system dedicated to managing data. It does more than save content: it gives programs consistent ways to read, add, change, and remove records.", "example": "**A course website may store**\n\n- student names\n- enrolled courses\n- learning progress\n\nA few records can be written by hand. When there are many records, a database keeps them organized.", "relatedConcepts": ["Data", "Record", "Table"] },
-        { "id": "explanation-1", "component": "DetailedExplanation", "title": "How does an application work with a database?", "icon": "🤝", "estimatedReadTime": "2-minute introduction", "content": "A website can be viewed as three parts: the page the user sees, the program that handles requests, and the database that stores information.\n\nWhen a user logs in, the program asks the database whether the username and password match. The database returns a result, and the program decides what to show.\n\nPrograms use a language called **SQL** to describe requests to many databases. We will only use a few short statements for now." },
-        { "id": "sandbox-1", "component": "InteractiveSandbox", "title": "Try it: find one person in a few records", "description": "This JavaScript array is a tiny pretend database. Each object is one record.", "language": "javascript", "code": "// Prepare three user records. Each object is like one database row.\nconst users = [\n  { name: \"Mia\", city: \"Shanghai\" },\n  { name: \"Lin\", city: \"Beijing\" },\n  { name: \"Zhou\", city: \"Guangzhou\" }\n];\n\n// Ask a question: find the record whose name is Lin.\n// find returns the first record that matches the condition.\nconst wantedUser = users.find((user) => user.name === \"Lin\");\n\nconsole.log(\"User found:\", wantedUser);\nconsole.log(\"Saved data can be retrieved by a condition.\");", "runLocally": true },
-        { "id": "quiz-1", "component": "QuizCard", "title": "🧠 Checkpoint: What does a database do?", "questions": [{ "id": "q1", "question": "Which sentence best describes a database?", "options": ["A tool only for drawing web pages", "A system that helps programs store, find, and change data", "Hardware that only makes a computer faster", "A file format that only stores pictures"], "correctIndex": 1, "explanation": "A database manages data: it stores records and responds to requests to find, add, change, or remove them." }] }
+        {
+          "id": "concept-1",
+          "component": "ConceptCard",
+          "title": "One word first: database",
+          "tags": [
+            "Store data",
+            "Find data",
+            "Change data"
+          ],
+          "definition": "A <b>database</b> is a system dedicated to managing data. It does more than save content: it gives programs consistent ways to read, add, change, and remove records.",
+          "example": "**A course website may store**\n\n- student names\n- enrolled courses\n- learning progress\n\nA few records can be written by hand. When there are many records, a database keeps them organized.",
+          "relatedConcepts": [
+            "Data",
+            "Record",
+            "Table"
+          ]
+        },
+        {
+          "id": "explanation-1",
+          "component": "DetailedExplanation",
+          "title": "How does an application work with a database?",
+          "icon": "🤝",
+          "estimatedReadTime": "2-minute introduction",
+          "content": "A website can be viewed as three parts: the page the user sees, the program that handles requests, and the database that stores information.\n\nWhen a user logs in, the program asks the database whether the username and password match. The database returns a result, and the program decides what to show.\n\nPrograms use a language called **SQL** to describe requests to many databases. We will only use a few short statements for now."
+        },
+        {
+          "id": "sandbox-1",
+          "component": "InteractiveSandbox",
+          "title": "Try it: find one person in a few records",
+          "description": "This JavaScript array is a tiny pretend database. Each object is one record.",
+          "language": "javascript",
+          "code": "// Prepare three user records. Each object is like one database row.\nconst users = [\n  { name: \"Mia\", city: \"Shanghai\" },\n  { name: \"Lin\", city: \"Beijing\" },\n  { name: \"Zhou\", city: \"Guangzhou\" }\n];\n\n// Ask a question: find the record whose name is Lin.\n// find returns the first record that matches the condition.\nconst wantedUser = users.find((user) => user.name === \"Lin\");\n\nconsole.log(\"User found:\", wantedUser);\nconsole.log(\"Saved data can be retrieved by a condition.\");",
+          "runLocally": true
+        },
+        {
+          "id": "quiz-1",
+          "component": "QuizCard",
+          "title": "🧠 Checkpoint: What does a database do?",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Which sentence best describes a database?",
+              "options": [
+                "A tool only for drawing web pages",
+                "A system that helps programs store, find, and change data",
+                "Hardware that only makes a computer faster",
+                "A file format that only stores pictures"
+              ],
+              "correctIndex": 1,
+              "explanation": "A database manages data: it stores records and responds to requests to find, add, change, or remove them."
+            }
+          ]
+        }
       ]
     }
   },
   {
     "version": "v0.9",
-    "createSurface": { "surfaceId": "database-basics-module-2", "catalogId": "https://a2learn.ai/spec/v1/catalog.json" }
+    "createSurface": {
+      "surfaceId": "database-basics-module-2",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
   },
   {
     "version": "v0.9",
     "updateComponents": {
       "surfaceId": "database-basics-module-2",
       "components": [
-        { "id": "root", "component": "Column", "children": ["header-2", "learning-path-2", "background-2", "chat-2", "mental-model-2", "table-2", "concept-2", "explanation-2", "sandbox-2", "quiz-2"] },
-        { "id": "header-2", "component": "Text", "variant": "h1", "text": "Tables, rows, and columns: keep records tidy" },
-        { "id": "learning-path-2", "component": "LearningPath", "title": "From everyday notes to a database", "activeStepId": "2", "steps": [{ "id": "1", "title": "1. Why not use a pile of files?", "targetSurfaceId": "database-basics-module-1" }, { "id": "2", "title": "2. What are tables, rows, and columns?", "targetSurfaceId": "database-basics-module-2" }, { "id": "3", "title": "3. How do we find and change records?", "targetSurfaceId": "database-basics-module-3" }] },
-        { "id": "background-2", "component": "AnalogyCard", "title": "Look at a course sign-up sheet", "analogy": "A normal table can have columns for name, course, and progress. Each new student adds one row. A database table works in the same familiar way: a table holds similar records, a row represents one record, and a column represents one kind of information." },
-        { "id": "chat-2", "component": "ScenarioDialogue", "topic": "💬 Meet tables, rows, and columns", "characters": { "alex": { "name": "Alex", "avatar": "🧑‍💻", "alignment": "left" }, "teacher": { "name": "Teacher", "avatar": "👩‍🏫", "alignment": "right" } }, "messages": [{ "characterId": "alex", "content": "Does table just mean a spreadsheet-like table?" }, { "characterId": "teacher", "content": "That is a good first understanding. A table usually stores one kind of record, such as students or products." }, { "characterId": "alex", "content": "Then one row is one student, and columns are name, age, and so on?" }, { "characterId": "teacher", "content": "Exactly. A table holds similar records, a row is one record, and a column describes one kind of information." }] },
-        { "id": "mental-model-2", "component": "MentalModel", "title": "A table is a list with fixed headings", "description": "The headings decide what each column stores. Each row then fills in those same kinds of information.", "icon": "📋", "diagramTitle": "📊 A students table", "diagram": "students table\n┌──────┬────────┬─────┐\n│ name │ city   │ age │  ← column: one kind of information\n├──────┼────────┼─────┤\n│ Mia  │ Shanghai│ 18 │  ← row: one record\n│ Lin  │ Beijing │ 19 │\n└──────┴────────┴─────┘", "pillarsTitle": "Three important words", "pillars": [{ "title": "Table", "description": "A group of records of the same kind.", "icon": "🗂️" }, { "title": "Row", "description": "One complete record in the table.", "icon": "➡️" }, { "title": "Column", "description": "One kind of information in each record.", "icon": "⬇️" }], "analogyTitle": "💡 Remember it with a contacts list", "analogy": "The contacts list is a table; one contact is a row; name, phone, and city are columns." },
-        { "id": "table-2", "component": "DataTable", "title": "Course sign-up records", "caption": "Each row is one student, and each column represents one kind of information.", "columns": [{ "key": "name", "label": "Name" }, { "key": "course", "label": "Course" }, { "key": "progress", "label": "Progress", "align": "right" }], "rows": [{ "id": "student-1", "cells": { "name": "Mia", "course": "Database Basics", "progress": "Chapter 1" } }, { "id": "student-2", "cells": { "name": "Lin", "course": "JavaScript", "progress": "Chapter 3" } }, { "id": "student-3", "cells": { "name": "Zhou", "course": "CSS Layout", "progress": "Complete" } }] },
-        { "id": "concept-2", "component": "ConceptCard", "title": "Table, row, and column: the basic building blocks", "tags": ["Table", "Row", "Column"], "definition": "A database divides data into tables. A <b>table</b> represents one kind of data, a <b>row</b> represents one record, and a <b>column</b> represents one kind of information.", "example": "A whole list is a table, Lin's horizontal entry is a row, and city is a column.", "relatedConcepts": ["Record", "Field", "SQL"] },
-        { "id": "explanation-2", "component": "DetailedExplanation", "title": "Why should one column contain one kind of information?", "icon": "🧱", "estimatedReadTime": "2-minute introduction", "content": "A useful beginner habit is to let one column store one kind of information. Put a person's name in `name` and city in `city`; do not put the whole sentence “Lin, Beijing” into one cell.\n\nThen a program can find students in Beijing by checking the `city` column, and change Lin's city without guessing where the city name is." },
-        { "id": "sandbox-2", "component": "InteractiveSandbox", "title": "Try it: filter students by city", "description": "Each object is one row. The condition keeps students whose city is Beijing.", "language": "javascript", "code": "// Each object represents one row in the students table.\nconst students = [\n  { name: \"Mia\", city: \"Shanghai\", age: 18 },\n  { name: \"Lin\", city: \"Beijing\", age: 19 },\n  { name: \"Zhou\", city: \"Beijing\", age: 18 }\n];\n\n// filter keeps every row that matches the condition.\nconst studentsInBeijing = students.filter((student) => student.city === \"Beijing\");\n\nconsole.log(\"Students in Beijing:\", studentsInBeijing);", "runLocally": true },
-        { "id": "quiz-2", "component": "QuizCard", "title": "🧠 Checkpoint: tables, rows, and columns", "questions": [{ "id": "q1", "question": "In a students table, what is “Lin, Beijing, 19”?", "options": ["A table", "A column", "A row / record", "A database server"], "correctIndex": 2, "explanation": "Together these values describe one student, so they form one row, or one complete record." }] }
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-2",
+            "section-problem-database-basics-module-2",
+            "section-outline-database-basics-module-2",
+            "section-solution-database-basics-module-2",
+            "section-deepening-database-basics-module-2"
+          ]
+        },
+        {
+          "id": "section-problem-database-basics-module-2",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "Look at a course sign-up sheet",
+          "children": [
+            "background-2",
+            "chat-2"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-database-basics-module-2",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "A table is a list with fixed headings",
+          "children": [
+            "mental-model-2",
+            "table-2"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-database-basics-module-2",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "Table, row, and column: the basic building blocks",
+          "children": [
+            "concept-2",
+            "explanation-2"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-database-basics-module-2",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "Try it: filter students by city",
+          "children": [
+            "sandbox-2",
+            "quiz-2"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "header-2",
+          "component": "Text",
+          "variant": "h1",
+          "text": "Tables, rows, and columns: keep records tidy"
+        },
+        {
+          "id": "background-2",
+          "component": "AnalogyCard",
+          "title": "Look at a course sign-up sheet",
+          "analogy": "A normal table can have columns for name, course, and progress. Each new student adds one row. A database table works in the same familiar way: a table holds similar records, a row represents one record, and a column represents one kind of information."
+        },
+        {
+          "id": "chat-2",
+          "component": "ScenarioDialogue",
+          "topic": "💬 Meet tables, rows, and columns",
+          "characters": {
+            "alex": {
+              "name": "Alex",
+              "avatar": "🧑‍💻",
+              "alignment": "left"
+            },
+            "teacher": {
+              "name": "Teacher",
+              "avatar": "👩‍🏫",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alex",
+              "content": "Does table just mean a spreadsheet-like table?"
+            },
+            {
+              "characterId": "teacher",
+              "content": "That is a good first understanding. A table usually stores one kind of record, such as students or products."
+            },
+            {
+              "characterId": "alex",
+              "content": "Then one row is one student, and columns are name, age, and so on?"
+            },
+            {
+              "characterId": "teacher",
+              "content": "Exactly. A table holds similar records, a row is one record, and a column describes one kind of information."
+            }
+          ]
+        },
+        {
+          "id": "mental-model-2",
+          "component": "MentalModel",
+          "title": "A table is a list with fixed headings",
+          "description": "The headings decide what each column stores. Each row then fills in those same kinds of information.",
+          "icon": "📋",
+          "diagramTitle": "📊 A students table",
+          "diagram": "students table\n┌──────┬────────┬─────┐\n│ name │ city   │ age │  ← column: one kind of information\n├──────┼────────┼─────┤\n│ Mia  │ Shanghai│ 18 │  ← row: one record\n│ Lin  │ Beijing │ 19 │\n└──────┴────────┴─────┘",
+          "pillarsTitle": "Three important words",
+          "pillars": [
+            {
+              "title": "Table",
+              "description": "A group of records of the same kind.",
+              "icon": "🗂️"
+            },
+            {
+              "title": "Row",
+              "description": "One complete record in the table.",
+              "icon": "➡️"
+            },
+            {
+              "title": "Column",
+              "description": "One kind of information in each record.",
+              "icon": "⬇️"
+            }
+          ],
+          "analogyTitle": "💡 Remember it with a contacts list",
+          "analogy": "The contacts list is a table; one contact is a row; name, phone, and city are columns."
+        },
+        {
+          "id": "table-2",
+          "component": "DataTable",
+          "title": "Course sign-up records",
+          "caption": "Each row is one student, and each column represents one kind of information.",
+          "columns": [
+            {
+              "key": "name",
+              "label": "Name"
+            },
+            {
+              "key": "course",
+              "label": "Course"
+            },
+            {
+              "key": "progress",
+              "label": "Progress",
+              "align": "right"
+            }
+          ],
+          "rows": [
+            {
+              "id": "student-1",
+              "cells": {
+                "name": "Mia",
+                "course": "Database Basics",
+                "progress": "Chapter 1"
+              }
+            },
+            {
+              "id": "student-2",
+              "cells": {
+                "name": "Lin",
+                "course": "JavaScript",
+                "progress": "Chapter 3"
+              }
+            },
+            {
+              "id": "student-3",
+              "cells": {
+                "name": "Zhou",
+                "course": "CSS Layout",
+                "progress": "Complete"
+              }
+            }
+          ]
+        },
+        {
+          "id": "concept-2",
+          "component": "ConceptCard",
+          "title": "Table, row, and column: the basic building blocks",
+          "tags": [
+            "Table",
+            "Row",
+            "Column"
+          ],
+          "definition": "A database divides data into tables. A <b>table</b> represents one kind of data, a <b>row</b> represents one record, and a <b>column</b> represents one kind of information.",
+          "example": "A whole list is a table, Lin's horizontal entry is a row, and city is a column.",
+          "relatedConcepts": [
+            "Record",
+            "Field",
+            "SQL"
+          ]
+        },
+        {
+          "id": "explanation-2",
+          "component": "DetailedExplanation",
+          "title": "Why should one column contain one kind of information?",
+          "icon": "🧱",
+          "estimatedReadTime": "2-minute introduction",
+          "content": "A useful beginner habit is to let one column store one kind of information. Put a person's name in `name` and city in `city`; do not put the whole sentence “Lin, Beijing” into one cell.\n\nThen a program can find students in Beijing by checking the `city` column, and change Lin's city without guessing where the city name is."
+        },
+        {
+          "id": "sandbox-2",
+          "component": "InteractiveSandbox",
+          "title": "Try it: filter students by city",
+          "description": "Each object is one row. The condition keeps students whose city is Beijing.",
+          "language": "javascript",
+          "code": "// Each object represents one row in the students table.\nconst students = [\n  { name: \"Mia\", city: \"Shanghai\", age: 18 },\n  { name: \"Lin\", city: \"Beijing\", age: 19 },\n  { name: \"Zhou\", city: \"Beijing\", age: 18 }\n];\n\n// filter keeps every row that matches the condition.\nconst studentsInBeijing = students.filter((student) => student.city === \"Beijing\");\n\nconsole.log(\"Students in Beijing:\", studentsInBeijing);",
+          "runLocally": true
+        },
+        {
+          "id": "quiz-2",
+          "component": "QuizCard",
+          "title": "🧠 Checkpoint: tables, rows, and columns",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "In a students table, what is “Lin, Beijing, 19”?",
+              "options": [
+                "A table",
+                "A column",
+                "A row / record",
+                "A database server"
+              ],
+              "correctIndex": 2,
+              "explanation": "Together these values describe one student, so they form one row, or one complete record."
+            }
+          ]
+        }
       ]
     }
   },
   {
     "version": "v0.9",
-    "createSurface": { "surfaceId": "database-basics-module-3", "catalogId": "https://a2learn.ai/spec/v1/catalog.json" }
+    "createSurface": {
+      "surfaceId": "database-basics-module-3",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
   },
   {
     "version": "v0.9",
     "updateComponents": {
       "surfaceId": "database-basics-module-3",
       "components": [
-        { "id": "root", "component": "Column", "children": ["header-3", "learning-path-3", "background-3", "chat-3", "mental-model-3", "concept-3", "explanation-3", "sandbox-3", "quiz-3", "summary-3"] },
-        { "id": "header-3", "component": "Text", "variant": "h1", "text": "Use simple SQL to work with data" },
-        { "id": "learning-path-3", "component": "LearningPath", "title": "From everyday notes to a database", "activeStepId": "3", "steps": [{ "id": "1", "title": "1. Why not use a pile of files?", "targetSurfaceId": "database-basics-module-1" }, { "id": "2", "title": "2. What are tables, rows, and columns?", "targetSurfaceId": "database-basics-module-2" }, { "id": "3", "title": "3. How do we find and change records?", "targetSurfaceId": "database-basics-module-3" }] },
-        { "id": "background-3", "component": "AnalogyCard", "title": "Think of SQL as short sentences for a records assistant", "analogy": "You do not need to search the records room yourself. You can say “give me the students in Beijing,” and the assistant finds them. SQL is a language programs use to express these requests. Start with four actions: view, add, change, and remove." },
-        { "id": "chat-3", "component": "ScenarioDialogue", "topic": "💬 Four actions for managing student records", "characters": { "alex": { "name": "Alex", "avatar": "🧑‍💻", "alignment": "left" }, "teacher": { "name": "Teacher", "avatar": "👩‍🏫", "alignment": "right" } }, "messages": [{ "characterId": "alex", "content": "Is SQL a programming language made for databases?" }, { "characterId": "teacher", "content": "You can think of it as a language for making clear requests to a database. SELECT views, INSERT adds, UPDATE changes, and DELETE removes." }, { "characterId": "alex", "content": "I will first connect them with look, add, change, and remove." }, { "characterId": "teacher", "content": "Good. Before writing SQL, decide which table you are changing and what you want to do. Always check the condition before updating or deleting." }] },
-        { "id": "mental-model-3", "component": "MentalModel", "title": "The four common database actions", "description": "Think of editing a list: view it, register a new person, correct information, or remove a record.", "icon": "🛠️", "diagramTitle": "📊 Look, add, change, remove", "diagram": "SELECT  view matching records\nINSERT  add a new record\nUPDATE  change an existing record\nDELETE  remove an unwanted record", "pillarsTitle": "Four small SQL ideas", "pillars": [{ "title": "SELECT", "description": "I want to see some records.", "icon": "👀" }, { "title": "INSERT", "description": "I want to add a record.", "icon": "➕" }, { "title": "UPDATE / DELETE", "description": "I want to change or remove records.", "icon": "📝" }], "analogyTitle": "💡 Edit a contacts list", "analogy": "Find a contact with SELECT, add one with INSERT, change a phone number with UPDATE, and remove a contact with DELETE." },
-        { "id": "concept-3", "component": "ConceptCard", "title": "SQL: make a clear request to a database", "tags": ["SELECT view", "INSERT add", "UPDATE change", "DELETE remove"], "definition": "SQL is a group of statements for working with databases. Start with four verbs: <b>SELECT</b> view, <b>INSERT</b> add, <b>UPDATE</b> change, and <b>DELETE</b> remove.", "example": "```sql\n-- View students who live in Beijing\nSELECT name FROM students WHERE city = 'Beijing';\n\n-- Add a new student\nINSERT INTO students (name, city, age)\nVALUES ('Chen', 'Shenzhen', 18);\n\n-- Change Lin's city\nUPDATE students SET city = 'Hangzhou' WHERE name = 'Lin';\n\n-- Remove Chen's record\nDELETE FROM students WHERE name = 'Chen';\n```\n\nRead each statement in plain language first. Before UPDATE or DELETE, check which records the condition will affect.", "relatedConcepts": ["Query", "Condition", "Record"] },
-        { "id": "explanation-3", "component": "DetailedExplanation", "title": "Read one simple query", "icon": "🔎", "estimatedReadTime": "3-minute introduction", "content": "Read `SELECT name FROM students WHERE city = 'Beijing';` in three parts:\n\n- `SELECT name`: I want to see the name column.\n- `FROM students`: the data comes from the students table.\n- `WHERE city = 'Beijing'`: keep only records whose city is Beijing.\n\nIt is like telling a records assistant: “Open the student list and give me the names of students in Beijing.”" },
-        { "id": "sandbox-3", "component": "InteractiveSandbox", "title": "Try it: simulate four common actions", "description": "This JavaScript array simulates viewing, adding, changing, and removing records.", "language": "javascript", "code": "// This array simulates a students table.\nlet students = [\n  { name: \"Mia\", city: \"Shanghai\" },\n  { name: \"Lin\", city: \"Beijing\" }\n];\n\n// SELECT: view students in Beijing.\nconsole.log(\"Query result:\", students.filter((student) => student.city === \"Beijing\"));\n\n// INSERT: add one new record.\nstudents.push({ name: \"Zhou\", city: \"Guangzhou\" });\n\n// UPDATE: find Lin and change only his city.\nconst studentToUpdate = students.find((student) => student.name === \"Lin\");\nif (studentToUpdate) {\n  studentToUpdate.city = \"Hangzhou\";\n}\n\n// DELETE: keep everyone except Zhou, which removes Zhou.\nstudents = students.filter((student) => student.name !== \"Zhou\");\n\nconsole.log(\"Final students table:\", students);", "runLocally": true },
-        { "id": "quiz-3", "component": "QuizCard", "title": "🧠 Checkpoint: read simple SQL", "questions": [{ "id": "q1", "question": "Which statement means “view students in Beijing”?", "options": ["INSERT students WHERE city = 'Beijing'", "SELECT name FROM students WHERE city = 'Beijing'", "UPDATE students SET city = 'Beijing'", "DELETE FROM students WHERE city = 'Beijing'"], "correctIndex": 1, "explanation": "SELECT means view, FROM students chooses the table, and WHERE limits the result to students in Beijing." }] },
-        { "id": "summary-3", "component": "AnalogyCard", "title": "The few ideas to remember today", "analogy": "A database is an organized records assistant.<br><br>1. A <b>database</b> stores, finds, and changes data.<br>2. A <b>table</b> holds similar records; a <b>row</b> is one record; a <b>column</b> is one kind of information.<br>3. <b>SQL</b> is a language for making requests.<br>4. <b>SELECT, INSERT, UPDATE, DELETE</b> mean view, add, change, and remove.<br><br>These simple connections are enough for a first step into databases." }
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header-3",
+            "section-problem-database-basics-module-3",
+            "section-outline-database-basics-module-3",
+            "section-solution-database-basics-module-3",
+            "section-deepening-database-basics-module-3"
+          ]
+        },
+        {
+          "id": "section-problem-database-basics-module-3",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "Think of SQL as short sentences for a records assistant",
+          "children": [
+            "background-3",
+            "chat-3"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-database-basics-module-3",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "The four common database actions",
+          "children": [
+            "mental-model-3",
+            "concept-3"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-database-basics-module-3",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "Read one simple query",
+          "children": [
+            "explanation-3",
+            "sandbox-3"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-database-basics-module-3",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "Checkpoint: read simple SQL",
+          "children": [
+            "quiz-3",
+            "summary-3"
+          ]
+        },
+        {
+          "id": "header-3",
+          "component": "Text",
+          "variant": "h1",
+          "text": "Use simple SQL to work with data"
+        },
+        {
+          "id": "background-3",
+          "component": "AnalogyCard",
+          "title": "Think of SQL as short sentences for a records assistant",
+          "analogy": "You do not need to search the records room yourself. You can say “give me the students in Beijing,” and the assistant finds them. SQL is a language programs use to express these requests. Start with four actions: view, add, change, and remove."
+        },
+        {
+          "id": "chat-3",
+          "component": "ScenarioDialogue",
+          "topic": "💬 Four actions for managing student records",
+          "characters": {
+            "alex": {
+              "name": "Alex",
+              "avatar": "🧑‍💻",
+              "alignment": "left"
+            },
+            "teacher": {
+              "name": "Teacher",
+              "avatar": "👩‍🏫",
+              "alignment": "right"
+            }
+          },
+          "messages": [
+            {
+              "characterId": "alex",
+              "content": "Is SQL a programming language made for databases?"
+            },
+            {
+              "characterId": "teacher",
+              "content": "You can think of it as a language for making clear requests to a database. SELECT views, INSERT adds, UPDATE changes, and DELETE removes."
+            },
+            {
+              "characterId": "alex",
+              "content": "I will first connect them with look, add, change, and remove."
+            },
+            {
+              "characterId": "teacher",
+              "content": "Good. Before writing SQL, decide which table you are changing and what you want to do. Always check the condition before updating or deleting."
+            }
+          ]
+        },
+        {
+          "id": "mental-model-3",
+          "component": "MentalModel",
+          "title": "The four common database actions",
+          "description": "Think of editing a list: view it, register a new person, correct information, or remove a record.",
+          "icon": "🛠️",
+          "diagramTitle": "📊 Look, add, change, remove",
+          "diagram": "SELECT  view matching records\nINSERT  add a new record\nUPDATE  change an existing record\nDELETE  remove an unwanted record",
+          "pillarsTitle": "Four small SQL ideas",
+          "pillars": [
+            {
+              "title": "SELECT",
+              "description": "I want to see some records.",
+              "icon": "👀"
+            },
+            {
+              "title": "INSERT",
+              "description": "I want to add a record.",
+              "icon": "➕"
+            },
+            {
+              "title": "UPDATE / DELETE",
+              "description": "I want to change or remove records.",
+              "icon": "📝"
+            }
+          ],
+          "analogyTitle": "💡 Edit a contacts list",
+          "analogy": "Find a contact with SELECT, add one with INSERT, change a phone number with UPDATE, and remove a contact with DELETE."
+        },
+        {
+          "id": "concept-3",
+          "component": "ConceptCard",
+          "title": "SQL: make a clear request to a database",
+          "tags": [
+            "SELECT view",
+            "INSERT add",
+            "UPDATE change",
+            "DELETE remove"
+          ],
+          "definition": "SQL is a group of statements for working with databases. Start with four verbs: <b>SELECT</b> view, <b>INSERT</b> add, <b>UPDATE</b> change, and <b>DELETE</b> remove.",
+          "example": "```sql\n-- View students who live in Beijing\nSELECT name FROM students WHERE city = 'Beijing';\n\n-- Add a new student\nINSERT INTO students (name, city, age)\nVALUES ('Chen', 'Shenzhen', 18);\n\n-- Change Lin's city\nUPDATE students SET city = 'Hangzhou' WHERE name = 'Lin';\n\n-- Remove Chen's record\nDELETE FROM students WHERE name = 'Chen';\n```\n\nRead each statement in plain language first. Before UPDATE or DELETE, check which records the condition will affect.",
+          "relatedConcepts": [
+            "Query",
+            "Condition",
+            "Record"
+          ]
+        },
+        {
+          "id": "explanation-3",
+          "component": "DetailedExplanation",
+          "title": "Read one simple query",
+          "icon": "🔎",
+          "estimatedReadTime": "3-minute introduction",
+          "content": "Read `SELECT name FROM students WHERE city = 'Beijing';` in three parts:\n\n- `SELECT name`: I want to see the name column.\n- `FROM students`: the data comes from the students table.\n- `WHERE city = 'Beijing'`: keep only records whose city is Beijing.\n\nIt is like telling a records assistant: “Open the student list and give me the names of students in Beijing.”"
+        },
+        {
+          "id": "sandbox-3",
+          "component": "InteractiveSandbox",
+          "title": "Try it: simulate four common actions",
+          "description": "This JavaScript array simulates viewing, adding, changing, and removing records.",
+          "language": "javascript",
+          "code": "// This array simulates a students table.\nlet students = [\n  { name: \"Mia\", city: \"Shanghai\" },\n  { name: \"Lin\", city: \"Beijing\" }\n];\n\n// SELECT: view students in Beijing.\nconsole.log(\"Query result:\", students.filter((student) => student.city === \"Beijing\"));\n\n// INSERT: add one new record.\nstudents.push({ name: \"Zhou\", city: \"Guangzhou\" });\n\n// UPDATE: find Lin and change only his city.\nconst studentToUpdate = students.find((student) => student.name === \"Lin\");\nif (studentToUpdate) {\n  studentToUpdate.city = \"Hangzhou\";\n}\n\n// DELETE: keep everyone except Zhou, which removes Zhou.\nstudents = students.filter((student) => student.name !== \"Zhou\");\n\nconsole.log(\"Final students table:\", students);",
+          "runLocally": true
+        },
+        {
+          "id": "quiz-3",
+          "component": "QuizCard",
+          "title": "🧠 Checkpoint: read simple SQL",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Which statement means “view students in Beijing”?",
+              "options": [
+                "INSERT students WHERE city = 'Beijing'",
+                "SELECT name FROM students WHERE city = 'Beijing'",
+                "UPDATE students SET city = 'Beijing'",
+                "DELETE FROM students WHERE city = 'Beijing'"
+              ],
+              "correctIndex": 1,
+              "explanation": "SELECT means view, FROM students chooses the table, and WHERE limits the result to students in Beijing."
+            }
+          ]
+        },
+        {
+          "id": "summary-3",
+          "component": "AnalogyCard",
+          "title": "The few ideas to remember today",
+          "analogy": "A database is an organized records assistant.<br><br>1. A <b>database</b> stores, finds, and changes data.<br>2. A <b>table</b> holds similar records; a <b>row</b> is one record; a <b>column</b> is one kind of information.<br>3. <b>SQL</b> is a language for making requests.<br>4. <b>SELECT, INSERT, UPDATE, DELETE</b> mean view, add, change, and remove.<br><br>These simple connections are enough for a first step into databases."
+        }
       ]
     }
   }

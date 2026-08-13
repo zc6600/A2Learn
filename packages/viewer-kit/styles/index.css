@@ -2,6 +2,7 @@
 @import "./base/reset.css" layer(reset);
 @import "./base/primitives.css" layer(primitives);
 @import "./base/tokens.css" layer(tokens);
+@import "./attention-mode.css" layer(components);
 @import "./components/app-shell.css" layer(components);
 @import "./components/gallery.css" layer(components);
 /*

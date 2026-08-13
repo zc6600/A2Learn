@@ -15,7 +15,8 @@ html[data-a2learn-theme="poetry-night"] {
   --a2ui-color-on-surface: #f4eddf;
   --a2ui-color-on-background: #d3cabc;
   --a2ui-color-border: #45413b;
-  --a2ui-font-family-title: Songti SC, STSong, SimSun, serif;
+  /* Keep large headings clear; reserve the poetry face for verse and reading copy. */
+  --a2ui-font-family-title: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --a2ui-font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --a2learn-font-poetry: "Songti SC", STSong, SimSun, serif;
   --a2learn-page-background: radial-gradient(circle at 80% 0%, rgba(212, 168, 91, .16), transparent 30%), linear-gradient(145deg, #16191d, #202633 65%, #16191d);

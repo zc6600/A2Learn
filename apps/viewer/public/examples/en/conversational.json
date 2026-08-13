@@ -16,12 +16,51 @@
           "component": "Column",
           "children": [
             "header",
+            "section-problem-site-conversational",
+            "section-outline-site-conversational",
+            "section-solution-site-conversational",
+            "section-deepening-site-conversational"
+          ]
+        },
+        {
+          "id": "section-problem-site-conversational",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "When a Function \"Remembers\" Something It Shouldn't...",
+          "children": [
             "background-pain",
-            "scenario-chat",
+            "scenario-chat"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-site-conversational",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "Closure: A Function Bound to Its Lexical Environment",
+          "children": [
             "concept",
-            "mental-model-closure",
+            "mental-model-closure"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-site-conversational",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "Code Deep Dive: Building the Closure Module Pattern & Private Variables",
+          "children": [
             "detailed-explanation-closure-pattern",
-            "quiz",
+            "quiz"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-site-conversational",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "Closures Are a Cornerstone of JavaScript's Functional Style",
+          "children": [
             "summary-and-terms",
             "resources"
           ]

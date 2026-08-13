@@ -34,11 +34,13 @@ export class A2learnAnalogyCardElement extends A2uiLitElement<typeof AnalogyCard
     if (!props) return nothing;
 
     const title = this.resolveString(props.title) || uiText("打个比方", "An Analogy");
+    const icon = this.resolveString(props.icon) || "💡";
     const analogy = this.resolveString(props.analogy);
 
     return html`
       <div class="analogy-container">
         <div class="header">
+          <span class="icon" aria-hidden="true">${icon}</span>
           <h4 class="title">${title}</h4>
         </div>
         <div class="content a2learn-markdown-body">

@@ -16,55 +16,62 @@
           "component": "Column",
           "children": [
             "header",
-            "path",
+            "section-problem-database-basics-lesson-5",
+            "section-outline-database-basics-lesson-5",
+            "section-solution-database-basics-lesson-5",
+            "section-deepening-database-basics-lesson-5"
+          ]
+        },
+        {
+          "id": "section-problem-database-basics-lesson-5",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "一个学生可以报名很多门课",
+          "children": [
             "scene",
             "dialogue",
-            "model",
+            "model"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-database-basics-lesson-5",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "三张表的最小结构",
+          "children": [
             "tables",
-            "concept",
+            "concept"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-database-basics-lesson-5",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "为什么关系表可以很简单？",
+          "children": [
             "explanation",
-            "sandbox",
+            "sandbox"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-database-basics-lesson-5",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "多表连接检查",
+          "children": [
             "quiz",
             "summary"
-          ]
+          ],
+          "showTitle": false
         },
         {
           "id": "header",
           "component": "Text",
           "variant": "h1",
           "text": "第 5 讲：多张表怎样连接起来？"
-        },
-        {
-          "id": "path",
-          "component": "LearningPath",
-          "title": "数据库入门 6 讲",
-          "activeStepId": "5",
-          "steps": [
-            {
-              "id": "1",
-              "title": "认识数据库"
-            },
-            {
-              "id": "2",
-              "title": "向数据库提问"
-            },
-            {
-              "id": "3",
-              "title": "修改数据"
-            },
-            {
-              "id": "4",
-              "title": "设计表"
-            },
-            {
-              "id": "5",
-              "title": "连接多张表"
-            },
-            {
-              "id": "6",
-              "title": "完成小项目"
-            }
-          ]
         },
         {
           "id": "scene",

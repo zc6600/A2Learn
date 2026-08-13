@@ -5,10 +5,10 @@
     }
     .quiz-container {
       background: var(--a2ui-color-surface);
-      border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 86%, transparent);
-      border-radius: 10px;
+      border: var(--a2learn-emphasis-panel-border, 1px solid color-mix(in oklab, var(--a2ui-color-border) 86%, transparent));
+      border-radius: var(--a2learn-reading-card-radius, 10px);
       overflow: hidden;
-      box-shadow: none;
+      box-shadow: var(--a2learn-emphasis-panel-shadow, none);
     }
     .quiz-header {
       padding: 14px 18px;

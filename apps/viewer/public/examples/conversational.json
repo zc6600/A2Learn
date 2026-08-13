@@ -16,12 +16,51 @@
           "component": "Column",
           "children": [
             "header",
+            "section-problem-site-conversational",
+            "section-outline-site-conversational",
+            "section-solution-site-conversational",
+            "section-deepening-site-conversational"
+          ]
+        },
+        {
+          "id": "section-problem-site-conversational",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "当函数「记住」了它不该记住的东西……",
+          "children": [
             "background-pain",
-            "scenario-chat",
+            "scenario-chat"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-site-conversational",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "闭包（Closure）：函数与其词法环境的绑定",
+          "children": [
             "concept",
-            "mental-model-closure",
+            "mental-model-closure"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-site-conversational",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "深入代码实现：手写闭包模块模式 (Module Pattern) 与私有变量",
+          "children": [
             "detailed-explanation-closure-pattern",
-            "quiz",
+            "quiz"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-site-conversational",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "闭包是 JavaScript 函数式编程的基石",
+          "children": [
             "summary-and-terms",
             "resources"
           ]

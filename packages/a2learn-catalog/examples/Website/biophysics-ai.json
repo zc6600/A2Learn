@@ -18,17 +18,53 @@
             "header",
             "intro-text",
             "learning-path",
+            "section-research-question-site-aibio-biophysics",
+            "section-method-evidence-site-aibio-biophysics",
+            "section-verification-site-aibio-biophysics",
+            "section-further-reading-site-aibio-biophysics"
+          ]
+        },
+        {
+          "id": "section-research-question-site-aibio-biophysics",
+          "component": "LearningSection",
+          "eyebrow": "研究问题与背景",
+          "title": "蛋白质折叠为什么如此难预测？",
+          "children": [
             "analogy-card",
             "concept-alphafold2",
             "timeline-milestones",
-            "scenario-dialogue",
+            "scenario-dialogue"
+          ]
+        },
+        {
+          "id": "section-method-evidence-site-aibio-biophysics",
+          "component": "LearningSection",
+          "eyebrow": "方法与证据",
+          "title": "从蛋白质语言到扩散生成",
+          "children": [
             "concept-plm",
             "concept-alphafold3",
-            "detailed-explanation-alphafold3",
+            "detailed-explanation-alphafold3"
+          ]
+        },
+        {
+          "id": "section-verification-site-aibio-biophysics",
+          "component": "LearningSection",
+          "eyebrow": "验证理解",
+          "title": "沿着结构预测流水线走一遍",
+          "children": [
             "drag-match-methods",
             "mental-model-alphafold-pipeline",
             "cloze-test",
-            "quiz",
+            "quiz"
+          ]
+        },
+        {
+          "id": "section-further-reading-site-aibio-biophysics",
+          "component": "LearningSection",
+          "eyebrow": "影响与延伸",
+          "title": "AI 如何改变结构生物学？",
+          "children": [
             "deep-dive",
             "summary-and-terms",
             "resources"

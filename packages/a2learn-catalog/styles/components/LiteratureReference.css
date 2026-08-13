@@ -16,11 +16,6 @@
       cursor: pointer;
       border-style: solid;
     }
-    .ref-card-clickable:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-      border-color: var(--a2ui-color-primary);
-      background: var(--a2ui-color-surface);
-    }
     .header {
       display: flex;
       gap: 12px;

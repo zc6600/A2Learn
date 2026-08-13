@@ -1,0 +1,39 @@
+/* High-attention mode composes with every theme; it never owns the palette. */
+html[data-a2learn-attention="high"] {
+  --a2learn-reading-card-border: 1px solid color-mix(in oklab, var(--a2ui-color-primary) 38%, var(--a2ui-color-border));
+  --a2learn-reading-card-background: color-mix(in oklab, var(--a2ui-color-surface) 88%, var(--a2ui-color-surface-subtle));
+  --a2learn-reading-card-radius: 14px;
+  --a2learn-reading-card-padding: 20px 22px;
+  --a2learn-reading-card-shadow: 0 8px 20px color-mix(in srgb, var(--a2ui-color-primary) 12%, transparent);
+  --a2learn-decorative-icon-display: inline-flex;
+  --a2learn-emphasis-panel-shadow: 0 10px 26px color-mix(in srgb, var(--a2ui-color-primary) 13%, transparent);
+  --a2learn-emphasis-panel-border: 1px solid color-mix(in oklab, var(--a2ui-color-primary) 34%, var(--a2ui-color-border));
+  --a2learn-emphasis-panel-background: color-mix(in oklab, var(--a2ui-color-primary) 5%, var(--a2ui-color-surface));
+  --a2learn-emphasis-quote: "”";
+  --a2learn-emphasis-icon-display: flex;
+  --a2learn-emphasis-pill-background: color-mix(in oklab, var(--a2ui-color-primary) 9%, var(--a2ui-color-surface));
+  --a2learn-emphasis-pill-border: 1px solid color-mix(in oklab, var(--a2ui-color-primary) 22%, transparent);
+  --a2learn-emphasis-path-padding: 24px;
+  --a2learn-emphasis-path-radius: 16px;
+  --a2learn-emphasis-step-padding: 8px 12px 24px;
+  --a2learn-emphasis-step-margin: 0 -12px;
+  --a2learn-emphasis-node-size: 32px;
+  --a2learn-emphasis-node-border: 2px solid var(--a2ui-color-border);
+  --a2learn-emphasis-current-ring: 0 0 0 4px color-mix(in oklab, var(--a2ui-color-primary) 15%, transparent);
+  --a2learn-emphasis-status-display: inline;
+  --a2learn-emphasis-index-completed-display: none;
+  --a2learn-emphasis-content-background: var(--a2ui-color-surface-subtle);
+  --a2learn-emphasis-content-border: 1px solid var(--a2ui-color-border);
+  --a2learn-emphasis-content-padding: 16px;
+  --a2learn-emphasis-content-radius: 12px;
+  --a2learn-emphasis-tag-padding: 2px 8px;
+  --a2learn-emphasis-tag-border: 1px solid color-mix(in oklab, var(--a2ui-color-primary) 18%, transparent);
+  --a2learn-emphasis-tag-separator: "";
+  --a2learn-emphasis-header-background: linear-gradient(135deg, color-mix(in oklab, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface)), color-mix(in oklab, var(--a2ui-color-secondary) 4%, var(--a2ui-color-surface)));
+  --a2learn-emphasis-header-padding: 24px;
+  --a2learn-emphasis-header-border: 1px solid var(--a2ui-color-border);
+  --a2learn-emphasis-header-gap: 16px;
+  --a2learn-emphasis-body-padding: 24px;
+  --a2learn-emphasis-pillar-background: color-mix(in oklab, var(--a2ui-color-primary) 2%, var(--a2ui-color-surface));
+  --a2learn-emphasis-pillar-border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 80%, transparent);
+}

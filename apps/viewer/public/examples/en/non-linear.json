@@ -17,13 +17,51 @@
           "children": [
             "header",
             "navigator",
+            "section-problem-site-non-linear",
+            "section-outline-site-non-linear",
+            "section-solution-site-non-linear",
+            "section-deepening-site-non-linear"
+          ]
+        },
+        {
+          "id": "section-problem-site-non-linear",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "Why Do We Need CSS Grid? Isn't Flexbox Enough?",
+          "children": [
             "background-pain",
             "scenario-chat",
-            "concept-grid-container",
+            "concept-grid-container"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-site-non-linear",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "Mental Model for CSS Grid: A City Planning Blueprint",
+          "children": [
             "mental-model-grid",
-            "concept-grid-placement",
+            "concept-grid-placement"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-site-non-linear",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "CSS Deep Dive: The Responsive Grid Magic Formula",
+          "children": [
             "detailed-explanation-grid-magic",
-            "quiz",
+            "quiz"
+          ]
+        },
+        {
+          "id": "section-deepening-site-non-linear",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "Grid and Flexbox Complement Each Other",
+          "children": [
             "summary-and-terms",
             "resources"
           ]

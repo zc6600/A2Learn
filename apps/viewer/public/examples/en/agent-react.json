@@ -16,12 +16,51 @@
           "component": "Column",
           "children": [
             "header",
+            "section-problem-site-agent-react",
+            "section-outline-site-agent-react",
+            "section-solution-site-agent-react",
+            "section-deepening-site-agent-react"
+          ]
+        },
+        {
+          "id": "section-problem-site-agent-react",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "The LLM Decision Dilemma: Static Reasoning vs. Blind Tool Calls",
+          "children": [
             "background-analogy",
-            "scenario-chat",
+            "scenario-chat"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-site-agent-react",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "How ReAct Works: A State Machine Model",
+          "children": [
             "mental-model-react",
-            "concept-synergy",
+            "concept-synergy"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-site-agent-react",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "Architecture Deep Dive: Writing a ReAct Agent Engine From Scratch",
+          "children": [
             "detailed-implementation-from-scratch",
-            "quiz-comprehension",
+            "quiz-comprehension"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-site-agent-react",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "What ReAct Really Is, and How to Build It",
+          "children": [
             "summary-and-terms"
           ]
         },

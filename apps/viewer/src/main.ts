@@ -505,7 +505,7 @@ async function bootstrapViewer() {
   applySourceTheme(initialConfig.source);
   if (!initialConfig.embed && !initialConfig.source.themeVars && !initialConfig.source.themeId) {
     const profile = getStoredGenerationProfile();
-    applyGenerationTheme(profile.themeId, profile.displayMode);
+    applyGenerationTheme(profile.themeId, profile.displayMode, profile.attentionMode);
   }
 
   // Whether the caller explicitly asked for a particular source (query

@@ -42,10 +42,6 @@
       text-decoration: none;
       color: inherit;
     }
-    .resource-item:hover {
-      border-color: color-mix(in oklab, var(--a2ui-color-primary) 35%, var(--a2ui-color-border));
-      background: transparent;
-    }
     .icon {
       font-size: 18px;
       line-height: 1;

@@ -5,6 +5,15 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { LearningPathApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
+
+const STAGE_LABELS = {
+  problem: () => uiText("问题", "Problem"),
+  outline: () => uiText("轮廓", "Outline"),
+  solution: () => uiText("解法", "Solution"),
+  deepening: () => uiText("深入", "Deepening"),
+  newQuestion: () => uiText("新问题", "New Question"),
+} as const;
 
 export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPathApi> {
   static styles = [
@@ -128,14 +137,18 @@ export class A2learnLearningPathElement extends A2uiLitElement<typeof LearningPa
               else if (index === activeIndex) status = 'current';
               else status = 'locked';
             }
+            // A course navigator and an in-page learning structure are different
+            // things. Only show a stage when the content explicitly supplies one;
+            // never infer it from the position of a course module.
+            const stage = step.stage as keyof typeof STAGE_LABELS | undefined;
 
             return html`
               <div class="step ${status}" @click=${() => this.handleStepClick(step, status)}>
                 <div class="icon-wrapper">
-                  ${status === 'completed' ? '✓' : 
-                    status === 'current' ? '●' : '🔒'}
+                  <span class="step-index">${index + 1}</span>
                 </div>
                 <div class="content-wrapper">
+                  ${stage && STAGE_LABELS[stage] ? html`<span class="stage-label">${STAGE_LABELS[stage]()}</span>` : nothing}
                   <h4 class="title">${this.resolveString(step.title)}</h4>
                   ${step.description ? html`<div class="desc a2learn-markdown-body">${unsafeHTML(sanitizeHtml(this.resolveString(step.description)))}</div>` : nothing}
                 </div>

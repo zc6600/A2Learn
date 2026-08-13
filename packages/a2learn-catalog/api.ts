@@ -49,6 +49,7 @@ export const LearningPathApi = {
           z.object({
             id: z.string(),
             title: DynamicStringSchema.describe("节点名称，例如 '认识 JSX'"),
+            stage: z.enum(["problem", "outline", "solution", "deepening", "newQuestion"]).optional().describe("可选的教学阶段。解释型课程可从问题、轮廓、解法、深入、新的问题中任选并跳过；诗词和文学阅读请省略。"),
             description: DynamicStringSchema.optional().describe("节点简短描述"),
             targetSurfaceId: z.string().optional().describe("点击该节点后要跳转到的另一个 surface ID，与 createSurface.surfaceId 对应"),
             targetComponentId: z.string().optional().describe("点击该节点后要在当前页面内平滑滚动到的组件 id（同一 surface 内跳转，无需切换 surface 时使用）"),
@@ -57,6 +58,26 @@ export const LearningPathApi = {
         .describe("学习路径的有序节点列表，按照先后顺序排列"),
       activeStepId: z.string().describe("当前用户所处的节点 ID（游标）。前端会自动将此节点之前的标记为已完成，之后的标记为未解锁。"),
       onStepSelect: ActionSchema.optional().describe("用户点击某个节点时触发，参数为 { stepId }。前端会自动乐观更新游标状态。"),
+    })
+    .strict(),
+} satisfies ComponentApi;
+
+/** A lightweight narrative wrapper for related learning components. */
+export const LearningSectionApi = {
+  name: "LearningSection",
+  schema: z
+    .object({
+      ...CommonProps,
+      stage: z.enum(["problem", "outline", "solution", "deepening", "newQuestion"])
+        .optional()
+        .describe("可选的教学阶段：problem（问题）、outline（轮廓）、solution（解法）、deepening（深入）、newQuestion（新问题）。仅在教学型解释内容中使用；可跳过任意阶段。"),
+      eyebrow: DynamicStringSchema.optional()
+        .describe("可选的自由分层标注，优先于 stage 显示。例如论文可用“研究问题”“方法与证据”“结果与局限”“延伸阅读”。不要为了凑齐阶段而使用；诗词、文学阅读不要使用此组件。"),
+      title: DynamicStringSchema.describe("章节标题，表达这一组内容要回答的问题"),
+      showTitle: DynamicBooleanSchema.default(true).optional()
+        .describe("是否显示分层标题。若第一个子组件已经以相同标题开头，设为 false，避免重复。"),
+      summary: DynamicStringSchema.optional().describe("章节开头的一句核心判断"),
+      children: z.array(z.any()).describe("属于本章节的组件节点；章节只组织层级，不替代内容组件"),
     })
     .strict(),
 } satisfies ComponentApi;

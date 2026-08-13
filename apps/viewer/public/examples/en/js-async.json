@@ -16,12 +16,51 @@
           "component": "Column",
           "children": [
             "header",
+            "section-problem-site-js-async",
+            "section-outline-site-js-async",
+            "section-solution-site-js-async",
+            "section-deepening-site-js-async"
+          ]
+        },
+        {
+          "id": "section-problem-site-js-async",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "Callback Hell: Why Async Code Used to Drive Developers Crazy",
+          "children": [
             "background-pain",
-            "scenario-chat",
+            "scenario-chat"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-outline-site-js-async",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "Promise: The \"Promise\" Object for Async Operations",
+          "children": [
             "concept",
-            "mental-model-event-loop",
+            "mental-model-event-loop"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-solution-site-js-async",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "Code Deep Dive: Implementing Promise.all's Core Logic and the Microtask Chain",
+          "children": [
             "detailed-explanation-promise-all",
-            "quiz",
+            "quiz"
+          ],
+          "showTitle": false
+        },
+        {
+          "id": "section-deepening-site-js-async",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "The Core Design Wisdom of JavaScript's Async Model",
+          "children": [
             "summary-and-terms",
             "resources"
           ]
