@@ -56,18 +56,15 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   const existing = document.getElementById("a2learn-source-library");
   if (existing) return { open: () => undefined, onLanguageChanged: () => undefined };
 
+  // =========================================================================
+  // 1. SOURCE LIBRARY MODAL
+  // =========================================================================
   const root = document.createElement("aside");
   root.id = "a2learn-source-library";
   root.setAttribute("aria-live", "polite");
 
   const panel = document.createElement("section");
   panel.className = "a2learn-library-panel";
-
-  // ==========================================
-  // VIEW 1: Main Knowledge Library View
-  // ==========================================
-  const libraryView = document.createElement("div");
-  libraryView.className = "a2learn-library-view";
 
   // Header
   const libraryHead = document.createElement("header");
@@ -96,7 +93,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   headActions.append(refresh, close);
   libraryHead.append(titleGroup, headActions);
 
-  // Upload Area (Modern sleek dropzone)
+  // Upload Area
   const uploadArea = document.createElement("div");
   uploadArea.className = "a2learn-library-upload-area";
 
@@ -123,12 +120,12 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   uploadLabel.append(fileInput, uploadIcon, uploadTextGroup);
   uploadArea.append(uploadLabel);
 
-  // Alert/Status banner
+  // Message banner
   const messageBanner = document.createElement("div");
   messageBanner.className = "a2learn-library-alert";
   messageBanner.hidden = true;
 
-  // Sources List Section
+  // Sources Section
   const sourcesSection = document.createElement("div");
   sourcesSection.className = "a2learn-library-sources-section";
 
@@ -166,6 +163,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   const manualStart = document.createElement("button");
   manualStart.className = "a2learn-btn-secondary a2learn-btn-split";
   manualStart.type = "button";
+  manualStart.hidden = true; // Hidden by default, only shown when 1 PDF is selected
 
   const generate = document.createElement("button");
   generate.className = "a2learn-btn-primary a2learn-btn-generate";
@@ -174,18 +172,24 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   footerActions.append(manualStart, generate);
   footer.append(selectedBadge, footerActions);
 
-  libraryView.append(libraryHead, uploadArea, messageBanner, sourcesSection, goalSection, footer);
+  panel.append(libraryHead, uploadArea, messageBanner, sourcesSection, goalSection, footer);
+  root.append(panel);
+  document.body.appendChild(root);
 
-  // ==========================================
-  // VIEW 2: PDF Manual Split View
-  // ==========================================
-  const manualView = document.createElement("div");
-  manualView.className = "a2learn-library-manual-view";
-  manualView.hidden = true;
+  // =========================================================================
+  // 2. DEDICATED PDF SPLITTER POPUP MODAL
+  // =========================================================================
+  const splitterRoot = document.createElement("aside");
+  splitterRoot.id = "a2learn-pdf-splitter-modal";
+  splitterRoot.className = "a2learn-modal-overlay";
+  splitterRoot.setAttribute("aria-live", "polite");
 
-  // Manual Header Bar
-  const manualHead = document.createElement("header");
-  manualHead.className = "a2learn-manual-head";
+  const splitterPanel = document.createElement("section");
+  splitterPanel.className = "a2learn-splitter-panel";
+
+  // Splitter Header
+  const splitterHead = document.createElement("header");
+  splitterHead.className = "a2learn-manual-head";
 
   const manualBack = document.createElement("button");
   manualBack.className = "a2learn-btn-back";
@@ -203,18 +207,18 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   manualSource.className = "a2learn-manual-source-pill";
   manualTitleWrap.append(manualHeading, manualSource);
 
-  const manualClose = document.createElement("button");
-  manualClose.className = "a2learn-library-close-btn";
-  manualClose.type = "button";
-  manualClose.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+  const splitterClose = document.createElement("button");
+  splitterClose.className = "a2learn-library-close-btn";
+  splitterClose.type = "button";
+  splitterClose.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 
-  manualHead.append(manualBack, manualTitleWrap, manualClose);
+  splitterHead.append(manualBack, manualTitleWrap, splitterClose);
 
-  // Manual Split Workspace (Left: PDF Reader, Right: Form Pane)
+  // Splitter Workspace (Left: PDF Reader, Right: Form Controls)
   const manualWorkspace = document.createElement("div");
   manualWorkspace.className = "a2learn-manual-workspace";
 
-  // Left: PDF Reader Pane
+  // Left Pane: PDF Reader
   const readerPane = document.createElement("div");
   readerPane.className = "a2learn-reader-pane";
 
@@ -230,7 +234,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   readerWrapper.append(manualReader);
   readerPane.append(readerHeader, readerWrapper);
 
-  // Right: Form Controls Pane
+  // Right Pane: Form Controls
   const formPane = document.createElement("div");
   formPane.className = "a2learn-form-pane";
 
@@ -314,17 +318,15 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   formPane.append(courseTitleCard, lessonCreatorCard, lessonListCard, generateManual);
 
   manualWorkspace.append(readerPane, formPane);
-  manualView.append(manualHead, manualWorkspace);
-
-  panel.append(libraryView, manualView);
-  root.append(panel);
-  document.body.appendChild(root);
+  splitterPanel.append(splitterHead, manualWorkspace);
+  splitterRoot.append(splitterPanel);
+  document.body.appendChild(splitterRoot);
 
   // State
   let sources: KnowledgeSource[] = [];
   const chosen = new Set<string>();
+  let activePdfSource: KnowledgeSource | null = null;
   let readerLessons: Array<{ title: string; pageStart: number; pageEnd: number }> = [];
-  let manualOpen = false;
   let isLoading = false;
   let hasLoadError = false;
 
@@ -347,7 +349,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     title.textContent = copy.title;
     subtitle.textContent = copy.unsupportedHint;
     close.setAttribute("aria-label", copy.close);
-    manualClose.setAttribute("aria-label", copy.close);
+    splitterClose.setAttribute("aria-label", copy.close);
     refresh.setAttribute("aria-label", copy.refresh);
     uploadTitle.textContent = copy.dropzoneTitle;
     uploadDesc.textContent = copy.dropzoneSubtitle;
@@ -374,112 +376,41 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     renderSources();
   };
 
-  const renderSources = () => {
+  const openSplitter = (pdfSource: KnowledgeSource) => {
     const copy = getText(options);
-    sourcesElement.replaceChildren();
+    activePdfSource = pdfSource;
+    panel.classList.remove("open");
+    splitterPanel.classList.add("open");
 
-    const readyIds = new Set(
-      sources.filter((source) => source.extractionStatus === "ready").map((source) => source.sourceId),
-    );
-    for (const sourceId of [...chosen]) {
-      if (!readyIds.has(sourceId)) chosen.delete(sourceId);
+    manualHeading.textContent = copy.pdfSplitTitle;
+    manualSource.textContent = `${pdfSource.title} (${pdfSource.pageCount || "?"} ${options.getLanguage() === "zh" ? "页" : "p."})`;
+
+    const sourceUrl = `${apiBaseUrl()}/api/knowledge/sources/${encodeURIComponent(pdfSource.sourceId)}/original`;
+    if (manualReader.src !== sourceUrl) manualReader.src = sourceUrl;
+
+    const maxP = String(pdfSource.pageCount || "");
+    pageEnd.max = maxP;
+    pageStart.max = maxP;
+    pageStart.value = "1";
+    pageEnd.value = String(Math.min(5, pdfSource.pageCount || 1));
+
+    if (!manualTitle.value.trim()) {
+      manualTitle.value = pdfSource.title.replace(/\.pdf$/i, "");
     }
+    renderSplitterLessons();
+  };
 
-    if (sources.length === 0 && !isLoading && !hasLoadError) {
-      const empty = document.createElement("div");
-      empty.className = "a2learn-library-empty-state";
-      empty.innerHTML = `
-        <div class="a2learn-empty-icon">📂</div>
-        <p class="a2learn-empty-text">${copy.empty}</p>
-      `;
-      sourcesElement.append(empty);
-    }
+  const closeSplitter = () => {
+    splitterPanel.classList.remove("open");
+    manualReader.removeAttribute("src");
+    activePdfSource = null;
+  };
 
-    for (const source of sources) {
-      const row = document.createElement("label");
-      row.className = `a2learn-library-source-card ${chosen.has(source.sourceId) ? "selected" : ""}`;
-
-      const checkboxWrap = document.createElement("div");
-      checkboxWrap.className = "a2learn-source-check-wrap";
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.disabled = source.extractionStatus !== "ready";
-      checkbox.checked = chosen.has(source.sourceId);
-      checkbox.addEventListener("change", () => {
-        if (checkbox.checked) chosen.add(source.sourceId);
-        else chosen.delete(source.sourceId);
-        renderSources();
-      });
-      checkboxWrap.append(checkbox);
-
-      const fileIcon = document.createElement("div");
-      fileIcon.className = "a2learn-source-type-icon";
-      const ext = source.filename.split(".").pop()?.toUpperCase() || "FILE";
-      fileIcon.textContent = ext.slice(0, 4);
-
-      const detail = document.createElement("div");
-      detail.className = "a2learn-source-detail";
-
-      const nameRow = document.createElement("div");
-      nameRow.className = "a2learn-source-title-row";
-      const name = document.createElement("div");
-      name.className = "a2learn-source-title";
-      name.title = source.title;
-      name.textContent = source.title;
-
-      const statusBadge = document.createElement("span");
-      statusBadge.className = `a2learn-source-status ${source.extractionStatus === "ready" ? "ready" : source.extractionStatus === "failed" ? "failed" : "pending"}`;
-      statusBadge.textContent = statusLabel(source, options);
-      statusBadge.title = source.error || "";
-      nameRow.append(name, statusBadge);
-
-      const meta = document.createElement("div");
-      meta.className = "a2learn-source-meta-row";
-      const facts = [formatBytes(source.sizeBytes)];
-      if (source.pageCount) facts.push(`${source.pageCount} ${options.getLanguage() === "zh" ? "页" : "pages"}`);
-      if (source.chunkCount) facts.push(`${source.chunkCount} chunks`);
-      meta.textContent = facts.join(" · ");
-
-      detail.append(nameRow, meta);
-      row.append(checkboxWrap, fileIcon, detail);
-      sourcesElement.append(row);
-    }
-
-    selectedBadge.innerHTML = copy.selected.replace(
-      "{count}",
-      `<strong class="a2learn-highlight-count">${chosen.size}</strong>`,
-    );
-    generate.disabled = chosen.size === 0;
-
-    const selectedPdf = sources.find(
-      (source) => chosen.has(source.sourceId) && source.filename.toLowerCase().endsWith(".pdf"),
-    );
-    const canOpenManual = chosen.size === 1 && Boolean(selectedPdf);
-    manualStart.disabled = !canOpenManual;
-
-    if (manualOpen && !selectedPdf) manualOpen = false;
-
-    panel.classList.toggle("manual-open", manualOpen);
-    libraryView.hidden = manualOpen;
-    manualView.hidden = !manualOpen;
-
-    if (manualOpen && selectedPdf) {
-      manualHeading.textContent = copy.pdfSplitTitle;
-      manualSource.textContent = `${selectedPdf.title} (${selectedPdf.pageCount || "?"} ${options.getLanguage() === "zh" ? "页" : "p."})`;
-      const sourceUrl = `${apiBaseUrl()}/api/knowledge/sources/${encodeURIComponent(selectedPdf.sourceId)}/original`;
-      if (manualReader.src !== sourceUrl) manualReader.src = sourceUrl;
-      pageEnd.max = String(selectedPdf.pageCount || "");
-      pageStart.max = String(selectedPdf.pageCount || "");
-      if (!manualTitle.value.trim()) {
-        manualTitle.value = selectedPdf.title.replace(/\.pdf$/i, "");
-      }
-    } else {
-      manualReader.removeAttribute("src");
-    }
-
+  const renderSplitterLessons = () => {
+    const copy = getText(options);
     lessonListBadge.textContent = `${readerLessons.length} ${options.getLanguage() === "zh" ? "节课" : "lessons"}`;
     generateManual.textContent = copy.batchGenerate.replace("{count}", String(readerLessons.length));
-    generateManual.disabled = chosen.size !== 1 || readerLessons.length === 0 || !manualTitle.value.trim();
+    generateManual.disabled = !activePdfSource || readerLessons.length === 0 || !manualTitle.value.trim();
 
     if (readerLessons.length === 0) {
       const emptyLessons = document.createElement("div");
@@ -513,7 +444,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
           remove.title = options.getLanguage() === "zh" ? "删除本节课时" : "Delete lesson";
           remove.addEventListener("click", () => {
             readerLessons = readerLessons.filter((_, current) => current !== index);
-            renderSources();
+            renderSplitterLessons();
           });
 
           item.append(idxBadge, lessonContent, remove);
@@ -521,6 +452,113 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
         }),
       );
     }
+  };
+
+  const renderSources = () => {
+    const copy = getText(options);
+    sourcesElement.replaceChildren();
+
+    const readyIds = new Set(
+      sources.filter((source) => source.extractionStatus === "ready").map((source) => source.sourceId),
+    );
+    for (const sourceId of [...chosen]) {
+      if (!readyIds.has(sourceId)) chosen.delete(sourceId);
+    }
+
+    if (sources.length === 0 && !isLoading && !hasLoadError) {
+      const empty = document.createElement("div");
+      empty.className = "a2learn-library-empty-state";
+      empty.innerHTML = `
+        <div class="a2learn-empty-icon">📂</div>
+        <p class="a2learn-empty-text">${copy.empty}</p>
+      `;
+      sourcesElement.append(empty);
+    }
+
+    for (const source of sources) {
+      const isPdf = source.filename.toLowerCase().endsWith(".pdf");
+      const row = document.createElement("div");
+      row.className = `a2learn-library-source-card ${chosen.has(source.sourceId) ? "selected" : ""}`;
+
+      const checkboxWrap = document.createElement("label");
+      checkboxWrap.className = "a2learn-source-check-wrap";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.disabled = source.extractionStatus !== "ready";
+      checkbox.checked = chosen.has(source.sourceId);
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) chosen.add(source.sourceId);
+        else chosen.delete(source.sourceId);
+        renderSources();
+      });
+      checkboxWrap.append(checkbox);
+
+      const fileIcon = document.createElement("div");
+      fileIcon.className = `a2learn-source-type-icon ${isPdf ? "pdf" : ""}`;
+      const ext = source.filename.split(".").pop()?.toUpperCase() || "FILE";
+      fileIcon.textContent = ext.slice(0, 4);
+
+      const detail = document.createElement("div");
+      detail.className = "a2learn-source-detail";
+
+      const nameRow = document.createElement("div");
+      nameRow.className = "a2learn-source-title-row";
+      const name = document.createElement("div");
+      name.className = "a2learn-source-title";
+      name.title = source.title;
+      name.textContent = source.title;
+
+      const statusBadge = document.createElement("span");
+      statusBadge.className = `a2learn-source-status ${source.extractionStatus === "ready" ? "ready" : source.extractionStatus === "failed" ? "failed" : "pending"}`;
+      statusBadge.textContent = statusLabel(source, options);
+      statusBadge.title = source.error || "";
+      nameRow.append(name, statusBadge);
+
+      const metaRow = document.createElement("div");
+      metaRow.className = "a2learn-source-meta-row";
+      const facts = [formatBytes(source.sizeBytes)];
+      if (source.pageCount) facts.push(`${source.pageCount} ${options.getLanguage() === "zh" ? "页" : "pages"}`);
+      if (source.chunkCount) facts.push(`${source.chunkCount} chunks`);
+      const factsText = document.createElement("span");
+      factsText.textContent = facts.join(" · ");
+      metaRow.append(factsText);
+
+      // If this is a ready PDF, add a direct "拆分课时" mini action tag
+      if (isPdf && source.extractionStatus === "ready") {
+        const splitTag = document.createElement("button");
+        splitTag.type = "button";
+        splitTag.className = "a2learn-source-split-tag";
+        splitTag.innerHTML = `📑 <span>${copy.splitPdf}</span>`;
+        splitTag.addEventListener("click", (e) => {
+          e.stopPropagation();
+          chosen.clear();
+          chosen.add(source.sourceId);
+          renderSources();
+          openSplitter(source);
+        });
+        metaRow.append(splitTag);
+      }
+
+      detail.append(nameRow, metaRow);
+      row.append(checkboxWrap, fileIcon, detail);
+      sourcesElement.append(row);
+    }
+
+    selectedBadge.innerHTML = copy.selected.replace(
+      "{count}",
+      `<strong class="a2learn-highlight-count">${chosen.size}</strong>`,
+    );
+    generate.disabled = chosen.size === 0;
+
+    // Check if exactly 1 PDF is selected
+    const selectedPdf = sources.find(
+      (source) => chosen.has(source.sourceId) && source.filename.toLowerCase().endsWith(".pdf"),
+    );
+    const hasSinglePdfSelected = chosen.size === 1 && Boolean(selectedPdf) && selectedPdf?.extractionStatus === "ready";
+
+    // Only show "按 PDF 拆分课时" button when 1 PDF is selected; otherwise hide it completely
+    manualStart.hidden = !hasSinglePdfSelected;
+    manualStart.disabled = !hasSinglePdfSelected;
   };
 
   const loadSources = async () => {
@@ -565,8 +603,13 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
   };
 
   close.addEventListener("click", closePanel);
-  manualClose.addEventListener("click", closePanel);
+  splitterClose.addEventListener("click", closeSplitter);
   refresh.addEventListener("click", () => void loadSources());
+
+  manualBack.addEventListener("click", () => {
+    closeSplitter();
+    panel.classList.add("open");
+  });
 
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files?.[0];
@@ -619,13 +662,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
       setMessage(getText(options).selectPdfFirst, true);
       return;
     }
-    manualOpen = true;
-    renderSources();
-  });
-
-  manualBack.addEventListener("click", () => {
-    manualOpen = false;
-    renderSources();
+    openSplitter(selectedPdf);
   });
 
   addLesson.addEventListener("click", () => {
@@ -633,32 +670,44 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     const end = Number.parseInt(pageEnd.value, 10);
     const name = lessonTitle.value.trim();
     if (!name || !Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start) {
-      setMessage(getText(options).enterValidLesson, true);
+      alert(getText(options).enterValidLesson);
       return;
     }
     readerLessons = [...readerLessons, { title: name, pageStart: start, pageEnd: end }];
     lessonTitle.value = "";
     pageStart.value = String(end + 1);
     pageEnd.value = String(end + 1);
-    renderSources();
+    renderSplitterLessons();
   });
 
-  manualTitle.addEventListener("input", renderSources);
+  manualTitle.addEventListener("input", renderSplitterLessons);
 
   generateManual.addEventListener("click", () => {
-    if (chosen.size !== 1 || !manualTitle.value.trim() || readerLessons.length === 0) return;
-    panel.classList.remove("open");
-    options.onCreateManualCourse([...chosen][0], manualTitle.value.trim(), readerLessons);
+    if (!activePdfSource || !manualTitle.value.trim() || readerLessons.length === 0) return;
+    const targetSourceId = activePdfSource.sourceId;
+    const titleVal = manualTitle.value.trim();
+    const lessonsList = [...readerLessons];
+    closeSplitter();
+    options.onCreateManualCourse(targetSourceId, titleVal, lessonsList);
   });
 
   root.addEventListener("click", (event) => {
     if (event.target === root) closePanel();
   });
 
+  splitterRoot.addEventListener("click", (event) => {
+    if (event.target === splitterRoot) closeSplitter();
+  });
+
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && panel.classList.contains("open")) {
-      event.preventDefault();
-      closePanel();
+    if (event.key === "Escape") {
+      if (splitterPanel.classList.contains("open")) {
+        event.preventDefault();
+        closeSplitter();
+      } else if (panel.classList.contains("open")) {
+        event.preventDefault();
+        closePanel();
+      }
     }
   });
 

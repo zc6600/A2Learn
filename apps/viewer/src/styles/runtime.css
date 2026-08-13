@@ -257,22 +257,37 @@
     .a2learn-inline-editor-note { color: var(--app-muted); font-size: 12px; line-height: 1.45; }
 
 /* ==========================================================================
-   apps/viewer/src/source-library.ts - Minimalist Knowledge Library & Splitter
+   apps/viewer/src/source-library.ts - Minimalist Knowledge Library & PDF Splitter Modals
    ========================================================================== */
-#a2learn-source-library {
+#a2learn-source-library,
+#a2learn-pdf-splitter-modal {
   position: fixed;
   z-index: 100;
   inset: 0;
   pointer-events: none;
   opacity: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(8px);
   transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-#a2learn-source-library:has(.a2learn-library-panel.open) {
+#a2learn-source-library:has(.a2learn-library-panel.open),
+#a2learn-pdf-splitter-modal:has(.a2learn-splitter-panel.open) {
   pointer-events: auto;
   opacity: 1;
-  background: rgba(15, 23, 42, 0.38);
-  backdrop-filter: blur(6px);
 }
+
+@keyframes a2learn-modal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 1. Main Library Modal Panel */
 .a2learn-library-panel {
   position: fixed;
   z-index: 101;
@@ -294,30 +309,7 @@
   display: flex;
   animation: a2learn-modal-pop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.a2learn-library-panel.manual-open {
-  width: min(1180px, calc(100vw - 32px));
-  height: min(840px, calc(100vh - 48px));
-  max-height: none;
-}
-@keyframes a2learn-modal-pop {
-  from {
-    opacity: 0;
-    transform: scale(0.96) translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
 
-/* 1. Main Library View */
-.a2learn-library-view {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  max-height: inherit;
-  overflow-y: auto;
-}
 .a2learn-library-head {
   display: flex;
   align-items: center;
@@ -367,7 +359,7 @@
   background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
 }
 
-/* Upload Area */
+/* Upload Dropzone */
 .a2learn-library-upload-area {
   padding: 14px 20px 0;
 }
@@ -486,7 +478,6 @@
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--a2ui-color-border) 70%, transparent);
   background: var(--a2ui-color-surface);
-  cursor: pointer;
   transition: all 0.15s ease;
 }
 .a2learn-library-source-card:hover {
@@ -496,6 +487,11 @@
 .a2learn-library-source-card.selected {
   border-color: var(--a2ui-color-primary);
   background: color-mix(in srgb, var(--a2ui-color-primary) 6%, var(--a2ui-color-surface));
+}
+.a2learn-source-check-wrap {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
 }
 .a2learn-source-check-wrap input[type="checkbox"] {
   width: 16px;
@@ -513,6 +509,10 @@
   color: var(--a2ui-color-primary);
   letter-spacing: 0.02em;
   flex-shrink: 0;
+}
+.a2learn-source-type-icon.pdf {
+  background: color-mix(in srgb, #ef4444 14%, var(--a2ui-color-surface-subtle));
+  color: #ef4444;
 }
 .a2learn-source-detail {
   flex: 1;
@@ -557,6 +557,29 @@
 .a2learn-source-meta-row {
   font-size: 11.5px;
   color: var(--app-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.a2learn-source-split-tag {
+  border: 1px solid color-mix(in srgb, var(--a2ui-color-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
+  color: var(--a2ui-color-primary);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+.a2learn-source-split-tag:hover {
+  background: color-mix(in srgb, var(--a2ui-color-primary) 18%, var(--a2ui-color-surface));
+  border-color: var(--a2ui-color-primary);
 }
 
 /* Learning Goal */
@@ -664,14 +687,30 @@
 }
 
 /* ==========================================================================
-   2. Manual Split View (Splitter Workspace)
+   2. Dedicated PDF Splitter Modal Panel
    ========================================================================== */
-.a2learn-library-manual-view {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+.a2learn-splitter-panel {
+  position: fixed;
+  z-index: 101;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: min(1200px, calc(100vw - 32px));
+  height: min(860px, calc(100vh - 48px));
+  background: var(--a2ui-color-surface);
+  border: 1px solid color-mix(in srgb, var(--a2ui-color-border) 75%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 32px 80px -16px rgba(15, 23, 42, 0.3), 0 6px 24px rgba(15, 23, 42, 0.08);
+  display: none;
   overflow: hidden;
+  color: var(--app-text);
+  flex-direction: column;
 }
+.a2learn-splitter-panel.open {
+  display: flex;
+  animation: a2learn-modal-pop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .a2learn-manual-head {
   display: flex;
   align-items: center;
@@ -935,7 +974,7 @@
 }
 
 @media (max-width: 840px) {
-  .a2learn-library-panel.manual-open {
+  .a2learn-splitter-panel {
     top: 16px;
     right: 16px;
     left: 16px;
