@@ -5,22 +5,22 @@
     }
     .quiz-container {
       background: var(--a2ui-color-surface);
-      border: 1px solid var(--a2ui-color-border);
-      border-radius: 12px;
+      border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 86%, transparent);
+      border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: none;
     }
     .quiz-header {
-      padding: 16px 20px;
-      background: color-mix(in oklab, var(--a2ui-color-surface) 95%, black);
+      padding: 14px 18px;
+      background: color-mix(in oklab, var(--a2ui-color-surface-subtle) 76%, var(--a2ui-color-surface));
       border-bottom: 1px solid var(--a2ui-color-border);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .quiz-title {
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 15px;
+      font-weight: 720;
       margin: 0;
       color: var(--a2ui-color-on-surface);
     }
@@ -30,7 +30,7 @@
       font-weight: 500;
     }
     .question-block {
-      padding: 20px;
+      padding: 20px 18px;
       display: none;
       animation: fadeIn 0.3s ease-out;
     }
@@ -38,9 +38,9 @@
       display: block;
     }
     .question-text {
-      font-size: 16px;
+      font-size: 15.5px;
       line-height: 1.6;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       color: var(--a2ui-color-on-surface);
     }
     .quiz-code-block {
@@ -63,28 +63,28 @@
     .options {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
     }
     .option {
-      padding: 14px 16px;
-      border: 2px solid var(--a2ui-color-border);
-      border-radius: 8px;
+      padding: 12px 14px;
+      border: 1px solid var(--a2ui-color-border);
+      border-radius: 7px;
       cursor: pointer;
       background: var(--a2ui-color-surface);
       transition: all 0.2s ease;
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 15px;
+      gap: 10px;
+      font-size: 14.5px;
       color: var(--a2ui-color-on-surface);
     }
     .option:hover:not(.disabled) {
       border-color: var(--a2ui-color-primary);
-      background: color-mix(in oklab, var(--a2ui-color-surface) 95%, var(--a2ui-color-primary));
+      background: color-mix(in oklab, var(--a2ui-color-primary) 5%, var(--a2ui-color-surface));
     }
     .option.selected {
       border-color: var(--a2ui-color-primary);
-      background: color-mix(in oklab, var(--a2ui-color-surface) 90%, var(--a2ui-color-primary));
+      background: color-mix(in oklab, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface));
     }
     .option.correct {
       border-color: var(--a2ui-color-success);
@@ -101,20 +101,20 @@
       opacity: 0.8;
     }
     .option-checkbox {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 4px;
-      border: 2px solid var(--app-muted);
+      border: 1px solid var(--app-muted);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
     .option-radio {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
-      border: 2px solid var(--app-muted);
+      border: 1px solid var(--app-muted);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -139,15 +139,15 @@
     }
 
     .action-bar {
-      margin-top: 24px;
+      margin-top: 18px;
       display: flex;
       justify-content: flex-end;
       gap: 12px;
     }
     button {
-      padding: 10px 20px;
+      padding: 9px 16px;
       border: none;
-      border-radius: 6px;
+      border-radius: 7px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
@@ -170,11 +170,11 @@
     }
 
     .explanation-box {
-      margin-top: 20px;
-      padding: 16px;
-      border-radius: 8px;
-      background: color-mix(in oklab, var(--a2ui-color-surface) 95%, black);
-      border-left: 4px solid var(--app-muted);
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 0 7px 7px 0;
+      background: color-mix(in oklab, var(--a2ui-color-surface-subtle) 72%, var(--a2ui-color-surface));
+      border-left: 2px solid var(--app-muted);
       animation: slideDown 0.3s ease-out;
     }
     .explanation-box.correct {

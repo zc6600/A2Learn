@@ -5,28 +5,28 @@
     }
     .path-container {
       background: var(--a2ui-color-surface);
-      border: 1px solid var(--a2ui-color-border);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 86%, transparent);
+      border-radius: 10px;
+      padding: 20px 22px;
+      box-shadow: none;
     }
     .path-title {
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 720;
       color: var(--a2ui-color-on-surface);
-      margin: 0 0 24px 0;
-      text-align: center;
+      margin: 0 0 18px 0;
+      text-align: left;
     }
     .steps-wrapper {
       position: relative;
     }
     .step {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       position: relative;
-      padding: 8px 12px 24px 12px;
-      margin: 0 -12px;
-      border-radius: 12px;
+      padding: 7px 8px 18px 8px;
+      margin: 0 -8px;
+      border-radius: 7px;
       cursor: pointer;
       transition: background 0.2s ease, transform 0.15s ease;
     }
@@ -42,11 +42,11 @@
     .step::before {
       content: "";
       position: absolute;
-      left: 15px;
-      top: 32px;
+      left: 19px;
+      top: 29px;
       bottom: 0;
-      width: 2px;
-      background: var(--a2ui-color-border);
+      width: 1px;
+      background: color-mix(in oklab, var(--a2ui-color-border) 88%, transparent);
       z-index: 0;
     }
     .step:last-child::before {
@@ -60,11 +60,11 @@
     .icon-wrapper {
       position: relative;
       z-index: 1;
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       background: var(--a2ui-color-surface);
-      border: 2px solid var(--a2ui-color-border);
+      border: 1px solid var(--a2ui-color-border);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -78,8 +78,8 @@
     }
     .step.current .icon-wrapper {
       border-color: var(--a2ui-color-primary);
-      border-width: 3px;
-      box-shadow: 0 0 0 4px color-mix(in oklab, var(--a2ui-color-primary) 15%, transparent);
+      border-width: 2px;
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--a2ui-color-primary) 11%, transparent);
     }
     .step.locked .icon-wrapper {
       background: color-mix(in oklab, var(--a2ui-color-surface) 95%, black);
@@ -88,12 +88,12 @@
 
     .content-wrapper {
       flex: 1;
-      padding-top: 4px;
+      padding-top: 1px;
       cursor: pointer;
-      border-radius: 8px;
-      padding: 8px 12px;
-      margin-top: -4px;
-      transition: background 0.2s;
+      border-radius: 5px;
+      padding: 4px 8px;
+      margin-top: -2px;
+      transition: background 0.2s ease;
     }
     .step:not(.locked) .content-wrapper:hover {
       background: color-mix(in oklab, var(--a2ui-color-primary) 5%, transparent);
@@ -105,9 +105,9 @@
 
     .title {
       font-weight: 600;
-      font-size: 15px;
+      font-size: 14px;
       color: var(--a2ui-color-on-surface);
-      margin: 0 0 4px 0;
+      margin: 0 0 3px 0;
     }
     .step.completed .title {
       color: var(--a2ui-color-primary);
@@ -117,7 +117,7 @@
       font-weight: 700;
     }
     .desc {
-      font-size: 13px;
+      font-size: 12.5px;
       color: var(--app-muted);
       margin: 0;
       line-height: 1.4;
