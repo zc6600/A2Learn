@@ -102,7 +102,7 @@
     .a2learn-agent-suggestion-pill { display: flex; align-items: center; gap: 6px; border: 1px solid var(--a2ui-color-border); border-radius: 10px; padding: 6px 10px; background: var(--a2ui-color-surface-subtle); color: var(--a2ui-color-on-surface); font-size: 12px; cursor: pointer; text-align: left; transition: background-color .15s ease, border-color .15s ease, transform .1s ease; }
     .a2learn-agent-suggestion-pill:hover { border-color: var(--a2ui-color-primary); background: color-mix(in srgb, var(--a2ui-color-primary) 8%, var(--a2ui-color-surface)); transform: translateY(-1px); }
 
-    .a2learn-agent-form { display: flex; flex-direction: column; gap: 4px; padding: 9px 12px 10px; border-top: 1px solid var(--a2ui-color-border); background: var(--a2ui-color-surface); }
+    .a2learn-agent-form { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px 11px; border-top: 1px solid var(--a2ui-color-border); background: var(--a2ui-color-surface); }
     .a2learn-agent-input-container { display: flex; align-items: flex-end; gap: 8px; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 12px); padding: 5px 6px 5px 10px; background: var(--a2ui-color-surface-subtle); transition: border-color .15s ease, box-shadow .15s ease; }
     .a2learn-agent-input-container:focus-within { border-color: var(--a2ui-color-primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--a2ui-color-primary) 15%, transparent); }
     .a2learn-agent-input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; color: var(--a2ui-color-on-surface); font: inherit; font-size: 13px; line-height: 1.45; resize: none; min-height: 28px; max-height: 130px; padding: 4px 0; box-sizing: border-box; }
@@ -111,7 +111,6 @@
     .a2learn-agent-send:not(:disabled):hover { transform: scale(1.06); }
     .a2learn-agent-send.is-generating { background: #ef4444; color: #ffffff; }
     .a2learn-agent-send svg { width: 14px; height: 14px; }
-    .a2learn-agent-input-hint { font-size: 10.5px; color: var(--app-muted, #94a3b8); text-align: right; padding-right: 2px; user-select: none; }
 
 /* apps/viewer/src/generation-progress.ts */
 .generation-progress {
@@ -281,6 +280,8 @@
     .a2learn-library-goal { width: 100%; min-height: 64px; box-sizing: border-box; resize: vertical; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 9px); padding: 9px; background: var(--a2ui-color-surface); color: inherit; font: inherit; font-size: 13px; }
     .a2learn-library-footer { display: grid; gap: 8px; }
     .a2learn-library-course-actions { display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 8px; }
+    .a2learn-library-advanced-toggle { border: 0; padding: 4px 0; background: transparent; color: var(--app-muted); cursor: pointer; text-align: left; font: 600 12px/1.2 inherit; }
+    .a2learn-library-advanced { display: grid; gap: 10px; }
     .a2learn-library-lesson-count { min-width: 0; border: 1px solid var(--a2ui-color-border); border-radius: var(--a2learn-control-radius, 9px); padding: 7px; background: var(--a2ui-color-surface); color: inherit; font: inherit; }
     .a2learn-library-manual-course { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 4px; border-top: 1px solid var(--a2ui-color-border); }
     .a2learn-library-manual-course > :first-child, .a2learn-library-manual-course > :nth-child(6), .a2learn-library-manual-course > :last-child { grid-column: 1 / -1; }

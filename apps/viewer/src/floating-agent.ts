@@ -145,7 +145,6 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
             <svg class="stop-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="5" y="5" width="14" height="14" rx="3"/></svg>
           </button>
         </div>
-        <div class="a2learn-agent-input-hint"></div>
       </form>
     </section>
     <button class="a2learn-agent-launcher" type="button"></button>
@@ -182,7 +181,6 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
   const form = root.querySelector<HTMLFormElement>(".a2learn-agent-form")!;
   const input = root.querySelector<HTMLTextAreaElement>(".a2learn-agent-input")!;
   const send = root.querySelector<HTMLButtonElement>(".a2learn-agent-send")!;
-  const inputHint = root.querySelector<HTMLElement>(".a2learn-agent-input-hint")!;
   let threadId = "";
   let selectedComponentId: string | null = null;
   let waitingForHumanInput = false;
@@ -331,8 +329,8 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       ? (english ? "Learning Q&A" : "学习问答")
       : (english ? "Page Editor" : "页面编辑");
     input.placeholder = isQuestionMode
-      ? (english ? "Ask a question (Enter to send)…" : "向学习助手提问（Enter 发送）…")
-      : (english ? "Instruction for page editor (Enter to send)…" : "给页面编辑的指令（Enter 发送）…");
+      ? (english ? "Ask a question…" : "向学习助手提问…")
+      : (english ? "Instruction for page editor…" : "给页面编辑的指令…");
     input.setAttribute("aria-label", isQuestionMode
       ? (english ? "Question for the learning assistant" : "向学习助手提问")
       : (english ? "Instruction for page editor" : "给页面编辑的指令"));
@@ -347,7 +345,6 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     createSubmit.textContent = english ? "Create" : "创建";
     reviewInput.placeholder = english ? "Or write a different direction" : "或输入其他修改方向";
     reviewSubmit.textContent = english ? "Reply" : "回复";
-    inputHint.textContent = english ? "Enter to send · Shift+Enter for new line" : "Enter 发送 · Shift+Enter 换行";
     intentButtons.forEach((button) => {
       const mode = button.dataset.agentMode === "edit" ? "edit" : "ask";
       button.textContent = mode === "ask" ? (english ? "Ask" : "问答") : (english ? "Edit" : "编辑");
