@@ -514,8 +514,8 @@
   flex-shrink: 0;
 }
 .a2learn-source-type-icon.pdf {
-  background: color-mix(in srgb, #ef4444 14%, var(--a2ui-color-surface-subtle));
-  color: #ef4444;
+  background: color-mix(in srgb, var(--a2ui-color-primary) 12%, var(--a2ui-color-surface-subtle));
+  color: var(--a2ui-color-primary);
 }
 .a2learn-source-detail {
   flex: 1;
@@ -546,8 +546,8 @@
   flex-shrink: 0;
 }
 .a2learn-source-status.ready {
-  background: color-mix(in srgb, #16a34a 12%, transparent);
-  color: #16a34a;
+  background: color-mix(in srgb, var(--a2ui-color-primary) 12%, transparent);
+  color: var(--a2ui-color-primary);
 }
 .a2learn-source-status.pending {
   background: color-mix(in srgb, #d97706 12%, transparent);
