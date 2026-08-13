@@ -26,24 +26,24 @@
 .card-face {
   grid-area: 1 / 1;
   width: 100%;
-  min-height: 160px;
-  border-radius: var(--a2ui-card-border-radius, 14px);
-  border: 1.5px solid var(--a2ui-color-border);
+  min-height: 150px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 86%, transparent);
   box-sizing: border-box;
-  padding: 26px 28px 22px;
+  padding: 24px 24px 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: none;
+  transition: border-color 0.15s ease;
   position: relative;
 }
 
 .card-scene:hover .card-face {
   border-color: color-mix(in oklab, var(--a2ui-color-primary) 40%, transparent);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
 }
 
 .card-front {
@@ -51,18 +51,18 @@
 }
 
 .card-back {
-  background: color-mix(in oklab, var(--a2ui-color-primary) 4%, var(--a2ui-color-surface));
+  background: color-mix(in oklab, var(--a2ui-color-primary) 3%, var(--a2ui-color-surface));
   transform: rotateY(180deg);
 }
 
 /* Integrated Top-Right Navigation Bar */
 .card-top-bar {
   position: absolute;
-  top: 10px;
-  right: 12px;
+  top: 9px;
+  right: 10px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   z-index: 2;
 }
 
@@ -76,9 +76,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
   border: 1px solid color-mix(in oklab, var(--a2ui-color-border) 80%, transparent);
   background: var(--a2ui-color-surface);
   color: var(--a2ui-color-primary);
@@ -106,8 +106,8 @@
 
 .card-front .card-body {
   text-align: center;
-  font-size: 15.5px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 550;
 }
 
 .card-back .card-body {
@@ -132,7 +132,7 @@
 }
 
 .card-hint {
-  margin-top: 10px;
+  margin-top: 8px;
   font-size: 12px;
   color: color-mix(in oklab, var(--a2ui-color-on-surface) 55%, transparent);
   text-align: center;

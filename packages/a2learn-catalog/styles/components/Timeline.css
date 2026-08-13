@@ -5,7 +5,7 @@
     }
     .timeline-container {
       position: relative;
-      padding: var(--a2ui-spacing-m) 0;
+      padding: 4px 0;
     }
     /* Vertical layout (default) */
     .timeline-vertical::before {
@@ -13,57 +13,57 @@
       position: absolute;
       top: 0;
       bottom: 0;
-      left: 15px; /* Center of the dot */
-      width: 2px;
-      background: var(--a2ui-color-border);
+      left: 10px;
+      width: 1px;
+      background: color-mix(in oklab, var(--a2ui-color-border) 88%, transparent);
     }
     .timeline-item {
       position: relative;
-      padding-left: 40px;
-      margin-bottom: var(--a2ui-spacing-l);
+      padding-left: 30px;
+      margin-bottom: 16px;
     }
     .timeline-item:last-child {
       margin-bottom: 0;
     }
     .timeline-dot {
       position: absolute;
-      left: 7px;
-      top: 6px;
-      width: 14px;
-      height: 14px;
+      left: 5px;
+      top: 5px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: var(--a2ui-color-primary);
-      border: 2px solid var(--a2ui-color-surface);
-      box-shadow: 0 0 0 2px var(--a2ui-color-border);
+      border: 1px solid var(--a2ui-color-surface);
+      box-shadow: 0 0 0 1px var(--a2ui-color-border);
       z-index: 1;
     }
     .timeline-content {
       background: var(--a2ui-color-surface);
-      border: 1px solid var(--a2ui-color-border);
-      border-radius: var(--a2ui-border-radius);
-      padding: var(--a2ui-spacing-m);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      border: 0;
+      border-radius: 0;
+      padding: 0 0 2px;
+      box-shadow: none;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: color 0.2s ease;
     }
     .timeline-content:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border-color: var(--a2ui-color-primary);
+      transform: none;
+      box-shadow: none;
+      border-color: transparent;
     }
     .timeline-time {
       font-size: var(--a2ui-font-size-s);
       color: var(--a2ui-color-primary);
       font-weight: 600;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+      text-transform: none;
+      letter-spacing: 0.1px;
     }
     .timeline-title {
       font-size: var(--a2ui-font-size-m);
       font-weight: 600;
       color: var(--a2ui-color-on-surface);
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     .timeline-desc {
       font-size: var(--a2ui-font-size-s);
