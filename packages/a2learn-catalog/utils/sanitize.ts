@@ -18,6 +18,83 @@ const FORBID_TAGS = [
 ];
 
 let purifier: ReturnType<typeof createDOMPurify> | null = null;
+let tooltipLayerBound = false;
+
+/**
+ * A tooltip rendered inside a component shadow root cannot rise above an
+ * ancestor that clips overflow (rounded cards, code blocks, presentation
+ * canvases). Render its visible copy in a document-level layer instead.
+ */
+function bindTermTooltipLayer() {
+  if (tooltipLayerBound || typeof document === "undefined") return;
+  tooltipLayerBound = true;
+
+  const layer = document.createElement("div");
+  layer.id = "a2learn-term-tooltip-layer";
+  layer.setAttribute("role", "dialog");
+  layer.setAttribute("aria-live", "polite");
+  document.body.append(layer);
+
+  let active: HTMLElement | null = null;
+  let closeTimer: ReturnType<typeof setTimeout> | undefined;
+
+  const hide = () => {
+    active = null;
+    layer.replaceChildren();
+    layer.hidden = true;
+  };
+  const scheduleHide = () => {
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(hide, 100);
+  };
+  const cancelHide = () => clearTimeout(closeTimer);
+  const findTooltip = (event: Event) => event.composedPath().find(
+    (node): node is HTMLElement => node instanceof HTMLElement && node.classList.contains("a2learn-term-tooltip"),
+  );
+
+  const show = (trigger: HTMLElement) => {
+    const popup = trigger.querySelector<HTMLElement>(".tooltip-popup");
+    if (!popup) return;
+    cancelHide();
+    active = trigger;
+    layer.innerHTML = popup.innerHTML;
+    layer.hidden = false;
+
+    const rect = trigger.getBoundingClientRect();
+    const margin = 12;
+    const width = Math.min(280, window.innerWidth - margin * 2);
+    layer.style.width = `${width}px`;
+    const layerHeight = layer.getBoundingClientRect().height;
+    const placeBelow = rect.top < layerHeight + margin;
+    const left = Math.min(Math.max(rect.left + rect.width / 2 - width / 2, margin), window.innerWidth - width - margin);
+    const top = placeBelow ? rect.bottom + 10 : rect.top - layerHeight - 10;
+    layer.dataset.placement = placeBelow ? "below" : "above";
+    layer.style.left = `${left}px`;
+    layer.style.top = `${Math.max(margin, top)}px`;
+  };
+
+  document.addEventListener("pointerover", (event) => {
+    const trigger = findTooltip(event);
+    if (trigger) show(trigger);
+  }, true);
+  document.addEventListener("focusin", (event) => {
+    const trigger = findTooltip(event);
+    if (trigger) show(trigger);
+  }, true);
+  document.addEventListener("pointerout", (event) => {
+    const trigger = findTooltip(event);
+    if (trigger && trigger === active) scheduleHide();
+  }, true);
+  document.addEventListener("focusout", (event) => {
+    const trigger = findTooltip(event);
+    if (trigger && trigger === active) scheduleHide();
+  }, true);
+  window.addEventListener("scroll", () => active && show(active), true);
+  window.addEventListener("resize", () => active && show(active));
+  layer.addEventListener("pointerenter", cancelHide);
+  layer.addEventListener("pointerleave", scheduleHide);
+  layer.hidden = true;
+}
 
 function getPurifier() {
   if (purifier) return purifier;
@@ -58,6 +135,7 @@ md.renderer.rules.fence = (tokens, idx) => {
 
 // Global click handler for copy buttons inside shadow DOM and regular DOM
 if (typeof document !== "undefined") {
+  bindTermTooltipLayer();
   document.addEventListener("click", async (event) => {
     const path = event.composedPath();
     const btn = path.find(

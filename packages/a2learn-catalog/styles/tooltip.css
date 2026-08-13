@@ -22,49 +22,7 @@
     display: none;
   }
   .a2learn-term-tooltip .tooltip-popup {
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(6px);
-    width: var(--a2learn-tooltip-width, 250px);
-    padding: 14px;
-    background: var(--a2learn-tooltip-surface, var(--a2ui-color-surface)) !important;
-    border: 1px solid var(--a2learn-tooltip-border, var(--a2ui-color-border)) !important;
-    border-radius: var(--a2learn-tooltip-popup-radius, 14px) !important;
-    box-shadow: var(--a2learn-tooltip-shadow, 0 12px 32px rgba(0, 0, 0, 0.16)) !important;
-    z-index: 9999 !important;
-    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    text-align: left;
-    white-space: normal;
-    font-weight: normal;
-    text-decoration: none;
-    color: var(--a2learn-tooltip-text, var(--a2ui-color-on-surface)) !important;
-    line-height: 1.5;
-  }
-  .a2learn-term-tooltip .tooltip-popup::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: var(--a2learn-tooltip-surface, var(--a2ui-color-surface)) transparent transparent transparent;
-  }
-  .a2learn-term-tooltip:hover .tooltip-popup,
-  .a2learn-term-tooltip:focus .tooltip-popup,
-  .a2learn-term-tooltip:focus-within .tooltip-popup {
-    visibility: visible;
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateX(-50%) translateY(0);
-    transition-delay: 0s;
+    display: none;
   }
   .a2learn-term-tooltip .tooltip-title {
     display: block !important;
