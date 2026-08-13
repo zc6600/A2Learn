@@ -47,8 +47,10 @@ export function staticExampleAudioUrl(exampleId: string, language: Lang): string
   if (AUDIO_ASSET_BASE_URL) {
     return new URL(path.replace(/^\/+/, ""), `${AUDIO_ASSET_BASE_URL.replace(/\/+$/, "")}/`).toString();
   }
-  // Resolve against the current document so bundled static examples work
-  // seamlessly in both local development and static production deployments.
+  if (API_AUDIO_ASSET_BASE_URL) {
+    return `${API_AUDIO_ASSET_BASE_URL.replace(/\/+$/, "")}/${exampleId}.${language}.mp3`;
+  }
+  // Fallback to local static file in standalone development
   return new URL(path.replace(/^\/+/, ""), document.baseURI).toString();
 }
 
