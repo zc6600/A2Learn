@@ -9,6 +9,7 @@
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .card-inner {
@@ -44,6 +45,15 @@
 .card-scene:hover .card-face {
   border-color: color-mix(in oklab, var(--a2ui-color-primary) 40%, transparent);
   box-shadow: none;
+}
+
+.card-scene:active .card-face {
+  transform: scale(0.985);
+}
+
+.card-scene:focus-visible .card-face {
+  outline: 3px solid color-mix(in oklab, var(--a2ui-color-primary) 32%, transparent);
+  outline-offset: 3px;
 }
 
 .card-front {
@@ -136,4 +146,30 @@
   font-size: 12px;
   color: color-mix(in oklab, var(--a2ui-color-on-surface) 55%, transparent);
   text-align: center;
+}
+
+/* A flip is delightful when desired, but never required to understand the
+   answer. Reduce it to a short cross-fade for motion-sensitive learners. */
+@media (prefers-reduced-motion: reduce) {
+  .card-inner,
+  .card-inner.flipped {
+    transform: none;
+    transition: none;
+  }
+  .card-face {
+    transition: opacity 160ms ease;
+  }
+  .card-back {
+    transform: none;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .card-inner.flipped .card-front {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .card-inner.flipped .card-back {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }

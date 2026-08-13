@@ -35,6 +35,7 @@
     }
     .step:active {
       transform: scale(0.99);
+      transition-duration: 80ms;
     }
     .step:last-child {
       padding-bottom: 0;
@@ -101,6 +102,18 @@
     .step.locked .content-wrapper {
       cursor: not-allowed;
       opacity: 0.6;
+    }
+
+    .step:focus-visible {
+      outline: 2px solid color-mix(in oklab, var(--a2ui-color-primary) 48%, transparent);
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .step, .icon-wrapper, .content-wrapper {
+        transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+      }
+      .step:active { transform: none; }
     }
 
     .title {

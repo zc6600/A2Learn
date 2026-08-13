@@ -56,6 +56,12 @@ export class A2learnFlashcardElement extends A2uiLitElement<typeof FlashcardApi>
     this.requestUpdate();
   }
 
+  private handleCardKeydown(event: KeyboardEvent) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    this.toggleFlip();
+  }
+
   render() {
     const props = this.controller?.props;
     if (!props) return nothing;
@@ -86,7 +92,15 @@ export class A2learnFlashcardElement extends A2uiLitElement<typeof FlashcardApi>
     const isMultiple = totalCards > 1;
 
     return html`
-      <div class="card-scene" @click=${(e: Event) => this.toggleFlip(e)}>
+      <div
+        class="card-scene"
+        role="button"
+        tabindex="0"
+        aria-pressed=${String(isFlipped)}
+        aria-label=${isFlipped ? uiText("显示问题", "Show question") : uiText("显示答案", "Show answer")}
+        @click=${(e: Event) => this.toggleFlip(e)}
+        @keydown=${(e: KeyboardEvent) => this.handleCardKeydown(e)}
+      >
         <div class="card-inner ${isFlipped ? "flipped" : ""}">
           <!-- Front Face -->
           <div class="card-face card-front">
