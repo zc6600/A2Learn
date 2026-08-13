@@ -40,7 +40,10 @@ function escapeHtml(str: string): string {
 const md = new MarkdownIt({
   html: true,
   breaks: true,
-  linkify: true,
+  // Bare identifiers such as `students.id` are valid database fields, but
+  // linkify treats `.id` as a top-level domain and turns them into broken
+  // external links. Explicit Markdown links remain fully supported.
+  linkify: false,
   typographer: false,
 });
 
