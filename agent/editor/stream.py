@@ -53,38 +53,57 @@ def stream_page_editor_agent(
             api_key=api_key,
             llm=getattr(agent, "_a2learn_llm", None),
         ),
-        stream_mode="updates",
+        stream_mode=["messages", "updates"],
     )
-    for update in updates:
-        if isinstance(update, Mapping) and "__interrupt__" in update:
-            yield PageEditorEvent("human_input_required", _human_input_request(update["__interrupt__"], thread_id))
-            return
-        for node_update in update.values():
-            if not isinstance(node_update, Mapping):
-                continue
-            messages = node_update.get("messages", [])
-            if not isinstance(messages, list):
-                continue
-            events = tuple(_events_for_messages(messages))
-            yield from events
-            failed_operation = next(
-                (
-                    event.data["result"]
-                    for event in events
-                    if event.event == "tool_end"
-                    and isinstance(event.data.get("result"), dict)
-                    and event.data["result"].get("error") == "INVALID_PAGE_OPERATION"
-                ),
-                None,
-            )
-            if failed_operation is not None:
-                detail = failed_operation.get("detail")
-                message = "The Agent generated an invalid page edit."
-                if isinstance(detail, str) and detail:
-                    message = f"{message} {detail}"
-                yield PageEditorEvent("error", {"message": message})
-                yield PageEditorEvent("done", {"threadId": thread_id})
+    for item in updates:
+        mode = "updates"
+        data = item
+        if isinstance(item, tuple) and len(item) == 2 and isinstance(item[0], str):
+            mode, data = item
+
+        if mode == "messages":
+            chunk = data[0] if isinstance(data, (tuple, list)) and data else data
+            tool_chunks = getattr(chunk, "tool_call_chunks", None)
+            if not tool_chunks:
+                content = getattr(chunk, "content", None)
+                if isinstance(content, str) and content:
+                    yield PageEditorEvent("text_delta", {"delta": content})
+                elif isinstance(content, list):
+                    for part in content:
+                        if isinstance(part, dict) and part.get("type") == "text" and part.get("text"):
+                            yield PageEditorEvent("text_delta", {"delta": part["text"]})
+            continue
+
+        if mode == "updates" and isinstance(data, Mapping):
+            if "__interrupt__" in data:
+                yield PageEditorEvent("human_input_required", _human_input_request(data["__interrupt__"], thread_id))
                 return
+            for node_update in data.values():
+                if not isinstance(node_update, Mapping):
+                    continue
+                messages = node_update.get("messages", [])
+                if not isinstance(messages, list):
+                    continue
+                events = tuple(_events_for_messages(messages))
+                yield from events
+                failed_operation = next(
+                    (
+                        event.data["result"]
+                        for event in events
+                        if event.event == "tool_end"
+                        and isinstance(event.data.get("result"), dict)
+                        and event.data["result"].get("error") == "INVALID_PAGE_OPERATION"
+                    ),
+                    None,
+                )
+                if failed_operation is not None:
+                    detail = failed_operation.get("detail")
+                    message = "The Agent generated an invalid page edit."
+                    if isinstance(detail, str) and detail:
+                        message = f"{message} {detail}"
+                    yield PageEditorEvent("error", {"message": message})
+                    yield PageEditorEvent("done", {"threadId": thread_id})
+                    return
     yield PageEditorEvent("done", {"threadId": thread_id})
 
 

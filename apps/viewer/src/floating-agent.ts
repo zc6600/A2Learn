@@ -465,6 +465,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     response: Response,
     onHumanInput: (data: Record<string, any>) => void,
     requestEpoch: number,
+    thinkingEl?: HTMLElement | null,
   ) => {
     if (!response.ok || !response.body) {
       let detail = "";
@@ -490,6 +491,14 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
+    let currentAgentMessageEl: HTMLElement | null = null;
+    let accumulatedText = "";
+
+    const removeThinking = () => {
+      if (thinkingEl && thinkingEl.isConnected) {
+        thinkingEl.remove();
+      }
+    };
 
     const processFrame = (frame: string) => {
       const agentEvent = parseEvent(frame);
@@ -497,10 +506,39 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
       // The old page can finish its server-side edit after a language/project
       // switch. Its A2UI sync must never be applied to the new renderer.
       if (requestEpoch !== pageEpoch) return;
-      if (agentEvent.event === "tool_start") {
-        addMessage(events, "status", text("正在应用页面修改…", "Applying page modifications…"));
+
+      if (agentEvent.event === "text_delta") {
+        removeThinking();
+        const delta = String(agentEvent.data.delta || "");
+        if (delta) {
+          if (!currentAgentMessageEl) {
+            currentAgentMessageEl = document.createElement("div");
+            currentAgentMessageEl.className = "a2learn-agent-message agent";
+            events.appendChild(currentAgentMessageEl);
+          }
+          accumulatedText += delta;
+          try {
+            currentAgentMessageEl.innerHTML = sanitizeHtml(accumulatedText);
+          } catch {
+            currentAgentMessageEl.textContent = accumulatedText;
+          }
+          events.scrollTop = events.scrollHeight;
+        }
+        return;
       }
+
+      if (agentEvent.event === "tool_start") {
+        removeThinking();
+        if (currentAgentMessageEl) {
+          currentAgentMessageEl = null;
+          accumulatedText = "";
+        }
+        addMessage(events, "status", text("正在应用页面修改…", "Applying page modifications…"));
+        return;
+      }
+
       if (agentEvent.event === "tool_end") {
+        removeThinking();
         const result = agentEvent.data.result;
         const processor = options.getProcessor();
         if (result?.ok && Array.isArray(result?.sync?.messages) && processor) {
@@ -512,11 +550,53 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
           const detail = typeof result?.detail === "string" && result.detail ? `: ${result.detail}` : "";
           addMessage(events, "error", `${code}${detail}`);
         }
+        return;
       }
-      if (agentEvent.event === "human_input_required") onHumanInput(agentEvent.data);
-      if (agentEvent.event === "assistant_message") addMessage(events, "agent", String(agentEvent.data.text || ""));
-      if (agentEvent.event === "error") addMessage(events, "error", String(agentEvent.data.message || text("Agent 失败", "Agent failed")));
-      if (agentEvent.event === "done" && typeof agentEvent.data.threadId === "string") threadId = agentEvent.data.threadId;
+
+      if (agentEvent.event === "human_input_required") {
+        removeThinking();
+        currentAgentMessageEl = null;
+        accumulatedText = "";
+        onHumanInput(agentEvent.data);
+        return;
+      }
+
+      if (agentEvent.event === "assistant_message") {
+        removeThinking();
+        const fullText = String(agentEvent.data.text ?? accumulatedText ?? "");
+        if (fullText) {
+          if (!currentAgentMessageEl) {
+            currentAgentMessageEl = document.createElement("div");
+            currentAgentMessageEl.className = "a2learn-agent-message agent";
+            events.appendChild(currentAgentMessageEl);
+          }
+          try {
+            currentAgentMessageEl.innerHTML = sanitizeHtml(fullText);
+          } catch {
+            currentAgentMessageEl.textContent = fullText;
+          }
+          events.scrollTop = events.scrollHeight;
+        }
+        currentAgentMessageEl = null;
+        accumulatedText = "";
+        return;
+      }
+
+      if (agentEvent.event === "error") {
+        removeThinking();
+        currentAgentMessageEl = null;
+        accumulatedText = "";
+        addMessage(events, "error", String(agentEvent.data.message || text("Agent 失败", "Agent failed")));
+        return;
+      }
+
+      if (agentEvent.event === "done") {
+        removeThinking();
+        currentAgentMessageEl = null;
+        accumulatedText = "";
+        if (typeof agentEvent.data.threadId === "string") threadId = agentEvent.data.threadId;
+        return;
+      }
     };
 
     while (true) {
@@ -532,6 +612,7 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     if (buffer.trim()) {
       processFrame(buffer);
     }
+    removeThinking();
   };
 
   const resumeWithHumanDecision = async (
@@ -559,9 +640,11 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
           response: responseText.trim() || undefined,
         }),
       });
-      thinkingEl.remove();
-      if (requestEpoch !== pageEpoch) return;
-      await consumeAgentStream(response, showHumanInput, requestEpoch);
+      if (requestEpoch !== pageEpoch) {
+        thinkingEl.remove();
+        return;
+      }
+      await consumeAgentStream(response, showHumanInput, requestEpoch, thinkingEl);
     } catch (error) {
       thinkingEl.remove();
       if (requestEpoch === pageEpoch) {
@@ -701,9 +784,11 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
           approvalMode,
         }),
       });
-      thinkingEl.remove();
-      if (requestEpoch !== pageEpoch) return;
-      await consumeAgentStream(response, showHumanInput, requestEpoch);
+      if (requestEpoch !== pageEpoch) {
+        thinkingEl.remove();
+        return;
+      }
+      await consumeAgentStream(response, showHumanInput, requestEpoch, thinkingEl);
     } catch (error) {
       thinkingEl.remove();
       if (requestEpoch === pageEpoch) {

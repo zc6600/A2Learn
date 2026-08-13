@@ -86,6 +86,28 @@ class PageEditorAgentTests(unittest.TestCase):
         self.assertEqual(events[1].data["result"]["sync"], sync)
         self.assertEqual(events[2].data["text"], "Title updated.")
 
+    def test_stream_emits_text_deltas_in_realtime(self) -> None:
+        fake_agent = SimpleNamespace(
+            stream=lambda *_args, **_kwargs: [
+                ("messages", (SimpleNamespace(content="Hello", tool_call_chunks=[]), {})),
+                ("messages", (SimpleNamespace(content=" world!", tool_call_chunks=[]), {})),
+                ("updates", {"model": {"messages": [SimpleNamespace(content="Hello world!", type="ai", tool_calls=[])]}}),
+            ]
+        )
+        events = list(stream_page_editor_agent(
+            fake_agent,
+            "Greet the user",
+            document_id="lesson-1",
+            user_id="user-1",
+            page_document_store=PageDocumentStore(),
+            thread_id="thread-1",
+        ))
+
+        self.assertEqual([event.event for event in events], ["text_delta", "text_delta", "assistant_message", "done"])
+        self.assertEqual(events[0].data["delta"], "Hello")
+        self.assertEqual(events[1].data["delta"], " world!")
+        self.assertEqual(events[2].data["text"], "Hello world!")
+
     def test_stream_stops_after_an_invalid_page_operation(self) -> None:
         fake_agent = SimpleNamespace(
             stream=lambda *_args, **_kwargs: [
