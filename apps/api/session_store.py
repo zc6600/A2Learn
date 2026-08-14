@@ -215,6 +215,10 @@ class SqliteSessionStore:
         self._lock = threading.Lock()
         self._connection = sqlite3.connect(self._database_path, check_same_thread=False)
         self._connection.row_factory = sqlite3.Row
+        # Generation runs in daemon threads. A new API process cannot resume a
+        # thread owned by the old process, so pending rows from before a
+        # restart must never remain an infinite spinner.
+        self._active_session_ids: set[str] = set()
         self._initialize_schema()
 
     def close(self) -> None:
@@ -289,6 +293,7 @@ class SqliteSessionStore:
             target_language=target_language,
             generation_profile=deepcopy(generation_profile),
         )
+        self._active_session_ids.add(session.session_id)
         self._save_session(session)
 
         thread = threading.Thread(
@@ -324,6 +329,7 @@ class SqliteSessionStore:
             session.error = str(exc)
             session.updated_at = _now_iso()
             self._save_session(session)
+            self._active_session_ids.discard(session.session_id)
             return
 
         session.messages = messages
@@ -332,6 +338,7 @@ class SqliteSessionStore:
         session.status = "ready"
         session.updated_at = _now_iso()
         self._save_session(session)
+        self._active_session_ids.discard(session.session_id)
 
     def get(self, session_id: str) -> SessionState | None:
         with self._lock:
@@ -340,7 +347,7 @@ class SqliteSessionStore:
             ).fetchone()
         if row is None:
             return None
-        return SessionState(
+        session = SessionState(
             session_id=row["session_id"],
             resource_path=row["resource_path"],
             messages=json.loads(row["messages_json"]),
@@ -355,6 +362,12 @@ class SqliteSessionStore:
             created_at=row["created_at"],
             updated_at=row["updated_at"],
         )
+        if session.status == "pending" and session.session_id not in self._active_session_ids:
+            session.status = "error"
+            session.error = "Generation was interrupted by a server restart. Please retry."
+            session.updated_at = _now_iso()
+            self._save_session(session)
+        return session
 
     def append_messages(self, session: SessionState, messages: list[dict[str, Any]]) -> None:
         if not messages:

@@ -835,6 +835,18 @@ async function bootstrapViewer() {
         stopResize();
         stopResize = setupAutoResize(target, () => parentOrigin);
       },
+      onOnlineGenerationFailed: () => {
+        // A failed request is feedback, not a document. Remove its transient
+        // sidebar item immediately; the loader keeps the readable error in
+        // the content area so the user can retry without refreshing.
+        if (generationToken && currentPendingGenerationId === generationToken) {
+          workspaceStore.failPendingGeneration(generationToken);
+          currentPendingGenerationId = null;
+        }
+        if (generationToken && activeGeneration?.token === generationToken) {
+          activeGeneration = null;
+        }
+      },
     });
   };
 

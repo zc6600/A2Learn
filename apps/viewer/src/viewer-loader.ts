@@ -27,6 +27,7 @@ export type ViewerLoaderOptions = {
     isCurrent: () => boolean,
   ) => Promise<void>;
   onLoaded: () => void;
+  onOnlineGenerationFailed?: (error: unknown) => void;
 };
 
 export async function loadViewerSource(options: ViewerLoaderOptions): Promise<void> {
@@ -40,6 +41,7 @@ export async function loadViewerSource(options: ViewerLoaderOptions): Promise<vo
     bootstrapOnline,
     bootstrapOffline,
     onLoaded,
+    onOnlineGenerationFailed,
   } = options;
 
   applyEmbedFlag(config.embed);
@@ -66,8 +68,14 @@ export async function loadViewerSource(options: ViewerLoaderOptions): Promise<vo
     }
   } catch (err) {
     if (!isCurrent()) return;
+    onOnlineGenerationFailed?.(err);
     const copy = T[getLanguage()];
-    const errorLine = getLanguage() === "zh" ? `错误信息: ${String(err)}` : `Error: ${String(err)}`;
+    const isMalformedA2ui = /non-empty string '(?:id|component)'|A2UI message/i.test(String(err));
+    const errorLine = isMalformedA2ui
+      ? (getLanguage() === "zh"
+          ? "模型返回的课程结构不完整，系统未保存这次失败任务。请重新生成。"
+          : "The model returned an incomplete course structure. This failed task was not saved; please generate again.")
+      : (getLanguage() === "zh" ? `错误信息: ${String(err)}` : `Error: ${String(err)}`);
     const fallbackNote = fallbackToOffline ? `\n${copy.onlineFailedFallback}` : "";
     showState(target, `${copy.onlineFailedPrefix}\n${errorLine}${fallbackNote}`, "error");
     if (!fallbackToOffline) return;
