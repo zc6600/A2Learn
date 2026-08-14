@@ -3,6 +3,7 @@
 import json
 import os
 import time
+from copy import deepcopy
 from typing import Any, TypedDict
 
 from langgraph.graph import END, StateGraph
@@ -103,6 +104,7 @@ def _validate_or_repair(
     permitted_custom_components: tuple[str, ...] | None = None,
 ) -> list[dict[str, Any]]:
     for attempt in range(max_repair_attempts + 1):
+        messages = _normalize_a2ui_messages(messages)
         try:
             validate_a2ui_messages(messages, permitted_custom_components=permitted_custom_components)
             return messages
@@ -115,6 +117,104 @@ def _validate_or_repair(
             )
             messages = repair_a2ui_messages(llm, messages, str(exc))
     return messages
+
+
+def _normalize_component_type(value: Any) -> str | None:
+    """Recover a component type from common model-produced object wrappers."""
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    if isinstance(value, dict):
+        for key in ("component", "type", "name"):
+            candidate = value.get(key)
+            if isinstance(candidate, str) and candidate.strip():
+                return candidate.strip()
+    return None
+
+
+def _normalize_a2ui_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Make recoverable LLM component trees safe for the flat A2UI renderer.
+
+    Some providers occasionally return a nested tree, omit an id, or wrap the
+    component type as ``{name: \"Column\"}``. These are structural slips rather
+    than content errors, so repair them deterministically before asking the
+    model to spend another request rewriting the entire document.
+    """
+    if not isinstance(messages, list):
+        return messages
+
+    normalized = deepcopy(messages)
+    for message in normalized:
+        if not isinstance(message, dict):
+            continue
+        update = message.get("updateComponents")
+        if not isinstance(update, dict) or not isinstance(update.get("components"), list):
+            continue
+
+        flattened: list[dict[str, Any]] = []
+        used_ids: set[str] = set()
+        generated_count = 0
+
+        def unique_id(preferred: Any, component_type: str) -> str:
+            nonlocal generated_count
+            if isinstance(preferred, str) and preferred.strip() and preferred.strip() not in used_ids:
+                component_id = preferred.strip()
+            else:
+                stem = "".join(char.lower() if char.isalnum() else "-" for char in component_type).strip("-") or "component"
+                generated_count += 1
+                component_id = f"generated-{stem}-{generated_count}"
+                while component_id in used_ids:
+                    generated_count += 1
+                    component_id = f"generated-{stem}-{generated_count}"
+            used_ids.add(component_id)
+            return component_id
+
+        def visit(raw: Any) -> str | None:
+            if not isinstance(raw, dict):
+                return None
+            component_type = _normalize_component_type(raw.get("component")) or _normalize_component_type(raw.get("type"))
+            if component_type is None:
+                # A wrapper without its own component type can still contain
+                # a model-produced component tree.
+                nested = raw.get("components") or raw.get("children")
+                if isinstance(nested, list):
+                    for child in nested:
+                        visit(child)
+                return None
+
+            component_id = unique_id(raw.get("id"), component_type)
+            component = {key: deepcopy(value) for key, value in raw.items() if key not in {"id", "component", "type", "children", "components"}}
+            component["id"] = component_id
+            component["component"] = component_type
+
+            child_ids: list[str] = []
+            raw_children = raw.get("children")
+            if isinstance(raw_children, list):
+                for child in raw_children:
+                    if isinstance(child, str):
+                        child_ids.append(child)
+                    else:
+                        child_id = visit(child)
+                        if child_id:
+                            child_ids.append(child_id)
+            nested_components = raw.get("components")
+            if isinstance(nested_components, list):
+                for child in nested_components:
+                    child_id = visit(child)
+                    if child_id:
+                        child_ids.append(child_id)
+            if child_ids:
+                component["children"] = child_ids
+            elif isinstance(raw_children, list):
+                component["children"] = []
+            flattened.append(component)
+            return component_id
+
+        top_level_ids = [component_id for raw in update["components"] if (component_id := visit(raw))]
+        if flattened and not any(component["id"] == "root" for component in flattened):
+            flattened.insert(0, {"id": "root", "component": "Column", "children": top_level_ids})
+        if flattened:
+            update["components"] = flattened
+    return normalized
 
 
 def _node_generate_messages(state: AgentState) -> AgentState:

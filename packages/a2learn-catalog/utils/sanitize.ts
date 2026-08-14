@@ -73,10 +73,17 @@ function bindTermTooltipLayer() {
     layer.style.top = `${Math.max(margin, top)}px`;
   };
 
-  document.addEventListener("pointerover", (event) => {
+  const showFromHover = (event: Event) => {
     const trigger = findTooltip(event);
     if (trigger) show(trigger);
-  }, true);
+  };
+  // `pointerover` covers modern browsers; `mouseover` and capture-phase
+  // enter events make hover reliable when content lives in a shadow root or
+  // is rendered by a browser that retargets pointer events differently.
+  document.addEventListener("pointerover", showFromHover, true);
+  document.addEventListener("mouseover", showFromHover, true);
+  document.addEventListener("pointerenter", showFromHover, true);
+  document.addEventListener("mouseenter", showFromHover, true);
   document.addEventListener("focusin", (event) => {
     const trigger = findTooltip(event);
     if (trigger) show(trigger);
