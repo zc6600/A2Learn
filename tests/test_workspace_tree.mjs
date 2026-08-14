@@ -258,13 +258,31 @@ describe("Workspace Tree & Store Unit Tests", async () => {
 
   test("Tracks in-flight pending generation and smoothly promotes to permanent project", () => {
     const tempId = "pending-123";
-    const ok = workspaceStore.startPendingGeneration(tempId, "正在生成中的机器学习课程");
+    const source = {
+      apiBaseUrl: "https://api.example.test",
+      resourceText: "机器学习",
+      language: "zh",
+    };
+    const ok = workspaceStore.startPendingGeneration(
+      tempId,
+      "正在生成中的机器学习课程",
+      undefined,
+      source,
+      "sess_refresh123",
+    );
     assert.equal(ok, true);
 
     const pendingState = workspaceStore.getState();
     assert.ok(pendingState.nodes[tempId]);
     assert.equal(pendingState.nodes[tempId].isGenerating, true);
     assert.equal(pendingState.activeNodeId, tempId);
+    assert.equal(pendingState.nodes[tempId].generationSessionId, "sess_refresh123");
+
+    const reloadedStore = new WorkspaceStore();
+    const restored = reloadedStore.getPendingGenerations();
+    assert.equal(restored.length, 1);
+    assert.equal(restored[0].id, tempId);
+    assert.deepEqual(restored[0].generationSource, source);
 
     // Generation finishes and promotes to permanent project
     const realProjectId = "project-real-456";

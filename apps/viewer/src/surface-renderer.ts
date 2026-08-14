@@ -304,7 +304,7 @@ function renderPresentationDeck(
   }).catch((error: unknown) => {
     if (renderVersion !== presentationRenderVersion || !deck.isConnected) return;
     deck.remove();
-    showState(container, `Unable to paginate presentation content: ${String(error)}`, "error");
+    showState(container, `${T[getLang()].paginatePresentationFailedPrefix}: ${String(error)}`, "error");
   });
 }
 
@@ -322,7 +322,7 @@ export function renderSurfaces(
 
   const surfaces = Array.from(processor.model.surfacesMap.values());
   if (surfaces.length === 0) {
-    showState(container, "No renderable surfaces generated.");
+    showState(container, T[getLang()].noRenderableSurfaces);
     return;
   }
 

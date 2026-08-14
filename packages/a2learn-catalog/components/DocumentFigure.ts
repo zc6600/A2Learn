@@ -75,7 +75,7 @@ export class A2learnDocumentFigureElement extends A2uiLitElement<typeof Document
         <div class="image-container" @click=${this.handleContainerClick}>
           <img 
             src="${imageUrl}" 
-            alt="${caption || 'Document figure'}" 
+            alt="${caption || uiText("图文示意", "Document figure")}"
             class="main-image"
             @load=${this.handleImageLoad}
           />

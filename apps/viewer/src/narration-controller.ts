@@ -211,11 +211,12 @@ export class NarrationController {
       this.activeUrl = null;
       this.resetButton();
       const err = audio.error;
-      let reason = "The audio could not be loaded.";
+      const lang = this.getLanguage();
+      let reason = lang === "zh" ? "音频无法加载。" : "The audio could not be loaded.";
       if (err) {
-        if (err.code === 2) reason = `网络加载失败 (Network error): ${audioUrl}`;
-        else if (err.code === 3) reason = `音频解码失败 (Decode error): ${audioUrl}`;
-        else if (err.code === 4) reason = `音频资源未找到或格式不支持 (404/Not supported): ${audioUrl}`;
+        if (err.code === 2) reason = lang === "zh" ? `网络加载失败：${audioUrl}` : `Network error: ${audioUrl}`;
+        else if (err.code === 3) reason = lang === "zh" ? `音频解码失败：${audioUrl}` : `Decode error: ${audioUrl}`;
+        else if (err.code === 4) reason = lang === "zh" ? `音频资源未找到或格式不支持：${audioUrl}` : `Audio not found or unsupported (404): ${audioUrl}`;
         else if (err.message) reason = `${err.message} (${audioUrl})`;
       }
       this.showPlaybackError(reason);

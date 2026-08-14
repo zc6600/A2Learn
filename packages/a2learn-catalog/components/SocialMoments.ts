@@ -5,6 +5,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { SocialMomentsApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 type UserComment = {
   author: string;
@@ -116,7 +117,12 @@ export class A2learnSocialMomentsElement extends A2uiLitElement<typeof SocialMom
     const existing = this.userComments.get(postId) || [];
     const updated = [
       ...existing,
-      { author: "你 (现代知己)", content: draft, role: "读者留言", isUser: true },
+      {
+        author: uiText("你（现代知己）", "You (modern companion)"),
+        content: draft,
+        role: uiText("读者留言", "Reader comment"),
+        isUser: true,
+      },
     ];
     const nextComments = new Map(this.userComments);
     nextComments.set(postId, updated);
@@ -131,7 +137,7 @@ export class A2learnSocialMomentsElement extends A2uiLitElement<typeof SocialMom
   render() {
     const props = (this as any).controller?.props;
     if (!props || !Array.isArray(props.posts)) return nothing;
-    const title = props.title ? this.resolveString(props.title) : "朋友圈 · 阅读现场";
+    const title = props.title ? this.resolveString(props.title) : uiText("朋友圈 · 阅读现场", "Moments · Reading Scene");
 
     return html`
       <section class="moments" aria-label=${title}>
@@ -149,7 +155,7 @@ export class A2learnSocialMomentsElement extends A2uiLitElement<typeof SocialMom
           const rawLikes = Array.isArray(post.likes) ? post.likes.map((name: unknown) => this.resolveString(name)).filter(Boolean) : [];
           const isLiked = this.userLikes.has(postId);
           const allLikes = isLiked
-            ? [...rawLikes, "你 (已点赞)"]
+            ? [...rawLikes, uiText("你（已点赞）", "You (liked)")]
             : rawLikes;
 
           const rawComments = Array.isArray(post.comments) ? post.comments : [];
@@ -174,7 +180,7 @@ export class A2learnSocialMomentsElement extends A2uiLitElement<typeof SocialMom
                 ${urls.length ? html`
                   <div class="images ${imageGridClass}">
                     ${urls.map((url: string) => html`
-                      <button class="image" type="button" aria-label="查看大图" @click=${() => this.openImage(url)}>
+                      <button class="image" type="button" aria-label=${uiText("查看大图", "View image")} @click=${() => this.openImage(url)}>
                         <img src=${url} alt=${post.imageAlt ? this.resolveString(post.imageAlt) : ""} loading="lazy" />
                       </button>
                     `)}
@@ -191,19 +197,19 @@ export class A2learnSocialMomentsElement extends A2uiLitElement<typeof SocialMom
                       <div class="action-popup" role="menu">
                         <button class="action-item" type="button" @click=${(e: Event) => this.toggleLike(postId, e)}>
                           <span>${isLiked ? "💔" : "❤️"}</span>
-                          <span>${isLiked ? "取消" : "赞"}</span>
+                          <span>${isLiked ? uiText("取消点赞", "Unlike") : uiText("赞", "Like")}</span>
                         </button>
                         <div class="action-divider"></div>
                         <button class="action-item" type="button" @click=${(e: Event) => this.openCommentForm(postId, e)}>
                           <span>💬</span>
-                          <span>评论</span>
+                          <span>${uiText("评论", "Comment")}</span>
                         </button>
                       </div>
                     ` : nothing}
                     <button
                       class="action-trigger ${isMenuOpen ? "active" : ""}"
                       type="button"
-                      aria-label="操作菜单"
+                      aria-label=${uiText("操作菜单", "Actions")}
                       @click=${(e: Event) => this.toggleActionMenu(postId, e)}
                     >••</button>
                   </div>
@@ -215,12 +221,12 @@ export class A2learnSocialMomentsElement extends A2uiLitElement<typeof SocialMom
                       class="comment-input"
                       type="text"
                       data-comment-post=${postId}
-                      placeholder="跨越千年，给作者留一条评论..."
+                      placeholder=${uiText("跨越千年，给作者留一条评论...", "Leave a comment for the author...")}
                       .value=${currentDraft}
                       @input=${(e: Event) => this.handleCommentInput(postId, e)}
                     />
-                    <button class="comment-send-btn" type="submit">发送</button>
-                    <button class="comment-cancel-btn" type="button" @click=${(e: Event) => this.cancelComment(postId, e)}>取消</button>
+                    <button class="comment-send-btn" type="submit">${uiText("发送", "Send")}</button>
+                    <button class="comment-cancel-btn" type="button" @click=${(e: Event) => this.cancelComment(postId, e)}>${uiText("取消", "Cancel")}</button>
                   </form>
                 ` : nothing}
 
@@ -269,4 +275,3 @@ if (!customElements.get("a2learn-social-moments")) {
 }
 
 export const A2learnSocialMoments = { ...SocialMomentsApi, tagName: "a2learn-social-moments" };
-

@@ -137,7 +137,7 @@ export class A2learnClozeTestElement extends A2uiLitElement<typeof ClozeTestApi>
             @click=${() => this.handleSubmit(correctAnswers)}
             ?disabled=${!isReadyToSubmit}
           >
-            Check Answers
+            ${uiText("检查答案", "Check Answers")}
           </button>
         ` : nothing}
         

@@ -2,71 +2,196 @@
   {
     "version": "v0.9",
     "createSurface": {
-      "surfaceId": "overview",
+      "surfaceId": "surface1",
       "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
     }
   },
   {
     "version": "v0.9",
     "updateComponents": {
-      "surfaceId": "overview",
+      "surfaceId": "surface1",
       "components": [
         {
-          "id": "overview-learning-path",
-          "component": {
-            "componentType": "LearningPath",
-            "title": "快速排序学习路径",
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "generated-learningpath-1",
+            "generated-conceptcard-2",
+            "generated-mentalmodel-3",
+            "generated-timeline-4",
+            "generated-scenariodialogue-5",
+            "generated-socialmoments-6",
+            "generated-quizcard-7"
+          ]
+        },
+        {
+          "props": {
+            "title": "学习路径：掌握 JavaScript 防抖",
             "steps": [
               {
-                "stepId": 1,
-                "title": "理解分治思想",
-                "description": "认识将大问题分解为小问题的核心策略。"
+                "id": "step1",
+                "title": "认识防抖",
+                "description": "理解防抖的定义、作用，以及高频事件带来的性能问题。"
               },
               {
-                "stepId": 2,
-                "title": "掌握基准选择",
-                "description": "学习如何选取基准元素（pivot）来划分数组。"
+                "id": "step2",
+                "title": "手写基础防抖",
+                "description": "使用闭包和 setTimeout 实现一个基本的 debounce 函数。"
               },
               {
-                "stepId": 3,
-                "title": "实现分区操作",
-                "description": "通过具体例子理解将元素按基准分到左右两侧的过程。"
+                "id": "step3",
+                "title": "进阶配置与取消",
+                "description": "实现 leading/trailing 配置和取消功能。"
               },
               {
-                "stepId": 4,
-                "title": "递归排序子数组",
-                "description": "对左右两部分递归应用快速排序，直到完全有序。"
+                "id": "step4",
+                "title": "综合实践",
+                "description": "将防抖应用到搜索建议组件中，完成自我评估。"
+              }
+            ],
+            "activeStepId": "step1"
+          },
+          "id": "generated-learningpath-1",
+          "component": "LearningPath"
+        },
+        {
+          "props": {
+            "title": "什么是防抖（Debounce）？",
+            "definition": "防抖是一种通过延迟执行来减少高频事件触发次数的技术。当事件被连续触发时，只有最后一次触发后等待指定时间间隔内没有新触发，才会执行回调函数。",
+            "example": "用户在搜索框中输入文字时，每次按键都会触发搜索请求。使用防抖后，只有当用户停止输入 300 毫秒后，才真正发送一次请求，避免了大量无意义的网络请求。"
+          },
+          "id": "generated-conceptcard-2",
+          "component": "ConceptCard"
+        },
+        {
+          "props": {
+            "title": "防抖的运作机制",
+            "pillars": [
+              {
+                "id": "p1",
+                "title": "事件触发",
+                "description": "用户每次操作（如按键、滚动）都会触发一个事件。"
               },
               {
-                "stepId": 5,
-                "title": "分析性能与优化",
-                "description": "了解平均与最坏情况时间复杂度，学习随机化等优化技巧。"
+                "id": "p2",
+                "title": "计时器重置",
+                "description": "每次事件触发时，都会重置一个计时器，取消上一次的延迟执行计划。"
+              },
+              {
+                "id": "p3",
+                "title": "延迟执行",
+                "description": "只有当事件停止触发且计时器到期后，回调函数才会执行。"
+              }
+            ],
+            "analogy": "就像电梯门：每次有人按开门按钮，计时器就重新开始计时，只有当没有人再按按钮且计时器到期后，电梯门才会关闭。"
+          },
+          "id": "generated-mentalmodel-3",
+          "component": "MentalModel"
+        },
+        {
+          "props": {
+            "title": "防抖执行过程示例",
+            "events": [
+              {
+                "id": "e1",
+                "time": "0ms",
+                "title": "用户输入 'a'",
+                "description": "事件触发，启动 300ms 计时器。"
+              },
+              {
+                "id": "e2",
+                "time": "100ms",
+                "title": "用户输入 'ab'",
+                "description": "新事件触发，重置计时器为 300ms。"
+              },
+              {
+                "id": "e3",
+                "time": "200ms",
+                "title": "用户输入 'abc'",
+                "description": "再次重置计时器。"
+              },
+              {
+                "id": "e4",
+                "time": "500ms",
+                "title": "计时器到期",
+                "description": "用户停止输入 300ms 后，执行回调，发送搜索请求。"
               }
             ]
-          }
+          },
+          "id": "generated-timeline-4",
+          "component": "Timeline"
         },
         {
-          "id": "overview-concept-card",
-          "component": {
-            "componentType": "ConceptCard",
-            "title": "快速排序是什么",
-            "definition": "快速排序是一种基于<dfn title=\"将问题分解为更小的子问题，分别解决后合并结果\">分治</dfn>思想的高效排序算法。它通过选择一个基准元素，将数组划分为小于基准和大于基准的两部分，然后递归地对这两部分排序。",
-            "example": "对数组 [3, 6, 2, 8, 1, 5] 进行快速排序：\n1. 选基准 3\n2. 分区后得到 [2, 1, 3, 6, 8, 5]\n3. 递归排序左边 [2, 1] 和右边 [6, 8, 5]\n4. 最终得到 [1, 2, 3, 5, 6, 8]",
-            "keyPoints": [
-              "平均时间复杂度 O(n log n)",
-              "原地排序（不需要额外大内存）",
-              "不稳定排序（相等元素可能交换顺序）"
+          "props": {
+            "title": "对话：防抖与节流的区别",
+            "characters": [
+              {
+                "id": "dev1",
+                "name": "小明",
+                "alignment": "left"
+              },
+              {
+                "id": "dev2",
+                "name": "小红",
+                "alignment": "right"
+              }
+            ],
+            "messages": [
+              {
+                "characterId": "dev1",
+                "content": "我听说防抖和节流都能减少事件触发次数，它们到底有什么区别？"
+              },
+              {
+                "characterId": "dev2",
+                "content": "防抖是只执行最后一次，适合搜索输入这种场景；节流是每隔固定时间执行一次，适合滚动加载这种场景。"
+              },
+              {
+                "characterId": "dev1",
+                "content": "明白了，防抖像电梯门，节流像红绿灯，对吧？"
+              },
+              {
+                "characterId": "dev2",
+                "content": "没错！防抖关注的是“停止后执行”，节流关注的是“按频率执行”。"
+              }
             ]
-          }
+          },
+          "id": "generated-scenariodialogue-5",
+          "component": "ScenarioDialogue"
         },
         {
-          "id": "overview-mental-model",
-          "component": {
-            "componentType": "MentalModel",
-            "title": "整理书架模型",
-            "model": "想象你要整理一排杂乱的书架。你随手拿起一本书作为基准，然后把所有比它薄的书放到左边，比它厚的放到右边。接着，对左右两堆书分别重复这个过程——每次选一本基准，再分堆。最终，整个书架就按厚度排好了。",
-            "explanation": "这个模型抓住了快速排序的核心：每次选一个基准，通过比较大小将问题一分为二，然后递归处理。基准的选择直接影响效率——如果每次选到中间厚度的书，分堆均匀，速度最快；如果总选到最厚或最薄的书，分堆不均，速度变慢。"
-          }
+          "props": {
+            "title": "开发者社区讨论",
+            "posts": [
+              {
+                "id": "post1",
+                "author": "前端新手",
+                "content": "今天用防抖优化了搜索框，用户体验提升明显，服务器压力也小了！"
+              },
+              {
+                "id": "post2",
+                "author": "资深架构师",
+                "content": "注意防抖的 this 指向问题，用箭头函数或者保存上下文可以解决。"
+              }
+            ]
+          },
+          "id": "generated-socialmoments-6",
+          "component": "SocialMoments"
+        },
+        {
+          "props": {
+            "title": "小测验：防抖概念",
+            "question": "以下哪个场景最适合使用防抖？",
+            "options": [
+              "监听滚动事件实时更新位置",
+              "搜索框输入时发送自动补全请求",
+              "鼠标移动时绘制图形",
+              "窗口大小变化时重新布局"
+            ],
+            "correctIndex": 1,
+            "explanation": "搜索框输入是典型的“只关心最后一次输入”的场景，防抖可以避免每次按键都发送请求。"
+          },
+          "id": "generated-quizcard-7",
+          "component": "QuizCard"
         }
       ]
     }
@@ -74,206 +199,390 @@
   {
     "version": "v0.9",
     "createSurface": {
-      "surfaceId": "module-1",
+      "surfaceId": "surface2",
       "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
     }
   },
   {
     "version": "v0.9",
     "updateComponents": {
-      "surfaceId": "module-1",
+      "surfaceId": "surface2",
       "components": [
         {
-          "id": "module1-concept-card",
-          "component": {
-            "componentType": "ConceptCard",
-            "title": "分治与分区",
-            "definition": "分治是快速排序的基石：将原数组分成两个规模更小的子数组，分别排序后合并。分区是实现分治的关键步骤——选定一个基准，通过交换元素使左侧所有元素 ≤ 基准，右侧所有元素 ≥ 基准。",
-            "example": "数组 [10, 80, 30, 90, 40, 50, 70] 选基准 70：\n1. 从左边找第一个大于70的数（80），从右边找第一个小于70的数（50），交换 → [10, 50, 30, 90, 40, 80, 70]\n2. 继续：左边找到90，右边找到40，交换 → [10, 50, 30, 40, 90, 80, 70]\n3. 左右指针相遇，将基准70与指针位置交换 → [10, 50, 30, 40, 70, 80, 90]",
-            "keyPoints": [
-              "分区后基准到达最终位置",
-              "分区过程是原地交换，不额外占用内存",
-              "基准的选择影响分区平衡"
-            ]
-          }
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "generated-learningpath-1",
+            "generated-detailedexplanation-2",
+            "generated-interactivesandbox-3",
+            "generated-clozetest-4",
+            "generated-resourcelist-5"
+          ]
         },
         {
-          "id": "module1-detailed-explanation",
-          "component": {
-            "componentType": "DetailedExplanation",
-            "title": "快速排序的完整步骤",
-            "content": "**1. 背景与痛点**：面对大量无序数据，冒泡排序、插入排序等 O(n²) 算法在数据量增大时性能急剧下降。我们需要一种更快的通用排序方法。\n\n**2. 第一原理模型**：分治思想——将排序问题分解为两个规模更小的排序问题。如果每次都能将数组分成两个几乎等长的子数组，那么总工作量就是 O(n log n)。\n\n**3. 关键转变**：如何高效地“分”？答案是通过一个基准元素进行<dfn title=\"将数组按基准分为左右两部分，左边≤基准，右边≥基准\">分区</dfn>。分区操作本身是 O(n) 的，且不需要额外数组。\n\n**4. 实现细节**：以数组 [3,6,2,8,1,5] 为例，选最后一个元素 5 为基准。用两个指针 i 和 j，j 从左向右扫描，遇到小于基准的元素就与 i 交换并 i++。扫描结束后将基准与 i 位置交换，得到 [3,2,1,5,8,6]。然后递归排序左边 [3,2,1] 和右边 [8,6]。\n\n**5. 总结**：快速排序通过一次 O(n) 的分区将问题规模减半，递归深度为 O(log n)，总时间 O(n log n)。记住：基准选得好，排序快如飞；基准选得差，退化成 O(n²)。"
-          }
-        },
-        {
-          "id": "module1-sandbox",
-          "component": {
-            "componentType": "InteractiveSandbox",
-            "title": "动手实现快速排序",
-            "language": "python",
-            "code": "def quicksort(arr, low, high):\n    if low < high:\n        # 分区，返回基准的最终索引\n        pi = partition(arr, low, high)\n        # 递归排序左右两部分\n        quicksort(arr, low, pi - 1)\n        quicksort(arr, pi + 1, high)\n\ndef partition(arr, low, high):\n    pivot = arr[high]          # 选最后一个元素为基准\n    i = low - 1                # i 指向小于基准的区域的末尾\n    for j in range(low, high): # j 遍历除基准外的所有元素\n        if arr[j] <= pivot:\n            i += 1\n            arr[i], arr[j] = arr[j], arr[i]  # 将小元素换到左边\n    arr[i+1], arr[high] = arr[high], arr[i+1] # 基准归位\n    return i + 1\n\n# 测试\ntest = [10, 7, 8, 9, 1, 5]\nquicksort(test, 0, len(test)-1)\nprint(test)  # 输出 [1, 5, 7, 8, 9, 10]",
-            "explanation": "运行上述代码，观察分区函数如何将数组逐步整理。你可以修改数组内容，体会不同输入对排序过程的影响。注意：最坏情况发生在数组已经有序且每次选最后一个元素为基准时。"
-          }
-        },
-        {
-          "id": "module1-quiz",
-          "component": {
-            "componentType": "QuizCard",
-            "title": "快速排序基础测验",
-            "question": "在快速排序的一次分区操作后，基准元素的位置有什么特点？",
-            "options": [
+          "props": {
+            "title": "学习路径：手写防抖函数",
+            "steps": [
               {
-                "id": "A",
-                "text": "基准元素一定在数组的中间位置"
+                "id": "step1",
+                "title": "理解闭包",
+                "description": "回顾闭包的概念，它是防抖实现的基础。"
               },
               {
-                "id": "B",
-                "text": "基准元素到达了它在最终有序数组中的正确位置"
+                "id": "step2",
+                "title": "实现基础 debounce",
+                "description": "使用闭包和 setTimeout 编写核心逻辑。"
               },
               {
-                "id": "C",
-                "text": "基准元素被移到了数组的最左端"
-              },
-              {
-                "id": "D",
-                "text": "基准元素被移到了数组的最右端"
+                "id": "step3",
+                "title": "处理 this 和事件对象",
+                "description": "确保回调函数中的 this 和 event 参数正确传递。"
               }
             ],
-            "correctOptionId": "B",
-            "explanation": "分区操作确保基准左侧所有元素 ≤ 基准，右侧所有元素 ≥ 基准，因此基准已经处于它最终应该在的位置。后续递归只处理左右两侧，不再移动基准。"
-          }
+            "activeStepId": "step2"
+          },
+          "id": "generated-learningpath-1",
+          "component": "LearningPath"
         },
         {
-          "id": "module1-cloze",
-          "component": {
-            "componentType": "ClozeTest",
-            "title": "填空练习",
-            "sentences": [
-              {
-                "before": "快速排序的核心思想是",
-                "blank": "分治",
-                "after": "，它将数组分成两个子数组分别排序。"
-              },
-              {
-                "before": "分区操作中，通常选择数组的",
-                "blank": "最后一个元素",
-                "after": "作为基准（pivot）。"
-              },
-              {
-                "before": "如果每次分区都能将数组均匀分成两半，快速排序的时间复杂度为",
-                "blank": "O(n log n)",
-                "after": "。"
-              }
-            ]
-          }
-        }
-      ]
-    }
-  },
-  {
-    "version": "v0.9",
-    "createSurface": {
-      "surfaceId": "module-2",
-      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
-    }
-  },
-  {
-    "version": "v0.9",
-    "updateComponents": {
-      "surfaceId": "module-2",
-      "components": [
-        {
-          "id": "module2-detailed-explanation",
-          "component": {
-            "componentType": "DetailedExplanation",
-            "title": "快速排序的性能分析",
-            "content": "**1. 背景**：快速排序的平均性能很好，但最坏情况可能退化到 O(n²)。理解其性能边界对实际选型至关重要。\n\n**2. 第一原理模型**：快速排序的时间由分区次数和每次分区的扫描开销决定。每次分区扫描整个子数组，开销 O(k)，其中 k 是子数组长度。递归树的总开销等于所有层级的扫描长度之和。\n\n**3. 关键转变**：递归树的形状取决于基准选择。如果每次基准恰好是中位数，树高 log n，总开销 O(n log n)。如果每次基准是最大或最小值，树高 n，总开销 O(n²)。\n\n**4. 具体数据推演**：假设数组 [1,2,3,4,5] 已升序，每次选最后一个元素为基准。\n- 第一轮：基准5，分区后左边 [1,2,3,4]，右边空，扫描5个元素。\n- 第二轮：基准4，扫描4个元素。\n- 第三轮：基准3，扫描3个元素。\n- 第四轮：基准2，扫描2个元素。\n- 第五轮：基准1，扫描1个元素。\n总扫描次数 = 5+4+3+2+1 = 15 ≈ O(n²)。\n\n**5. 优化与总结**：随机化基准选择（随机选一个元素与最后一个交换）可以避免最坏情况以高概率出现。实际中，快速排序通常比归并排序快，因为它的常数因子小且缓存友好。记住：快速排序是“平均快，最坏慢”，随机化让它更可靠。"
-          }
+          "props": {
+            "title": "手写基础防抖函数",
+            "content": "防抖函数的核心是利用 <dfn title=\"函数可以访问其外部作用域变量的特性\">闭包</dfn> 保存一个计时器 ID。每次事件触发时，先清除上一次的计时器，再设置一个新的计时器。这样，只有最后一次触发后的等待时间内没有新触发，回调才会执行。\n\n例如，实现一个 `debounce(fn, delay)` 函数：\n1. 返回一个新函数（闭包）。\n2. 新函数内部使用 `clearTimeout` 清除之前的计时器。\n3. 使用 `setTimeout` 设置新的计时器，延迟执行 `fn`。\n\n这样，连续调用返回的函数时，只有最后一次调用生效。"
+          },
+          "id": "generated-detailedexplanation-2",
+          "component": "DetailedExplanation"
         },
         {
-          "id": "module2-quiz",
-          "component": {
-            "componentType": "QuizCard",
-            "title": "性能理解测验",
-            "question": "以下哪种情况会导致快速排序的时间复杂度退化为 O(n²)？",
-            "options": [
-              {
-                "id": "A",
-                "text": "数组元素全部相等"
-              },
-              {
-                "id": "B",
-                "text": "每次选择的基准都是当前子数组的中位数"
-              },
-              {
-                "id": "C",
-                "text": "数组已经有序且每次选择第一个或最后一个元素为基准"
-              },
-              {
-                "id": "D",
-                "text": "数组完全逆序且每次选择中间元素为基准"
-              }
+          "props": {
+            "title": "动手实现防抖",
+            "language": "javascript",
+            "code": "// 基础防抖函数\nfunction debounce(fn, delay) {\n  let timer = null; // 闭包变量，保存计时器 ID\n  return function(...args) {\n    // 每次调用时，清除上一次的计时器\n    clearTimeout(timer);\n    // 设置新的计时器，延迟执行 fn\n    timer = setTimeout(() => {\n      fn.apply(this, args); // 正确传递 this 和参数\n    }, delay);\n  };\n}\n\n// 使用示例\nconst log = debounce((msg) => console.log(msg), 300);\nlog('第一次'); // 计时器被重置\nlog('第二次'); // 计时器被重置\nlog('第三次'); // 300ms 后输出 '第三次'",
+            "instructions": "点击运行按钮，观察控制台输出。连续调用 log 函数，只有最后一次调用在 300ms 后生效。"
+          },
+          "id": "generated-interactivesandbox-3",
+          "component": "InteractiveSandbox"
+        },
+        {
+          "props": {
+            "title": "填空：防抖函数实现",
+            "text": "防抖函数利用 ___ 保存计时器 ID。每次事件触发时，先调用 ___ 清除上一次的计时器，再使用 ___ 设置新的计时器。",
+            "correctAnswers": [
+              "闭包",
+              "clearTimeout",
+              "setTimeout"
             ],
-            "correctOptionId": "C",
-            "explanation": "当数组已经有序且每次选择第一个或最后一个元素为基准时，分区极不平衡，导致递归深度为 n，时间复杂度退化为 O(n²)。"
-          }
+            "feedback": "闭包让计时器 ID 在多次调用间保持；clearTimeout 取消上一次延迟；setTimeout 设置新的延迟执行。"
+          },
+          "id": "generated-clozetest-4",
+          "component": "ClozeTest"
         },
         {
-          "id": "module2-deepdive",
-          "component": {
-            "componentType": "DeepDive",
-            "title": "快速排序的优化策略",
-            "content": "**随机化基准**：在 partition 前随机选择一个元素与最后一个交换，使最坏情况概率极低。\n**三数取中**：从首、中、尾三个元素中取中位数作为基准，进一步降低退化概率。\n**小数组切换**：当子数组长度小于某个阈值（如10）时，改用插入排序，减少递归开销。\n**尾递归优化**：先递归处理较短的子数组，再处理较长的，控制栈深度。"
-          }
-        },
-        {
-          "id": "module2-formula",
-          "component": {
-            "componentType": "InteractiveFormula",
-            "title": "快速排序的递推公式",
-            "formula": "T(n) = T(k) + T(n-k-1) + O(n)",
-            "variables": [
-              {
-                "symbol": "n",
-                "description": "当前子数组的长度"
-              },
-              {
-                "symbol": "k",
-                "description": "分区后左侧子数组的长度（即小于基准的元素个数）"
-              },
-              {
-                "symbol": "T(n)",
-                "description": "对长度为 n 的数组排序所需的时间"
-              }
-            ],
-            "explanation": "公式表示：排序 n 个元素的时间 = 排序左侧 k 个元素的时间 + 排序右侧 n-k-1 个元素的时间 + 分区扫描 n 个元素的时间。当 k ≈ n/2 时，T(n) = 2T(n/2) + O(n) → O(n log n)。当 k = 0 或 k = n-1 时，T(n) = T(n-1) + O(n) → O(n²)。"
-          }
-        },
-        {
-          "id": "module2-resources",
-          "component": {
-            "componentType": "ResourceList",
-            "title": "推荐学习资源",
+          "props": {
+            "title": "推荐资源",
             "resources": [
               {
-                "title": "《算法导论》第7章：快速排序",
-                "type": "book",
-                "description": "经典教材，详细分析快速排序的正确性、性能及随机化版本。"
+                "title": "MDN: 闭包",
+                "url": "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures",
+                "type": "documentation",
+                "description": "深入了解闭包的工作原理。"
               },
               {
-                "title": "VisuAlgo - 排序算法可视化",
-                "type": "website",
-                "url": "https://visualgo.net/en/sorting",
-                "description": "交互式可视化工具，可直观观察快速排序的分区过程和递归树。"
-              },
-              {
-                "title": "Khan Academy: Quick Sort",
-                "type": "video",
-                "url": "https://www.khanacademy.org/computing/computer-science/algorithms/quick-sort",
-                "description": "英文视频讲解，适合初学者理解分治和分区逻辑。"
+                "title": "MDN: setTimeout",
+                "url": "https://developer.mozilla.org/zh-CN/docs/Web/API/setTimeout",
+                "type": "documentation",
+                "description": "setTimeout 的详细文档。"
               }
             ]
-          }
+          },
+          "id": "generated-resourcelist-5",
+          "component": "ResourceList"
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface3",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface3",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "generated-deepdiveprompt-1",
+            "generated-interactivesandbox-2",
+            "generated-quizcard-3",
+            "generated-scenariodialogue-4",
+            "generated-datatable-5"
+          ]
+        },
+        {
+          "props": {
+            "title": "深入思考",
+            "prompts": [
+              {
+                "id": "prompt1",
+                "label": "leading 与 trailing 的区别",
+                "content": "思考：如果配置 leading: true，防抖会在第一次触发时立即执行，然后等待停止。这种模式适合什么场景？"
+              },
+              {
+                "id": "prompt2",
+                "label": "取消功能的设计",
+                "content": "如何为防抖函数添加一个 cancel 方法，让用户可以手动取消尚未执行的延迟回调？"
+              }
+            ]
+          },
+          "id": "generated-deepdiveprompt-1",
+          "component": "DeepDivePrompt"
+        },
+        {
+          "props": {
+            "title": "进阶防抖：支持 leading/trailing 和取消",
+            "language": "javascript",
+            "code": "function debounce(fn, delay, options = {}) {\n  const { leading = false, trailing = true } = options;\n  let timer = null;\n  let isLeadingCalled = false;\n\n  function debounced(...args) {\n    // leading 模式：第一次触发立即执行\n    if (leading && !isLeadingCalled) {\n      fn.apply(this, args);\n      isLeadingCalled = true;\n    }\n    clearTimeout(timer);\n    timer = setTimeout(() => {\n      if (trailing) {\n        fn.apply(this, args);\n      }\n      isLeadingCalled = false; // 重置，允许下一次 leading 触发\n    }, delay);\n  }\n\n  // 取消功能\n  debounced.cancel = function() {\n    clearTimeout(timer);\n    timer = null;\n    isLeadingCalled = false;\n  };\n\n  return debounced;\n}\n\n// 使用示例\nconst save = debounce(() => console.log('保存'), 1000, { leading: true });\nsave(); // 立即输出 '保存'\nsave(); // 被忽略\nsave.cancel(); // 取消后续执行",
+            "instructions": "运行代码，观察 leading 模式下的立即执行和 cancel 方法的效果。"
+          },
+          "id": "generated-interactivesandbox-2",
+          "component": "InteractiveSandbox"
+        },
+        {
+          "props": {
+            "title": "小测验：防抖配置",
+            "question": "以下关于防抖配置的说法，哪个是正确的？",
+            "options": [
+              "leading: true 会让防抖在最后一次触发后执行",
+              "cancel 方法可以清除尚未执行的延迟回调",
+              "trailing: false 会让防抖在第一次触发时执行",
+              "leading 和 trailing 不能同时为 false"
+            ],
+            "correctIndex": 1,
+            "explanation": "cancel 方法通过 clearTimeout 清除计时器，从而取消尚未执行的延迟回调。"
+          },
+          "id": "generated-quizcard-3",
+          "component": "QuizCard"
+        },
+        {
+          "props": {
+            "title": "对话：防抖配置实战",
+            "characters": [
+              {
+                "id": "dev1",
+                "name": "小明",
+                "alignment": "left"
+              },
+              {
+                "id": "dev2",
+                "name": "小红",
+                "alignment": "right"
+              }
+            ],
+            "messages": [
+              {
+                "characterId": "dev1",
+                "content": "我想实现一个按钮防抖，用户点击后立即执行，但 1 秒内不能重复点击。"
+              },
+              {
+                "characterId": "dev2",
+                "content": "用 leading: true 就行，第一次点击立即执行，后续点击被忽略，直到停止点击 1 秒后重置。"
+              },
+              {
+                "characterId": "dev1",
+                "content": "那如果用户想取消操作呢？"
+              },
+              {
+                "characterId": "dev2",
+                "content": "可以暴露一个 cancel 方法，让用户手动取消尚未执行的延迟回调。"
+              }
+            ]
+          },
+          "id": "generated-scenariodialogue-4",
+          "component": "ScenarioDialogue"
+        },
+        {
+          "props": {
+            "title": "防抖配置选项对比",
+            "columns": [
+              {
+                "key": "option",
+                "label": "配置项"
+              },
+              {
+                "key": "type",
+                "label": "类型"
+              },
+              {
+                "key": "default",
+                "label": "默认值"
+              },
+              {
+                "key": "description",
+                "label": "说明"
+              }
+            ],
+            "rows": [
+              {
+                "id": "r1",
+                "cells": {
+                  "option": "leading",
+                  "type": "boolean",
+                  "default": "false",
+                  "description": "是否在第一次触发时立即执行"
+                }
+              },
+              {
+                "id": "r2",
+                "cells": {
+                  "option": "trailing",
+                  "type": "boolean",
+                  "default": "true",
+                  "description": "是否在停止触发后执行"
+                }
+              }
+            ],
+            "caption": "防抖函数的常用配置选项及其含义。"
+          },
+          "id": "generated-datatable-5",
+          "component": "DataTable"
+        }
+      ]
+    }
+  },
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "surface4",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "surface4",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "generated-interactivesandbox-1",
+            "generated-scenariodialogue-2",
+            "generated-quizcard-3",
+            "generated-socialmoments-4",
+            "generated-learningpath-5"
+          ]
+        },
+        {
+          "props": {
+            "title": "综合实践：搜索建议组件",
+            "language": "javascript",
+            "code": "// 搜索建议组件（模拟）\nclass SearchSuggest {\n  constructor(inputEl, delay = 300) {\n    this.inputEl = inputEl;\n    this.debouncedFetch = debounce(this.fetchSuggestions.bind(this), delay);\n    inputEl.addEventListener('input', this.debouncedFetch);\n  }\n\n  fetchSuggestions(event) {\n    const query = event.target.value;\n    if (query.length < 2) return;\n    console.log(`发送搜索请求: ${query}`);\n    // 实际项目中这里会调用 API\n  }\n\n  destroy() {\n    this.inputEl.removeEventListener('input', this.debouncedFetch);\n    this.debouncedFetch.cancel();\n  }\n}\n\n// 使用示例\nconst input = document.createElement('input');\ndocument.body.appendChild(input);\nconst suggest = new SearchSuggest(input);\n// 在控制台模拟输入：连续输入 'a', 'ab', 'abc'，只有最后一次触发搜索",
+            "instructions": "运行代码，在页面输入框中连续输入文字，观察控制台输出。只有停止输入 300ms 后才会打印搜索请求。"
+          },
+          "id": "generated-interactivesandbox-1",
+          "component": "InteractiveSandbox"
+        },
+        {
+          "props": {
+            "title": "对话：防抖总结",
+            "characters": [
+              {
+                "id": "dev1",
+                "name": "小明",
+                "alignment": "left"
+              },
+              {
+                "id": "dev2",
+                "name": "小红",
+                "alignment": "right"
+              }
+            ],
+            "messages": [
+              {
+                "characterId": "dev1",
+                "content": "防抖的核心就是闭包加 setTimeout，对吧？"
+              },
+              {
+                "characterId": "dev2",
+                "content": "没错！闭包保存计时器，setTimeout 控制延迟，clearTimeout 实现重置。"
+              },
+              {
+                "characterId": "dev1",
+                "content": "那 leading 和 trailing 配置有什么用？"
+              },
+              {
+                "characterId": "dev2",
+                "content": "leading 适合按钮防抖（立即执行），trailing 适合搜索防抖（停止后执行）。根据场景选择。"
+              }
+            ]
+          },
+          "id": "generated-scenariodialogue-2",
+          "component": "ScenarioDialogue"
+        },
+        {
+          "props": {
+            "title": "综合测验",
+            "question": "以下哪个不是防抖函数的典型应用场景？",
+            "options": [
+              "搜索框输入自动补全",
+              "按钮点击防止重复提交",
+              "滚动加载更多内容",
+              "窗口 resize 后重新计算布局"
+            ],
+            "correctIndex": 2,
+            "explanation": "滚动加载更多内容更适合使用节流（throttle），因为它需要按固定频率触发，而不是只执行最后一次。"
+          },
+          "id": "generated-quizcard-3",
+          "component": "QuizCard"
+        },
+        {
+          "props": {
+            "title": "学习心得分享",
+            "posts": [
+              {
+                "id": "post1",
+                "author": "学习者A",
+                "content": "通过手写防抖，我终于理解了闭包的实际用途！"
+              },
+              {
+                "id": "post2",
+                "author": "学习者B",
+                "content": "防抖和节流是前端性能优化的基本功，建议大家都动手实现一遍。"
+              }
+            ]
+          },
+          "id": "generated-socialmoments-4",
+          "component": "SocialMoments"
+        },
+        {
+          "props": {
+            "title": "学习路径：总结与下一步",
+            "steps": [
+              {
+                "id": "step1",
+                "title": "回顾防抖核心概念",
+                "description": "防抖通过延迟执行减少高频事件触发次数。"
+              },
+              {
+                "id": "step2",
+                "title": "掌握手写实现",
+                "description": "闭包 + setTimeout + clearTimeout 是核心。"
+              },
+              {
+                "id": "step3",
+                "title": "学习节流（Throttle）",
+                "description": "节流按固定频率执行，与防抖互补。"
+              }
+            ],
+            "activeStepId": "step2"
+          },
+          "id": "generated-learningpath-5",
+          "component": "LearningPath"
         }
       ]
     }

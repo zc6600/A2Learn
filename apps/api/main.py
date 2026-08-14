@@ -74,6 +74,12 @@ from apps.api.session_store import SessionState, SessionStore, build_session_sto
 
 
 class SessionStartRequest(BaseModel):
+    session_id: str | None = Field(
+        default=None,
+        alias="sessionId",
+        pattern=r"^sess_[A-Za-z0-9_-]{8,80}$",
+        description="Optional client-generated id used for idempotent refresh recovery",
+    )
     resource_path: str | None = Field(default=None, description="Path to teaching resources (file or directory)")
     resource_text: str | None = Field(default=None, description="Direct text input to use as teaching resource")
     language: Literal["zh", "en"] = Field(default="zh", description="Learner-facing content language")
@@ -1374,6 +1380,7 @@ def start_session(
             api_key=api_key,
             target_language=payload.language,
             generation_profile=payload.generation_profile,
+            session_id=payload.session_id,
         )
         return SessionStartResponse(session_id=session.session_id, status=session.status, messages=session.messages)
     except HTTPException:

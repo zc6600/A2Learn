@@ -76,6 +76,40 @@ class SessionStoreAsyncGenerationTests(unittest.TestCase):
         self.assertIn("boom", failed.error or "")
         self.assertEqual(failed.messages, [])
 
+    def test_client_session_id_makes_start_idempotent(self) -> None:
+        generation_release = threading.Event()
+        call_count = 0
+
+        def fake_run_agent(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            generation_release.wait(timeout=1.0)
+            return {
+                "a2ui_messages": [
+                    {
+                        "version": "v0.9",
+                        "createSurface": {"surfaceId": "main", "catalogId": DEFAULT_CATALOG_ID},
+                    },
+                    {
+                        "version": "v0.9",
+                        "updateComponents": {
+                            "surfaceId": "main",
+                            "components": [{"id": "c1", "component": "Text"}],
+                        },
+                    },
+                ]
+            }
+
+        store = SessionStore()
+        with patch("apps.api.session_store.run_agent", side_effect=fake_run_agent):
+            first = store.create(resource_text="refresh-safe", session_id="sess_refresh123")
+            second = store.create(resource_text="refresh-safe", session_id="sess_refresh123")
+            self.assertIs(first, second)
+            generation_release.set()
+            _wait_until_not_pending(store, first.session_id)
+
+        self.assertEqual(call_count, 1)
+
     def test_sqlite_session_store_persistence_and_factory(self) -> None:
         from apps.api.session_store import SqliteSessionStore, build_session_store
 

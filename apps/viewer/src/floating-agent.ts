@@ -610,7 +610,9 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
           // ignore
         }
       }
-      const message = detail ? `Agent 请求失败 (${response.status}: ${detail})` : `Agent 请求失败 (${response.status})`;
+      const message = detail
+        ? text(`Agent 请求失败 (${response.status}: ${detail})`, `Agent request failed (${response.status}: ${detail})`)
+        : text(`Agent 请求失败 (${response.status})`, `Agent request failed (${response.status})`);
       throw new Error(message);
     }
     const reader = response.body.getReader();

@@ -189,6 +189,12 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
     return `--badge-bg: ${bg}; --badge-fg: ${fg};`;
   }
 
+  private statusLabel(status: string): string {
+    if (status === "passed") return uiText("通过", "Passed");
+    if (status === "failed") return uiText("失败", "Failed");
+    return uiText("等待中", "Pending");
+  }
+
   private async handleCopyClick() {
     try {
       await navigator.clipboard.writeText(this.localCode);
@@ -223,7 +229,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
       this.executeLocally(currentCode, language);
     } else if (props.onRunCode) {
       this.localStatus = "running";
-      this.localOutput = "Running...";
+      this.localOutput = uiText("运行中…", "Running...");
       (this as any).requestUpdate();
       this.context.dispatchAction({
         ...(props.onRunCode as Record<string, unknown>),
@@ -234,7 +240,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
 
   private executeLocally(code: string, language: string) {
     this.localStatus = "running";
-    this.localOutput = "Running...";
+    this.localOutput = uiText("运行中…", "Running...");
     (this as any).requestUpdate();
     
     setTimeout(() => {
@@ -353,7 +359,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
               <style>body { font-family: monospace; padding: 12px; margin: 0; color: inherit; white-space: pre-wrap; }</style>
             </head>
             <body>
-              <div id="status">Loading Python environment...</div>
+              <div id="status">${uiText("正在加载 Python 环境…", "Loading Python environment...")}</div>
               <script>
                 const testCases = ${JSON.stringify(testCases.map(tc => ({
                   input: this.resolveString(tc.input),
@@ -466,7 +472,7 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
       // entities back out.
       return html`
         <iframe style="display: none;" sandbox="allow-scripts" referrerpolicy="no-referrer" src="${frameSrc}"></iframe>
-        <pre class="console-log ${status}">${output || "Running..."}</pre>
+        <pre class="console-log ${status}">${output || uiText("运行中…", "Running...")}</pre>
       `;
     }
 
@@ -517,14 +523,14 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
             @click=${this.handleRunClick}
             ?disabled=${isRunning}
           >
-            ${isRunning ? "Running..." : "Run Code"}
+            ${isRunning ? uiText("运行中…", "Running...") : uiText("运行代码", "Run Code")}
           </button>
         </div>
 
         <div class="workspace">
           <div class="editor-pane">
             <div class="pane-header">
-              <span>Input Code</span>
+              <span>${uiText("输入代码", "Input Code")}</span>
               <button class="copy-btn ${this.copied ? "copied" : ""}" @click=${this.handleCopyClick} title=${uiText("复制代码", "Copy code")}>
                 ${this.copied
                   ? html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>${uiText("已复制", "Copied")}`
@@ -546,10 +552,10 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
           <div class="output-pane">
             ${hasTestCases ? html`
               <div class="output-pane-header">
-                <button class="tab-btn ${this.activeTab === 'console' ? 'active' : ''}" @click=${() => this.activeTab = 'console'}>Console Log</button>
-                <button class="tab-btn ${this.activeTab === 'testcases' ? 'active' : ''}" @click=${() => this.activeTab = 'testcases'}>Test Cases</button>
+                <button class="tab-btn ${this.activeTab === 'console' ? 'active' : ''}" @click=${() => this.activeTab = 'console'}>${uiText("控制台", "Console Log")}</button>
+                <button class="tab-btn ${this.activeTab === 'testcases' ? 'active' : ''}" @click=${() => this.activeTab = 'testcases'}>${uiText("测试用例", "Test Cases")}</button>
               </div>
-            ` : html`<div class="pane-header"><span>Output Result</span></div>`}
+            ` : html`<div class="pane-header"><span>${uiText("输出结果", "Output Result")}</span></div>`}
 
             <div class="output-content ${status} ${language}">
               ${this.activeTab === 'console' || !hasTestCases ? html`
@@ -564,11 +570,11 @@ export class A2learnInteractiveSandboxElement extends A2uiLitElement<typeof Inte
                     return html`
                       <div class="testcase-item ${res.status}">
                         <div class="testcase-info">
-                          <span class="testcase-badge ${res.status}">${icon} ${res.status}</span>
+                          <span class="testcase-badge ${res.status}">${icon} ${this.statusLabel(res.status)}</span>
                           <code class="testcase-input">${this.resolveString(tc.input)}</code>
                         </div>
                         ${res.status === 'failed' && res.error ? html`<div class="testcase-error">${res.error}</div>` : nothing}
-                        ${res.status === 'passed' && res.actual ? html`<div class="testcase-actual">Output: ${res.actual}</div>` : nothing}
+                        ${res.status === 'passed' && res.actual ? html`<div class="testcase-actual">${uiText("输出：", "Output: ")}${res.actual}</div>` : nothing}
                       </div>
                     `;
                   })}

@@ -215,11 +215,34 @@ function modeHintForSending(container: HTMLElement, isSending: boolean): void {
     return;
   }
   const next = first as HTMLParagraphElement;
-  if (isSending) {
-    next.textContent = "Online mode connected, syncing latest interaction with Agent...";
-  } else {
-    next.textContent = "Online mode connected, supporting interaction callbacks and incremental updates.";
-  }
+  next.textContent = isSending ? T[getLang()].onlineModeSyncing : T[getLang()].onlineModeReady;
+}
+
+function createGenerationSessionId(): string {
+  const suffix = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID().replace(/-/g, "")
+    : `${Date.now()}${Math.random().toString(36).slice(2)}`;
+  return `sess_${suffix}`;
+}
+
+function showGenerationFailureNotice(lang: Lang, error: unknown): void {
+  document.querySelector(".generation-failure-notice")?.remove();
+  const notice = document.createElement("div");
+  notice.className = "generation-failure-notice";
+  notice.setAttribute("role", "alert");
+  const message = document.createElement("span");
+  const detail = String(error).replace(/^Error:\s*/, "");
+  message.textContent = lang === "zh"
+    ? `课程生成失败：${detail}。你可以修改要求后重新生成。`
+    : `Course generation failed: ${detail}. You can revise the request and try again.`;
+  const dismiss = document.createElement("button");
+  dismiss.type = "button";
+  dismiss.setAttribute("aria-label", lang === "zh" ? "关闭提示" : "Dismiss notification");
+  dismiss.textContent = "×";
+  dismiss.addEventListener("click", () => notice.remove());
+  notice.append(message, dismiss);
+  document.body.append(notice);
+  window.setTimeout(() => notice.remove(), 12_000);
 }
 
 async function bootstrapOnline(
@@ -231,7 +254,7 @@ async function bootstrapOnline(
   onSessionStarted?: (sessionId: string) => void,
 ): Promise<boolean> {
   const session = existingSessionId
-    ? await resumeOnlineSession(source, existingSessionId)
+    ? await startOnlineSession(source, getStoredGenerationProfile(), onSessionStarted, existingSessionId)
     : await startOnlineSession(source, getStoredGenerationProfile(), onSessionStarted);
   const sessionId = session.sessionId;
   const initialMessages = session.messages;
@@ -274,13 +297,13 @@ async function bootstrapOnline(
         if (lastCreatedId) {
           window.location.hash = `#/${lastCreatedId}`;
         }
-        renderSurfaces(container, processor, "Online mode connected, supporting interaction callbacks and incremental updates.");
+        renderSurfaces(container, processor, T[getLang()].onlineModeReady);
       }
     } catch (err) {
       if (!isCurrent()) return;
       showState(
         container,
-        `Online interaction callback failed: ${String(err)}\nPlease check API service status and retry.`,
+        `${T[getLang()].onlineInteractionFailed}\n${String(err)}`,
         "error",
       );
     } finally {
@@ -298,7 +321,7 @@ async function bootstrapOnline(
   activeRuntime = {
     container,
     processor,
-    modeHint: "Online mode connected, supporting interaction callbacks and incremental updates.",
+    modeHint: T[getLang()].onlineModeReady,
   };
 
   processor.processMessages(initialMessages);
@@ -309,7 +332,7 @@ async function bootstrapOnline(
   if (startCreatedId) {
     window.location.hash = `#/${startCreatedId}`;
   }
-  renderSurfaces(container, processor, "Online mode connected, supporting interaction callbacks and incremental updates.");
+  renderSurfaces(container, processor, T[getLang()].onlineModeReady);
   onSessionReady?.(sessionId, initialMessages);
   return true;
 }
@@ -430,14 +453,14 @@ async function bootstrapOffline(
     try {
       processor.processMessages(messages);
     } catch (err) {
-      showState(container, `A2UI message processing failed: ${String(err)}`, "error");
+      showState(container, `${T[getLang()].a2uiProcessingFailedPrefix}: ${String(err)}`, "error");
       return;
     }
     if (!isCurrent()) return;
     activeRuntime = {
       container,
       processor,
-      modeHint: "Offline mode: Previewing bundled course lesson.",
+      modeHint: T[getLang()].offlineBundledCourse,
     };
     const allSurfaceIds = extractAllSurfaceIds(messages);
     const currentHashId = readCurrentSurfaceHash();
@@ -445,7 +468,7 @@ async function bootstrapOffline(
       const firstCreatedId = extractFirstCreatedSurfaceId(messages);
       if (firstCreatedId) window.location.hash = `#/${firstCreatedId}`;
     }
-    renderSurfaces(container, processor, "Offline mode: Previewing bundled course lesson.");
+    renderSurfaces(container, processor, T[getLang()].offlineBundledCourse);
     return;
   }
 
@@ -454,7 +477,7 @@ async function bootstrapOffline(
   const res = await fetch(`${configuredUrl}${separator}ts=${Date.now()}`);
   if (!isCurrent()) return;
   if (!res.ok) {
-    showState(container, "Unable to load A2UI messages, please run Agent to generate messages first.", "error");
+    showState(container, T[getLang()].unableToLoadMessages, "error");
     return;
   }
   const messages = await res.json();
@@ -467,7 +490,7 @@ async function bootstrapOffline(
   try {
     processor.processMessages(messages);
   } catch (err) {
-    showState(container, `A2UI message processing failed: ${String(err)}`, "error");
+      showState(container, `${T[getLang()].a2uiProcessingFailedPrefix}: ${String(err)}`, "error");
     return;
   }
 
@@ -476,7 +499,7 @@ async function bootstrapOffline(
   activeRuntime = {
     container,
     processor,
-    modeHint: "Offline mode: Previewing message file only, no interaction callbacks.",
+    modeHint: T[getLang()].offlineMessageFile,
   };
 
   const allSurfaceIds = extractAllSurfaceIds(messages);
@@ -490,7 +513,7 @@ async function bootstrapOffline(
       window.location.hash = `#/${firstCreatedId}`;
     }
   }
-  renderSurfaces(container, processor, "Offline mode: Previewing message file only, no interaction callbacks.");
+  renderSurfaces(container, processor, T[getLang()].offlineMessageFile);
 }
 
 
@@ -557,6 +580,25 @@ async function bootstrapViewer() {
                 : window.location.origin))
         ).trim();
 
+  const restoredPendingNode = !initialConfig.embed
+    ? workspaceStore.getPendingGenerations()[0]
+    : undefined;
+  if (restoredPendingNode?.generationSource && restoredPendingNode.generationSessionId) {
+    currentPendingGenerationId = restoredPendingNode.id;
+    activeGeneration = {
+      token: restoredPendingNode.id,
+      sessionId: restoredPendingNode.generationSessionId,
+      source: { mode: "online", ...restoredPendingNode.generationSource },
+    };
+    if (!initialProjectId && !initialExample && !hasExplicitSource) {
+      activeDoc = {
+        type: "generated",
+        promptText: restoredPendingNode.generationSource.resourceText
+          || restoredPendingNode.generationSource.resourceQuery,
+      };
+    }
+  }
+
   const finalizeGeneration = async (
     sessionId: string,
     source: ViewerSourceOnline,
@@ -580,10 +622,8 @@ async function bootstrapViewer() {
         },
         body: JSON.stringify({ sessionId, title: projectTitle, actor: "ai" }),
       });
-      if (!res.ok || activeGeneration?.token !== token) {
-        if (activeGeneration?.token === token) activeGeneration.persisting = false;
-        return;
-      }
+      if (!res.ok) throw new Error(`保存生成课程失败 (${res.status})`);
+      if (activeGeneration?.token !== token) return;
       const data = (await res.json()) as { project?: { projectId?: string; id?: string; title?: string } };
       const projectId = data?.project?.projectId || data?.project?.id;
       if (!projectId || activeGeneration?.token !== token) {
@@ -604,8 +644,16 @@ async function bootstrapViewer() {
         updateProjectUrl(projectId);
       }
       activeGeneration = null;
-    } catch {
-      if (activeGeneration?.token === token) activeGeneration.persisting = false;
+    } catch (error) {
+      if (activeGeneration?.token !== token) return;
+      workspaceStore.failPendingGeneration(token);
+      currentPendingGenerationId = null;
+      activeGeneration = null;
+      if (openInViewer && activeDoc.type === "generated" && container) {
+        showState(container, `${getLang() === "zh" ? "课程保存失败" : "Could not save the generated course"}: ${String(error)}`, "error");
+      } else {
+        showGenerationFailureNotice(getLang(), error);
+      }
     }
   };
 
@@ -619,9 +667,12 @@ async function bootstrapViewer() {
     generation.watchingInBackground = true;
     void resumeOnlineSession(generation.source, generation.sessionId)
       .then((session) => finalizeGeneration(session.sessionId, generation.source, generation.token, false))
-      .catch(() => {
+      .catch((error) => {
         if (activeGeneration?.token === generation.token) {
-          activeGeneration.watchingInBackground = false;
+          workspaceStore.failPendingGeneration(generation.token);
+          currentPendingGenerationId = null;
+          activeGeneration = null;
+          showGenerationFailureNotice(getLang(), error);
         }
       });
   };
@@ -655,6 +706,9 @@ async function bootstrapViewer() {
 
   const renderShell = (lang: Lang) => {
     document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
+    document.title = lang === "en"
+      ? "A2Learn · AI Interactive Lesson Generator"
+      : "A2Learn · AI 互动课件生成器";
     const title = initialConfig.embed ? "" : "A2Learn";
     const subtitle = initialConfig.embed ? "" : T[lang].subtitle;
 
@@ -687,6 +741,29 @@ async function bootstrapViewer() {
         workspaceStore.setLang(lang);
         renderWorkspaceSidebar(sidebarSlot, {
           getLang,
+          onSelectGenerating: (id: string) => {
+            const node = workspaceStore.getState().nodes[id];
+            if (!node?.generationSource || !node.generationSessionId) return;
+            const source: ViewerSourceOnline = { mode: "online", ...node.generationSource };
+            currentPendingGenerationId = id;
+            activeGeneration = {
+              token: id,
+              source,
+              sessionId: node.generationSessionId,
+            };
+            activeDoc = {
+              type: "generated",
+              promptText: source.resourceText || source.resourceQuery,
+            };
+            updateProjectUrl(null);
+            void startWithConfig(
+              { embed: false, source },
+              false,
+              undefined,
+              id,
+              node.generationSessionId,
+            );
+          },
           onSelectLesson: async (id: string) => {
             if (bundledDatabaseLessons[id]) {
               await selectBundledDatabaseLesson(id);
@@ -815,6 +892,7 @@ async function bootstrapViewer() {
       }, existingSessionId, (sessionId) => {
         if (!generationToken || activeGeneration?.token !== generationToken) return;
         activeGeneration.sessionId = sessionId;
+        workspaceStore.updatePendingGenerationSession(generationToken, sessionId);
         if (activeGeneration.keepInBackground) {
           keepGenerationRunningInBackground();
           return;
@@ -926,48 +1004,35 @@ async function bootstrapViewer() {
     narrationController.resetForDocument(
       document.getElementById("page-narration-button") as HTMLButtonElement | null,
     );
-    if (currentPendingGenerationId) {
-      workspaceStore.failPendingGeneration(currentPendingGenerationId);
-      currentPendingGenerationId = null;
-    }
-    activeGeneration = null;
-    const pendingId = `pending-gen-${Date.now()}`;
-    const pendingTitle = promptText.trim() || T[getLang()].defaultGeneratedTitle;
-    workspaceStore.startPendingGeneration(pendingId, pendingTitle);
-    currentPendingGenerationId = pendingId;
-
-    activeDoc = { type: "generated", promptText };
-    updateProjectUrl(null);
     const currentApiUrl =
       initialConfig.source.mode === "online"
         ? initialConfig.source.apiBaseUrl
         : editorApiBaseUrl();
 
     if (!currentApiUrl) {
-      if (currentPendingGenerationId) {
-        workspaceStore.failPendingGeneration(currentPendingGenerationId);
-        currentPendingGenerationId = null;
-      }
       showState(target, T[getLang()].noBackendConfigured, "error");
       return;
     }
-
-    const userKey = getStoredApiKey();
-    const onlineConfig: ViewerRuntimeConfig = {
-      embed: false,
-      source: {
-        mode: "online",
-        apiBaseUrl: normalizeBaseUrl(currentApiUrl),
-        resourceText: promptText,
-        language: getLang(),
-        headers: userKey ? { Authorization: `Bearer ${userKey}` } : undefined,
-      },
+    if (currentPendingGenerationId) workspaceStore.failPendingGeneration(currentPendingGenerationId);
+    const pendingId = `pending-gen-${Date.now()}`;
+    const sessionId = createGenerationSessionId();
+    const pendingTitle = promptText.trim() || T[getLang()].defaultGeneratedTitle;
+    const source: ViewerSourceOnline = {
+      mode: "online",
+      apiBaseUrl: normalizeBaseUrl(currentApiUrl),
+      resourceText: promptText,
+      language: getLang(),
     };
-    activeGeneration = { token: pendingId, source: onlineConfig.source };
+    workspaceStore.startPendingGeneration(pendingId, pendingTitle, undefined, source, sessionId);
+    currentPendingGenerationId = pendingId;
+    activeDoc = { type: "generated", promptText };
+    updateProjectUrl(null);
+    const onlineConfig: ViewerRuntimeConfig = { embed: false, source };
+    activeGeneration = { token: pendingId, source, sessionId };
     // User explicitly asked to generate from their own prompt — on failure,
     // leave the error on screen instead of silently swapping in the static
     // demo gallery content (see startWithConfig's fallbackToOffline comment).
-    void startWithConfig(onlineConfig, false, undefined, pendingId);
+    void startWithConfig(onlineConfig, false, undefined, pendingId, sessionId);
   };
 
   const onGenerateFromSources = (sourceIds: string[], resourceQuery: string) => {
@@ -976,44 +1041,32 @@ async function bootstrapViewer() {
     narrationController.resetForDocument(
       document.getElementById("page-narration-button") as HTMLButtonElement | null,
     );
-    if (currentPendingGenerationId) {
-      workspaceStore.failPendingGeneration(currentPendingGenerationId);
-      currentPendingGenerationId = null;
-    }
-    activeGeneration = null;
-    const pendingId = `pending-gen-${Date.now()}`;
-    const pendingTitle = resourceQuery.trim() || (getLang() === "zh" ? "资料生成课程" : "Course from sources");
-    workspaceStore.startPendingGeneration(pendingId, pendingTitle);
-    currentPendingGenerationId = pendingId;
-
-    activeDoc = { type: "generated", promptText: resourceQuery };
-    updateProjectUrl(null);
     const currentApiUrl =
       initialConfig.source.mode === "online"
         ? initialConfig.source.apiBaseUrl
         : editorApiBaseUrl();
     if (!currentApiUrl) {
-      if (currentPendingGenerationId) {
-        workspaceStore.failPendingGeneration(currentPendingGenerationId);
-        currentPendingGenerationId = null;
-      }
       showState(target, T[getLang()].noBackendConfigured, "error");
       return;
     }
-    const userKey = getStoredApiKey();
-    const onlineConfig: ViewerRuntimeConfig = {
-      embed: false,
-      source: {
-        mode: "online",
-        apiBaseUrl: normalizeBaseUrl(currentApiUrl),
-        sourceIds,
-        resourceQuery: resourceQuery || undefined,
-        language: getLang(),
-        headers: userKey ? { Authorization: `Bearer ${userKey}` } : undefined,
-      },
+    if (currentPendingGenerationId) workspaceStore.failPendingGeneration(currentPendingGenerationId);
+    const pendingId = `pending-gen-${Date.now()}`;
+    const sessionId = createGenerationSessionId();
+    const pendingTitle = resourceQuery.trim() || (getLang() === "zh" ? "资料生成课程" : "Course from sources");
+    const source: ViewerSourceOnline = {
+      mode: "online",
+      apiBaseUrl: normalizeBaseUrl(currentApiUrl),
+      sourceIds,
+      resourceQuery: resourceQuery || undefined,
+      language: getLang(),
     };
-    activeGeneration = { token: pendingId, source: onlineConfig.source };
-    void startWithConfig(onlineConfig, false, undefined, pendingId);
+    workspaceStore.startPendingGeneration(pendingId, pendingTitle, undefined, source, sessionId);
+    currentPendingGenerationId = pendingId;
+    activeDoc = { type: "generated", promptText: resourceQuery };
+    updateProjectUrl(null);
+    const onlineConfig: ViewerRuntimeConfig = { embed: false, source };
+    activeGeneration = { token: pendingId, source, sessionId };
+    void startWithConfig(onlineConfig, false, undefined, pendingId, sessionId);
   };
 
   const onCreateBookCourse = async (sourceIds: string[], lessonCount: number) => {
@@ -1034,7 +1087,7 @@ async function bootstrapViewer() {
       if (!response.ok) throw new Error(await response.text());
       const payload = await response.json() as { job?: { jobId?: string } };
       const jobId = payload.job?.jobId;
-      if (!jobId) throw new Error("Missing course planning job ID");
+      if (!jobId) throw new Error(T[getLang()].missingCoursePlanningJobId);
       let course: { courseId: string; title: string; lessons: Array<{ lessonId: string; title: string }> } | undefined;
       for (let attempt = 0; attempt < 300; attempt += 1) {
         await new Promise((resolve) => window.setTimeout(resolve, 1_000));
@@ -1043,7 +1096,7 @@ async function bootstrapViewer() {
         });
         if (!status.ok) throw new Error(await status.text());
         const result = await status.json() as { job?: { status?: string; courseId?: string; error?: string } };
-        if (result.job?.status === "failed") throw new Error(result.job.error || "Course planning failed");
+        if (result.job?.status === "failed") throw new Error(result.job.error || T[getLang()].coursePlanningFailed);
         if (result.job?.status !== "ready" || !result.job.courseId) continue;
         const courseResponse = await fetch(`${apiBaseUrl}/api/book-courses/${encodeURIComponent(result.job.courseId)}`, {
           headers: { Authorization: `Bearer ${apiKey}` },
@@ -1052,7 +1105,7 @@ async function bootstrapViewer() {
         course = (await courseResponse.json() as { course?: typeof course }).course;
         break;
       }
-      if (!course?.courseId || !Array.isArray(course.lessons)) throw new Error("Course planning timed out");
+      if (!course?.courseId || !Array.isArray(course.lessons)) throw new Error(T[getLang()].coursePlanningTimedOut);
       const folderId = workspaceStore.createFolder(course.title);
       for (const lesson of course.lessons) {
         workspaceStore.recordNewGeneration(
@@ -1143,7 +1196,7 @@ async function bootstrapViewer() {
       );
       if (!queued.ok) throw new Error(await queued.text());
       const body = await queued.json() as { sessionId?: string };
-      if (!body.sessionId) throw new Error("Missing lesson session ID");
+      if (!body.sessionId) throw new Error(T[getLang()].missingLessonSessionId);
       for (let attempt = 0; attempt < 300; attempt += 1) {
         await new Promise((resolve) => window.setTimeout(resolve, 1_000));
         if (requestVersion !== loadVersion) return;
@@ -1152,17 +1205,17 @@ async function bootstrapViewer() {
         });
         if (!status.ok) throw new Error(await status.text());
         const result = await status.json() as { status?: string; error?: string; messages?: A2uiMessage[] };
-        if (result.status === "error") throw new Error(result.error || "Lesson generation failed");
+        if (result.status === "error") throw new Error(result.error || T[getLang()].lessonGenerationFailed);
         if (result.status === "ready" && Array.isArray(result.messages)) {
           activeDoc = { type: "generated", promptText: workspaceStore.getState().nodes[nodeId]?.title };
           await bootstrapOffline(target, { mode: "offline", messagesUrl: "", messages: result.messages }, () => requestVersion === loadVersion);
           return;
         }
       }
-      throw new Error(getLang() === "zh" ? "生成超时，请稍后重试。" : "Generation timed out; please retry later.");
+      throw new Error(T[getLang()].generationTimedOut);
     } catch (error) {
       if (requestVersion === loadVersion) {
-        showState(target, `${getLang() === "zh" ? "本节生成失败" : "Lesson generation failed"}: ${String(error)}`, "error");
+        showState(target, `${T[getLang()].lessonGenerationFailed}: ${String(error)}`, "error");
       }
     }
   };
@@ -1273,9 +1326,19 @@ async function bootstrapViewer() {
     onConfig: (config) => { void startWithConfig(config); },
   }));
 
-  if (initialProjectId) {
+  if (activeDoc.type === "generated" && activeGeneration?.sessionId) {
+    await startWithConfig(
+      { embed: false, source: activeGeneration.source },
+      false,
+      undefined,
+      activeGeneration.token,
+      activeGeneration.sessionId,
+    );
+  } else if (initialProjectId) {
+    if (activeGeneration) keepGenerationRunningInBackground();
     await openProject({ id: initialProjectId, title: initialProjectId, openedAt: new Date().toISOString() });
   } else if (hasExplicitSource || initialConfig.embed) {
+    if (activeGeneration) keepGenerationRunningInBackground();
     await startWithConfig(initialConfig);
     // A direct example URL (for example ?example=hash-table) bypasses the
     // gallery click handler, so attach its bundled narration after loading.
@@ -1284,6 +1347,7 @@ async function bootstrapViewer() {
       bindExampleAudio(staticAudioUrl);
     }
   } else if (container) {
+    if (activeGeneration) keepGenerationRunningInBackground();
     // Nothing explicit was requested (typical first visit to the static
     // deployment) — the placeholder "/generated/site_messages.json" would
     // just 404. Show a friendly, localized nudge toward the example gallery

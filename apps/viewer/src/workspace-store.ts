@@ -1,5 +1,6 @@
 export type Lang = "zh" | "en";
 import type {
+  PendingGenerationSource,
   WorkspaceFolderOption,
   WorkspaceNode,
   WorkspaceTreeState,
@@ -327,21 +328,13 @@ export class WorkspaceStore {
 
   private saveState(): void {
     try {
-      const serializableNodes: Record<string, WorkspaceNode> = {};
-      Object.entries(this.state.nodes).forEach(([id, node]) => {
-        if (!node.isGenerating) {
-          serializableNodes[id] = node;
-        }
-      });
-      const activeId = this.state.nodes[this.state.activeNodeId || ""]?.isGenerating
-        ? null
-        : this.state.activeNodeId;
       window.localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({
           ...this.state,
-          nodes: serializableNodes,
-          activeNodeId: activeId,
+          // Pending generations are real server-side jobs. Persist their
+          // reconnect metadata so a page refresh does not orphan them.
+          nodes: this.state.nodes,
         }),
       );
     } catch {
@@ -357,12 +350,38 @@ export class WorkspaceStore {
     const parentId = rawNode.parentId === null || typeof rawNode.parentId === "string"
       ? rawNode.parentId
       : null;
+    const isGenerating = rawNode.isGenerating === true;
+    const generationSessionId = isGenerating && typeof rawNode.generationSessionId === "string"
+      ? rawNode.generationSessionId.trim()
+      : "";
+    const rawSource = isGenerating && isRecord(rawNode.generationSource)
+      ? rawNode.generationSource
+      : null;
+    const apiBaseUrl = rawSource && typeof rawSource.apiBaseUrl === "string"
+      ? rawSource.apiBaseUrl.trim()
+      : "";
+    let generationSource: PendingGenerationSource | undefined;
+    if (apiBaseUrl) {
+      generationSource = { apiBaseUrl };
+      if (typeof rawSource?.resourcePath === "string") generationSource.resourcePath = rawSource.resourcePath;
+      if (typeof rawSource?.resourceText === "string") generationSource.resourceText = rawSource.resourceText;
+      if (Array.isArray(rawSource?.sourceIds)) {
+        generationSource.sourceIds = rawSource.sourceIds.filter(
+          (value): value is string => typeof value === "string",
+        );
+      }
+      if (typeof rawSource?.resourceQuery === "string") generationSource.resourceQuery = rawSource.resourceQuery;
+      if (rawSource?.language === "en" || rawSource?.language === "zh") generationSource.language = rawSource.language;
+    }
     return {
       id,
       title,
       type,
       parentId,
       isBuiltin: false,
+      isGenerating: isGenerating || undefined,
+      generationSessionId: generationSessionId || undefined,
+      generationSource,
       category: typeof rawNode.category === "string" ? rawNode.category : undefined,
       description: typeof rawNode.description === "string" ? rawNode.description : undefined,
       createdAt: typeof rawNode.createdAt === "string" ? rawNode.createdAt : now,
@@ -554,6 +573,8 @@ export class WorkspaceStore {
     tempId: string,
     title: string,
     parentFolderId?: string | null,
+    generationSource?: PendingGenerationSource,
+    generationSessionId?: string,
   ): boolean {
     if (!tempId) return false;
     const nextParentId = parentFolderId && this.isValidUserFolder(parentFolderId) ? parentFolderId : null;
@@ -565,6 +586,8 @@ export class WorkspaceStore {
       parentId: nextParentId,
       isBuiltin: false,
       isGenerating: true,
+      generationSource,
+      generationSessionId,
       createdAt: now,
       updatedAt: now,
       order: Date.now(),
@@ -575,6 +598,21 @@ export class WorkspaceStore {
     }
     this.notify();
     return true;
+  }
+
+  public updatePendingGenerationSession(tempId: string, sessionId: string): boolean {
+    const node = this.state.nodes[tempId];
+    if (!node?.isGenerating || !sessionId.trim()) return false;
+    node.generationSessionId = sessionId.trim();
+    node.updatedAt = new Date().toISOString();
+    this.notify();
+    return true;
+  }
+
+  public getPendingGenerations(): WorkspaceNode[] {
+    return Object.values(this.state.nodes)
+      .filter((node) => node.type === "lesson" && node.isGenerating)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
 
   public completePendingGeneration(

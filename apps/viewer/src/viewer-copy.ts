@@ -31,6 +31,26 @@ export type ViewerCopy = {
   playbackFailedPrefix: string;
   presenterScriptTitle: string;
   closeScript: string;
+  onlineModeSyncing: string;
+  onlineModeReady: string;
+  onlineInteractionFailed: string;
+  offlineBundledCourse: string;
+  offlineMessageFile: string;
+  a2uiProcessingFailedPrefix: string;
+  unableToLoadMessages: string;
+  noRenderableSurfaces: string;
+  paginatePresentationFailedPrefix: string;
+  onlineSessionInitializationFailed: string;
+  onlineSessionResponseFormatError: string;
+  generationFailedOnServer: string;
+  interactionCallbackFailed: string;
+  sessionStatusCheckFailed: string;
+  generationTimedOut: string;
+  missingCoursePlanningJobId: string;
+  coursePlanningFailed: string;
+  coursePlanningTimedOut: string;
+  missingLessonSessionId: string;
+  lessonGenerationFailed: string;
   workspaceTitle: string;
   myWorkspace: string;
   curatedCourses: string;
@@ -86,6 +106,26 @@ export const T: Record<Lang, ViewerCopy> = {
     playbackFailedPrefix: "音频播放失败：",
     presenterScriptTitle: "讲解文稿",
     closeScript: "关闭讲稿",
+    onlineModeSyncing: "在线模式已连接，正在同步最新交互…",
+    onlineModeReady: "在线模式已连接，支持交互回调和增量更新。",
+    onlineInteractionFailed: "在线交互回调失败，请检查 API 服务状态后重试。",
+    offlineBundledCourse: "离线模式：正在预览内置课程课时。",
+    offlineMessageFile: "离线模式：仅预览消息文件，不支持交互回调。",
+    a2uiProcessingFailedPrefix: "A2UI 消息处理失败",
+    unableToLoadMessages: "无法加载 A2UI 消息，请先运行 Agent 生成消息。",
+    noRenderableSurfaces: "没有生成可渲染的页面。",
+    paginatePresentationFailedPrefix: "演示内容分页失败",
+    onlineSessionInitializationFailed: "在线会话初始化失败",
+    onlineSessionResponseFormatError: "在线会话响应格式错误。",
+    generationFailedOnServer: "服务器生成失败。",
+    interactionCallbackFailed: "交互回调失败",
+    sessionStatusCheckFailed: "会话状态检查失败",
+    generationTimedOut: "生成超时，请稍后重试。",
+    missingCoursePlanningJobId: "缺少课程规划任务 ID。",
+    coursePlanningFailed: "课程规划失败",
+    coursePlanningTimedOut: "课程规划超时。",
+    missingLessonSessionId: "缺少课时会话 ID。",
+    lessonGenerationFailed: "本节生成失败",
     workspaceTitle: "课程目录",
     myWorkspace: "我的工作区",
     curatedCourses: "精选课程",
@@ -139,6 +179,26 @@ export const T: Record<Lang, ViewerCopy> = {
     playbackFailedPrefix: "Audio playback failed: ",
     presenterScriptTitle: "Presenter Script",
     closeScript: "Close script",
+    onlineModeSyncing: "Online mode connected, syncing the latest interaction…",
+    onlineModeReady: "Online mode connected, supporting interaction callbacks and incremental updates.",
+    onlineInteractionFailed: "Online interaction callback failed. Check the API service and try again.",
+    offlineBundledCourse: "Offline mode: Previewing the bundled course lesson.",
+    offlineMessageFile: "Offline mode: Previewing the message file only; interaction callbacks are unavailable.",
+    a2uiProcessingFailedPrefix: "A2UI message processing failed",
+    unableToLoadMessages: "Unable to load A2UI messages. Run Agent to generate messages first.",
+    noRenderableSurfaces: "No renderable surfaces were generated.",
+    paginatePresentationFailedPrefix: "Unable to paginate presentation content",
+    onlineSessionInitializationFailed: "Online session initialization failed",
+    onlineSessionResponseFormatError: "Online session response format error.",
+    generationFailedOnServer: "Generation failed on the server.",
+    interactionCallbackFailed: "Interaction callback failed",
+    sessionStatusCheckFailed: "Session status check failed",
+    generationTimedOut: "Generation timed out; please retry later.",
+    missingCoursePlanningJobId: "Missing course planning job ID.",
+    coursePlanningFailed: "Course planning failed",
+    coursePlanningTimedOut: "Course planning timed out.",
+    missingLessonSessionId: "Missing lesson session ID.",
+    lessonGenerationFailed: "Lesson generation failed",
     workspaceTitle: "Course Index",
     myWorkspace: "My Workspace",
     curatedCourses: "Curated Lessons",
@@ -196,6 +256,10 @@ export const CHROME_STRINGS: Record<Lang, AppChromeStrings> = {
 
 export type SourceLibraryCopy = {
   title: string;
+  sources: string;
+  pdfPreview: string;
+  pdfReaderTitle: string;
+  chunksUnit: string;
   close: string;
   upload: string;
   refresh: string;
@@ -241,6 +305,10 @@ export type SourceLibraryCopy = {
 export const SOURCE_LIBRARY_COPY: Record<Lang, SourceLibraryCopy> = {
   zh: {
     title: "资料库",
+    sources: "资料列表",
+    pdfPreview: "PDF 原文预览",
+    pdfReaderTitle: "PDF 阅读器",
+    chunksUnit: "分块",
     close: "关闭",
     upload: "上传资料",
     refresh: "刷新",
@@ -284,6 +352,10 @@ export const SOURCE_LIBRARY_COPY: Record<Lang, SourceLibraryCopy> = {
   },
   en: {
     title: "Source Library",
+    sources: "Sources",
+    pdfPreview: "PDF Preview",
+    pdfReaderTitle: "PDF reader",
+    chunksUnit: "chunks",
     close: "Close",
     upload: "Upload Source",
     refresh: "Refresh",

@@ -5,6 +5,7 @@ import type { WorkspaceNode } from "./workspace-tree-types";
 
 export type SidebarCallbacks = {
   onSelectLesson: (id: string) => void;
+  onSelectGenerating?: (id: string) => void;
   getLang: () => Lang;
 };
 
@@ -217,7 +218,7 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
             <div class="workspace-section-header user-section-header">
               <span>${copy.myWorkspace}</span>
               <button id="user-section-add-folder" class="section-action-btn" title="${copy.newFolder}">
-                + 文件夹
+                + ${copy.newFolder}
               </button>
             </div>
             <div class="workspace-tree-group user-tree-group" id="user-tree-group">
@@ -464,6 +465,7 @@ export function renderWorkspaceSidebar(container: HTMLElement, callbacks: Sideba
           const node = workspaceStore.getState().nodes[nodeId];
           if (node?.isGenerating) {
             workspaceStore.setActiveNode(nodeId);
+            callbacks.onSelectGenerating?.(nodeId);
             return;
           }
           workspaceStore.setActiveNode(nodeId);

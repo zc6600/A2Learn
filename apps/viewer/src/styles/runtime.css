@@ -246,6 +246,57 @@
   .generation-progress-foot { align-items: flex-start; flex-direction: column; gap: 7px; }
 }
 
+.generation-failure-notice {
+  position: fixed;
+  z-index: 10020;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: min(430px, calc(100vw - 32px));
+  padding: 14px 14px 14px 16px;
+  color: #2c211f;
+  background: color-mix(in srgb, #fff 92%, #f6ebe8);
+  border: 1px solid color-mix(in srgb, #a84432 22%, transparent);
+  border-radius: 14px;
+  box-shadow: 0 12px 34px rgba(52, 31, 25, .14);
+  backdrop-filter: blur(18px) saturate(140%);
+  font-size: .92rem;
+  line-height: 1.5;
+  animation: generation-notice-in 180ms ease-out both;
+}
+
+.generation-failure-notice button {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  margin: -4px -4px 0 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  font: 500 20px/28px system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.generation-failure-notice button:hover { background: rgba(44, 33, 31, .07); }
+.generation-failure-notice button:active { transform: scale(.94); }
+
+@keyframes generation-notice-in {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .generation-failure-notice { animation: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .generation-failure-notice { background: #fff; backdrop-filter: none; }
+}
+
 /* apps/viewer/src/inline-component-editor.ts */
 #a2learn-inline-editor { position: fixed; z-index: 1001; display: none; width: min(340px, calc(100vw - 28px)); max-height: calc(100vh - 28px); overflow: auto; padding: 12px; border: 1px solid var(--a2ui-color-border); border-radius: 12px; background: var(--a2ui-color-surface); box-shadow: 0 14px 38px rgba(15, 23, 42, .2); color: var(--a2ui-color-on-surface); }
     #a2learn-inline-editor.open { display: block; }

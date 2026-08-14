@@ -4,6 +4,7 @@ import { A2uiLitElement, A2uiController } from "@a2ui/lit/v0_9";
 import { DataTableApi } from "../api";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { sanitizeHtml, tooltipStyles } from "../utils/sanitize";
+import { uiText } from "../utils/i18n";
 
 export class A2learnDataTableElement extends A2uiLitElement<typeof DataTableApi> {
   static styles = [
@@ -38,13 +39,13 @@ export class A2learnDataTableElement extends A2uiLitElement<typeof DataTableApi>
     const caption = props.caption ? this.resolveString(props.caption) : "";
     const emptyMessage = props.emptyMessage
       ? this.resolveString(props.emptyMessage)
-      : "暂无数据";
+      : uiText("暂无数据", "No data available");
 
     return html`
       <section class="table-card">
         ${title ? html`<h2 class="title">${title}</h2>` : nothing}
         ${caption ? html`<p class="caption">${unsafeHTML(sanitizeHtml(caption))}</p>` : nothing}
-        <div class="table-scroll" tabindex="0" aria-label=${title || "数据表格"}>
+        <div class="table-scroll" tabindex="0" aria-label=${title || uiText("数据表格", "Data table")}>
           ${rows.length > 0
             ? html`
                 <table>

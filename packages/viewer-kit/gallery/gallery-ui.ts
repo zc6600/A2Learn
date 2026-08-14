@@ -1,7 +1,7 @@
 import { A2uiMessage, MessageProcessor } from "@a2ui/web_core/v0_9";
 import { basicCatalog } from "@a2ui/lit/v0_9";
 import { a2learnCatalog } from "../../a2learn-catalog";
-import { renderAppFrame, showState } from "../page-shell";
+import { renderAppFrame, showState, type AppLang } from "../page-shell";
 import {
   DemoItem,
   getComponentGalleryItems,
@@ -13,6 +13,30 @@ import "../markdown-surface";
  */
 function injectGalleryStyles(): void { }
 
+function galleryText(lang: AppLang) {
+  return lang === "zh"
+    ? {
+        title: "A2Learn Gallery",
+        subtitle: "按 Component / Website / Course 三层分类展示 A2UI 示例，用于交互页面选型与预览。",
+        loading: "组件示例加载中，请稍候...",
+        empty: "未发现可用组件示例，请检查 A2UI 示例文件路径。",
+        website: "🚀 Website 示例",
+        computer: "💻 Computer 示例",
+        component: "🧩 Component 示例",
+        course: "📚 Course 示例",
+      }
+    : {
+        title: "A2Learn Gallery",
+        subtitle: "Browse A2UI examples across Component, Website, and Course categories for interactive page selection and previews.",
+        loading: "Loading component examples…",
+        empty: "No component examples found. Check the A2UI example paths.",
+        website: "🚀 Website examples",
+        computer: "💻 Computer examples",
+        component: "🧩 Component examples",
+        course: "📚 Course examples",
+      };
+}
+
 /**
  * 渲染 Gallery 列表和预览区域
  */
@@ -20,6 +44,7 @@ function renderGalleryItems(
   items: DemoItem[],
   nav: HTMLElement,
   preview: HTMLElement,
+  lang: AppLang,
 ): void {
   let activeIndex = 0;
   let processor: MessageProcessor<any>;
@@ -360,10 +385,11 @@ function renderGalleryItems(
     return html;
   };
 
-  navHtml += renderCategory(categories.websites, "🚀 Website 示例", 8);
-  navHtml += renderCategory(categories.computer, "💻 Computer 示例", 16);
-  navHtml += renderCategory(categories.components, "🧩 Component 示例", 16);
-  navHtml += renderCategory(categories.courses, "📚 Course 示例", 16);
+  const copy = galleryText(lang);
+  navHtml += renderCategory(categories.websites, copy.website, 8);
+  navHtml += renderCategory(categories.computer, copy.computer, 16);
+  navHtml += renderCategory(categories.components, copy.component, 16);
+  navHtml += renderCategory(categories.courses, copy.course, 16);
 
   nav.innerHTML = navHtml;
 
@@ -382,29 +408,44 @@ function renderGalleryItems(
  */
 export function bootstrapGallery(root: HTMLElement) {
   injectGalleryStyles();
-  renderAppFrame(
-    root,
-    "A2Learn Gallery",
-    "按 Component / Website / Course 三层分类展示 A2UI 示例，用于交互页面选型与预览。",
-    `<section class="gallery-layout">
-      <aside id="gallery-nav" class="gallery-nav"></aside>
-      <section id="gallery-preview" class="gallery-preview">
-        <p class="viewer-state loading">组件示例加载中，请稍候...</p>
-      </section>
-    </section>`,
-  );
+  let lang: AppLang = document.documentElement.lang.toLowerCase().startsWith("en") ? "en" : "zh";
 
-  const nav = document.getElementById("gallery-nav");
-  const preview = document.getElementById("gallery-preview");
-  if (!nav || !preview) {
-    return;
-  }
+  const render = () => {
+    const copy = galleryText(lang);
+    document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
+    renderAppFrame(
+      root,
+      copy.title,
+      copy.subtitle,
+      `<section class="gallery-layout">
+        <aside id="gallery-nav" class="gallery-nav"></aside>
+        <section id="gallery-preview" class="gallery-preview">
+          <p class="viewer-state loading">${copy.loading}</p>
+        </section>
+      </section>`,
+      { lang, languageSwitcher: true },
+    );
 
-  const items = getComponentGalleryItems(a2learnCatalog.id);
-  if (items.length === 0) {
-    showState(preview, "未发现可用组件示例，请检查 A2UI 示例文件路径。", "error");
-    return;
-  }
+    document.getElementById("lang-zh-btn")?.addEventListener("click", () => {
+      lang = "zh";
+      render();
+    });
+    document.getElementById("lang-en-btn")?.addEventListener("click", () => {
+      lang = "en";
+      render();
+    });
 
-  renderGalleryItems(items, nav, preview);
+    const nav = document.getElementById("gallery-nav");
+    const preview = document.getElementById("gallery-preview");
+    if (!nav || !preview) return;
+
+    const items = getComponentGalleryItems(a2learnCatalog.id);
+    if (items.length === 0) {
+      showState(preview, copy.empty, "error");
+      return;
+    }
+    renderGalleryItems(items, nav, preview, lang);
+  };
+
+  render();
 }

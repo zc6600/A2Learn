@@ -93,9 +93,16 @@ class SessionStore:
         api_key: str | None = None,
         target_language: str = "zh",
         generation_profile: dict[str, Any] | None = None,
+        session_id: str | None = None,
     ) -> SessionState:
+        if session_id:
+            with self._lock:
+                existing = self._sessions.get(session_id)
+                if existing is not None:
+                    self._sessions.move_to_end(session_id)
+                    return existing
         session = SessionState(
-            session_id=f"sess_{uuid.uuid4().hex[:12]}",
+            session_id=session_id or f"sess_{uuid.uuid4().hex[:12]}",
             resource_path=resource_path or "text-input",
             messages=[],
             surface_ids=[],
@@ -195,6 +202,7 @@ class SessionStoreRepository(Protocol):
         api_key: str | None = None,
         target_language: str = "zh",
         generation_profile: dict[str, Any] | None = None,
+        session_id: str | None = None,
     ) -> SessionState: ...
 
     def get(self, session_id: str) -> SessionState | None: ...
@@ -284,9 +292,14 @@ class SqliteSessionStore:
         api_key: str | None = None,
         target_language: str = "zh",
         generation_profile: dict[str, Any] | None = None,
+        session_id: str | None = None,
     ) -> SessionState:
+        if session_id:
+            existing = self.get(session_id)
+            if existing is not None:
+                return existing
         session = SessionState(
-            session_id=f"sess_{uuid.uuid4().hex[:12]}",
+            session_id=session_id or f"sess_{uuid.uuid4().hex[:12]}",
             resource_path=resource_path or "text-input",
             messages=[],
             surface_ids=[],

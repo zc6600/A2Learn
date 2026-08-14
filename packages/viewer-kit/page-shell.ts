@@ -30,24 +30,25 @@ export function renderAppFrame(
   title: string,
   subtitle: string,
   contentHtml: string,
-  options?: { lang?: AppLang; chrome?: AppChromeStrings },
+  options?: { lang?: AppLang; chrome?: AppChromeStrings; languageSwitcher?: boolean },
 ): void {
   const lang = options?.lang ?? "zh";
   const chrome = options?.chrome;
+  const showLanguageSwitcher = Boolean(chrome || options?.languageSwitcher);
 
-  const headerActionsHtml = chrome
+  const headerActionsHtml = showLanguageSwitcher
     ? `
         <div class="app-actions">
           <div id="app-lang-switcher" class="lang-switch-group">
             <button id="lang-zh-btn" class="lang-btn${lang === "zh" ? " active" : ""}">中文</button>
             <button id="lang-en-btn" class="lang-btn${lang === "en" ? " active" : ""}">English</button>
           </div>
-          <span id="app-key-pill" class="app-key-pill missing">
+          ${chrome ? `<span id="app-key-pill" class="app-key-pill missing">
             ${chrome.keyPillMissingLabel}
           </span>
           <button id="app-settings-btn" class="app-btn-icon" title="${chrome.settingsBtnTitle}">
             ${chrome.settingsBtnLabel}
-          </button>
+          </button>` : ""}
         </div>
       `
     : "";
@@ -119,7 +120,7 @@ export function renderAppFrame(
         <header class="app-header">
           <div class="app-header-top">
             <div class="app-brand">
-              <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" title="切换侧边栏" aria-label="切换侧边栏">☰</button>
+              <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" title="${lang === "zh" ? "切换侧边栏" : "Toggle sidebar"}" aria-label="${lang === "zh" ? "切换侧边栏" : "Toggle sidebar"}">☰</button>
               <h1 class="app-title">${title.replace(/A2Learn/g, '<span class="brand-teal">A2</span>Learn')}</h1>
               <p class="app-subtitle">${subtitle}</p>
             </div>

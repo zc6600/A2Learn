@@ -10,6 +10,7 @@ import type {
   ViewerSourceOnline,
 } from "./viewer-types";
 import type { GenerationProfile } from "./generation-profile";
+import { T } from "./viewer-copy";
 
 const POLL_INTERVAL_MS = 2500;
 const MAX_WAIT_MS = 15 * 60 * 1000;
@@ -25,6 +26,7 @@ export async function startOnlineSession(
   source: ViewerSourceOnline,
   generationProfile: GenerationProfile,
   onSessionStarted?: (sessionId: string) => void,
+  preferredSessionId?: string,
 ): Promise<OnlineSession> {
   const headers = buildHeaders(source.headers);
   const startPayload = {
@@ -34,6 +36,7 @@ export async function startOnlineSession(
     resourceQuery: source.resourceQuery || undefined,
     language: source.language || getLang(),
     generationProfile,
+    sessionId: preferredSessionId,
   };
   const startResponse = await fetch(`${source.apiBaseUrl}/api/session/start`, {
     method: "POST",
@@ -41,13 +44,13 @@ export async function startOnlineSession(
     body: JSON.stringify(startPayload),
   });
   if (!startResponse.ok) {
-    throw new Error(`Online session initialization failed (${startResponse.status})`);
+    throw new Error(`${T[getLang()].onlineSessionInitializationFailed} (${startResponse.status})`);
   }
 
   const startData = (await startResponse.json()) as SessionStartResponse;
   const sessionId = startData.session_id;
   if (!sessionId) {
-    throw new Error("Online session response format error.");
+    throw new Error(T[getLang()].onlineSessionResponseFormatError);
   }
   // Let the UI retain the server-side job id before waiting for completion.
   // A shell re-render (for example, switching languages) can then reconnect
@@ -56,7 +59,7 @@ export async function startOnlineSession(
 
   let messages: A2uiMessage[];
   if (startData.status === "error") {
-    throw new Error("Generation failed on the server.");
+    throw new Error(T[getLang()].generationFailedOnServer);
   } else if (startData.status === "ready" && Array.isArray(startData.messages) && startData.messages.length > 0) {
     messages = startData.messages;
   } else {
@@ -98,7 +101,7 @@ export async function sendOnlineSessionAction(
     body: JSON.stringify({ action }),
   });
   if (!response.ok) {
-    throw new Error(`Interaction callback failed (${response.status})`);
+    throw new Error(`${T[getLang()].interactionCallbackFailed} (${response.status})`);
   }
   const data = (await response.json()) as SessionActionResponse;
   return Array.isArray(data.messages) && data.messages.length > 0
@@ -120,17 +123,17 @@ async function pollSessionUntilReady(
     checkImmediately = false;
     const response = await fetch(`${apiBaseUrl}/api/session/${sessionId}/status`, { headers });
     if (!response.ok) {
-      throw new Error(`Session status check failed (${response.status})`);
+      throw new Error(`${T[getLang()].sessionStatusCheckFailed} (${response.status})`);
     }
     const data = (await response.json()) as SessionStatusResponse;
     if (data.status === "ready") {
       return data.messages;
     }
     if (data.status === "error") {
-      throw new Error(data.error || "Generation failed on the server.");
+      throw new Error(data.error || T[getLang()].generationFailedOnServer);
     }
   }
-  throw new Error("Timed out waiting for generation to complete.");
+  throw new Error(T[getLang()].generationTimedOut);
 }
 
 /** Resolve only API-relative generated-image paths; leave ordinary text and

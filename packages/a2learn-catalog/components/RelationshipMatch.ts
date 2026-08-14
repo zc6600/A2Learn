@@ -110,7 +110,7 @@ export class A2learnRelationshipMatchElement extends A2uiLitElement<typeof Relat
             if (answered && isFilled) {
               const isCorrect = correct[item.id] === selectedRightId;
               cardStatusClass = isCorrect ? "correct-card" : "incorrect-card";
-              badgeText = isCorrect ? "✓ 正确" : "✗ 不匹配";
+              badgeText = isCorrect ? uiText("✓ 正确", "✓ Correct") : uiText("✗ 不匹配", "✗ Incorrect");
             }
 
             return html`

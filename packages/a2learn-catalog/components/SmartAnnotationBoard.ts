@@ -142,7 +142,7 @@ export class A2learnSmartAnnotationBoardElement extends A2uiLitElement<typeof Sm
 
         ${!isReviewed ? html`
           <div class="footer-actions">
-            <span class="word-count">${wordCount} words</span>
+            <span class="word-count">${wordCount} ${uiText("字", "words")}</span>
             <button 
               class="btn-submit" 
               @click=${this.handleSubmit}

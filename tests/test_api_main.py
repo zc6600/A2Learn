@@ -81,6 +81,22 @@ class ApiMainTests(unittest.TestCase):
         self.assertEqual(body["session_id"], "sess_test")
         self.assertGreaterEqual(len(body["messages"]), 2)
 
+    def test_start_session_forwards_client_id_for_refresh_recovery(self) -> None:
+        session = SessionState(
+            session_id="sess_refresh123",
+            resource_path="text-input",
+            messages=[],
+            surface_ids=[],
+        )
+        with patch("apps.api.main.store.create", return_value=session) as create:
+            response = self.client.post(
+                "/api/session/start",
+                json={"sessionId": "sess_refresh123", "resource_text": "refresh safe"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(create.call_args.kwargs["session_id"], "sess_refresh123")
+
     def test_upload_source_then_start_session_from_source_id(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

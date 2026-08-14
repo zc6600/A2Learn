@@ -224,13 +224,17 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
 
   const readerHeader = document.createElement("div");
   readerHeader.className = "a2learn-reader-header";
-  readerHeader.innerHTML = `<span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>PDF 原文预览</span>`;
+  const readerHeaderLabel = document.createElement("span");
+  readerHeaderLabel.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`;
+  const readerHeaderText = document.createElement("span");
+  readerHeaderLabel.appendChild(readerHeaderText);
+  readerHeader.appendChild(readerHeaderLabel);
 
   const readerWrapper = document.createElement("div");
   readerWrapper.className = "a2learn-reader-wrapper";
   const manualReader = document.createElement("iframe");
   manualReader.className = "a2learn-library-pdf-reader";
-  manualReader.title = "PDF Reader";
+  manualReader.title = "PDF reader";
   readerWrapper.append(manualReader);
   readerPane.append(readerHeader, readerWrapper);
 
@@ -353,7 +357,9 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     refresh.setAttribute("aria-label", copy.refresh);
     uploadTitle.textContent = copy.dropzoneTitle;
     uploadDesc.textContent = copy.dropzoneSubtitle;
-    sourcesHeaderTitle.textContent = options.getLanguage() === "zh" ? "资料列表" : "Sources";
+    sourcesHeaderTitle.textContent = copy.sources;
+    readerHeaderText.textContent = copy.pdfPreview;
+    manualReader.title = copy.pdfReaderTitle;
     goalLabel.textContent = copy.goalLabel;
     goal.placeholder = copy.goal;
     generate.textContent = copy.generate;
@@ -383,7 +389,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
     splitterPanel.classList.add("open");
 
     manualHeading.textContent = copy.pdfSplitTitle;
-    manualSource.textContent = `${pdfSource.title} (${pdfSource.pageCount || "?"} ${options.getLanguage() === "zh" ? "页" : "p."})`;
+    manualSource.textContent = `${pdfSource.title} (${pdfSource.pageCount || "?"} ${options.getLanguage() === "zh" ? "页" : "pages"})`;
 
     const sourceUrl = `${apiBaseUrl()}/api/knowledge/sources/${encodeURIComponent(pdfSource.sourceId)}/original`;
     if (manualReader.src !== sourceUrl) manualReader.src = sourceUrl;
@@ -434,7 +440,9 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
           titleSpan.textContent = lesson.title;
           const rangeSpan = document.createElement("span");
           rangeSpan.className = "a2learn-lesson-range-badge";
-          rangeSpan.textContent = `p.${lesson.pageStart}–${lesson.pageEnd}`;
+          rangeSpan.textContent = options.getLanguage() === "zh"
+            ? `第 ${lesson.pageStart}–${lesson.pageEnd} 页`
+            : `pp. ${lesson.pageStart}–${lesson.pageEnd}`;
           lessonContent.append(titleSpan, rangeSpan);
 
           const remove = document.createElement("button");
@@ -518,7 +526,7 @@ export function mountSourceLibrary(options: SourceLibraryOptions): SourceLibrary
       metaRow.className = "a2learn-source-meta-row";
       const facts = [formatBytes(source.sizeBytes)];
       if (source.pageCount) facts.push(`${source.pageCount} ${options.getLanguage() === "zh" ? "页" : "pages"}`);
-      if (source.chunkCount) facts.push(`${source.chunkCount} chunks`);
+      if (source.chunkCount) facts.push(`${source.chunkCount} ${copy.chunksUnit}`);
       const factsText = document.createElement("span");
       factsText.textContent = facts.join(" · ");
       metaRow.append(factsText);
