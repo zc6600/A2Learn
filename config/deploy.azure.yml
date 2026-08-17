@@ -15,6 +15,9 @@ builder:
   # Docker buildx opens its own SSH connection; use the configured alias so
   # it picks up the Azure private key rather than falling back to defaults.
   remote: ssh://azureserver
+  # The Aliyun personal registry rejects BuildKit OCI attestations.
+  provenance: false
+  sbom: false
 
 env:
   clear:
