@@ -57,6 +57,11 @@ def validate_a2ui_messages(
                     raise ValueError("Each component must contain a non-empty string 'id'.")
                 if not isinstance(component_type, str) or not component_type.strip():
                     raise ValueError("Each component must contain a non-empty string 'component'.")
+                if "props" in c:
+                    raise ValueError(
+                        "A2UI component properties must be top-level fields; "
+                        "the 'props' wrapper is not supported."
+                    )
                 if component_type == "GenerativeLab":
                     validate_generative_lab_component(c)
                 if (

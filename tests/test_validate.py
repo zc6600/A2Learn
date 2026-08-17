@@ -122,6 +122,30 @@ class ValidateMessagesTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "non-empty string 'component'"):
             validate_a2ui_messages(messages, permitted_custom_components=("ConceptCard",))
 
+    def test_rejects_unexpanded_component_props_wrapper(self) -> None:
+        messages = [
+            {
+                "version": "v0.9",
+                "createSurface": {
+                    "surfaceId": "main",
+                    "catalogId": "https://a2learn.ai/spec/v1/catalog.json",
+                },
+            },
+            {
+                "version": "v0.9",
+                "updateComponents": {
+                    "surfaceId": "main",
+                    "components": [
+                        {"id": "root", "component": "Column", "children": ["card"]},
+                        {"id": "card", "component": "ConceptCard", "props": {"title": "Wrapped"}},
+                    ],
+                },
+            },
+        ]
+
+        with self.assertRaisesRegex(ValueError, "'props' wrapper"):
+            validate_a2ui_messages(messages)
+
     def test_accepts_a_bounded_local_generative_lab(self) -> None:
         messages = [
             {"version": "v0.9", "createSurface": {"surfaceId": "main", "catalogId": "https://a2learn.ai/spec/v1/catalog.json"}},

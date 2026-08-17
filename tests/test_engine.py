@@ -55,6 +55,37 @@ class ValidateOrRepairTests(unittest.TestCase):
         self.assertEqual(by_id["generated-conceptcard-2"]["component"], "ConceptCard")
         validate_a2ui_messages(result)
 
+    def test_unwraps_model_props_wrapper_before_validation_and_rendering(self) -> None:
+        wrapped = [
+            VALID_MESSAGES[0],
+            {
+                "version": "v0.9",
+                "updateComponents": {
+                    "surfaceId": "main",
+                    "components": [
+                        {"id": "root", "component": "Column", "children": ["path"]},
+                        {
+                            "id": "path",
+                            "component": "LearningPath",
+                            "props": {
+                                "title": "A real learning path",
+                                "activeStepId": "start",
+                                "steps": [{"id": "start", "title": "Start here"}],
+                            },
+                        },
+                    ],
+                },
+            },
+        ]
+
+        result = _normalize_a2ui_messages(wrapped)
+        path = result[1]["updateComponents"]["components"][1]
+
+        self.assertNotIn("props", path)
+        self.assertEqual(path["title"], "A real learning path")
+        self.assertEqual(path["steps"][0]["title"], "Start here")
+        validate_a2ui_messages(result)
+
     def test_returns_messages_unchanged_when_already_valid(self) -> None:
         with patch("agent.generation.engine.repair_a2ui_messages") as repair:
             result = _validate_or_repair(object(), VALID_MESSAGES, max_repair_attempts=2)

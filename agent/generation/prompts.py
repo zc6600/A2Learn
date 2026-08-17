@@ -186,6 +186,11 @@ def a2ui_system_prompt(
         - Every message MUST include: "version": "v0.9".
         - Must include createSurface and updateComponents.
         - createSurface.catalogId MUST be "{DEFAULT_CATALOG_ID}".
+        - COMPONENT PROPERTY SHAPE: Put every component property directly on
+          the component object. Never wrap properties in a "props" object.
+          For example, use {{"id":"card","component":"ConceptCard",
+          "title":"...","definition":"..."}}, never
+          {{"id":"card","component":"ConceptCard","props":{{...}}}}.
         {component_constraint}
         {visual_instruction}
         {image_budget_instruction}

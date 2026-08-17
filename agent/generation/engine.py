@@ -182,12 +182,27 @@ def _normalize_a2ui_messages(messages: list[dict[str, Any]]) -> list[dict[str, A
                 return None
 
             component_id = unique_id(raw.get("id"), component_type)
-            component = {key: deepcopy(value) for key, value in raw.items() if key not in {"id", "component", "type", "children", "components"}}
+            # A2UI component properties are flat.  Some models instead use the
+            # conventional UI-JSON shape ``{component, props: {...}}``; retain
+            # any explicit top-level value but unwrap that recoverable wrapper
+            # before the message reaches the renderer.
+            wrapped_props = raw.get("props")
+            props = deepcopy(wrapped_props) if isinstance(wrapped_props, dict) else {}
+            component = {
+                key: deepcopy(value)
+                for key, value in raw.items()
+                if key not in {"id", "component", "type", "children", "components", "props"}
+            }
+            for key, value in props.items():
+                component.setdefault(key, value)
             component["id"] = component_id
             component["component"] = component_type
 
             child_ids: list[str] = []
             raw_children = raw.get("children")
+            if not isinstance(raw_children, list):
+                wrapped_children = props.get("children")
+                raw_children = wrapped_children if isinstance(wrapped_children, list) else raw_children
             if isinstance(raw_children, list):
                 for child in raw_children:
                     if isinstance(child, str):
