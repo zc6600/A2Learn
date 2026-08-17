@@ -282,7 +282,14 @@ def generate_fast_a2ui_messages(
         'Create EXACTLY ONE surface with surfaceId "fast-lesson" and its matching '
         "updateComponents message. Include one root Column and 3 to 6 substantive "
         "learning components. Build a concise, self-contained lesson from the source; "
-        "do not produce a multi-page course plan or placeholders.",
+        "do not produce a multi-page course plan or placeholders. Before returning, "
+        "silently verify that every requested teaching requirement appears in a "
+        "completed component, every root child id resolves, and every selected custom "
+        "component follows its supplied contract. Also verify that every worked "
+        "example and assessment is consistent with all rules taught, and that each "
+        "scored question has exactly one unambiguous correct answer: explicitly check "
+        "every option and revise the choices if another option also satisfies the "
+        "taught rules. Do not describe this verification.",
         enabled_components,
         (),
         visual_intent,

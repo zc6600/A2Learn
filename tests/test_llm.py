@@ -200,6 +200,11 @@ class GenerateA2uiMessagesPerSurfaceTests(unittest.TestCase):
         system_prompt = captured["messages"][0]["content"]
         self.assertIn("FAST MODE", system_prompt)
         self.assertIn("AUTOMATIC IMAGE BUDGET: Do not request", system_prompt)
+        self.assertIn("every requested teaching requirement appears", system_prompt)
+        self.assertIn("every root child id resolves", system_prompt)
+        self.assertIn("assessment is consistent with all rules taught", system_prompt)
+        self.assertIn("exactly one unambiguous correct answer", system_prompt)
+        self.assertIn("revise the choices if another option also satisfies", system_prompt)
 
     def test_calls_llm_once_per_surface_and_concatenates(self) -> None:
         site_plan = {
