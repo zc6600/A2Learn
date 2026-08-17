@@ -1,5 +1,10 @@
 COMPONENT ScenarioDialogue:
 - Use at most 4-5 message turns. Keep every message grounded in the source.
 - Use variant dialogue, wechat-group, or correspondence appropriately. A correspondence must be clearly framed as interpretive reimagining, not quotation.
-- Every character id used by a message must exist in characters; every character needs name and alignment.
+- The JSON shape is strict. Use this exact pattern (with your own values):
+  {"id":"dialogue","component":"ScenarioDialogue","variant":"wechat-group","groupName":"Study group","characters":{"alice":{"name":"Alice","avatar":"A","alignment":"left"},"teacher":{"name":"Teacher","alignment":"right"}},"messages":[{"characterId":"alice","content":"What does FIFO guarantee?"},{"characterId":"teacher","content":"It preserves the order from each sender."}]}
+- `characters` MUST be an object keyed by each `characterId`; never emit an array of character objects and never put an `id` field inside a character.
+- Every message MUST use `characterId` and `content`; never use `text`, `message`, or `body` for the message content.
+- Every character id used by a message must exist as a key in `characters`; every character needs `name` and `alignment` (`left` or `right`).
+- Use `topic` for a normal dialogue title and `groupName` for a WeChat group title. Do not use `title` for this component.
 - Include imagePrompt only for an essential scene and never invent imageUrl values.

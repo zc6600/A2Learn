@@ -170,6 +170,8 @@ class GenerationProfileTests(unittest.TestCase):
         prompt = _a2ui_system_prompt("zh", "Return one page.", profile.enabled_components)
         self.assertIn("wechat-group", prompt)
         self.assertIn("correspondence", prompt)
+        self.assertIn('"characters":{"alice"', prompt)
+        self.assertIn("never use `text`", prompt)
         self.assertIn("SocialMoments", prompt)
 
     def test_prompt_keeps_matching_component_generic(self) -> None:
