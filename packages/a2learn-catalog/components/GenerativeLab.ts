@@ -117,6 +117,7 @@ export class A2learnGenerativeLabElement extends A2uiLitElement<typeof Generativ
 <meta http-equiv="Content-Security-Policy" content="default-src * data: blob:; script-src 'unsafe-inline' https: http: data: blob:; style-src 'unsafe-inline' https: http:; img-src * data: blob:; connect-src *; media-src * data: blob:; font-src * data: blob:; worker-src blob: https: http:; frame-src *; object-src *; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <style>html,body,#app{margin:0;min-height:100%;box-sizing:border-box}*,*:before,*:after{box-sizing:inherit}</style>
+<style id="a2learn-lab-style"></style>
 </head><body><main id="app"></main>
 <script>
 (() => {
@@ -129,9 +130,7 @@ export class A2learnGenerativeLabElement extends A2uiLitElement<typeof Generativ
     setHeight: (height) => send("resize", { height }),
   });
   document.getElementById("app").innerHTML = ${serializedHtml};
-  const style = document.createElement("style");
-  style.textContent = ${serializedCss};
-  document.head.append(style);
+  document.getElementById("a2learn-lab-style").append(document.createTextNode(${serializedCss}));
   send("ready");
 })();
 </script>
