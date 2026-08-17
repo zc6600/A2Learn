@@ -24,16 +24,16 @@ except Exception:  # pragma: no cover
 load_dotenv()
 
 
-def build_llm(api_key: str | None = None) -> Any:
+def build_llm(api_key: str | None = None, model: str | None = None) -> Any:
     key = api_key or os.getenv("OPENROUTER_API_KEY") or os.getenv("OPEN_ROUTER_API_KEY")
     if not key or ChatOpenAI is None:
         raise RuntimeError(
             "API Key is required. Please set your OpenRouter API Key in Settings or env."
         )
-    model = os.getenv("OPENROUTER_MODEL", DEFAULT_MODEL)
+    selected_model = model or os.getenv("OPENROUTER_MODEL", DEFAULT_MODEL)
     max_tokens = int(os.getenv("OPENROUTER_MAX_TOKENS", "200000"))
     return ChatOpenAI(
-        model=model,
+        model=selected_model,
         api_key=key,
         base_url="https://openrouter.ai/api/v1",
         temperature=0.2,
@@ -282,14 +282,7 @@ def generate_fast_a2ui_messages(
         'Create EXACTLY ONE surface with surfaceId "fast-lesson" and its matching '
         "updateComponents message. Include one root Column and 3 to 6 substantive "
         "learning components. Build a concise, self-contained lesson from the source; "
-        "do not produce a multi-page course plan or placeholders. Before returning, "
-        "silently verify that every requested teaching requirement appears in a "
-        "completed component, every root child id resolves, and every selected custom "
-        "component follows its supplied contract. Also verify that every worked "
-        "example and assessment is consistent with all rules taught, and that each "
-        "scored question has exactly one unambiguous correct answer: explicitly check "
-        "every option and revise the choices if another option also satisfies the "
-        "taught rules. Do not describe this verification.",
+        "do not produce a multi-page course plan or placeholders.",
         enabled_components,
         (),
         visual_intent,

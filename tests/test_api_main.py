@@ -97,6 +97,24 @@ class ApiMainTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(create.call_args.kwargs["session_id"], "sess_refresh123")
 
+    def test_start_session_forwards_allowed_model_and_returns_it(self) -> None:
+        session = SessionState(
+            session_id="sess_modelcheck",
+            resource_path="text-input",
+            messages=[],
+            surface_ids=[],
+            model="deepseek/deepseek-v4-flash",
+        )
+        with patch("apps.api.main.store.create", return_value=session) as create:
+            response = self.client.post(
+                "/api/session/start",
+                json={"resource_text": "model check", "model": "deepseek/deepseek-v4-flash"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(create.call_args.kwargs["model"], "deepseek/deepseek-v4-flash")
+        self.assertEqual(response.json()["model"], "deepseek/deepseek-v4-flash")
+
     def test_start_session_forwards_fast_generation_mode(self) -> None:
         session = SessionState(
             session_id="sess_fastmode",
@@ -114,6 +132,14 @@ class ApiMainTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(create.call_args.kwargs["generation_mode"], "fast")
         self.assertEqual(response.json()["generationMode"], "fast")
+
+    def test_start_session_rejects_unapproved_model(self) -> None:
+        response = self.client.post(
+            "/api/session/start",
+            json={"resource_text": "model check", "model": "example/unapproved-model"},
+        )
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("MODEL_NOT_ALLOWED", response.text)
 
     def test_upload_source_then_start_session_from_source_id(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -218,6 +244,7 @@ class ApiMainTests(unittest.TestCase):
         self.assertEqual(body["status"], "pending")
         self.assertEqual(body["messages"], [])
         self.assertIsNone(body["error"])
+        self.assertIsNone(body["model"])
 
     def test_session_status_ready_includes_messages(self) -> None:
         session = SessionState(

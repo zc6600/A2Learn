@@ -35,6 +35,7 @@ class AgentState(TypedDict, total=False):
     resource_path: str
     resource_text: str
     api_key: str
+    model: str
     curriculum: dict[str, Any]
     curriculum_path: str
     site_plan: dict[str, Any]
@@ -70,7 +71,7 @@ def _node_load_resource(state: AgentState) -> AgentState:
 
 def _node_plan_curriculum(state: AgentState) -> AgentState:
     _log("🧠 Step 1/3: Planning curriculum (calling LLM, please wait...)")
-    llm = build_llm(api_key=state.get("api_key"))
+    llm = build_llm(api_key=state.get("api_key"), model=state.get("model"))
     curriculum = plan_curriculum(llm, state["resource_text"], state.get("target_language", "zh"))
     _log(f"✅ Curriculum planned: {len(curriculum.get('modules', []))} modules.")
     output_dir = state.get("output_dir")
@@ -82,7 +83,7 @@ def _node_plan_curriculum(state: AgentState) -> AgentState:
 
 def _node_build_site(state: AgentState) -> AgentState:
     _log("🏗️  Step 2/3: Building site plan (calling LLM, please wait...)")
-    llm = build_llm(api_key=state.get("api_key"))
+    llm = build_llm(api_key=state.get("api_key"), model=state.get("model"))
     profile = normalize_generation_profile(state.get("generation_profile"))
     site_plan = build_site_plan(
         llm,
@@ -235,7 +236,7 @@ def _normalize_a2ui_messages(messages: list[dict[str, Any]]) -> list[dict[str, A
 
 def _node_generate_messages(state: AgentState) -> AgentState:
     _log("✨ Step 3/3: Generating A2UI messages (calling LLM, please wait...)")
-    llm = build_llm(api_key=state.get("api_key"))
+    llm = build_llm(api_key=state.get("api_key"), model=state.get("model"))
     profile = normalize_generation_profile(state.get("generation_profile"))
     resource_text = state["resource_text"]
     site_plan = state.get("site_plan")
@@ -315,6 +316,7 @@ def run_parser_mode(
     api_key: str = None,
     target_language: str = "zh",
     generation_profile: dict[str, Any] | None = None,
+    model: str | None = None,
 ) -> AgentState:
     from pathlib import Path
 
@@ -373,7 +375,7 @@ def run_parser_mode(
         )
 
     _log("✨ Generating structured JSON (calling LLM, please wait...)")
-    llm = build_llm(api_key=api_key)
+    llm = build_llm(api_key=api_key, model=model)
     structured_data = generate_structured_json(llm, text, prompt_template, target_language)
 
     write_json(output_dir, "course_content.json", structured_data)
@@ -402,6 +404,7 @@ def run_agent(
     api_key: str = None,
     target_language: str = "zh",
     generation_profile: dict[str, Any] | None = None,
+    model: str | None = None,
     generation_mode: str = "standard",
 ) -> AgentState:
     if mode == "parser":
@@ -411,6 +414,7 @@ def run_agent(
             api_key=api_key,
             target_language=target_language,
             generation_profile=generation_profile,
+            model=model,
         )
 
     if generation_mode not in {"standard", "fast"}:
@@ -422,6 +426,7 @@ def run_agent(
             api_key=api_key,
             target_language=target_language,
             generation_profile=generation_profile,
+            model=model,
         )
 
     app = build_agent_graph()
@@ -432,6 +437,8 @@ def run_agent(
         initial_state["resource_text"] = resource_text
     if api_key:
         initial_state["api_key"] = api_key
+    if model:
+        initial_state["model"] = model
     initial_state["target_language"] = target_language
     if generation_profile is not None:
         normalize_generation_profile(generation_profile)
@@ -449,6 +456,7 @@ def run_fast_mode(
     api_key: str | None = None,
     target_language: str = "zh",
     generation_profile: dict[str, Any] | None = None,
+    model: str | None = None,
 ) -> AgentState:
     """Run the single-request generation path without LangGraph planning."""
     if resource_text:
@@ -460,7 +468,7 @@ def run_fast_mode(
 
     _log("Fast mode: generating one concise lesson (one LLM request)...")
     profile = normalize_generation_profile(generation_profile)
-    llm = build_llm(api_key=api_key)
+    llm = build_llm(api_key=api_key, model=model)
     messages = generate_fast_a2ui_messages(
         llm,
         text,

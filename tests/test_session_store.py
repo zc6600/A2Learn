@@ -110,6 +110,24 @@ class SessionStoreAsyncGenerationTests(unittest.TestCase):
 
         self.assertEqual(call_count, 1)
 
+    def test_model_is_forwarded_to_generation_and_persisted(self) -> None:
+        messages = [
+            {"version": "v0.9", "createSurface": {"surfaceId": "main", "catalogId": DEFAULT_CATALOG_ID}},
+            {"version": "v0.9", "updateComponents": {"surfaceId": "main", "components": []}},
+        ]
+
+        def fake_run_agent(**kwargs):
+            self.assertEqual(kwargs["model"], "deepseek/deepseek-v4-flash")
+            return {"a2ui_messages": messages}
+
+        store = SessionStore()
+        with patch("apps.api.session_store.run_agent", side_effect=fake_run_agent):
+            session = store.create(resource_text="model check", model="deepseek/deepseek-v4-flash")
+            _wait_until_not_pending(store, session.session_id)
+
+        fetched = store.get(session.session_id)
+        self.assertEqual(fetched.model, "deepseek/deepseek-v4-flash")
+
     def test_fast_generation_mode_is_forwarded_and_persisted(self) -> None:
         messages = [
             {"version": "v0.9", "createSurface": {"surfaceId": "main", "catalogId": DEFAULT_CATALOG_ID}},
@@ -153,7 +171,7 @@ class SessionStoreAsyncGenerationTests(unittest.TestCase):
         self.assertIsInstance(store1, SqliteSessionStore)
 
         with patch("apps.api.session_store.run_agent", side_effect=fake_run_agent):
-            session = store1.create(resource_text="hello world")
+            session = store1.create(resource_text="hello world", model="deepseek/deepseek-v4-flash")
             _wait_until_not_pending(store1, session.session_id)
 
         fetched = store1.get(session.session_id)
@@ -161,6 +179,7 @@ class SessionStoreAsyncGenerationTests(unittest.TestCase):
         self.assertEqual(fetched.status, "ready")
         self.assertEqual(fetched.messages, messages)
         self.assertEqual(fetched.surface_ids, ["main"])
+        self.assertEqual(fetched.model, "deepseek/deepseek-v4-flash")
 
 
 if __name__ == "__main__":

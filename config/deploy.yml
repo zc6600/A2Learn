@@ -46,6 +46,10 @@ env:
     # The generation pipeline needs reliable JSON schema adherence across
     # curriculum planning, site planning, and A2UI component generation.
     OPENROUTER_MODEL: deepseek/deepseek-v4-flash
+    # Explicitly opt in to the models that the production benchmark script
+    # may request. This protects the public endpoint from arbitrary model
+    # selection while keeping apples-to-apples comparisons possible.
+    A2LEARN_ALLOWED_GENERATION_MODELS: deepseek/deepseek-v4-flash,google/gemini-2.5-flash,qwen/qwen3-235b-a22b-2507
 
 aliases:
   logs: app logs -f

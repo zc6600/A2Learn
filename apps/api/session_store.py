@@ -1,21 +1,22 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 import threading
 import uuid
 from collections import OrderedDict
 from copy import deepcopy
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 from agent.core.validate import validate_a2ui_messages
 from agent.generation.engine import run_agent
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def extract_surface_ids(messages: list[dict[str, Any]]) -> list[str]:
@@ -57,6 +58,7 @@ class SessionState:
     error: str | None = None
     target_language: str = "zh"
     generation_profile: dict[str, Any] | None = None
+    model: str | None = None
     generation_mode: str = "standard"
 
     def apply_messages(self, messages: list[dict[str, Any]]) -> None:
@@ -95,6 +97,7 @@ class SessionStore:
         target_language: str = "zh",
         generation_profile: dict[str, Any] | None = None,
         session_id: str | None = None,
+        model: str | None = None,
         generation_mode: str = "standard",
     ) -> SessionState:
         if session_id:
@@ -110,6 +113,7 @@ class SessionStore:
             surface_ids=[],
             target_language=target_language,
             generation_profile=deepcopy(generation_profile),
+            model=model,
             generation_mode=generation_mode,
         )
         with self._lock:
@@ -142,6 +146,7 @@ class SessionStore:
                 api_key=api_key,
                 target_language=session.target_language,
                 generation_profile=session.generation_profile,
+                model=session.model,
                 generation_mode=session.generation_mode,
             )
             messages = self._extract_messages(state)
@@ -194,10 +199,6 @@ def extract_session_messages(state: dict[str, Any]) -> list[dict[str, Any]]:
             return loaded
     raise ValueError("Unable to extract initial A2UI messages from agent output.")
 
-import sqlite3
-from typing import Any, Protocol
-
-
 class SessionStoreRepository(Protocol):
     def create(
         self,
@@ -207,6 +208,7 @@ class SessionStoreRepository(Protocol):
         target_language: str = "zh",
         generation_profile: dict[str, Any] | None = None,
         session_id: str | None = None,
+        model: str | None = None,
         generation_mode: str = "standard",
     ) -> SessionState: ...
 
@@ -254,6 +256,7 @@ class SqliteSessionStore:
                     error TEXT,
                     target_language TEXT NOT NULL,
                     generation_profile_json TEXT,
+                    model TEXT,
                     generation_mode TEXT NOT NULL DEFAULT 'standard',
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL
@@ -265,6 +268,8 @@ class SqliteSessionStore:
                 row["name"]
                 for row in self._connection.execute("PRAGMA table_info(sessions)").fetchall()
             }
+            if "model" not in columns:
+                self._connection.execute("ALTER TABLE sessions ADD COLUMN model TEXT")
             if "generation_mode" not in columns:
                 self._connection.execute("ALTER TABLE sessions ADD COLUMN generation_mode TEXT NOT NULL DEFAULT 'standard'")
             self._connection.commit()
@@ -276,9 +281,9 @@ class SqliteSessionStore:
                 INSERT OR REPLACE INTO sessions (
                     session_id, resource_path, messages_json, surface_ids_json,
                     components_json, component_surfaces_json, action_count,
-                    status, error, target_language, generation_profile_json, generation_mode,
+                    status, error, target_language, generation_profile_json, model, generation_mode,
                     created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     session.session_id,
@@ -292,6 +297,7 @@ class SqliteSessionStore:
                     session.error,
                     session.target_language,
                     json.dumps(session.generation_profile, ensure_ascii=False) if session.generation_profile else None,
+                    session.model,
                     session.generation_mode,
                     session.created_at,
                     session.updated_at,
@@ -307,6 +313,7 @@ class SqliteSessionStore:
         target_language: str = "zh",
         generation_profile: dict[str, Any] | None = None,
         session_id: str | None = None,
+        model: str | None = None,
         generation_mode: str = "standard",
     ) -> SessionState:
         if session_id:
@@ -320,6 +327,7 @@ class SqliteSessionStore:
             surface_ids=[],
             target_language=target_language,
             generation_profile=deepcopy(generation_profile),
+            model=model,
             generation_mode=generation_mode,
         )
         self._active_session_ids.add(session.session_id)
@@ -350,6 +358,7 @@ class SqliteSessionStore:
                 api_key=api_key,
                 target_language=session.target_language,
                 generation_profile=session.generation_profile,
+                model=session.model,
                 generation_mode=session.generation_mode,
             )
             messages = extract_session_messages(state)
@@ -389,6 +398,7 @@ class SqliteSessionStore:
             error=row["error"],
             target_language=row["target_language"],
             generation_profile=json.loads(row["generation_profile_json"]) if row["generation_profile_json"] else None,
+            model=row["model"],
             generation_mode=row["generation_mode"],
             created_at=row["created_at"],
             updated_at=row["updated_at"],

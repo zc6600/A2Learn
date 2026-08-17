@@ -1,5 +1,6 @@
 third_party/
 outputs/
+reports/llm-smoke/
 __pycache__/
 *.pyc
 .env

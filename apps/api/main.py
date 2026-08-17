@@ -16,6 +16,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field, model_validator
 from starlette.concurrency import run_in_threadpool
 
+from agent.core.config import allowed_generation_models, default_generation_model
 from agent.core.validate import validate_a2ui_messages
 from agent.document.page_document import PageDocument
 from agent.document.page_operations import PageOperationError
@@ -86,6 +87,7 @@ class SessionStartRequest(BaseModel):
     generation_profile: dict[str, Any] | None = Field(default=None, alias="generationProfile")
     source_ids: list[str] = Field(default_factory=list, alias="sourceIds", max_length=10)
     resource_query: str | None = Field(default=None, alias="resourceQuery", max_length=1_000)
+    model: str | None = Field(default=None, min_length=3, max_length=160)
     generation_mode: Literal["standard", "fast"] = Field(default="standard", alias="generationMode")
 
 
@@ -99,6 +101,7 @@ class SessionStartResponse(BaseModel):
     # Cloudflare's ~100s edge timeout for a single request.
     status: str = "pending"
     messages: list[dict[str, Any]] = Field(default_factory=list)
+    model: str | None = None
     generation_mode: Literal["standard", "fast"] = Field(default="standard", alias="generationMode")
 
 
@@ -107,7 +110,10 @@ class SessionStatusResponse(BaseModel):
     status: str
     messages: list[dict[str, Any]] = Field(default_factory=list)
     error: str | None = None
+    model: str | None = None
     generation_mode: Literal["standard", "fast"] = Field(default="standard", alias="generationMode")
+    created_at: str | None = Field(default=None, alias="createdAt")
+    updated_at: str | None = Field(default=None, alias="updatedAt")
 
 
 class SessionActionRequest(BaseModel):
@@ -1375,6 +1381,13 @@ def start_session(
         normalize_generation_profile(payload.generation_profile)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    selected_model = payload.model or default_generation_model()
+    if selected_model not in allowed_generation_models():
+        raise HTTPException(
+            status_code=422,
+            detail="MODEL_NOT_ALLOWED: choose one of " + ", ".join(allowed_generation_models()),
+        )
         
     try:
         session = store.create(
@@ -1384,12 +1397,14 @@ def start_session(
             target_language=payload.language,
             generation_profile=payload.generation_profile,
             session_id=payload.session_id,
+            model=selected_model,
             generation_mode=payload.generation_mode,
         )
         return SessionStartResponse(
             session_id=session.session_id,
             status=session.status,
             messages=session.messages,
+            model=session.model,
             generationMode=session.generation_mode,
         )
     except HTTPException:
@@ -1406,7 +1421,10 @@ def session_status(session_id: str) -> SessionStatusResponse:
         status=session.status,
         messages=session.messages if session.status == "ready" else [],
         error=session.error,
+        model=session.model,
         generationMode=session.generation_mode,
+        createdAt=session.created_at,
+        updatedAt=session.updated_at,
     )
 
 
