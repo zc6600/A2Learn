@@ -57,6 +57,7 @@ class SessionState:
     error: str | None = None
     target_language: str = "zh"
     generation_profile: dict[str, Any] | None = None
+    generation_mode: str = "standard"
 
     def apply_messages(self, messages: list[dict[str, Any]]) -> None:
         for msg in messages:
@@ -94,6 +95,7 @@ class SessionStore:
         target_language: str = "zh",
         generation_profile: dict[str, Any] | None = None,
         session_id: str | None = None,
+        generation_mode: str = "standard",
     ) -> SessionState:
         if session_id:
             with self._lock:
@@ -108,6 +110,7 @@ class SessionStore:
             surface_ids=[],
             target_language=target_language,
             generation_profile=deepcopy(generation_profile),
+            generation_mode=generation_mode,
         )
         with self._lock:
             if len(self._sessions) >= self._max_capacity:
@@ -139,6 +142,7 @@ class SessionStore:
                 api_key=api_key,
                 target_language=session.target_language,
                 generation_profile=session.generation_profile,
+                generation_mode=session.generation_mode,
             )
             messages = self._extract_messages(state)
             validate_a2ui_messages(messages)
@@ -203,6 +207,7 @@ class SessionStoreRepository(Protocol):
         target_language: str = "zh",
         generation_profile: dict[str, Any] | None = None,
         session_id: str | None = None,
+        generation_mode: str = "standard",
     ) -> SessionState: ...
 
     def get(self, session_id: str) -> SessionState | None: ...
@@ -249,12 +254,20 @@ class SqliteSessionStore:
                     error TEXT,
                     target_language TEXT NOT NULL,
                     generation_profile_json TEXT,
+                    generation_mode TEXT NOT NULL DEFAULT 'standard',
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL
                 );
                 CREATE INDEX IF NOT EXISTS idx_sessions_updated_at ON sessions(updated_at DESC);
                 """
             )
+            columns = {
+                row["name"]
+                for row in self._connection.execute("PRAGMA table_info(sessions)").fetchall()
+            }
+            if "generation_mode" not in columns:
+                self._connection.execute("ALTER TABLE sessions ADD COLUMN generation_mode TEXT NOT NULL DEFAULT 'standard'")
+            self._connection.commit()
 
     def _save_session(self, session: SessionState) -> None:
         with self._lock:
@@ -263,9 +276,9 @@ class SqliteSessionStore:
                 INSERT OR REPLACE INTO sessions (
                     session_id, resource_path, messages_json, surface_ids_json,
                     components_json, component_surfaces_json, action_count,
-                    status, error, target_language, generation_profile_json,
+                    status, error, target_language, generation_profile_json, generation_mode,
                     created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     session.session_id,
@@ -279,6 +292,7 @@ class SqliteSessionStore:
                     session.error,
                     session.target_language,
                     json.dumps(session.generation_profile, ensure_ascii=False) if session.generation_profile else None,
+                    session.generation_mode,
                     session.created_at,
                     session.updated_at,
                 ),
@@ -293,6 +307,7 @@ class SqliteSessionStore:
         target_language: str = "zh",
         generation_profile: dict[str, Any] | None = None,
         session_id: str | None = None,
+        generation_mode: str = "standard",
     ) -> SessionState:
         if session_id:
             existing = self.get(session_id)
@@ -305,6 +320,7 @@ class SqliteSessionStore:
             surface_ids=[],
             target_language=target_language,
             generation_profile=deepcopy(generation_profile),
+            generation_mode=generation_mode,
         )
         self._active_session_ids.add(session.session_id)
         self._save_session(session)
@@ -334,6 +350,7 @@ class SqliteSessionStore:
                 api_key=api_key,
                 target_language=session.target_language,
                 generation_profile=session.generation_profile,
+                generation_mode=session.generation_mode,
             )
             messages = extract_session_messages(state)
             validate_a2ui_messages(messages)
@@ -372,6 +389,7 @@ class SqliteSessionStore:
             error=row["error"],
             target_language=row["target_language"],
             generation_profile=json.loads(row["generation_profile_json"]) if row["generation_profile_json"] else None,
+            generation_mode=row["generation_mode"],
             created_at=row["created_at"],
             updated_at=row["updated_at"],
         )

@@ -19,6 +19,7 @@ from .llm import (
     build_llm,
     build_site_plan,
     generate_a2ui_messages,
+    generate_fast_a2ui_messages,
     generate_a2ui_messages_per_surface,
     generate_structured_json,
     plan_curriculum,
@@ -401,11 +402,23 @@ def run_agent(
     api_key: str = None,
     target_language: str = "zh",
     generation_profile: dict[str, Any] | None = None,
+    generation_mode: str = "standard",
 ) -> AgentState:
     if mode == "parser":
         return run_parser_mode(
             resource_path,
             resource_text,
+            api_key=api_key,
+            target_language=target_language,
+            generation_profile=generation_profile,
+        )
+
+    if generation_mode not in {"standard", "fast"}:
+        raise ValueError("generation_mode must be 'standard' or 'fast'.")
+    if generation_mode == "fast":
+        return run_fast_mode(
+            resource_path=resource_path,
+            resource_text=resource_text,
             api_key=api_key,
             target_language=target_language,
             generation_profile=generation_profile,
@@ -428,3 +441,41 @@ def run_agent(
         raise ValueError("Either resource_path or resource_text must be provided")
 
     return app.invoke(initial_state)
+
+
+def run_fast_mode(
+    resource_path: str | None = None,
+    resource_text: str | None = None,
+    api_key: str | None = None,
+    target_language: str = "zh",
+    generation_profile: dict[str, Any] | None = None,
+) -> AgentState:
+    """Run the single-request generation path without LangGraph planning."""
+    if resource_text:
+        text = resource_text
+    elif resource_path:
+        text = extract_text_from_path(resource_path)
+    else:
+        raise ValueError("Either resource_path or resource_text must be provided")
+
+    _log("Fast mode: generating one concise lesson (one LLM request)...")
+    profile = normalize_generation_profile(generation_profile)
+    llm = build_llm(api_key=api_key)
+    messages = generate_fast_a2ui_messages(
+        llm,
+        text,
+        target_language,
+        profile.enabled_components,
+        profile.visual_intent,
+    )
+    # Fast mode deliberately does not ask the LLM to repair output. The
+    # deterministic normalizer handles common structural slips; anything else
+    # fails clearly so the caller can retry or choose Standard.
+    messages = _normalize_a2ui_messages(messages)
+    validate_a2ui_messages(messages, permitted_custom_components=profile.enabled_components)
+    _log(f"Fast mode complete: generated {len(messages)} A2UI messages.")
+    return {
+        "resource_path": resource_path or "",
+        "resource_text": text,
+        "a2ui_messages": messages,
+    }

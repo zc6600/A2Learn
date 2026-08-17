@@ -86,6 +86,7 @@ class SessionStartRequest(BaseModel):
     generation_profile: dict[str, Any] | None = Field(default=None, alias="generationProfile")
     source_ids: list[str] = Field(default_factory=list, alias="sourceIds", max_length=10)
     resource_query: str | None = Field(default=None, alias="resourceQuery", max_length=1_000)
+    generation_mode: Literal["standard", "fast"] = Field(default="standard", alias="generationMode")
 
 
 class SessionStartResponse(BaseModel):
@@ -98,6 +99,7 @@ class SessionStartResponse(BaseModel):
     # Cloudflare's ~100s edge timeout for a single request.
     status: str = "pending"
     messages: list[dict[str, Any]] = Field(default_factory=list)
+    generation_mode: Literal["standard", "fast"] = Field(default="standard", alias="generationMode")
 
 
 class SessionStatusResponse(BaseModel):
@@ -105,6 +107,7 @@ class SessionStatusResponse(BaseModel):
     status: str
     messages: list[dict[str, Any]] = Field(default_factory=list)
     error: str | None = None
+    generation_mode: Literal["standard", "fast"] = Field(default="standard", alias="generationMode")
 
 
 class SessionActionRequest(BaseModel):
@@ -1381,8 +1384,14 @@ def start_session(
             target_language=payload.language,
             generation_profile=payload.generation_profile,
             session_id=payload.session_id,
+            generation_mode=payload.generation_mode,
         )
-        return SessionStartResponse(session_id=session.session_id, status=session.status, messages=session.messages)
+        return SessionStartResponse(
+            session_id=session.session_id,
+            status=session.status,
+            messages=session.messages,
+            generationMode=session.generation_mode,
+        )
     except HTTPException:
         raise
     except Exception as exc:
@@ -1397,6 +1406,7 @@ def session_status(session_id: str) -> SessionStatusResponse:
         status=session.status,
         messages=session.messages if session.status == "ready" else [],
         error=session.error,
+        generationMode=session.generation_mode,
     )
 
 

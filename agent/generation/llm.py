@@ -268,6 +268,43 @@ def generate_a2ui_messages(
     )
 
 
+def generate_fast_a2ui_messages(
+    llm: Any,
+    resource_text: str,
+    target_language: str = "zh",
+    enabled_components: tuple[str, ...] | None = None,
+    visual_intent: str = "",
+) -> list[dict[str, Any]]:
+    """Generate one compact lesson in exactly one provider request."""
+    system_prompt = a2ui_system_prompt(
+        target_language,
+        'FAST MODE: Return ONLY a JSON object of the form {"a2ui_messages": [...]}. '
+        'Create EXACTLY ONE surface with surfaceId "fast-lesson" and its matching '
+        "updateComponents message. Include one root Column and 3 to 6 substantive "
+        "learning components. Build a concise, self-contained lesson from the source; "
+        "do not produce a multi-page course plan or placeholders.",
+        enabled_components,
+        (),
+        visual_intent,
+        0,
+        (),
+    )
+    user_prompt = (
+        "Create a concise, hands-on learning lesson directly from this teaching resource. "
+        "Prioritize the central ideas, one concrete example, and a short check for understanding.\n\n"
+        f"Resource text:\n{resource_text}"
+    )
+    return _invoke_and_parse(
+        llm,
+        [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        _extract_json_array,
+        max_attempts=1,
+    )
+
+
 def generate_a2ui_messages_per_surface(
     llm: Any,
     resource_text: str,

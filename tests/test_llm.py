@@ -7,6 +7,7 @@ from agent.generation.llm import (
     _extract_json_array,
     _extract_json_object,
     _invoke_and_parse,
+    generate_fast_a2ui_messages,
     generate_a2ui_messages_per_surface,
     repair_a2ui_messages,
 )
@@ -179,6 +180,27 @@ class InvokeAndParseTests(unittest.TestCase):
 
 
 class GenerateA2uiMessagesPerSurfaceTests(unittest.TestCase):
+    def test_fast_generation_makes_one_parse_attempt_without_reference_examples(self) -> None:
+        captured: dict[str, object] = {}
+
+        def fake_invoke_and_parse(llm, messages, parser, max_attempts=3):
+            captured["messages"] = messages
+            captured["max_attempts"] = max_attempts
+            return [{"version": "v0.9", "createSurface": {"surfaceId": "fast-lesson"}}]
+
+        with patch("agent.generation.llm._invoke_and_parse", side_effect=fake_invoke_and_parse):
+            result = generate_fast_a2ui_messages(
+                object(),
+                "A note about FIFO broadcast.",
+                enabled_components=("ConceptCard",),
+            )
+
+        self.assertEqual(result[0]["createSurface"]["surfaceId"], "fast-lesson")
+        self.assertEqual(captured["max_attempts"], 1)
+        system_prompt = captured["messages"][0]["content"]
+        self.assertIn("FAST MODE", system_prompt)
+        self.assertIn("AUTOMATIC IMAGE BUDGET: Do not request", system_prompt)
+
     def test_calls_llm_once_per_surface_and_concatenates(self) -> None:
         site_plan = {
             "siteTitle": "Hash Map 101",

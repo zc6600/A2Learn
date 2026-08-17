@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from agent.core.validate import validate_a2ui_messages
-from agent.generation.engine import _normalize_a2ui_messages, _validate_or_repair
+from agent.generation.engine import _normalize_a2ui_messages, _validate_or_repair, run_agent
 
 
 VALID_MESSAGES = [
@@ -28,6 +28,37 @@ INVALID_MESSAGES = [
 
 
 class ValidateOrRepairTests(unittest.TestCase):
+    def test_fast_mode_uses_direct_generation_without_building_langgraph(self) -> None:
+        wrapped_messages = [
+            VALID_MESSAGES[0],
+            {
+                "version": "v0.9",
+                "updateComponents": {
+                    "surfaceId": "main",
+                    "components": [
+                        {"id": "root", "component": "Column", "children": ["card"]},
+                        {"id": "card", "component": "ConceptCard", "props": {"title": "Broadcast"}},
+                    ],
+                },
+            },
+        ]
+        with (
+            patch("agent.generation.engine.build_llm", return_value=object()) as build_llm,
+            patch("agent.generation.engine.generate_fast_a2ui_messages", return_value=wrapped_messages) as generate,
+            patch("agent.generation.engine.build_agent_graph") as build_graph,
+        ):
+            result = run_agent(
+                resource_text="Broadcast sends a message to every process.",
+                generation_mode="fast",
+            )
+
+        build_llm.assert_called_once()
+        generate.assert_called_once()
+        build_graph.assert_not_called()
+        card = result["a2ui_messages"][1]["updateComponents"]["components"][1]
+        self.assertEqual(card["title"], "Broadcast")
+        self.assertNotIn("props", card)
+
     def test_normalizes_nested_and_wrapped_components_before_validation(self) -> None:
         malformed = [
             VALID_MESSAGES[0],

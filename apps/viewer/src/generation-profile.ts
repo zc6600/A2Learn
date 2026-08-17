@@ -69,6 +69,7 @@ export type GenerationProfile = {
   displayMode: "standard" | "presentation";
   imageGenerationLimit: number;
   visualIntent: string;
+  generationMode: "standard" | "fast";
 };
 
 export const GENERATION_COMPONENTS: GenerationComponent[] = [
@@ -276,6 +277,7 @@ export const DEFAULT_GENERATION_PROFILE: GenerationProfile = {
   displayMode: "standard",
   imageGenerationLimit: 2,
   visualIntent: "",
+  generationMode: "standard",
 };
 
 const PROFILE_STORAGE_KEY = "a2learn_generation_profile_v1";
@@ -387,6 +389,7 @@ export function normalizeGenerationProfile(value: unknown): GenerationProfile {
     visualIntent: typeof raw.visualIntent === "string" && raw.visualIntent.trim()
       ? raw.visualIntent.slice(0, 500)
       : (template?.promptGuidance || ""),
+    generationMode: raw.generationMode === "fast" ? "fast" : "standard",
   };
 }
 
@@ -408,6 +411,7 @@ export function profileForTemplate(templateId: string): GenerationProfile {
     displayMode: template.displayMode,
     imageGenerationLimit: template.imageGenerationLimit,
     visualIntent: template.promptGuidance,
+    generationMode: "standard",
   };
 }
 

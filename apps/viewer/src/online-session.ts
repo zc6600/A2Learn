@@ -36,6 +36,7 @@ export async function startOnlineSession(
     resourceQuery: source.resourceQuery || undefined,
     language: source.language || getLang(),
     generationProfile,
+    generationMode: generationProfile.generationMode,
     sessionId: preferredSessionId,
   };
   const startResponse = await fetch(`${source.apiBaseUrl}/api/session/start`, {

@@ -91,6 +91,12 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
         standardModeCopy: "页面连续阅读，使用原有页签切换。",
         presentationMode: "自动分页演示",
         presentationModeCopy: "将当前内容排入 16:9 页面，可全屏展示。",
+        generationMode: "生成速度",
+        generationModeCopy: "标准模式会先规划课程再生成；快速模式只调用一次 LLM，产出一页精简课程，不会自动配图或二次修复。",
+        standardGeneration: "标准生成",
+        standardGenerationCopy: "三步课程规划，适合完整、深入的课程。",
+        fastGeneration: "快速生成",
+        fastGenerationCopy: "一次 LLM 调用，适合快速预览或短主题。",
         imageLimit: "自动配图上限",
         imageLimitCopy: "一次生成最多自动创建多少张意境配图。超出上限的图片请求会被跳过，页面不会保留空白图片框。",
         paperExamples: "论文详解",
@@ -126,6 +132,12 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
         standardModeCopy: "Continuous reading with the existing page tabs.",
         presentationMode: "Auto-paginated presentation",
         presentationModeCopy: "Fits the current content into 16:9 pages for presenting.",
+        generationMode: "Generation speed",
+        generationModeCopy: "Standard plans before generating. Fast makes one LLM call for one concise lesson, with no automatic images or repair pass.",
+        standardGeneration: "Standard generation",
+        standardGenerationCopy: "Three planning steps for a complete, deeper course.",
+        fastGeneration: "Fast generation",
+        fastGenerationCopy: "One LLM call for a quick preview or short topic.",
         imageLimit: "Automatic image limit",
         imageLimitCopy: "Maximum atmospheric images created per generation. Requests over the limit are skipped without leaving empty image frames.",
         paperExamples: "Paper deep dives",
@@ -185,6 +197,22 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
       <span class="generation-theme-copy">
         <span class="generation-theme-label">${copy.presentationMode}</span>
         <span class="generation-theme-description">${copy.presentationModeCopy}</span>
+      </span>
+    </label>`;
+
+  const generationModeOptions = `
+    <label class="generation-theme-option">
+      <input type="radio" name="generation-mode" value="standard" ${profile.generationMode === "standard" ? "checked" : ""} />
+      <span class="generation-theme-copy">
+        <span class="generation-theme-label">${copy.standardGeneration}</span>
+        <span class="generation-theme-description">${copy.standardGenerationCopy}</span>
+      </span>
+    </label>
+    <label class="generation-theme-option">
+      <input type="radio" name="generation-mode" value="fast" ${profile.generationMode === "fast" ? "checked" : ""} />
+      <span class="generation-theme-copy">
+        <span class="generation-theme-label">${copy.fastGeneration}</span>
+        <span class="generation-theme-description">${copy.fastGenerationCopy}</span>
       </span>
     </label>`;
 
@@ -271,6 +299,11 @@ export function generationSettingsHtml(lang: Lang, profile: GenerationProfile): 
         </label>
       </section>
       <section class="generation-settings-section">
+        <p class="generation-settings-section-title">${copy.generationMode}</p>
+        <p class="generation-settings-section-copy">${copy.generationModeCopy}</p>
+        <div class="generation-theme-grid">${generationModeOptions}</div>
+      </section>
+      <section class="generation-settings-section">
         <p class="generation-settings-section-title">${copy.displayMode}</p>
         <p class="generation-settings-section-copy">${copy.displayModeCopy}</p>
         <div class="generation-theme-grid">${displayModeOptions}</div>
@@ -305,11 +338,12 @@ export function profileFromSettingsInputs(): GenerationProfile {
   const themeId = document.querySelector<HTMLInputElement>("input[name='generation-theme']:checked")?.value;
   const attentionMode = (document.getElementById("generation-attention-mode") as HTMLInputElement | null)?.checked ? "high" : "calm";
   const displayMode = document.querySelector<HTMLInputElement>("input[name='generation-display-mode']:checked")?.value;
+  const generationMode = document.querySelector<HTMLInputElement>("input[name='generation-mode']:checked")?.value;
   const templateId = document.querySelector<HTMLInputElement>("input[name='generation-template']:checked")?.value || "custom";
   const imageGenerationLimit = (document.getElementById("generation-image-limit") as HTMLInputElement | null)?.valueAsNumber;
   const visualIntent = (document.getElementById("generation-visual-intent") as HTMLTextAreaElement | null)?.value || "";
   const template = GENERATION_TEMPLATES.find((item) => item.id === templateId);
-  return normalizeGenerationProfile({ version: 1, templateId, enabledComponents, exampleIds, referencePackIds: template?.referencePackIds || [], themeId, attentionMode, displayMode, imageGenerationLimit, visualIntent });
+  return normalizeGenerationProfile({ version: 1, templateId, enabledComponents, exampleIds, referencePackIds: template?.referencePackIds || [], themeId, attentionMode, displayMode, imageGenerationLimit, visualIntent, generationMode });
 }
 
 export function syncGenerationSettingsInputs(profile: GenerationProfile): void {
@@ -331,6 +365,8 @@ export function syncGenerationSettingsInputs(profile: GenerationProfile): void {
   if (attentionMode) attentionMode.checked = profile.attentionMode === "high";
   const selectedDisplayMode = document.querySelector<HTMLInputElement>(`input[name='generation-display-mode'][value='${profile.displayMode}']`);
   if (selectedDisplayMode) selectedDisplayMode.checked = true;
+  const selectedGenerationMode = document.querySelector<HTMLInputElement>(`input[name='generation-mode'][value='${profile.generationMode}']`);
+  if (selectedGenerationMode) selectedGenerationMode.checked = true;
   document.querySelectorAll<HTMLInputElement>(".generation-template-input").forEach((input) => {
     input.checked = input.value === profile.templateId;
   });

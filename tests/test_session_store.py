@@ -110,6 +110,24 @@ class SessionStoreAsyncGenerationTests(unittest.TestCase):
 
         self.assertEqual(call_count, 1)
 
+    def test_fast_generation_mode_is_forwarded_and_persisted(self) -> None:
+        messages = [
+            {"version": "v0.9", "createSurface": {"surfaceId": "main", "catalogId": DEFAULT_CATALOG_ID}},
+            {"version": "v0.9", "updateComponents": {"surfaceId": "main", "components": []}},
+        ]
+
+        def fake_run_agent(**kwargs):
+            self.assertEqual(kwargs["generation_mode"], "fast")
+            return {"a2ui_messages": messages}
+
+        store = SessionStore()
+        with patch("apps.api.session_store.run_agent", side_effect=fake_run_agent):
+            session = store.create(resource_text="fast mode", generation_mode="fast")
+            _wait_until_not_pending(store, session.session_id)
+
+        fetched = store.get(session.session_id)
+        self.assertEqual(fetched.generation_mode, "fast")
+
     def test_sqlite_session_store_persistence_and_factory(self) -> None:
         from apps.api.session_store import SqliteSessionStore, build_session_store
 

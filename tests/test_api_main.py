@@ -97,6 +97,24 @@ class ApiMainTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(create.call_args.kwargs["session_id"], "sess_refresh123")
 
+    def test_start_session_forwards_fast_generation_mode(self) -> None:
+        session = SessionState(
+            session_id="sess_fastmode",
+            resource_path="text-input",
+            messages=[],
+            surface_ids=[],
+            generation_mode="fast",
+        )
+        with patch("apps.api.main.store.create", return_value=session) as create:
+            response = self.client.post(
+                "/api/session/start",
+                json={"resource_text": "fast lesson", "generationMode": "fast"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(create.call_args.kwargs["generation_mode"], "fast")
+        self.assertEqual(response.json()["generationMode"], "fast")
+
     def test_upload_source_then_start_session_from_source_id(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
