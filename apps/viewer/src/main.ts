@@ -817,9 +817,18 @@ async function bootstrapViewer() {
       if (activeDoc.type === "example") return `example-${getLang()}-${activeDoc.exampleId}`;
       return null;
     };
+    const ensureProjectForCurrentPage = async (): Promise<string | null> => {
+      const existingProjectId = getCurrentProjectId();
+      if (existingProjectId) return existingProjectId;
+      const generation = activeGeneration;
+      if (activeDoc.type !== "generated" || !generation?.sessionId || !generation.token) return null;
+      await finalizeGeneration(generation.sessionId, generation.source, generation.token, true);
+      return getCurrentProjectId();
+    };
     const floatingAgent = mountFloatingAgent({
       getLanguage: () => (getLang() === "en" ? "en" : "zh"),
       getProjectId: getCurrentProjectId,
+      ensureProjectForCurrentPage,
       getSurfaceId: readCurrentSurfaceHash,
       getApiBaseUrl: editorApiBaseUrl,
       getApiKey: getStoredApiKey,

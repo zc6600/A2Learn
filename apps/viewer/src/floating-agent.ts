@@ -14,6 +14,7 @@ type HistoryChange = {
 type FloatingAgentOptions = {
   getLanguage: () => "zh" | "en";
   getProjectId: () => string | null;
+  ensureProjectForCurrentPage: () => Promise<string | null>;
   getSurfaceId: () => string;
   getApiBaseUrl: () => string;
   getApiKey: () => string;
@@ -915,10 +916,13 @@ export function mountFloatingAgent(options: FloatingAgentOptions): FloatingAgent
     if (waitingForHumanInput) return;
     const message = input.value.trim();
     if (!message) return;
-    const projectId = options.getProjectId();
+    let projectId = options.getProjectId();
     const apiBaseUrl = options.getApiBaseUrl().replace(/\/+$/, "");
     if (!projectId) {
-      addMessage(events, "error", text("请先选择一个案例。", "Select a case first."));
+      projectId = await options.ensureProjectForCurrentPage();
+    }
+    if (!projectId) {
+      addMessage(events, "error", text("当前页面还未保存，请稍候后重试。", "The current page is not saved yet. Please try again shortly."));
       return;
     }
     if (!apiBaseUrl) {
