@@ -1,0 +1,125 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "pendulum-lab",
+      "catalogId": "https://a2learn.ai/spec/v1/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "pendulum-lab",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": ["header", "learning-path", "problem", "model", "experiment", "check", "summary"]
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "variant": "h1",
+          "text": "单摆为什么会来回摆动？"
+        },
+        {
+          "id": "learning-path",
+          "component": "LearningPath",
+          "title": "用一个可测量的实验理解单摆",
+          "activeStepId": "problem",
+          "steps": [
+            {"id": "problem", "stage": "problem", "title": "从摆动的疑问开始", "targetComponentId": "problem"},
+            {"id": "model", "stage": "outline", "title": "建立回复力模型", "targetComponentId": "model"},
+            {"id": "experiment", "stage": "solution", "title": "调整参数并观察", "targetComponentId": "experiment"},
+            {"id": "check", "stage": "deepening", "title": "比较周期的变化", "targetComponentId": "check"},
+            {"id": "summary", "stage": "newQuestion", "title": "得到可迁移的结论", "targetComponentId": "summary"}
+          ]
+        },
+        {
+          "id": "problem",
+          "component": "LearningSection",
+          "stage": "problem",
+          "title": "同样的钟摆，为什么有时摆得更慢？",
+          "summary": "凭直觉，球越重似乎应该摆得越快；实验会告诉我们，真正决定节奏的是另一项量。",
+          "children": ["problem-card"]
+        },
+        {
+          "id": "problem-card",
+          "component": "AnalogyCard",
+          "title": "先把它想成秋千",
+          "analogy": "坐秋千时，换一个更重的人并不会让每一次来回明显变快；但把绳子加长，来回一次往往会更久。单摆实验把这个日常感觉变成可测量的问题：在摆角不大时，摆长、重力、质量，究竟谁决定周期？"
+        },
+        {
+          "id": "model",
+          "component": "LearningSection",
+          "stage": "outline",
+          "title": "回复力把摆锤拉回平衡位置",
+          "summary": "重力沿切线方向的一部分会把偏离的摆锤拉回中央；越偏离，回复作用越明显。",
+          "children": ["model-card", "formula"]
+        },
+        {
+          "id": "model-card",
+          "component": "MentalModel",
+          "title": "摆动不是“向前冲”，而是不断被拉回",
+          "description": "摆锤从一侧释放时，重力并不全部沿绳子方向作用。沿轨道切线的分量把它拉向最低点；越过最低点后，这个分量反向，因而又把它拉回来。能量在重力势能和动能之间交换。",
+          "diagram": "左端：势能最大、速度约为 0\n  ↓ 重力切向分量拉回\n最低点：速度最大\n  ↑ 重力切向分量减速\n右端：势能最大、速度约为 0",
+          "pillars": [
+            {"title": "摆长 L", "description": "摆长越长，摆锤走完一次来回的路径越长，周期会增大。"},
+            {"title": "重力 g", "description": "重力越强，回复作用越强，周期会变短。"},
+            {"title": "质量 m", "description": "质量同时放大惯性和重力，二者抵消，因此小角度近似下不决定周期。"}
+          ]
+        },
+        {
+          "id": "formula",
+          "component": "DetailedExplanation",
+          "title": "小角度近似下的预测",
+          "estimatedReadTime": "2 分钟",
+          "content": "当初始角度不大时，单摆周期可近似为：\n\n$$T = 2\\pi\\sqrt{L / g}$$\n\n这里 $T$ 是一次完整来回的时间，$L$ 是摆长，$g$ 是重力加速度。公式中没有质量 $m$：这不是说质量不存在，而是它对惯性与重力的影响恰好同时出现并抵消。接下来用实验分别改变摆长和质量，看看这个预测是否成立。"
+        },
+        {
+          "id": "experiment",
+          "component": "LearningSection",
+          "stage": "solution",
+          "title": "亲手调整单摆参数",
+          "summary": "先固定摆角，拖动摆长和质量；观察动画，并点击“记录本次测量”把结果发送给课程。",
+          "children": ["pendulum-simulation"]
+        },
+        {
+          "id": "pendulum-simulation",
+          "component": "GenerativeLab",
+          "title": "单摆实验台",
+          "description": "改变摆长、质量和初始角度。实验按小角度模型计算理论周期；质量变化不应改变周期。",
+          "minHeight": 520,
+          "maxHeight": 620,
+          "onEvent": {"name": "pendulum_measurement", "context": {}},
+          "html": "<div class='layout'><section class='controls'><label>摆长 L：<strong id='lengthValue'>1.00 m</strong><input id='length' type='range' min='0.25' max='2.00' step='0.05' value='1'></label><label>质量 m：<strong id='massValue'>1.00 kg</strong><input id='mass' type='range' min='0.20' max='5.00' step='0.10' value='1'></label><label>初始角度：<strong id='angleValue'>12°</strong><input id='angle' type='range' min='3' max='25' step='1' value='12'></label><div class='readings'><span>理论周期 <b id='period'>—</b></span><span>当前角度 <b id='currentAngle'>—</b></span></div><button id='measure' type='button'>记录本次测量</button><button id='reset' type='button' class='secondary'>从初始角度释放</button><p id='note' role='status'></p></section><canvas id='pendulum' width='520' height='360' aria-label='单摆动画'></canvas></div>",
+          "css": ":root{font-family:system-ui,sans-serif;color:#172033}.layout{display:grid;grid-template-columns:minmax(210px,1fr) 2fr;gap:16px;padding:16px;background:#f7fafc}.controls{display:grid;gap:14px;align-content:start}.controls label{display:grid;gap:6px;font-size:14px}.controls input{width:100%;accent-color:#0f766e}.readings{display:grid;gap:7px;padding:12px;border-radius:10px;background:#e6fffb}.readings span{display:flex;justify-content:space-between;font-size:14px}.controls button{border:0;border-radius:8px;padding:10px 12px;background:#0f766e;color:white;font-weight:700;cursor:pointer}.controls button.secondary{background:#334155}.controls p{margin:0;font-size:13px;line-height:1.45;color:#475569}canvas{width:100%;max-width:520px;justify-self:center;background:white;border:1px solid #cbd5e1;border-radius:12px}@media(max-width:650px){.layout{grid-template-columns:1fr}canvas{max-width:100%}}",
+          "javascript": "const canvas=document.getElementById('pendulum');const ctx=canvas.getContext('2d');const lengthInput=document.getElementById('length');const massInput=document.getElementById('mass');const angleInput=document.getElementById('angle');const ids={lengthValue:document.getElementById('lengthValue'),massValue:document.getElementById('massValue'),angleValue:document.getElementById('angleValue'),period:document.getElementById('period'),currentAngle:document.getElementById('currentAngle'),note:document.getElementById('note')};let releasedAt=performance.now();let state={length:1,mass:1,angle:12};const gravity=9.81;function period(){return 2*Math.PI*Math.sqrt(state.length/gravity)}function updateLabels(){ids.lengthValue.textContent=state.length.toFixed(2)+' m';ids.massValue.textContent=state.mass.toFixed(2)+' kg';ids.angleValue.textContent=state.angle+'°';ids.period.textContent=period().toFixed(2)+' s'}function release(){releasedAt=performance.now();ids.note.textContent='已从 '+state.angle+'° 释放；观察它穿过最低点时最快。'}function readInputs(){state.length=Number(lengthInput.value);state.mass=Number(massInput.value);state.angle=Number(angleInput.value);updateLabels();release()}[lengthInput,massInput,angleInput].forEach(input=>input.addEventListener('input',readInputs));document.getElementById('reset').addEventListener('click',release);document.getElementById('measure').addEventListener('click',()=>{const result={lengthMeters:state.length,massKilograms:state.mass,initialAngleDegrees:state.angle,theoreticalPeriodSeconds:Number(period().toFixed(3))};ids.note.textContent='已记录：质量变化不会出现在周期公式中。';a2learn.emit('measurement_recorded',result)});function draw(now){const elapsed=(now-releasedAt)/1000;const theta=state.angle*Math.PI/180*Math.cos(2*Math.PI*elapsed/period());const pivot={x:canvas.width/2,y:42};const pixels=90+state.length*105;const bob={x:pivot.x+pixels*Math.sin(theta),y:pivot.y+pixels*Math.cos(theta)};ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#e2e8f0';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.strokeStyle='#94a3b8';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(40,pivot.y);ctx.lineTo(canvas.width-40,pivot.y);ctx.stroke();ctx.strokeStyle='#0f766e';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(pivot.x,pivot.y);ctx.lineTo(bob.x,bob.y);ctx.stroke();ctx.fillStyle='#0f766e';ctx.beginPath();ctx.arc(bob.x,bob.y,14+state.mass*2,0,Math.PI*2);ctx.fill();ctx.fillStyle='#334155';ctx.beginPath();ctx.arc(pivot.x,pivot.y,6,0,Math.PI*2);ctx.fill();ctx.font='14px system-ui';ctx.fillText('低点：速度最大',pivot.x-55,canvas.height-25);ids.currentAngle.textContent=(theta*180/Math.PI).toFixed(1)+'°';requestAnimationFrame(draw)}updateLabels();a2learn.setHeight(560);requestAnimationFrame(draw);"
+        },
+        {
+          "id": "check",
+          "component": "LearningSection",
+          "stage": "deepening",
+          "title": "用实验结果检验预测",
+          "summary": "只改变一项参数，才能判断它是否真的影响周期。",
+          "children": ["check-quiz"]
+        },
+        {
+          "id": "check-quiz",
+          "component": "QuizCard",
+          "title": "实验后自测",
+          "questions": [
+            {"id": "q1", "question": "保持摆长和初始角度不变，把质量从 1 kg 改为 4 kg，理论周期会怎样？", "options": ["变为原来的 4 倍", "变为原来的一半", "近似不变", "无法判断"], "correctIndex": 2, "explanation": "小角度公式 T = 2π√(L/g) 不含质量。质量增加时，重力和惯性一起按同样比例增加，因此周期近似不变。"},
+            {"id": "q2", "question": "把摆长从 0.50 m 增加到 2.00 m，周期的变化趋势是？", "options": ["变为原来的 4 倍", "变为原来的约 2 倍", "完全不变", "变为原来的约 1/2"], "correctIndex": 1, "explanation": "周期与摆长的平方根成正比。摆长变为 4 倍，周期变为 √4 = 2 倍。"}
+          ]
+        },
+        {
+          "id": "summary",
+          "component": "AnalogyCard",
+          "title": "结论：控制节奏的是“路径尺度”与重力",
+          "analogy": "把单摆看作一个被重力反复拉回低点的秋千。摆长决定它每次来回的尺度，重力决定拉回的强弱；质量只是让“更难推”和“更用力拉”同时增加，所以在小角度近似下互相抵消。下一步可以思考：当摆角很大、空气阻力明显时，这个简洁公式又会在哪些地方失效？"
+        }
+      ]
+    }
+  }
+]

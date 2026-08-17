@@ -122,6 +122,26 @@ class ValidateMessagesTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "non-empty string 'component'"):
             validate_a2ui_messages(messages, permitted_custom_components=("ConceptCard",))
 
+    def test_accepts_a_bounded_local_generative_lab(self) -> None:
+        messages = [
+            {"version": "v0.9", "createSurface": {"surfaceId": "main", "catalogId": "https://a2learn.ai/spec/v1/catalog.json"}},
+            {"version": "v0.9", "updateComponents": {"surfaceId": "main", "components": [
+                {"id": "root", "component": "Column", "children": ["lab"]},
+                {"id": "lab", "component": "GenerativeLab", "title": "Pendulum", "html": "<canvas id='lab'></canvas>", "javascript": "const angle = 0.2; a2learn.setHeight(360);"},
+            ]}},
+        ]
+        validate_a2ui_messages(messages, permitted_custom_components=("GenerativeLab",))
+
+    def test_accepts_generative_lab_with_browser_network_api(self) -> None:
+        messages = [
+            {"version": "v0.9", "createSurface": {"surfaceId": "main", "catalogId": "https://a2learn.ai/spec/v1/catalog.json"}},
+            {"version": "v0.9", "updateComponents": {"surfaceId": "main", "components": [
+                {"id": "root", "component": "Column", "children": ["lab"]},
+                {"id": "lab", "component": "GenerativeLab", "title": "Data explorer", "html": "<div></div>", "javascript": "fetch('https://example.com/data.json')"},
+            ]}},
+        ]
+        validate_a2ui_messages(messages, permitted_custom_components=("GenerativeLab",))
+
 
 if __name__ == "__main__":
     unittest.main()

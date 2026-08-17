@@ -128,6 +128,25 @@ def _parse_interactive_sandbox(sb: Any) -> dict[str, Any] | None:
     return None
 
 
+def _parse_generative_lab(lab: Any) -> dict[str, Any] | None:
+    if not isinstance(lab, dict) or not lab.get("title"):
+        return None
+    if not isinstance(lab.get("html"), str) or not isinstance(lab.get("javascript"), str):
+        return None
+    parsed: dict[str, Any] = {
+        "id": "generative-lab",
+        "component": "GenerativeLab",
+        "title": lab["title"],
+        "html": lab["html"],
+        "javascript": lab["javascript"],
+        "onEvent": {"name": "generative_lab_event", "context": {}},
+    }
+    for key in ("description", "css", "initialProps", "minHeight", "maxHeight"):
+        if key in lab:
+            parsed[key] = lab[key]
+    return parsed
+
+
 def _parse_quiz_card(qc: Any) -> dict[str, Any] | None:
     if isinstance(qc, dict) and qc.get("questions"):
         return {
@@ -254,6 +273,7 @@ def parse_json_to_a2ui(
         ("mental-model", _parse_mental_model(data.get("mentalModel")) if is_enabled("MentalModel") else None),
         ("attention-formula", _parse_interactive_formula(data.get("interactiveFormula")) if is_enabled("InteractiveFormula") else None),
         ("sandbox", _parse_interactive_sandbox(data.get("interactiveSandbox")) if is_enabled("InteractiveSandbox") else None),
+        ("generative-lab", _parse_generative_lab(data.get("generativeLab")) if is_enabled("GenerativeLab") else None),
         ("quiz", _parse_quiz_card(data.get("quizCard")) if is_enabled("QuizCard") else None),
         ("detailed-explanation", _parse_detailed_explanation(data.get("detailedExplanation")) if is_enabled("DetailedExplanation") else None),
         ("resources", _parse_resource_list(data.get("resourceList")) if is_enabled("ResourceList") else None),

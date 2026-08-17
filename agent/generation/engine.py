@@ -331,6 +331,7 @@ def run_parser_mode(
             "MentalModel": "mentalModel",
             "InteractiveFormula": "interactiveFormula",
             "InteractiveSandbox": "interactiveSandbox",
+            "GenerativeLab": "generativeLab",
             "QuizCard": "quizCard",
             "DetailedExplanation": "detailedExplanation",
             "ResourceList": "resourceList",

@@ -61,6 +61,16 @@ lesson. Do not add fields not listed here: the local parser ignores them.
     "code": "Genuinely runnable starter code",
     "output": "Expected result"
   },
+  "generativeLab": {
+    "title": "Interactive lab title",
+    "description": "What the learner can explore",
+    "html": "Compact HTML fragment for the lab UI",
+    "css": "Optional CSS scoped to the lab",
+    "javascript": "Browser module code; may use Canvas, WebGL, workers, fetch, and imports",
+    "initialProps": {"optionalKey": "small JSON value"},
+    "minHeight": 320,
+    "maxHeight": 900
+  },
   "detailedExplanation": {
     "title": "Deep dive",
     "icon": "📖",
@@ -127,6 +137,9 @@ Authoring constraints:
 - Omit a field when it does not serve the learner; do not generate placeholders.
 - Include `interactiveSandbox` only for a real programming exercise. Do not
   claim a result has been executed when it has not.
+- Include `generativeLab` only for a learner-facing interaction that needs a
+  bespoke browser interface or simulation. It must provide both `html` and
+  `javascript`; keep source concise and do not rely on the A2Learn page DOM.
 - Use `Timeline`, `ScenarioDialogue`, and matching activities for a narrative,
   historical, literary, or relationship-based lesson when they improve
   understanding.

@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  margin: var(--a2ui-spacing-l, 20px) 0;
+}
+
+.lab {
+  overflow: hidden;
+  border: 1px solid var(--a2ui-color-border);
+  border-radius: var(--a2ui-border-radius, 12px);
+  background: var(--a2ui-color-surface);
+}
+
+.lab-header {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--a2ui-color-border);
+  background: color-mix(in oklab, var(--a2ui-color-primary) 4%, var(--a2ui-color-surface));
+}
+
+.lab-kicker {
+  margin: 0 0 4px;
+  color: var(--a2ui-color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+h3 {
+  margin: 0;
+  color: var(--a2ui-color-on-surface);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.lab-description {
+  margin-top: 8px;
+  color: var(--a2ui-color-on-surface-variant, var(--a2ui-color-on-surface));
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.lab-frame {
+  display: block;
+  width: 100%;
+  min-height: 160px;
+  border: 0;
+  background: white;
+}

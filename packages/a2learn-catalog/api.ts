@@ -465,6 +465,29 @@ export const InteractiveSandboxApi = {
     .strict(),
 } satisfies ComponentApi;
 
+/**
+ * A general-purpose, locally executed learning lab.  The three source fields
+ * run in an opaque-origin iframe; they are intentionally not rendered in the
+ * viewer's DOM.
+ */
+export const GenerativeLabApi = {
+  name: "GenerativeLab",
+  schema: z
+    .object({
+      ...CommonProps,
+      title: DynamicStringSchema.describe("实验或互动演示的标题"),
+      description: DynamicStringSchema.optional().describe("实验目标、操作说明或观察问题（支持 Markdown）"),
+      html: DynamicStringSchema.describe("实验界面的 HTML 片段。可使用外部资源、嵌入内容和任意浏览器元素。"),
+      css: DynamicStringSchema.optional().describe("实验界面的 CSS。样式只在隔离的实验 iframe 中生效。"),
+      javascript: DynamicStringSchema.describe("通用浏览器组件逻辑：可使用 Canvas/SVG/WebGL、网络、Worker、第三方模块和浏览器 API。可调用 a2learn.emit(name, payload) 与 a2learn.setHeight(px) 与课程通信。"),
+      initialProps: z.record(z.string(), z.unknown()).optional().describe("传给实验的只读初始数据；必须是小型 JSON 对象。"),
+      minHeight: z.number().int().min(160).max(1200).default(320).optional().describe("实验区域最小高度，单位 px"),
+      maxHeight: z.number().int().min(160).max(1400).default(900).optional().describe("实验区域最大高度，单位 px"),
+      onEvent: ActionSchema.optional().describe("实验通过 a2learn.emit(name, payload) 发出事件时触发；上下文包含 eventName 与 payload。"),
+    })
+    .strict(),
+} satisfies ComponentApi;
+
 export const MentalModelApi = {
   name: "MentalModel",
   schema: z

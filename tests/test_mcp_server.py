@@ -13,7 +13,9 @@ def test_generation_spec_describes_supported_contract():
 
     assert spec["a2ui_version"] == "v0.9"
     assert "ConceptCard" in spec["supported_components"]
+    assert "GenerativeLab" in spec["supported_components"]
     assert spec["course_json_schema"]["properties"]["conceptCard"]["required"] == ["title"]
+    assert spec["course_json_schema"]["properties"]["generativeLab"]["required"] == ["title", "html", "javascript"]
     for component in (
         "Timeline",
         "ScenarioDialogue",
@@ -48,6 +50,26 @@ def test_compile_course_json_returns_valid_a2ui_messages():
     assert result["surface_id"] == "main"
     assert result["component_count"] == 4
     assert result["messages"][0]["createSurface"]["surfaceId"] == "main"
+
+
+def test_compile_course_json_supports_generative_lab():
+    result = compile_course_json(
+        {
+            "siteTitle": "Pendulum lab",
+            "generativeLab": {
+                "title": "Pendulum",
+                "html": "<canvas id='pendulum'></canvas>",
+                "javascript": "a2learn.setHeight(360);",
+                "initialProps": {"gravity": 9.81},
+            },
+        },
+        enabled_components=["GenerativeLab"],
+    )
+
+    assert result["ok"] is True
+    update = next(message["updateComponents"] for message in result["messages"] if "updateComponents" in message)
+    lab = next(component for component in update["components"] if component["component"] == "GenerativeLab")
+    assert lab["initialProps"] == {"gravity": 9.81}
 
 
 def test_compile_course_json_reports_component_restrictions():

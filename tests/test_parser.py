@@ -194,6 +194,28 @@ def test_parse_json_to_a2ui_empty_fields():
     assert len(components) == 2  # root + header
 
 
+def test_parse_json_to_a2ui_generative_lab():
+    messages = parse_json_to_a2ui(
+        {
+            "siteTitle": "Pendulum Lab",
+            "generativeLab": {
+                "title": "Pendulum",
+                "html": "<canvas id='pendulum'></canvas>",
+                "javascript": "a2learn.setHeight(360);",
+                "css": "canvas { width: 100%; }",
+                "initialProps": {"gravity": 9.81},
+            },
+        },
+        permitted_custom_components=("GenerativeLab",),
+    )
+    validate_a2ui_messages(messages, permitted_custom_components=("GenerativeLab",))
+
+    update = next(message["updateComponents"] for message in messages if "updateComponents" in message)
+    lab = next(component for component in update["components"] if component["id"] == "generative-lab")
+    assert lab["component"] == "GenerativeLab"
+    assert lab["initialProps"] == {"gravity": 9.81}
+
+
 def test_parse_json_to_a2ui_poetry_components():
     messages = parse_json_to_a2ui(
         {

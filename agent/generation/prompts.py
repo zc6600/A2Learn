@@ -102,7 +102,7 @@ def site_plan_system_prompt(
     component_choices = ", ".join(enabled_components) if enabled_components is not None else (
         "LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, "
         "ScenarioDialogue, SocialMoments, Timeline, ClozeTest, InteractiveSandbox, ResourceList, "
-        "PaperAbstract, LiteratureReference, InteractiveFormula, DataTable"
+        "PaperAbstract, LiteratureReference, InteractiveFormula, DataTable, GenerativeLab"
     )
     return textwrap.dedent(
         f"""
@@ -145,7 +145,7 @@ def a2ui_system_prompt(
         + (", ".join(enabled_components) or "none")
         + ". Column and Text remain available for structural layout. Do not use any other custom learning component."
         if enabled_components is not None
-        else "- Components MUST be practical for interactive learning and should prefer: LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue, SocialMoments, Timeline, ClozeTest, InteractiveSandbox, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula."
+        else "- Components MUST be practical for interactive learning and should prefer: LearningPath, ConceptCard, MentalModel, DetailedExplanation, QuizCard, DeepDivePrompt, ScenarioDialogue, SocialMoments, Timeline, ClozeTest, InteractiveSandbox, GenerativeLab, ResourceList, PaperAbstract, LiteratureReference, InteractiveFormula."
     )
     visual_instruction = (
         f"- VISUAL AND CONTENT INTENT: {visual_intent}\n"

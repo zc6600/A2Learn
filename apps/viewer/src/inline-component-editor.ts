@@ -60,6 +60,13 @@ const EDITABLE_FIELDS: Record<string, Field[]> = {
     { prop: "description", zh: "说明", en: "Description", multiline: true },
     { prop: "code", zh: "代码", en: "Code", multiline: true },
   ],
+  GenerativeLab: [
+    { prop: "title", zh: "标题", en: "Title" },
+    { prop: "description", zh: "说明", en: "Description", multiline: true },
+    { prop: "html", zh: "HTML", en: "HTML", multiline: true },
+    { prop: "css", zh: "CSS", en: "CSS", multiline: true },
+    { prop: "javascript", zh: "JavaScript", en: "JavaScript", multiline: true },
+  ],
   QuizCard: [
     { prop: "title", zh: "标题", en: "Title" },
     {

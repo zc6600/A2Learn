@@ -92,6 +92,7 @@ export const GENERATION_COMPONENTS: GenerationComponent[] = [
   { id: "RelationshipMatch", group: "practice", label: { zh: "关系匹配", en: "Relationship Match" }, description: { zh: "概念、意象或文本关系解读", en: "Match concepts, imagery, or relationships" } },
   { id: "Flashcard", group: "practice", label: { zh: "闪卡", en: "Flashcard" }, description: { zh: "正反面记忆与复习", en: "Front/back recall and revision" } },
   { id: "InteractiveSandbox", group: "practice", label: { zh: "交互沙盒", en: "Interactive Sandbox" }, description: { zh: "可操作的实验或演示", en: "Hands-on experiment or demo" } },
+  { id: "GenerativeLab", group: "explore", label: { zh: "通用互动实验", en: "Generative Lab" }, description: { zh: "LLM 创建的 Canvas、SVG 或交互式模拟", en: "LLM-created Canvas, SVG, or interactive simulation" } },
   { id: "DataTable", group: "explain", label: { zh: "数据表格", en: "Data Table" }, description: { zh: "结构化数据与记录对比", en: "Structured data and record comparison" } },
   { id: "InteractiveFormula", group: "practice", label: { zh: "交互公式", en: "Interactive Formula" }, description: { zh: "参数可调的公式与推演", en: "Adjustable formulas and derivations" } },
   { id: "DeepDivePrompt", group: "explore", label: { zh: "延伸探索", en: "Deep Dive" }, description: { zh: "引导下一步追问与探索", en: "Guide follow-up questions and exploration" } },

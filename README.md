@@ -1,6 +1,6 @@
 # A2Learn
 
-A2Learn is an AI-driven, interactive knowledge showcase generator. It reads static teaching resources or text prompts and automatically generates an interactive, component-based educational website using the A2UI framework — with a curated library of **7 reference examples** that demonstrate the platform's full design philosophy.
+A2Learn is an AI-driven, interactive knowledge showcase generator. It reads static teaching resources or text prompts and automatically generates an interactive, component-based educational website using the A2UI framework — with a curated library of **8 reference examples** that demonstrate the platform's full design philosophy.
 
 ---
 
@@ -44,6 +44,7 @@ A2Learn ships with **7 fully-realized reference examples** in `skill/references/
 | `non-linear.json` | CSS Grid 2D Layout | Zero-media-query responsive grid formula |
 | `paper-attention.json` | Transformer Attention Mechanism | 4-step Scaled Dot-Product Attention derivation |
 | `biophysics-ai.json` | AI-Driven Biophysics (AlphaFold) | AlphaFold3 Diffusion vs. Structure Module |
+| `pendulum-lab.json` | 单摆实验：周期、摆长与质量 | `GenerativeLab` 实时模拟与测量 |
 
 ### Quick Preview
 
@@ -56,6 +57,7 @@ http://localhost:5173/?messagesUrl=/examples/conversational.json
 http://localhost:5173/?messagesUrl=/examples/non-linear.json
 http://localhost:5173/?messagesUrl=/examples/paper-attention.json
 http://localhost:5173/?messagesUrl=/examples/biophysics-ai.json
+http://localhost:5173/?messagesUrl=/examples/pendulum-lab.json
 ```
 
 ---

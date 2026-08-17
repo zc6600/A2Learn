@@ -1,0 +1,7 @@
+COMPONENT GenerativeLab:
+- Use this when the learning outcome needs a bespoke interaction that existing components cannot express, such as a physics simulation, visual algorithm explorer, interactive diagram, creative tool, data explorer, or parameter experiment.
+- Supply title, html, javascript, and optionally css, initialProps, minHeight, maxHeight, and onEvent.
+- html must be a compact fragment for the experiment area. javascript runs after the fragment is mounted as an ES module, so it may use static or dynamic imports and the full browser platform: Canvas, SVG, WebGL, DOM events, requestAnimationFrame, Worker, network APIs, external modules, and embedded content, as well as the global a2learn API.
+- To report a meaningful learner result, call a2learn.emit("event_name", { ...smallJsonPayload }). To resize the experiment, call a2learn.setHeight(number).
+- The lab runs in an opaque-origin iframe. Do not depend on A2Learn page DOM, its cookies, its storage, its API key, or its internal runtime. Use a2learn.emit rather than trying to call the host application directly.
+- Keep source concise and resilient. Include visible controls, an understandable initial state, and a short observation or result for the learner.

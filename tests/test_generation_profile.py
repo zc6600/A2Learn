@@ -214,6 +214,11 @@ class GenerationProfileTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "not enabled"):
             validate_a2ui_messages(_messages("QuizCard"), permitted_custom_components=("ConceptCard",))
 
+    def test_generative_lab_is_selectable(self) -> None:
+        profile = normalize_generation_profile({"enabledComponents": ["GenerativeLab"], "exampleIds": []})
+        self.assertEqual(profile.enabled_components, ("GenerativeLab",))
+        self.assertIn("GenerativeLab", _a2ui_system_prompt("zh", "Return one page.", profile.enabled_components))
+
     def test_parser_mode_omits_unselected_components(self) -> None:
         messages = parse_json_to_a2ui(
             {

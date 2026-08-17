@@ -26,6 +26,7 @@ import { A2learnPaperAbstract } from "./components/PaperAbstract";
 import { A2learnLiteratureReference } from "./components/LiteratureReference";
 import { A2learnInteractiveFormula } from "./components/InteractiveFormula";
 import { A2learnDataTable } from "./components/DataTable";
+import { A2learnGenerativeLab } from "./components/GenerativeLab";
 
 export const a2learnCatalog = new Catalog<LitComponentApi>(
   "https://a2learn.ai/spec/v1/catalog.json",
@@ -57,6 +58,7 @@ export const a2learnCatalog = new Catalog<LitComponentApi>(
     A2learnLiteratureReference,
     A2learnInteractiveFormula,
     A2learnDataTable,
+    A2learnGenerativeLab,
   ],
   basicCatalog?.functions ? Array.from(basicCatalog.functions.values()) : []
 );

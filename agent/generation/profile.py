@@ -70,6 +70,7 @@ SUPPORTED_COMPONENTS = frozenset(
         "DragAndDropMatch",
         "Flashcard",
         "InteractiveSandbox",
+        "GenerativeLab",
         "DataTable",
         "InteractiveFormula",
         "DeepDivePrompt",

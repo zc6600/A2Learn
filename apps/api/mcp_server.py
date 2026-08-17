@@ -104,6 +104,20 @@ COURSE_JSON_SCHEMA: dict[str, Any] = {
         "mentalModel": {"type": "object", "required": ["title"]},
         "interactiveFormula": {"type": "object", "required": ["latex"]},
         "interactiveSandbox": {"type": "object", "required": ["title"]},
+        "generativeLab": {
+            "type": "object",
+            "properties": {
+                "title": {"type": "string"},
+                "description": {"type": "string"},
+                "html": {"type": "string"},
+                "css": {"type": "string"},
+                "javascript": {"type": "string"},
+                "initialProps": {"type": "object"},
+                "minHeight": {"type": "integer", "minimum": 160, "maximum": 1200},
+                "maxHeight": {"type": "integer", "minimum": 160, "maximum": 1400},
+            },
+            "required": ["title", "html", "javascript"],
+        },
         "quizCard": {
             "type": "object",
             "properties": {
@@ -269,6 +283,7 @@ SUPPORTED_COMPONENTS = (
     "MentalModel",
     "InteractiveFormula",
     "InteractiveSandbox",
+    "GenerativeLab",
     "QuizCard",
     "DetailedExplanation",
     "ResourceList",

@@ -3,6 +3,7 @@
 from typing import Any
 
 from .config import DEFAULT_CATALOG_ID
+from .generative_lab import validate_generative_lab_component
 
 
 def validate_a2ui_messages(
@@ -56,6 +57,8 @@ def validate_a2ui_messages(
                     raise ValueError("Each component must contain a non-empty string 'id'.")
                 if not isinstance(component_type, str) or not component_type.strip():
                     raise ValueError("Each component must contain a non-empty string 'component'.")
+                if component_type == "GenerativeLab":
+                    validate_generative_lab_component(c)
                 if (
                     permitted_custom_components is not None
                     and component_type not in {"Column", "Text"}
