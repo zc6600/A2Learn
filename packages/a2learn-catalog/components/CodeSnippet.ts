@@ -42,8 +42,8 @@ export class A2learnCodeSnippetElement extends A2uiLitElement<typeof CodeSnippet
     const props = (this as any).controller?.props;
     if (!props) return nothing;
 
-    const rawCode = this.resolveString(props.code) || "";
-    const language = props.language ? this.resolveString(props.language) : "plaintext";
+    const rawCode = this.resolveString(props.code || props.content || props.snippet) || "";
+    const language = props.language ? this.resolveString(props.language) : (props.lang ? this.resolveString(props.lang) : "plaintext");
     const title = props.title ? this.resolveString(props.title) : "";
     const highlightLines = props.highlightLines || [];
 

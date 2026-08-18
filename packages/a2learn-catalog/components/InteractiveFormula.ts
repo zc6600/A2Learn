@@ -70,13 +70,36 @@ export class A2learnInteractiveFormulaElement extends A2uiLitElement<typeof Inte
     const props = (this as any).controller?.props;
     if (!props) return nothing;
 
-    const latex = this.resolveString(props.latex);
+    const latex = this.resolveString(props.latex || props.formula || props.expression);
     const description = props.description ? this.resolveString(props.description) : "";
     
-    // Parse variables record
-    const variables = props.variables 
-      ? Object.entries(props.variables).map(([k, v]) => [k, this.resolveString(v)]) 
-      : [];
+    // Parse variables record or array
+    let variables: [string, string][] = [];
+    if (Array.isArray(props.variables)) {
+      variables = props.variables.map((item: any) => {
+        if (typeof item === "string") return [item, ""];
+        if (item && typeof item === "object") {
+          const sym = this.resolveString(item.symbol || item.name || item.label || item.key);
+          const desc = this.resolveString(
+            item.description ||
+            item.desc ||
+            item.explanation ||
+            (item.label && item.label !== sym ? item.label : "") ||
+            (item.default !== undefined ? `默认: ${item.default}${item.unit ? " " + item.unit : ""}` : "")
+          );
+          return [sym, desc];
+        }
+        return ["", ""];
+      }).filter(([sym]) => Boolean(sym));
+    } else if (props.variables && typeof props.variables === "object") {
+      variables = Object.entries(props.variables).map(([k, v]) => {
+        if (v && typeof v === "object") {
+          const desc = this.resolveString((v as any).description || (v as any).label || JSON.stringify(v));
+          return [k, desc];
+        }
+        return [k, this.resolveString(v)];
+      });
+    }
 
     const steps = props.derivationSteps 
       ? (props.derivationSteps as unknown[]).map((s: any) => ({
@@ -86,15 +109,17 @@ export class A2learnInteractiveFormulaElement extends A2uiLitElement<typeof Inte
         }))
       : [];
 
+    const title = props.title ? this.resolveString(props.title) : "Interactive Mathematical Formula";
+
     return html`
       <div class="formula-card">
         <div class="badge">
           <span>📐</span>
-          <span>Interactive Mathematical Formula</span>
+          <span>${title}</span>
         </div>
 
         <div class="formula-display">
-          ${this.renderLatex(latex, true)}
+          ${this.renderLatex(latex, true) || html`<span class="formula-plain">${latex || "（公式计算器）"}</span>`}
         </div>
 
         ${description ? html`<div class="description">${unsafeHTML(sanitizeHtml(description))}</div>` : nothing}

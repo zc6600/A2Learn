@@ -45,16 +45,16 @@ export class A2learnResourceListElement extends A2uiLitElement<typeof ResourceLi
     if (!props) return nothing;
 
     const title = props.title ? this.resolveString(props.title) : uiText("延伸阅读与资源", "Further Reading and Resources");
-    const resources = props.resources || [];
+    const resources = props.resources || props.items || props.links || [];
 
     return html`
       <div class="resource-container">
         <h3 class="title">${title}</h3>
         <div class="resource-list">
           ${resources.map((res: any) => {
-            const itemTitle = this.resolveString(res.title);
-            const url = this.resolveString(res.url);
-            const desc = res.description ? this.resolveString(res.description) : "";
+            const itemTitle = this.resolveString(res.title || res.name || res.label);
+            const url = this.resolveString(res.url || res.link || res.href);
+            const desc = this.resolveString(res.description || res.desc || res.summary || "");
             const type = res.type || "article";
             
             return html`

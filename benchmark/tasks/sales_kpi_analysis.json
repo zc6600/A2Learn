@@ -1,0 +1,69 @@
+{
+  "id": "sales_kpi_analysis",
+  "title": "Regional Sales & Marketing KPI Analysis",
+  "category": "business_analytics",
+  "description": "Analyze multi-region sales performance, marketing conversion rates, and ROI data to generate an interactive business review dashboard with DataTables, formulas, mental models, and knowledge check quizzes.",
+  "input_data": {
+    "reporting_period": "2025-Q4",
+    "currency": "USD",
+    "regions": [
+      {
+        "region": "North America",
+        "revenue": 1250000,
+        "ad_spend": 250000,
+        "leads": 8500,
+        "conversions": 1020,
+        "churn_rate": 0.045
+      },
+      {
+        "region": "Europe",
+        "revenue": 980000,
+        "ad_spend": 210000,
+        "leads": 6200,
+        "conversions": 682,
+        "churn_rate": 0.058
+      },
+      {
+        "region": "Asia Pacific",
+        "revenue": 1540000,
+        "ad_spend": 220000,
+        "leads": 12400,
+        "conversions": 1860,
+        "churn_rate": 0.032
+      },
+      {
+        "region": "Latin America",
+        "revenue": 430000,
+        "ad_spend": 95000,
+        "leads": 3100,
+        "conversions": 279,
+        "churn_rate": 0.071
+      }
+    ],
+    "target_kpi": {
+      "cac_formula": "CAC = Ad Spend / Conversions",
+      "roas_formula": "ROAS = Revenue / Ad Spend",
+      "conversion_rate_formula": "CR = (Conversions / Leads) * 100%"
+    },
+    "key_questions": [
+      "Which region has the highest ROAS and lowest CAC?",
+      "How do conversion rates correlate with churn rate?",
+      "What strategic reallocation of ad budget is recommended for 2026-Q1?"
+    ]
+  },
+  "expected_criteria": {
+    "required_component_types": ["DataTable", "InteractiveFormula", "MentalModel", "QuizCard"],
+    "minimum_components": 4,
+    "key_metrics_to_mention": ["ROAS", "CAC", "Asia Pacific", "1540000", "7.0"],
+    "pedagogical_stages": ["hook", "intuition", "analysis", "reinforcement"],
+    "ground_truth_assertions": {
+      "apac_roas": 7.0,
+      "apac_cac": 118.28,
+      "na_roas": 5.0,
+      "eu_roas": 4.67,
+      "latam_roas": 4.53,
+      "top_roi_region": "Asia Pacific"
+    },
+    "test_function_name": "analyze_sales_kpi"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "algorithm_benchmark_data",
+  "title": "Vector Indexing & Search Algorithm Benchmark",
+  "category": "computer_science",
+  "description": "Benchmark evaluation of vector search algorithms (HNSW, IVF-PQ, Flat-L2, SCaNN) across recall, latency (P99), index build time, and RAM footprint.",
+  "input_data": {
+    "dataset": "SIFT-1M (128 dimensions, 1,000,000 vectors)",
+    "hardware": "16 vCPU, 64GB RAM, AVX-512 enabled",
+    "algorithms": [
+      {
+        "name": "Flat-L2 (Exact)",
+        "recall_at_10": 1.000,
+        "qps": 85,
+        "p99_latency_ms": 12.8,
+        "index_build_seconds": 0.1,
+        "memory_mb": 512
+      },
+      {
+        "name": "HNSW (M=32, ef=128)",
+        "recall_at_10": 0.985,
+        "qps": 3420,
+        "p99_latency_ms": 0.38,
+        "index_build_seconds": 142.0,
+        "memory_mb": 1150
+      },
+      {
+        "name": "IVF-PQ (nlist=1024, m=16)",
+        "recall_at_10": 0.892,
+        "qps": 2850,
+        "p99_latency_ms": 0.45,
+        "index_build_seconds": 38.0,
+        "memory_mb": 128
+      },
+      {
+        "name": "SCaNN (anisotropic)",
+        "recall_at_10": 0.968,
+        "qps": 4650,
+        "p99_latency_ms": 0.26,
+        "index_build_seconds": 95.0,
+        "memory_mb": 340
+      }
+    ],
+    "tradeoff_dimensions": [
+      "Recall vs QPS",
+      "Memory Consumption vs Build Time",
+      "Exact Precision vs Approximate Scalability"
+    ]
+  },
+  "expected_criteria": {
+    "required_component_types": ["DataTable", "MentalModel", "CodeSnippet", "ClozeTest"],
+    "minimum_components": 4,
+    "key_metrics_to_mention": ["HNSW", "IVF-PQ", "SCaNN", "Flat-L2", "0.985", "4650"],
+    "pedagogical_stages": ["hook", "intuition", "analysis", "reinforcement"],
+    "ground_truth_assertions": {
+      "highest_throughput_algorithm": "SCaNN",
+      "highest_recall_approx_algorithm": "HNSW",
+      "lowest_memory_algorithm": "IVF-PQ",
+      "max_qps": 4650,
+      "hnsw_memory_ratio_vs_ivfpq": 8.98
+    },
+    "test_function_name": "evaluate_algorithms"
+  }
+}

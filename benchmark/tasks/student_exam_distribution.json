@@ -1,0 +1,45 @@
+{
+  "id": "student_exam_distribution",
+  "title": "Machine Learning Midterm Exam Statistical Analysis",
+  "category": "statistics_and_education",
+  "description": "Examine university course exam score distributions, statistical dispersion (mean, median, standard deviation), and question-level difficulty index to build a student diagnostic report.",
+  "input_data": {
+    "course": "CS229 Machine Learning",
+    "total_students": 140,
+    "max_score": 100,
+    "stats": {
+      "mean": 74.5,
+      "median": 78.0,
+      "std_dev": 14.2,
+      "skewness": -0.42,
+      "pass_rate": 0.885
+    },
+    "grade_brackets": [
+      { "grade": "A (90-100)", "count": 28, "percentage": "20.0%" },
+      { "grade": "B (80-89)", "count": 46, "percentage": "32.9%" },
+      { "grade": "C (70-79)", "count": 38, "percentage": "27.1%" },
+      { "grade": "D (60-69)", "count": 12, "percentage": "8.6%" },
+      { "grade": "F (<60)", "count": 16, "percentage": "11.4%" }
+    ],
+    "problem_difficulty_breakdown": [
+      { "question_id": "Q1", "topic": "Gradient Descent Derivation", "avg_score_pct": 0.89 },
+      { "question_id": "Q2", "topic": "SVM Dual Formulation & KKT", "avg_score_pct": 0.52 },
+      { "question_id": "Q3", "topic": "Bias-Variance Decomposition", "avg_score_pct": 0.74 },
+      { "question_id": "Q4", "topic": "EM Algorithm & Gaussian Mixtures", "avg_score_pct": 0.46 }
+    ]
+  },
+  "expected_criteria": {
+    "required_component_types": ["DataTable", "InteractiveFormula", "SmartAnnotationBoard", "QuizCard"],
+    "minimum_components": 4,
+    "key_metrics_to_mention": ["74.5", "78.0", "14.2", "SVM", "EM Algorithm", "CS229"],
+    "pedagogical_stages": ["hook", "intuition", "analysis", "reinforcement"],
+    "ground_truth_assertions": {
+      "hardest_problem_id": "Q4",
+      "hardest_problem_avg_pct": 0.46,
+      "easiest_problem_id": "Q1",
+      "pass_rate_pct": 88.5,
+      "failing_students_count": 16
+    },
+    "test_function_name": "analyze_exam_stats"
+  }
+}

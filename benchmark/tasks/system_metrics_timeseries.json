@@ -1,0 +1,36 @@
+{
+  "id": "system_metrics_timeseries",
+  "title": "Cloud Microservice Incident & Anomaly Root-Cause Analysis",
+  "category": "systems_and_devops",
+  "description": "Analyze multi-tier telemetry time-series records during a major traffic surge incident, identifying database connection pool exhaustion and memory leak patterns.",
+  "input_data": {
+    "service_name": "checkout-order-service",
+    "incident_window": "2026-03-15T14:00:00Z to 2026-03-15T14:30:00Z",
+    "timeline_events": [
+      { "timestamp": "14:00", "qps": 1200, "p99_ms": 45, "cpu_pct": 32, "mem_mb": 1420, "db_conns": 40, "error_rate": 0.0001 },
+      { "timestamp": "14:08", "qps": 4800, "p99_ms": 120, "cpu_pct": 68, "mem_mb": 2100, "db_conns": 95, "error_rate": 0.0015 },
+      { "timestamp": "14:15", "qps": 8500, "p99_ms": 890, "cpu_pct": 94, "mem_mb": 3650, "db_conns": 200, "error_rate": 0.0840 },
+      { "timestamp": "14:20", "qps": 9200, "p99_ms": 4500, "cpu_pct": 98, "mem_mb": 4096, "db_conns": 200, "error_rate": 0.3420 },
+      { "timestamp": "14:25", "qps": 5100, "p99_ms": 120, "cpu_pct": 45, "mem_mb": 1800, "db_conns": 55, "error_rate": 0.0005 }
+    ],
+    "root_cause_diagnosis": {
+      "primary_bottleneck": "Database connection pool hard cap at 200 concurrent connections.",
+      "secondary_effect": "JVM Heap OutOfMemory (4096MB cap) due to queued retry request buffers.",
+      "remediation": "Apply circuit breaker, enable exponential backoff jitter, and increase read-replica pool."
+    }
+  },
+  "expected_criteria": {
+    "required_component_types": ["Timeline", "MentalModel", "ScenarioDialogue", "QuizCard"],
+    "minimum_components": 4,
+    "key_metrics_to_mention": ["14:15", "14:20", "200", "4096", "circuit breaker", "connection pool"],
+    "pedagogical_stages": ["hook", "intuition", "analysis", "reinforcement"],
+    "ground_truth_assertions": {
+      "incident_peak_time": "14:20",
+      "peak_qps": 9200,
+      "max_p99_latency_ms": 4500,
+      "max_error_rate_pct": 34.2,
+      "primary_bottleneck_resource": "database connection pool"
+    },
+    "test_function_name": "diagnose_telemetry_incident"
+  }
+}

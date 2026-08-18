@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-a2learn-theme="learning-default">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A2Learn · AI 交互教学评测工作台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/style.css">
+  <style>
+    :root {
+      --bg-page: #f9f9f9;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f5f5f5;
+      --border-color: #e5e5e5;
+      --border-strong: #d4d4d8;
+      --text-primary: #0d0d0d;
+      --text-secondary: #52525b;
+      --text-muted: #71717a;
+      --accent-primary: #171717;
+      --accent-badge: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      --accent-emerald: #059669;
+      --accent-rose: #e11d48;
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+      --a2learn-shell-radius: 16px;
+      --a2learn-control-radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Control Bar */
+    header.arena-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .brand-badge {
+      background: var(--accent-badge);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: 8px;
+      letter-spacing: 0.04em;
+    }
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 750;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .controls-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .task-selector-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .task-selector {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 550;
+      outline: none;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s ease;
+    }
+    .task-selector:hover, .task-selector:focus {
+      border-color: var(--accent-primary);
+    }
+
+    .model-tabs {
+      display: flex;
+      background: #ededf0;
+      padding: 0.25rem;
+      border-radius: 10px;
+      gap: 0.25rem;
+    }
+
+    .model-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.825rem;
+      font-weight: 600;
+      padding: 0.4rem 0.9rem;
+      border-radius: 7px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .model-tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .model-tab-btn.active {
+      background: #18181b;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+
+    .tab-score-badge {
+      background: rgba(0, 0, 0, 0.08);
+      color: var(--text-secondary);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .model-tab-btn.active .tab-score-badge {
+      background: rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+    }
+
+    /* Scorecard Ribbon */
+    .scorecard-ribbon {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .metric-group {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .metric-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--text-secondary);
+      font-size: 0.825rem;
+    }
+
+    .metric-value {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .metric-value.highlight {
+      color: var(--accent-emerald);
+      font-size: 0.95rem;
+    }
+
+    /* Main Viewer Surface Container aligned with A2Learn Website */
+    main.viewer-container {
+      flex: 1;
+      max-width: 880px;
+      width: 100%;
+      margin: 1.75rem auto 3.5rem;
+      padding: 0 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .viewer-error-box {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      border-radius: 12px;
+      padding: 1.5rem;
+      color: #be123c;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    /* Raw JSON Modal */
+    .raw-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .raw-modal-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 880px;
+      max-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.15);
+    }
+    .raw-modal-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-surface);
+    }
+    .raw-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      background: #18181b;
+      font-family: var(--font-mono);
+      font-size: 0.825rem;
+      color: #7dd3fc;
+      white-space: pre-wrap;
+    }
+    .btn-secondary {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-secondary:hover {
+      background: var(--bg-subtle);
+      border-color: var(--border-strong);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Control Bar -->
+  <header class="arena-header">
+    <div class="brand-section">
+      <span class="brand-badge">A2UI ARENA</span>
+      <h1 class="brand-title">A2Learn 教学质量交互评测工作台</h1>
+    </div>
+
+    <div class="controls-section">
+      <div class="task-selector-group">
+        <label for="taskSelect">评测任务:</label>
+        <select id="taskSelect" class="task-selector" onchange="onTaskChange(this.value)">
+          <!-- Populated by JS -->
+        </select>
+      </div>
+
+      <div id="modelTabsContainer" class="model-tabs">
+        <!-- Populated by JS -->
+      </div>
+
+      <button class="btn-secondary" onclick="openRawModal()">🔍 查看原始 JSON</button>
+    </div>
+  </header>
+
+  <!-- Scorecard Ribbon -->
+  <div class="scorecard-ribbon">
+    <div class="metric-group">
+      <div class="metric-chip">综合教学分: <span id="mPedagogy" class="metric-value highlight">--</span></div>
+      <div class="metric-chip">阐释清晰度: <span id="mClarity" class="metric-value">--</span></div>
+      <div class="metric-chip">问题驱动性: <span id="mProblem" class="metric-value">--</span></div>
+      <div class="metric-chip">认知负荷控制: <span id="mJargon" class="metric-value">--</span></div>
+      <div class="metric-chip">整体连贯度: <span id="mCoherence" class="metric-value">--</span></div>
+    </div>
+    <div class="metric-group">
+      <div class="metric-chip">事实吻合度: <span id="mFacts" class="metric-value">--</span></div>
+      <div class="metric-chip">权威外链: <span id="mUrls" class="metric-value">--</span></div>
+      <div class="metric-chip">生成耗时: <span id="mLatency" class="metric-value">--</span></div>
+    </div>
+  </div>
+
+  <!-- Main Viewer Content Root (Rendered by A2Learn Production WebComponents Engine) -->
+  <main id="viewerRoot" class="viewer-container">
+    <div class="viewer-state">正在加载 A2Learn 原生渲染引擎...</div>
+  </main>
+
+  <!-- Raw JSON Modal -->
+  <div id="rawModal" class="raw-modal" onclick="if(event.target === this) closeRawModal()">
+    <div class="raw-modal-box">
+      <div class="raw-modal-header">
+        <h3 style="font-size: 1rem; color: #fff;">A2UI 协议消息 Payload</h3>
+        <button class="btn-secondary" onclick="closeRawModal()">关闭</button>
+      </div>
+      <pre id="rawJsonContent" class="raw-modal-body"></pre>
+    </div>
+  </div>
+
+  <!-- Scripts at the bottom of body so DOM is fully ready -->
+  <script src="./assets/a2learn-viewer-runtime.iife.js"></script>
+
+  <script>
+    const BENCHMARK_DATA = {"tasks": {"sales_kpi_analysis": {"title": "Sales Kpi Analysis", "models": {"google/gemini-3.7-flash": {"model": "google/gemini-3.7-flash", "latency_seconds": 27.69, "pedagogy": {"explanatory_clarity": 9.5, "problem_driven": 9.5, "cognitive_load_and_jargon": 9.0, "structural_coherence": 9.5, "overall_pedagogy_score": 94.0, "strengths": "Sets up a compelling executive decision-making dilemma (equal budget distribution vs. ROI optimization). The 'Growth Efficiency Triad' mental model provides genuine business insight rather than trivial definitions. Adding a 'Strategic Stance' column to the DataTable directly bridges analytical data to actionable executive strategy.", "flaws": "The InteractiveFormula component introduces ARPU into the ROAS sensitivity equation, which, while economically sound, adds slight cognitive complexity beyond the basic provided formulas."}, "verifiable_facts": {"score": 100.0, "valid_urls_count": 3, "matched_facts": 11, "total_facts": 11}, "raw_payload": [{"version": "v0.9", "createSurface": {"surfaceId": "main", "catalogId": "https://a2learn.ai/spec/v1/catalog.json"}}, {"version": "v0.9", "updateComponents": {"surfaceId": "main", "components": [{"id": "scenario_intro", "component": "ScenarioDialogue", "speakerA": "Elena (VP of Growth)", "speakerB": "Marcus (Lead Financial Analyst)", "dialogue": [{"speaker": "Elena (VP of Growth)", "text": "Marcus, we have $800k in marketing budget proposed for 2026-Q1. Our leadership wants equal budget splits across all four regions again."}, {"speaker": "Marcus (Lead Financial Analyst)", "text": "Equal allocation would severely dilute our returns. Look at 2025-Q4: APAC generated 7.00x ROAS with a $118 CAC, while LATAM struggled at 4.53x ROAS and a $340.50 CAC with 7.1% churn."}, {"speaker": "Elena (VP of Growth)", "text": "Let's dissect the full unit economics table to determine where incremental dollars will yield maximum enterprise value without risking customer retention."}]}, {"id": "mental_model_framework", "component": "MentalModel", "title": "The Growth Efficiency Triad (Acquisition, Monetization, Retention)", "description": "Evaluating market performance requires balancing three interlocking unit-economic pillars rather than analyzing revenue in isolation.", "pillars": [{"title": "Funnel Velocity (Conversion Rate & CAC)", "description": "Measures customer acquisition friction. Lower CAC combined with higher Lead-to-Conversion rates indicates strong product-market fit and paid channel optimization."}, {"title": "Capital Multiplier (ROAS & Margin Contribution)", "description": "Revenue generated per dollar of marketing spend. ROAS above 5.0x signifies scalable headroom, whereas ROAS below 4.5x suggests channel saturation or pricing friction."}, {"title": "Net Retention Quality (Churn & Lifetime Value)", "description": "High acquisition velocity is quickly negated by high churn. Low churn creates compounding revenue expansion, maximizing customer lifetime value (LTV)."}]}, {"id": "regional_kpi_table", "component": "DataTable", "title": "2025-Q4 Regional Performance & Unit Economics Audit", "columns": [{"key": "region", "label": "Region"}, {"key": "revenue", "label": "Revenue ($)"}, {"key": "ad_spend", "label": "Ad Spend ($)"}, {"key": "conv_rate", "label": "Conv. Rate (%)"}, {"key": "cac", "label": "CAC ($)"}, {"key": "roas", "label": "ROAS (x)"}, {"key": "churn", "label": "Churn Rate (%)"}, {"key": "status", "label": "Strategic Stance"}], "rows": [{"id": "apac", "cells": {"region": "Asia Pacific (APAC)", "revenue": "$1,540,000", "ad_spend": "$220,000", "conv_rate": "15.00%", "cac": "$118.28", "roas": "7.00x", "churn": "3.2%", "status": "Aggressive Scale"}}, {"id": "na", "cells": {"region": "North America (NA)", "revenue": "$1,250,000", "ad_spend": "$250,000", "conv_rate": "12.00%", "cac": "$245.10", "roas": "5.00x", "churn": "4.5%", "status": "Maintain & Optimize"}}, {"id": "eu", "cells": {"region": "Europe (EU)", "revenue": "$980,000", "ad_spend": "$210,000", "conv_rate": "11.00%", "cac": "$307.92", "roas": "4.67x", "churn": "5.8%", "status": "Refine Targeting"}}, {"id": "latam", "cells": {"region": "Latin America (LATAM)", "revenue": "$430,000", "ad_spend": "$95,000", "conv_rate": "9.00%", "cac": "$340.50", "roas": "4.53x", "churn": "7.1%", "status": "Fix Leakage / Restructure"}}]}, {"id": "interactive_roas_cac_calculator", "component": "InteractiveFormula", "title": "Interactive Unit Economics & ROAS Sensitivity Engine", "formula": "ROAS = (Leads * (Conv_Rate / 100) * ARPU) / Ad_Spend", "variables": [{"name": "Ad_Spend", "label": "Quarterly Ad Spend ($)", "default": 220000, "min": 50000, "max": 500000, "step": 10000, "unit": "$"}, {"name": "Leads", "label": "Total Inbound Leads", "default": 12400, "min": 2000, "max": 30000, "step": 200, "unit": "leads"}, {"name": "Conv_Rate", "label": "Conversion Rate (%)", "default": 15, "min": 2, "max": 30, "step": 0.5, "unit": "%"}, {"name": "ARPU", "label": "Average Revenue Per Customer ($)", "default": 828, "min": 200, "max": 2500, "step": 10, "unit": "$"}]}, {"id": "analysis_python_script", "component": "CodeSnippet", "title": "Automated KPI & Portfolio Allocation Engine (Python)", "language": "python", "code": "import pandas as pd\n\ndata = {\n    'region': ['North America', 'Europe', 'Asia Pacific', 'Latin America'],\n    'revenue': [1250000, 980000, 1540000, 430000],\n    'ad_spend': [250000, 210000, 220000, 95000],\n    'leads': [8500, 6200, 12400, 3100],\n    'conversions': [1020, 682, 1860, 279],\n    'churn_rate': [0.045, 0.058, 0.032, 0.071]\n}\n\ndf = pd.DataFrame(data)\n\n# Calculate core marketing & unit-economic KPIs\ndf['cr_pct'] = (df['conversions'] / df['leads']) * 100\ndf['cac'] = df['ad_spend'] / df['conversions']\ndf['roas'] = df['revenue'] / df['ad_spend']\ndf['arpu'] = df['revenue'] / df['conversions']\ndf['efficiency_score'] = (df['roas'] * df['cr_pct']) / (df['churn_rate'] * 100)\n\n# Rank regions by capital efficiency\nranked_df = df.sort_values(by='efficiency_score', ascending=False)\nprint(ranked_df[['region', 'roas', 'cac', 'churn_rate', 'efficiency_score']])"}, {"id": "quiz_diagnostic_1", "component": "QuizCard", "question": "Based on the Q4 data, why is Latin America (LATAM) experiencing high CAC ($340.50) despite generating a relatively high revenue per conversion (~$1,541)?", "options": ["Because LATAM's ad spend is larger than all other regions combined.", "Because LATAM has the lowest conversion rate (9.0%) and high top-of-funnel drop-off, compounded by high churn (7.1%).", "Because LATAM has the highest volume of inbound leads in the company portfolio.", "Because LATAM's ROAS is greater than 10x, causing market saturation."], "correctIndex": 1, "explanation": "Correct. LATAM converts only 9.0% of leads into paying users (279 conversions from 3,100 leads), meaning $95k is spent to yield very few customers ($340.50 CAC). Combined with the highest churn rate (7.1%), retention drag destroys long-term profitability."}, {"id": "quiz_diagnostic_2", "component": "QuizCard", "question": "If the company reallocates $60,000 of ad spend from Latin America to Asia Pacific in 2026-Q1, assuming marginal efficiency holds steady, what is the expected outcome?", "options": ["Total revenue will decrease because LATAM has the highest ARPU.", "APAC CAC will jump to over $400 due to severe audience exhaustion.", "Blended ROAS will increase significantly because APAC delivers 7.00x ROAS with low churn (3.2%) versus LATAM's 4.53x ROAS.", "Customer churn will double across all regions."], "correctIndex": 2, "explanation": "Correct. Capital reallocation towards higher marginal efficiency (APAC ROAS 7.00x, CAC $118.28) maximizes return per dollar spent and compounds net revenue retention due to APAC's low 3.2% churn."}, {"id": "deep_dive_reallocation", "component": "DeepDivePrompt", "title": "Strategic Growth Simulation: Q1 2026 Budget Reallocation", "prompt": "Evaluate how you would distribute an expanded $1,000,000 marketing budget across the four regions to maximize enterprise value. How will you safeguard against diminishing returns in APAC while remediating LATAM's leaky conversion funnel?", "hints": ["Consider capping APAC spend expansion at the point where marginal CAC approaches North America's baseline ($245).", "Condition LATAM budget on product onboarding improvements that reduce the 7.1% churn rate to sub-5%.", "Test localized middle-of-funnel retargeting in Europe to lower its $307.92 CAC toward the company average."]}, {"id": "authority_resources", "component": "ResourceList", "title": "Authoritative References & Strategic Frameworks", "resources": [{"title": "Corporate Finance Institute (CFI): Return on Ad Spend (ROAS)", "description": "Comprehensive guide on calculating, interpreting, and modeling ROAS in enterprise financial planning.", "url": "https://corporatefinanceinstitute.com/resources/commercial-lending/return-on-ad-spend-roas/"}, {"title": "Harvard Business Review: Customer Acquisition Cost & Lifetime Value", "description": "Strategic analysis on balancing acquisition efficiency with customer churn and customer lifetime value (LTV:CAC).", "url": "https://hbr.org/2014/10/the-value-of-keeping-the-right-customers"}, {"title": "Reforge Growth Series: Growth Loops and Paid Acquisition Mechanics", "description": "In-depth frameworks on scaling regional paid acquisition channels without hitting sudden performance cliffs.", "url": "https://www.reforge.com/blog/growth-loops"}]}]}}]}, "bytedance-seed/seed-2-1-turbo": {"model": "bytedance-seed/seed-2-1-turbo", "latency_seconds": 65.54, "pedagogy": {"explanatory_clarity": 8.5, "problem_driven": 8.5, "cognitive_load_and_jargon": 8.5, "structural_coherence": 8.5, "overall_pedagogy_score": 86.0, "strengths": "Strong 4-pillar full-funnel mental model with integrated formula definitions. Clean numeric formatting in the DataTable ($ and %) enhances readability and lowers visual processing load.", "flaws": "InteractiveFormula packs three separate equations into a single formula text string rather than isolating a single focused dynamic calculation, which can confuse interactive widgets."}, "verifiable_facts": {"score": 100.0, "valid_urls_count": 4, "matched_facts": 11, "total_facts": 11}, "raw_payload": [{"version": "v0.9", "createSurface": {"surfaceId": "main", "catalogId": "https://a2learn.ai/spec/v1/catalog.json"}}, {"version": "v0.9", "updateComponents": {"surfaceId": "main", "components": [{"id": "intro", "component": "ScenarioDialogue", "speakerA": "Marketing Director", "speakerB": "Sales VP", "dialogue": [{"speaker": "Marketing Director", "text": "Q4 2025 numbers are in across all four regions. The board is asking for a budget reallocation plan for 2026-Q1 — but I'm seeing conflicting signals across CAC, ROAS, and churn."}, {"speaker": "Sales VP", "text": "Asia Pacific is crushing it on revenue, but Latin America keeps burning budget with low conversion. The question isn't just who's performing — it's why, and where we should double down."}, {"speaker": "Marketing Director", "text": "Exactly. We need to move beyond vanity metrics. Let's break down the full funnel: leads → conversions → revenue → retention, and figure out the real levers."}]}, {"id": "model", "component": "MentalModel", "title": "Full-Funnel Marketing Efficiency Framework", "description": "A holistic model for evaluating regional sales & marketing performance across acquisition, conversion, and retention dimensions.", "pillars": [{"title": "Acquisition Efficiency (CAC)", "description": "Customer Acquisition Cost = Ad Spend ÷ Conversions. Measures how efficiently marketing spend turns leads into paying customers. Lower is better."}, {"title": "Revenue Return (ROAS)", "description": "Return on Ad Spend = Revenue ÷ Ad Spend. Measures the top-line revenue generated per dollar of marketing investment. Higher is better."}, {"title": "Funnel Quality (Conversion Rate)", "description": "CR = (Conversions ÷ Leads) × 100%. Measures lead quality and sales team effectiveness. Indicates whether targeting and messaging resonate."}, {"title": "Retention Health (Churn Rate)", "description": "Percentage of customers lost per period. High churn undermines LTV and signals product-market fit or customer success issues. Lower is better."}]}, {"id": "kpi-table", "component": "DataTable", "title": "2025-Q4 Regional KPI Performance Dashboard", "columns": [{"key": "region", "label": "Region"}, {"key": "revenue", "label": "Revenue (USD)"}, {"key": "ad_spend", "label": "Ad Spend (USD)"}, {"key": "leads", "label": "Leads"}, {"key": "conversions", "label": "Conversions"}, {"key": "cac", "label": "CAC (USD)"}, {"key": "roas", "label": "ROAS (x)"}, {"key": "conversion_rate", "label": "Conversion Rate"}, {"key": "churn_rate", "label": "Churn Rate"}], "rows": [{"id": "na", "cells": {"region": "North America", "revenue": "$1,250,000", "ad_spend": "$250,000", "leads": "8,500", "conversions": "1,020", "cac": "$245.10", "roas": "5.0x", "conversion_rate": "12.0%", "churn_rate": "4.5%"}}, {"id": "eu", "cells": {"region": "Europe", "revenue": "$980,000", "ad_spend": "$210,000", "leads": "6,200", "conversions": "682", "cac": "$307.92", "roas": "4.67x", "conversion_rate": "11.0%", "churn_rate": "5.8%"}}, {"id": "apac", "cells": {"region": "Asia Pacific", "revenue": "$1,540,000", "ad_spend": "$220,000", "leads": "12,400", "conversions": "1,860", "cac": "$118.28", "roas": "7.0x", "conversion_rate": "15.0%", "churn_rate": "3.2%"}}, {"id": "latam", "cells": {"region": "Latin America", "revenue": "$430,000", "ad_spend": "$95,000", "leads": "3,100", "conversions": "279", "cac": "$340.50", "roas": "4.53x", "conversion_rate": "9.0%", "churn_rate": "7.1%"}}]}, {"id": "formula-cac", "component": "InteractiveFormula", "title": "KPI Calculator: CAC, ROAS & Conversion Rate", "formula": "CAC = Ad Spend / Conversions  |  ROAS = Revenue / Ad Spend  |  CR = (Conversions / Leads) × 100%", "variables": [{"name": "ad_spend", "label": "Ad Spend", "default": 220000, "min": 10000, "max": 500000, "step": 5000, "unit": "USD"}, {"name": "conversions", "label": "Conversions", "default": 1860, "min": 50, "max": 5000, "step": 10, "unit": "customers"}, {"name": "revenue", "label": "Revenue", "default": 1540000, "min": 50000, "max": 3000000, "step": 10000, "unit": "USD"}, {"name": "leads", "label": "Leads", "default": 12400, "min": 500, "max": 30000, "step": 100, "unit": "leads"}]}, {"id": "quiz1", "component": "QuizCard", "question": "Which region has BOTH the highest ROAS and the lowest customer acquisition cost (CAC)?", "options": ["North America", "Europe", "Asia Pacific", "Latin America"], "correctIndex": 2, "explanation": "Asia Pacific achieves a 7.0x ROAS (highest) with a CAC of only $118.28 (lowest). This is a rare and powerful combination — it means APAC generates the most revenue per ad dollar while spending the least to acquire each customer. This region is clearly the efficiency leader and should be a primary candidate for budget expansion."}, {"id": "quiz2", "component": "QuizCard", "question": "Looking at the data, what is the relationship between conversion rate and churn rate across regions?", "options": ["Higher conversion rate correlates with higher churn rate", "Higher conversion rate correlates with lower churn rate", "There is no visible correlation between the two metrics", "Conversion rate and churn rate are inversely related only in Europe"], "correctIndex": 1, "explanation": "The data shows a clear positive correlation between funnel quality and retention: Asia Pacific (15% CR, 3.2% churn) → North America (12% CR, 4.5% churn) → Europe (11% CR, 5.8% churn) → Latin America (9% CR, 7.1% churn). Regions with better lead quality and conversion also retain customers better, likely because better targeting attracts customers who are a better product-market fit."}, {"id": "quiz3", "component": "QuizCard", "question": "A common misconception: \"Latin America has the lowest ad spend ($95K), so it's the most efficient region.\" Why is this reasoning flawed?", "options": ["It's correct — lower ad spend always means higher efficiency", "Efficiency depends on ratios like ROAS and CAC, not absolute spend", "Latin America's revenue is too high relative to its ad spend", "Ad spend should always be compared to churn rate directly"], "correctIndex": 1, "explanation": "Absolute ad spend tells you nothing about efficiency. Latin America has the lowest ROAS (4.53x) and highest CAC ($340.50), making it the LEAST efficient region despite having the smallest budget. Efficiency is measured by ratios — output per unit of input — not by the size of the input alone. This is a classic pitfall in marketing analytics: confusing scale with efficiency."}, {"id": "deepdive", "component": "DeepDivePrompt", "title": "Strategic Budget Reallocation Challenge", "prompt": "You are the CMO recommending 2026-Q1 ad budget reallocation across four regions. Current total ad spend is $775K. Asia Pacific is the clear efficiency leader, but it may have market saturation limits. Latin America is underperforming but represents a large growth market. Design a budget reallocation plan and justify your trade-offs. Consider: (1) diminishing returns on ad spend, (2) market size differences, (3) churn's impact on LTV, and (4) strategic long-term positioning.", "hints": ["Start by calculating the marginal ROAS — if you move $50K from LATAM to APAC, what's the net revenue impact?", "Don't forget churn: a customer in APAC stays ~2x longer than in LATAM, so LTV/CAC ratio is even more skewed than ROAS suggests.", "Consider whether LATAM's problem is a marketing problem (targeting) or a product-market fit problem (churn) — the solution differs.", "Real-world budgets rarely go to zero for underperforming regions — think about minimum viable investment for market presence."]}, {"id": "resources", "component": "ResourceList", "title": "权威延伸资源", "resources": [{"title": "Keller Fay Group — Marketing ROI Benchmark Report", "description": "Industry benchmarks for ROAS, CAC, and conversion rates across B2B and B2C sectors, useful for contextualizing regional performance.", "url": "https://www.kellerfay.com/research/roi-benchmarks"}, {"title": "Harvard Business Review — The Dark Side of Customer Acquisition", "description": "Research on why companies overprioritize CAC reduction at the expense of retention and LTV, with frameworks for balanced growth.", "url": "https://hbr.org/2022/05/the-dark-side-of-customer-acquisition"}, {"title": "McKinsey & Company — Marketing Budget Allocation in Uncertain Times", "description": "Strategic frameworks for reallocating marketing spend across regions and channels, including approaches to handle diminishing returns.", "url": "https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/marketing-budget-allocation-in-uncertain-times"}, {"title": "Google Think — Regional Marketing Effectiveness Playbook", "description": "Practical guide to measuring and optimizing marketing performance across diverse geographic markets with different consumer behaviors.", "url": "https://www.thinkwithgoogle.com/marketing-strategies/measurement/regional-marketing-effectiveness/"}]}]}}]}, "deepseek/deepseek-v4-flash": {"model": "deepseek/deepseek-v4-flash", "latency_seconds": 25.32, "pedagogy": {"explanatory_clarity": 7.5, "problem_driven": 7.0, "cognitive_load_and_jargon": 7.5, "structural_coherence": 7.5, "overall_pedagogy_score": 74.0, "strengths": "Accurate KPI calculations and standard structure covering all required data points.", "flaws": "The dialogue is generic and lacks realistic tension or specific stakes. The DataTable presents raw unformatted integers/floats without currency symbols or commas, increasing visual load. Simplistic calculator with minimal conceptual depth."}, "verifiable_facts": {"score": 100.0, "valid_urls_count": 3, "matched_facts": 11, "total_facts": 11}, "raw_payload": [{"version": "v0.9", "createSurface": {"surfaceId": "main", "catalogId": "https://a2learn.ai/spec/v1/catalog.json"}}, {"version": "v0.9", "updateComponents": {"surfaceId": "main", "components": [{"id": "intro", "component": "ScenarioDialogue", "speakerA": "Analyst", "speakerB": "Lead", "dialogue": [{"speaker": "Analyst", "text": "We have the Q4 2025 numbers for all regions. There are some interesting patterns in cost efficiency and revenue generation."}, {"speaker": "Lead", "text": "Great, let's dive into the KPIs. Which region is spending the most efficiently? And what about the relationship between conversion rates and churn?"}, {"speaker": "Analyst", "text": "I've computed CAC, ROAS, and conversion rates. Asia Pacific looks exceptional, but we need to understand the trade-offs."}, {"speaker": "Lead", "text": "Let's review the data table and then discuss budget reallocation for next quarter."}]}, {"id": "model", "component": "MentalModel", "title": "Marketing ROI Framework", "description": "A three-pillar model to evaluate and optimise marketing spend across regions.", "pillars": [{"title": "Cost Efficiency (CAC)", "description": "Customer Acquisition Cost measures how much we spend to acquire each new customer. Lower is better, but must be balanced with quality."}, {"title": "Revenue Effectiveness (ROAS)", "description": "Return on Ad Spend shows revenue generated per dollar spent. Higher ROAS indicates more effective campaigns."}, {"title": "Conversion & Retention", "description": "Conversion rate and churn rate together reveal the health of the funnel. High conversion with low churn is ideal."}]}, {"id": "table", "component": "DataTable", "title": "Regional Sales & Marketing KPIs (Q4 2025)", "columns": [{"key": "region", "label": "Region"}, {"key": "revenue", "label": "Revenue (USD)"}, {"key": "ad_spend", "label": "Ad Spend (USD)"}, {"key": "leads", "label": "Leads"}, {"key": "conversions", "label": "Conversions"}, {"key": "cac", "label": "CAC (USD)"}, {"key": "roas", "label": "ROAS"}, {"key": "conv_rate", "label": "Conversion Rate (%)"}, {"key": "churn_rate", "label": "Churn Rate (%)"}], "rows": [{"id": "na", "cells": {"region": "North America", "revenue": 1250000, "ad_spend": 250000, "leads": 8500, "conversions": 1020, "cac": 245.1, "roas": 5.0, "conv_rate": 12.0, "churn_rate": 4.5}}, {"id": "eu", "cells": {"region": "Europe", "revenue": 980000, "ad_spend": 210000, "leads": 6200, "conversions": 682, "cac": 307.92, "roas": 4.67, "conv_rate": 11.0, "churn_rate": 5.8}}, {"id": "ap", "cells": {"region": "Asia Pacific", "revenue": 1540000, "ad_spend": 220000, "leads": 12400, "conversions": 1860, "cac": 118.28, "roas": 7.0, "conv_rate": 15.0, "churn_rate": 3.2}}, {"id": "la", "cells": {"region": "Latin America", "revenue": 430000, "ad_spend": 95000, "leads": 3100, "conversions": 279, "cac": 340.5, "roas": 4.53, "conv_rate": 9.0, "churn_rate": 7.1}}]}, {"id": "formula", "component": "InteractiveFormula", "title": "Return on Ad Spend (ROAS) Calculator", "formula": "ROAS = Revenue / Ad Spend", "variables": [{"name": "revenue", "label": "Revenue (USD)", "default": 1250000, "min": 0, "max": 2000000, "step": 10000, "unit": "USD"}, {"name": "ad_spend", "label": "Ad Spend (USD)", "default": 250000, "min": 0, "max": 500000, "step": 1000, "unit": "USD"}]}, {"id": "quiz", "component": "QuizCard", "question": "Based on the data, which region simultaneously achieves the highest ROAS and the lowest CAC?", "options": ["North America", "Europe", "Asia Pacific", "Latin America"], "correctIndex": 2, "explanation": "Asia Pacific has a ROAS of 7.00 (the highest) and a CAC of $118.28 (the lowest), making it the most efficient region in both revenue generation and cost per acquisition."}, {"id": "links", "component": "ResourceList", "title": "权威延伸资源", "resources": [{"title": "HubSpot: ROAS公式与最佳实践", "description": "全面了解ROAS计算、行业基准和优化策略。", "url": "https://blog.hubspot.com/marketing/roas"}, {"title": "Investopedia: Customer Acquisition Cost (CAC)", "description": "CAC的定义、计算方法及其在商业决策中的重要性。", "url": "https://www.investopedia.com/terms/c/cac.asp"}, {"title": "Google Analytics: 转化率优化指南", "description": "如何通过数据分析提升转化率并降低流失率。", "url": "https://support.google.com/analytics/answer/1012040"}]}]}}]}}}}};
+
+    let currentTaskId = Object.keys(BENCHMARK_DATA.tasks)[0] || "";
+    let currentModel = "";
+
+    function initArena() {
+      const taskSelect = document.getElementById("taskSelect");
+      taskSelect.innerHTML = "";
+      Object.keys(BENCHMARK_DATA.tasks).forEach(tId => {
+        const opt = document.createElement("option");
+        opt.value = tId;
+        opt.textContent = BENCHMARK_DATA.tasks[tId].title || tId;
+        taskSelect.appendChild(opt);
+      });
+
+      if (currentTaskId) {
+        taskSelect.value = currentTaskId;
+        renderModelTabsForTask(currentTaskId);
+      }
+    }
+
+    function onTaskChange(newTaskId) {
+      currentTaskId = newTaskId;
+      renderModelTabsForTask(newTaskId);
+    }
+
+    function renderModelTabsForTask(tId) {
+      const tabsContainer = document.getElementById("modelTabsContainer");
+      tabsContainer.innerHTML = "";
+      const models = BENCHMARK_DATA.tasks[tId]?.models || {};
+      const modelKeys = Object.keys(models);
+      
+      if (!currentModel || !models[currentModel]) {
+        currentModel = modelKeys[0] || "";
+      }
+
+      modelKeys.forEach((mKey, idx) => {
+        const mData = models[mKey];
+        const btn = document.createElement("button");
+        btn.className = `model-tab-btn ${mKey === currentModel ? 'active' : ''}`;
+        const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+        const score = mData?.pedagogy?.overall_pedagogy_score || '--';
+        btn.innerHTML = `${medal} ${mKey.split('/')[1] || mKey} <span class="tab-score-badge">${score}分</span>`;
+        btn.onclick = () => selectModel(mKey);
+        tabsContainer.appendChild(btn);
+      });
+
+      renderCurrentModelView();
+    }
+
+    function selectModel(mKey) {
+      currentModel = mKey;
+      const btns = document.querySelectorAll(".model-tab-btn");
+      btns.forEach(b => {
+        if (b.textContent.includes(mKey.split('/')[1] || mKey)) {
+          b.classList.add("active");
+        } else {
+          b.classList.remove("active");
+        }
+      });
+      renderCurrentModelView();
+    }
+
+    function renderCurrentModelView() {
+      const taskData = BENCHMARK_DATA.tasks[currentTaskId];
+      const modelData = taskData?.models[currentModel];
+      if (!modelData) return;
+
+      // 1. Update Score Ribbon
+      const p = modelData.pedagogy || {};
+      document.getElementById("mPedagogy").textContent = (p.overall_pedagogy_score || '--') + ' / 100';
+      document.getElementById("mClarity").textContent = p.explanatory_clarity || '--';
+      document.getElementById("mProblem").textContent = p.problem_driven || '--';
+      document.getElementById("mJargon").textContent = p.cognitive_load_and_jargon || '--';
+      document.getElementById("mCoherence").textContent = p.structural_coherence || '--';
+      document.getElementById("mFacts").textContent = (modelData.verifiable_facts?.score || 100) + ' / 100';
+      document.getElementById("mUrls").textContent = (modelData.verifiable_facts?.valid_urls_count || 0) + ' 个';
+      document.getElementById("mLatency").textContent = (modelData.latency_seconds || '--') + 's';
+
+      // 2. Render Components into Viewer Root using A2Learn Production Engine
+      const root = document.getElementById("viewerRoot");
+      root.innerHTML = "";
+
+      const rawPayload = modelData.raw_payload;
+
+      const tryRender = () => {
+        if (window.A2LearnBenchmarkRenderer && typeof window.A2LearnBenchmarkRenderer.renderBenchmarkA2UISurface === 'function') {
+          if (rawPayload && (Object.keys(rawPayload).length > 0 || (Array.isArray(rawPayload) && rawPayload.length > 0))) {
+            window.A2LearnBenchmarkRenderer.renderBenchmarkA2UISurface(root, rawPayload);
+            return true;
+          }
+        }
+        return false;
+      };
+
+      if (!tryRender()) {
+        setTimeout(tryRender, 100);
+      }
+    }
+
+    function openRawModal() {
+      const taskData = BENCHMARK_DATA.tasks[currentTaskId];
+      const modelData = taskData?.models[currentModel];
+      document.getElementById("rawJsonContent").textContent = JSON.stringify(modelData?.raw_payload || {}, null, 2);
+      document.getElementById("rawModal").style.display = "flex";
+    }
+
+    function closeRawModal() {
+      document.getElementById("rawModal").style.display = "none";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initArena);
+    } else {
+      initArena();
+    }
+  </script>
+</body>
+</html>

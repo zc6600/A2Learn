@@ -62,7 +62,8 @@ export class A2learnDataTableElement extends A2uiLitElement<typeof DataTableApi>
                     ${rows.map((row: any, rowIndex: number) => html`
                       <tr>
                         ${columns.map((column: any) => {
-                          const value = row.cells?.[column.key];
+                          const colKey = column.key || column.id || column.name;
+                          const value = row.cells ? row.cells[colKey] : row[colKey];
                           return html`
                             <td style=${`text-align: ${column.align || "left"}`}>
                               ${unsafeHTML(sanitizeHtml(this.resolveString(value), { inline: true }))}

@@ -43,24 +43,29 @@ export class A2learnTimelineElement extends A2uiLitElement<typeof TimelineApi> {
     const props = (this as any).controller?.props;
     if (!props) return nothing;
 
-    const events = props.events || [];
+    const events = props.events || props.items || props.steps || [];
     const orientation = props.orientation === "horizontal" ? "horizontal" : "vertical";
     const variant = props.variant === "journey" && orientation === "vertical" ? "journey" : "default";
 
     return html`
       <div class="timeline-container ${variant === "journey" ? "timeline-journey" : orientation === "horizontal" ? "timeline-horizontal" : "timeline-vertical"}">
-        ${events.map((event: any) => html`
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content" @click=${() => this.handleEventClick(event.id)}>
-              <div class="timeline-time">${unsafeHTML(sanitizeHtml(this.resolveString(event.time)))}</div>
-              <div class="timeline-title">${unsafeHTML(sanitizeHtml(this.resolveString(event.title)))}</div>
-              ${event.description ? html`
-                <div class="timeline-desc">${unsafeHTML(sanitizeHtml(this.resolveString(event.description)))}</div>
-              ` : nothing}
+        ${events.map((event: any) => {
+          const time = this.resolveString(event.time || event.date || event.step || event.phase);
+          const eventTitle = this.resolveString(event.title || event.label || event.name);
+          const eventDesc = this.resolveString(event.description || event.desc || event.content || "");
+          return html`
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content" @click=${() => this.handleEventClick(event.id)}>
+                <div class="timeline-time">${unsafeHTML(sanitizeHtml(time))}</div>
+                <div class="timeline-title">${unsafeHTML(sanitizeHtml(eventTitle))}</div>
+                ${eventDesc ? html`
+                  <div class="timeline-desc">${unsafeHTML(sanitizeHtml(eventDesc))}</div>
+                ` : nothing}
+              </div>
             </div>
-          </div>
-        `)}
+          `;
+        })}
       </div>
     `;
   }

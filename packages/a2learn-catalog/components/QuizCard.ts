@@ -91,9 +91,23 @@ export class A2learnQuizCardElement extends A2uiLitElement<typeof QuizCardApi> {
 
   render() {
     const props = this.controller?.props;
-    if (!props || !props.questions || props.questions.length === 0) return nothing;
+    if (!props) return nothing;
 
-    const questions = props.questions;
+    let questions = props.questions;
+    if (!Array.isArray(questions) || questions.length === 0) {
+      if (props.question && Array.isArray(props.options)) {
+        questions = [{
+          id: "q1",
+          question: props.question,
+          options: props.options,
+          correctIndex: props.correctIndex !== undefined ? props.correctIndex : 0,
+          explanation: props.explanation || ""
+        }];
+      }
+    }
+
+    if (!questions || questions.length === 0) return nothing;
+
     const title = props.title ? this.resolveString(props.title) : uiText("互动测验", "Interactive Quiz");
     const total = questions.length;
 

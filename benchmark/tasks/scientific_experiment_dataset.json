@@ -1,0 +1,38 @@
+{
+  "id": "scientific_experiment_dataset",
+  "title": "Harmonic Motion & Gravitational Acceleration Experiment",
+  "category": "physics_and_experimentation",
+  "description": "Analyze empirical laboratory measurements of simple harmonic pendulums across varying lengths and masses, deriving the local gravitational acceleration g and fitting theoretical curves.",
+  "input_data": {
+    "experiment_title": "Simple Pendulum Period vs Length Analysis",
+    "theoretical_formula": "T = 2 * pi * sqrt(L / g)",
+    "nominal_g": 9.80665,
+    "measurements": [
+      { "length_meters": 0.20, "mass_grams": 50, "measured_period_seconds": 0.898, "period_squared": 0.806 },
+      { "length_meters": 0.40, "mass_grams": 50, "measured_period_seconds": 1.269, "period_squared": 1.610 },
+      { "length_meters": 0.60, "mass_grams": 50, "measured_period_seconds": 1.554, "period_squared": 2.415 },
+      { "length_meters": 0.80, "mass_grams": 50, "measured_period_seconds": 1.794, "period_squared": 3.218 },
+      { "length_meters": 1.00, "mass_grams": 50, "measured_period_seconds": 2.006, "period_squared": 4.024 },
+      { "length_meters": 1.00, "mass_grams": 100, "measured_period_seconds": 2.005, "period_squared": 4.020 }
+    ],
+    "regression_results": {
+      "slope_T2_vs_L": 4.022,
+      "calculated_g": 9.815,
+      "relative_error_pct": 0.085,
+      "mass_independence_validated": true
+    }
+  },
+  "expected_criteria": {
+    "required_component_types": ["InteractiveFormula", "DataTable", "DetailedExplanation", "QuizCard"],
+    "minimum_components": 4,
+    "key_metrics_to_mention": ["9.815", "4.022", "sqrt", "2*pi", "mass", "independence"],
+    "pedagogical_stages": ["hook", "intuition", "analysis", "reinforcement"],
+    "ground_truth_assertions": {
+      "linear_regression_slope": 4.022,
+      "calculated_g": 9.815,
+      "relative_error_pct": 0.085,
+      "mass_affects_period": false
+    },
+    "test_function_name": "fit_pendulum_data"
+  }
+}

@@ -1,6 +1,12 @@
 third_party/
 outputs/
 reports/llm-smoke/
+reports/benchmark/run_*
+reports/benchmark/assets/assets/
+reports/benchmark/assets/examples/
+reports/benchmark/assets/generated/
+reports/benchmark/assets/index.html
+reports/benchmark/assets/favicon.svg
 __pycache__/
 *.pyc
 .env

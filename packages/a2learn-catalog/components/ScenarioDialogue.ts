@@ -125,15 +125,39 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
 
   render() {
     const props = (this as any).controller?.props;
-    if (!props || !props.messages || !props.characters) return nothing;
+    if (!props) return nothing;
+
+    // Auto-normalize if provided in simple dialogue format
+    let messages = props.messages;
+    let characters = props.characters;
+
+    if ((!messages || !characters) && Array.isArray(props.dialogue)) {
+      characters = {};
+      messages = props.dialogue.map((item: any, idx: number) => {
+        const speaker = this.resolveString(item.speaker || item.name || (idx % 2 === 0 ? (props.speakerA || "Speaker A") : (props.speakerB || "Speaker B")));
+        const charId = speaker.toLowerCase().replace(/[^a-z0-9]/g, "_") || `char_${idx}`;
+        if (!characters[charId]) {
+          characters[charId] = {
+            name: speaker,
+            avatar: idx % 2 === 0 ? "👩‍💼" : "👨‍💻",
+            alignment: idx % 2 === 0 ? "left" : "right"
+          };
+        }
+        return {
+          characterId: charId,
+          content: this.resolveString(item.text || item.content || item.message),
+          delayMs: 0
+        };
+      });
+    }
+
+    if (!messages || !characters) return nothing;
 
     const topic = props.topic ? this.resolveString(props.topic) : null;
     const groupName = props.groupName ? this.resolveString(props.groupName) : null;
     const groupNotice = props.groupNotice ? this.resolveString(props.groupNotice) : null;
-    const isWechatGroup = props.variant === "wechat-group";
+    const isWechatGroup = props.variant === "wechat-group" || (!props.variant && Boolean(groupName || groupNotice));
     const isCorrespondence = props.variant === "correspondence";
-    const messages = props.messages;
-    const characters = props.characters;
 
     return html`
       <div class="chat-container ${isWechatGroup ? "wechat-group" : ""} ${isCorrespondence ? "correspondence" : ""}">
@@ -141,7 +165,7 @@ export class A2learnScenarioDialogueElement extends A2uiLitElement<typeof Scenar
         ${isWechatGroup && groupNotice ? html`<div class="group-notice">${unsafeHTML(sanitizeHtml(groupNotice))}</div>` : nothing}
         
         <div class="chat-body">
-          ${(isCorrespondence ? messages : messages.slice(0, this.visibleMessageCount)).map((msg: any) => {
+          ${(isCorrespondence || this.visibleMessageCount === 0 ? messages : messages.slice(0, this.visibleMessageCount)).map((msg: any) => {
             const char = characters[msg.characterId];
             if (!char) return nothing;
             

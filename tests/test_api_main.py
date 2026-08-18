@@ -105,7 +105,8 @@ class ApiMainTests(unittest.TestCase):
             surface_ids=[],
             model="deepseek/deepseek-v4-flash",
         )
-        with patch("apps.api.main.store.create", return_value=session) as create:
+        with patch("apps.api.main.allowed_generation_models", return_value=("deepseek/deepseek-v4-flash",)), \
+             patch("apps.api.main.store.create", return_value=session) as create:
             response = self.client.post(
                 "/api/session/start",
                 json={"resource_text": "model check", "model": "deepseek/deepseek-v4-flash"},
